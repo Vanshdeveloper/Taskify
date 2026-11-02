@@ -1,0 +1,508 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  CheckCircle2,
+  Plus,
+  Flame,
+  DollarSign,
+  Clock,
+  ArrowUpRight,
+  TrendingUp,
+  Trash2,
+  Edit3,
+  Search,
+} from 'lucide-react';
+import { useApp } from '../../context/AppContext';
+import { getTodayString } from '../../db';
+import { CalendarStrip } from '../ui/CalendarStrip';
+import { DotProgressMatrix } from '../ui/DotProgressMatrix';
+import { SwipeToComplete } from '../ui/SwipeToComplete';
+
+export const TodayView: React.FC = () => {
+  const {
+    tasks,
+    toggleTask,
+    deleteTask,
+    habits,
+    habitLogs,
+    financeStats,
+    settings,
+    setIsQuickCaptureOpen,
+    setActiveTab,
+    addTransaction,
+  } = useApp();
+
+  const todayStr = getTodayString();
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+
+  // Inline Quick Expense state
+  const [quickAmount, setQuickAmount] = useState('');
+  const [quickDesc, setQuickDesc] = useState('');
+  const [quickCat, setQuickCat] = useState('Food & Dining');
+
+  // Filter tasks for selected date
+  const dateTasks = tasks.filter(
+    (t) => t.dueDate === selectedDate || (t.status !== 'completed' && t.dueDate < selectedDate)
+  );
+  const completedDateCount = dateTasks.filter((t) => t.status === 'completed').length;
+
+  // Active top focus task for the interactive 3D hero card
+  const topFocusTask = dateTasks.find((t) => t.status !== 'completed') || dateTasks[0];
+
+  const habitsDoneToday = habitLogs.filter(
+    (l) => l.date === selectedDate && l.completed
+  ).length;
+
+  const handleQuickExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const val = parseFloat(quickAmount);
+    if (isNaN(val) || val <= 0) return;
+
+    await addTransaction({
+      type: 'expense',
+      amount: val,
+      category: quickCat,
+      description: quickDesc.trim() || quickCat,
+      date: selectedDate,
+      paymentMethod: 'card',
+    });
+
+    setQuickAmount('');
+    setQuickDesc('');
+  };
+
+  return (
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-24 select-none relative z-10">
+      {/* 1. Header (Inspired by Virtual Assistant App concept) */}
+      <div className="flex items-center justify-between pt-2">
+        <div>
+          <div className="flex items-center gap-2">
+            <span
+              className="text-xs font-bold tracking-wider uppercase font-mono"
+              style={{ color: 'var(--accent-primary)' }}
+            >
+              Taskify
+            </span>
+            <span className="text-xs text-zinc-500 font-mono">• Daily Nexus</span>
+          </div>
+          <h1 className="font-display text-2xl sm:text-3xl font-light text-zinc-400 mt-1">
+            Welcome Back,
+          </h1>
+          <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white mt-0.5">
+            {settings.userName}
+          </h2>
+          <button
+            type="button"
+            onClick={() => setSelectedDate(todayStr)}
+            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white mt-2 pressable font-mono"
+          >
+            <span>Today, {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <span style={{ color: 'var(--accent-primary)' }}>→</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setActiveTab('tasks')}
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center pressable border transition-colors"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              borderColor: 'var(--border-card)',
+              color: 'var(--text-secondary)',
+            }}
+            title="Browse Tasks"
+          >
+            <Search className="w-4 h-4" />
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsQuickCaptureOpen(true)}
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-lg pressable cursor-pointer font-bold"
+            style={{
+              backgroundColor: 'var(--accent-primary)',
+              color: '#ffffff',
+            }}
+            title="Quick Capture"
+          >
+            <Plus className="w-5 h-5 stroke-[2.5]" />
+          </motion.button>
+        </div>
+      </div>
+
+      {/* 2. Interactive Calendar Strip */}
+      <div className="solid-card p-3.5 sm:p-4 shadow-xl" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <CalendarStrip
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          taskDates={tasks.map((t) => t.dueDate)}
+        />
+      </div>
+
+      {/* 3. Concept Bento Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        {/* Top Focus Task Hero Card (7 cols on desktop) */}
+        <div className="lg:col-span-7 flex flex-col">
+          {topFocusTask ? (
+            <div
+              className="solid-card p-5 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between flex-1 min-h-[270px] border"
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                borderColor: 'var(--border-card)',
+              }}
+            >
+              {/* Top Row: Avatars & Time Pill */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center -space-x-2">
+                  <div
+                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold shadow-sm"
+                    style={{
+                      backgroundColor: 'var(--accent-primary)',
+                      borderColor: 'var(--bg-card)',
+                      color: '#ffffff',
+                    }}
+                  >
+                    ⚡
+                  </div>
+                  <div
+                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold shadow-sm"
+                    style={{
+                      backgroundColor: 'var(--accent-secondary)',
+                      borderColor: 'var(--bg-card)',
+                      color: '#160f0d',
+                    }}
+                  >
+                    {settings.userName.charAt(0)}
+                  </div>
+                  <div
+                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold shadow-sm"
+                    style={{
+                      backgroundColor: 'var(--bg-subtle)',
+                      borderColor: 'var(--bg-card)',
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    AI
+                  </div>
+                </div>
+
+                <div
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border"
+                  style={{
+                    backgroundColor: 'var(--bg-subtle)',
+                    borderColor: 'var(--border-subtle)',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <Clock className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
+                  <span>02:00 PM</span>
+                </div>
+              </div>
+
+              {/* Title & Priority Badge */}
+              <div className="my-4">
+                <span
+                  className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider mb-2 shadow-sm"
+                  style={{
+                    backgroundColor: 'var(--accent-primary)',
+                    color: '#ffffff',
+                  }}
+                >
+                  {topFocusTask.priority}
+                </span>
+                <h3 className="font-display text-xl sm:text-2xl font-black tracking-tight leading-snug text-white">
+                  {topFocusTask.title}
+                </h3>
+                {topFocusTask.description && (
+                  <p className="text-xs text-zinc-400 mt-1 line-clamp-1">
+                    {topFocusTask.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Bottom Row: Interactive Swipe-to-Complete Slider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <SwipeToComplete
+                    isCompleted={topFocusTask.status === 'completed'}
+                    onComplete={() => toggleTask(topFocusTask.id)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('tasks')}
+                  className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg pressable shrink-0 border"
+                  style={{
+                    backgroundColor: 'var(--accent-highlight)',
+                    color: '#160f0d',
+                    borderColor: 'var(--border-card)',
+                  }}
+                  title="View in Tasks"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div
+              className="solid-card p-6 flex flex-col items-center justify-center flex-1 min-h-[270px] text-center"
+              style={{ backgroundColor: 'var(--bg-card)' }}
+            >
+              <CheckCircle2 className="w-10 h-10 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
+              <span className="font-display text-sm font-semibold text-white">All clear for today!</span>
+              <p className="text-xs text-zinc-400 mt-1">Enjoy the mental space or plan ahead.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Right Bento Column: 10-Dot Progress Matrix & Safe Velocity + Habits (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col justify-between gap-3.5">
+          {/* Dot Progress Matrix */}
+          <DotProgressMatrix
+            completed={completedDateCount}
+            total={dateTasks.length || 1}
+            label="today's tasks goal"
+            dotColor="var(--accent-primary)"
+          />
+
+          {/* Safe Velocity & Daily Habit Streaks Side-by-Side in 2-column grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+            {/* Safe Velocity & Daily Cashflow */}
+            <div
+              onClick={() => setActiveTab('finance')}
+              className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable"
+              style={{ backgroundColor: 'var(--bg-card)' }}
+            >
+              <div className="flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-display font-medium text-zinc-300">Safe Velocity</span>
+                <DollarSign className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+              </div>
+              <div className="mt-2 flex flex-col font-mono tabular-nums">
+                <span className="font-display text-2xl sm:text-3xl font-bold" style={{ color: 'var(--accent-primary)' }}>
+                  {settings.currency}{financeStats.dailySafeToSpend.toFixed(0)}
+                </span>
+                <span className="text-[11px] text-zinc-500 mt-0.5">
+                  Spent: {settings.currency}{financeStats.todaySpend.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {/* Daily Habit Streaks Quick Pulse */}
+            <div
+              onClick={() => setActiveTab('streaks')}
+              className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable"
+              style={{ backgroundColor: 'var(--bg-card)' }}
+            >
+              <div className="flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-display font-medium text-zinc-300">Habit Streaks</span>
+                <Flame className="w-4 h-4 animate-pulse" style={{ color: 'var(--accent-secondary)' }} />
+              </div>
+              <div className="mt-2 flex flex-col font-mono tabular-nums">
+                <span className="font-display text-2xl sm:text-3xl font-bold" style={{ color: 'var(--accent-secondary)' }}>
+                  {habitsDoneToday}/{habits.length || 0}
+                </span>
+                <span className="text-[11px] text-zinc-500 mt-0.5">
+                  {habits.length > 0 && habitsDoneToday === habits.length
+                    ? 'All routines logged'
+                    : 'routines checked'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Today's Clean Task Cards */}
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-display text-base font-bold text-white tracking-tight">
+              Task Management
+            </h3>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/[0.04] text-zinc-400 font-mono border border-white/6">
+              {dateTasks.length} tasks today
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('tasks')}
+            className="text-xs text-zinc-400 hover:text-white font-medium flex items-center gap-1 pressable"
+          >
+            <span>View all</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Unified Apple Concept Card */}
+        <div
+          className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden"
+          style={{ backgroundColor: 'var(--bg-card)' }}
+        >
+          {dateTasks.length === 0 ? (
+            <div className="p-8 text-center flex flex-col items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
+              <span className="font-display text-sm font-semibold text-white">No tasks scheduled for today</span>
+              <p className="text-xs text-zinc-400 mt-1">Tap + to add a quick objective or enjoy your day.</p>
+            </div>
+          ) : (
+            dateTasks.map((task) => {
+              const isDone = task.status === 'completed';
+              return (
+                <motion.div
+                  layout
+                  key={task.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                  className="p-4 sm:p-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.02]"
+                >
+                  <div className="flex flex-col min-w-0 pr-2">
+                    {/* Badges: Priority + Estimated Time + Status */}
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                          task.priority === 'urgent'
+                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/20'
+                            : task.priority === 'high'
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/20'
+                            : 'bg-black/30 text-zinc-400 border border-white/5'
+                        }`}
+                      >
+                        ^ {task.priority}
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
+                        50 min
+                      </span>
+                      {isDone && (
+                        <span
+                          className="text-[10px] font-bold px-2 py-0.5 rounded-md border"
+                          style={{
+                            backgroundColor: 'rgba(102, 124, 62, 0.2)',
+                            color: 'var(--accent-primary)',
+                            borderColor: 'rgba(102, 124, 62, 0.3)',
+                          }}
+                        >
+                          ✓ done
+                        </span>
+                      )}
+                    </div>
+
+                    <h4
+                      className={`text-sm sm:text-base font-bold tracking-tight truncate ${
+                        isDone ? 'line-through text-zinc-500' : 'text-white'
+                      }`}
+                    >
+                      {task.title}
+                    </h4>
+                    {task.description && (
+                      <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
+                        {task.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Circular Action Button (start / done) & Options */}
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <motion.button
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.92 }}
+                      type="button"
+                      onClick={(e) => toggleTask(task.id, e)}
+                      className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-xs pressable transition-all border ${
+                        isDone
+                          ? 'shadow-lg ring-2 ring-white/20'
+                          : 'hover:border-white/30'
+                      }`}
+                      style={{
+                        backgroundColor: isDone ? 'var(--accent-primary)' : 'var(--bg-subtle)',
+                        color: isDone ? '#ffffff' : 'var(--text-primary)',
+                        borderColor: isDone ? 'var(--accent-primary)' : 'var(--border-card)',
+                      }}
+                    >
+                      {isDone ? '✓' : 'start'}
+                    </motion.button>
+
+                    <button
+                      type="button"
+                      onClick={() => deleteTask(task.id)}
+                      className="opacity-40 hover:opacity-100 p-2 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                      title="Delete task"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
+      </section>
+
+      {/* 5. Rapid Expense Logger & Activity */}
+      <div
+        className="solid-card p-5 flex flex-col gap-3"
+        style={{ backgroundColor: 'var(--bg-card)' }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+            <h4 className="font-display text-sm font-bold text-white tracking-tight">
+              Rapid Expense Capture
+            </h4>
+          </div>
+          <span className="text-[11px] font-mono text-zinc-400">
+            Safe: {settings.currency}{financeStats.dailySafeToSpend.toFixed(0)}/day
+          </span>
+        </div>
+
+        <form onSubmit={handleQuickExpense} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div className="relative w-full sm:w-36 shrink-0">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs">
+              {settings.currency}
+            </span>
+            <input
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={quickAmount}
+              onChange={(e) => setQuickAmount(e.target.value)}
+              className="w-full h-10 pl-7 pr-3 rounded-xl solid-input text-xs font-mono font-bold text-white placeholder-zinc-500 focus:outline-none"
+            />
+          </div>
+
+          <input
+            type="text"
+            placeholder="Expense note (e.g. Lunch with team)..."
+            value={quickDesc}
+            onChange={(e) => setQuickDesc(e.target.value)}
+            className="w-full sm:flex-1 h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+          />
+
+          <select
+            value={quickCat}
+            onChange={(e) => setQuickCat(e.target.value)}
+            className="w-full sm:w-40 h-10 rounded-xl px-3 text-xs text-zinc-200 focus:outline-none shrink-0 solid-input"
+          >
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Transport">Transport</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Shopping">Shopping</option>
+          </select>
+
+          <button
+            type="submit"
+            className="w-full sm:w-auto h-10 px-6 rounded-xl font-bold text-xs pressable shadow-sm shrink-0 flex items-center justify-center text-white"
+            style={{ backgroundColor: 'var(--accent-primary)' }}
+          >
+            Log
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};

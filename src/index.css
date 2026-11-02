@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+
+    /* Flagship Default: Warm Espresso & Ochre Terracotta (Palette 341) */
+    --bg-canvas: #160f0d;
+    --bg-card: #241714;
+    --bg-card-hover: #2d1d1a;
+    --bg-subtle: #1b1210;
+    --bg-input: #150e0c;
+    --border-subtle: rgba(253, 243, 229, 0.08);
+    --border-card: rgba(253, 243, 229, 0.12);
+    --border-focus: rgba(242, 106, 54, 0.5);
+    --accent-primary: #f26a36;        /* Terracotta Tangerine */
+    --accent-primary-hover: #ff7c4a;
+    --accent-secondary: #e5a42f;      /* Golden Ochre */
+    --accent-secondary-hover: #f3b442;
+    --accent-success: #667c3e;        /* Olive Moss Green */
+    --accent-highlight: #fdf3e5;      /* Almond Linen */
+    --text-primary: #fdf3e5;
+    --text-secondary: #c4b1aa;
+    --text-muted: #856e66;
+    --dock-bg: #1f1412;
+    --dock-border: rgba(253, 243, 229, 0.14);
+  }
+
+  [data-theme="forest-rose"] {
+    --bg-canvas: #0c130f;
+    --bg-card: #15221b;
+    --bg-card-hover: #1c2e24;
+    --bg-subtle: #121c16;
+    --bg-input: #0f1813;
+    --border-subtle: rgba(247, 249, 246, 0.08);
+    --border-card: rgba(247, 249, 246, 0.12);
+    --border-focus: rgba(125, 160, 74, 0.5);
+    --accent-primary: #7da04a;        /* Lime / Matcha Green */
+    --accent-primary-hover: #90b857;
+    --accent-secondary: #d6798c;      /* Dusty Rose Mauve */
+    --accent-secondary-hover: #e58da0;
+    --accent-success: #4d7a46;
+    --accent-highlight: #f7f9f6;      /* Ivory Frost */
+    --text-primary: #f7f9f6;
+    --text-secondary: #b5c7bc;
+    --text-muted: #6f8276;
+    --dock-bg: #131f18;
+    --dock-border: rgba(247, 249, 246, 0.14);
+  }
+
+  [data-theme="obsidian-pure"] {
+    --bg-canvas: #070709;
+    --bg-card: #121217;
+    --bg-card-hover: #181820;
+    --bg-subtle: #0d0d12;
+    --bg-input: #0a0a0e;
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --border-card: rgba(255, 255, 255, 0.1);
+    --border-focus: rgba(59, 130, 246, 0.5);
+    --accent-primary: #3b82f6;        /* Electric Blue */
+    --accent-primary-hover: #60a5fa;
+    --accent-secondary: #f43f5e;      /* Coral Rose */
+    --accent-success: #10b981;        /* Emerald */
+    --accent-highlight: #ffffff;
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #52525b;
+    --dock-bg: #111116;
+    --dock-border: rgba(255, 255, 255, 0.12);
+  }
+
+  body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background-color 250ms ease, color 250ms ease;
+  }
+
+  input, textarea, select, [contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+    letter-spacing: normal;
+  }
+}
+
+/* Typography Utility Classes */
+.font-display {
+  font-family: "Space Grotesk", -apple-system, sans-serif;
+  letter-spacing: -0.035em;
+}
+
+.font-body {
+  font-family: "Inter", -apple-system, sans-serif;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Apple direct manipulation tactile press */
+.pressable {
+  transition: transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 120ms ease;
+  will-change: transform;
+}
+.pressable:active {
+  transform: scale(0.975);
+}
+
+/* Solid Concept Card Styling */
+.solid-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 1.5rem;
+  transition: background-color 200ms ease, border-color 200ms ease, transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.solid-card:hover {
+  background-color: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.solid-input {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-card);
+  color: var(--text-primary);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.solid-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 1px var(--border-focus);
+}
+
+/* Apple Segmented Control */
+.segmented-track {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  padding: 0.2rem;
+}
+.segmented-thumb-active {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-card);
+  border-radius: 0.55rem;
+}
+
+/* Hairline dividers */
+.hairline-b {
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hairline-t {
+  border-top: 1px solid var(--border-subtle);
+}
+.hairline-r {
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Tabular figures for clean financial and metric columns */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hide scrollbars for clean fluid iOS scroll views */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
