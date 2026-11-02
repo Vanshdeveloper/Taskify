@@ -8,6 +8,7 @@ export interface Task {
   status: TaskStatus;
   priority: Priority;
   dueDate: string; // YYYY-MM-DD
+  dueTime?: string; // HH:MM (e.g. "14:30")
   category: string;
   tags?: string[];
   createdAt: number;

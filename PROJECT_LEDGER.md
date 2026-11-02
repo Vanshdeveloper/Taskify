@@ -310,3 +310,48 @@ When recording a task, format your entry as follows:
   - `npm run build` -> `tsc -b && vite build` exited with code 0 in 5.56s (2025 modules transformed, 0 TypeScript errors, 0 warnings).
   - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.632s with exit code 0.
 - **Status**: Completed
+
+
+---
+
+### [TASK-012] 2026-11-02: User Refinement Overhaul — Autoselected Today, Live Flame Navbar Streak, Add Modals, Custom Dropdowns, Horizontal Tab Swipes & Gen-Z Confirmation
+- **User Request**: "Use /gravitas /ponytail /ui-ux-pro-max Perfecto the ui looks good but has a lot to improve let me tell me one-by-one what to improve; 1. Home screen (Today) section, the date shower element should show today's date autoselected and user don't have to scroll through it to see today's date., while adding tasks an time picker should also be given so the users can log the deadline of the task., in home section task management only three tasks should be shown and there's already an button view all to redirect to the task section., and remove the rapid expense capture., 2. Streak, the streak section should be on the top nav bar besides the hamburger nav and the icon should be live fire icon with small number besides it showing the current day streak, when an user click on the streak an whole page opens which has two sections both are horizontally scrollable so the first would be the page designed only to show the streak and with unreal graphics, second section would show the heatmap, the current rank, freeze shield and milestone achievements, use less words and design more the users would understand everything themselves., 3. In Habits, Tasks, and Finance section when clicked on the add objective an modal should be opened to add the respective habits, tasks or finance. and in habits section the element today's routine checkins isn't responsive or optimized for the mobile fix this., 4. From the home section remove the "TASKIFY, and Daily Nexus" completely, from tasks section remove the Workspace and besides it the name from the section completely, from habits section remove the line HABIT EXECUTION, and from the finance remove the line FINANCE, CASHFLOW ARCHITECTURE. 5. Overall new modals and smoothness, add costum made dropdowns, date and time picker across the app, enable the horizontal scroll so user don't have to click the buttons in the bottom nav and can just swipe right to change the tab, increase the smoothness and when any task, finance, habit is deleted an costum popup should be shown like "You sure you wanna delete this?" and options don't just use yes no use yep and nope or use the genz fun language so the people love it. {All the thing i said to remove should be removed completely, and the github commit for [[TASK-011] 2026-11-02: Precision Concept UI Synthesis, Solid Color Theming, Dedicated Streaks Hall of Fame & Dynamic Floating Island Dock] is remaining so do this first then make the changes for what i said.};"
+- **Execution Mode**: Gravitas Reliability Runtime (Invariants 1-6 enforced) + Apple Design Invariants + Ponytail Focus
+- **Scope**:
+  - `src/types/index.ts`
+  - `src/context/AppContext.tsx`
+  - `src/App.tsx`
+  - `src/components/layout/Navbar.tsx`
+  - `src/components/today/TodayView.tsx`
+  - `src/components/tasks/TasksView.tsx`
+  - `src/components/habits/HabitsView.tsx`
+  - `src/components/finance/FinanceView.tsx`
+  - `src/components/streaks/StreaksView.tsx`
+  - `src/components/ui/CalendarStrip.tsx`
+  - `src/components/ui/CustomSelect.tsx`
+  - `src/components/ui/CustomDatePicker.tsx`
+  - `src/components/ui/CustomTimePicker.tsx`
+  - `src/components/modals/ConfirmDeleteModal.tsx`
+  - `src/components/modals/TaskModal.tsx`
+  - `src/components/modals/HabitModal.tsx`
+  - `src/components/modals/FinanceModal.tsx`
+  - `src/components/modals/QuickCaptureModal.tsx`
+  - `PROJECT_LEDGER.md`
+- **Changes Implemented**:
+  - **Git Initial Commit for [TASK-011]**: Initialized Git repository and created root commit `e3f8d06` with requested title.
+  - **Home Screen Autoselected Date**: Updated `CalendarStrip.tsx` with auto-centering ref on mount and date change; Today is placed prominently at the front/center, eliminating need for manual scrolling.
+  - **Task Deadline Time Picker**: Extended `Task` type with `dueTime?: string`. Created `CustomTimePicker.tsx` with presets (Morning 9 AM, Noon 12 PM, Afternoon 3 PM, Evening 6 PM, Night 9 PM) and custom time input. Wired deadline into `TaskModal`, `QuickCaptureModal`, and task display pills.
+  - **Home Task Management 3-Task Cap & Removals**: Capped Today's Task Management block to strictly 3 tasks with "View all" button. Completely removed "Rapid Expense Capture".
+  - **Complete Text Cleanups**: Removed `"TASKIFY, and Daily Nexus"` from Today view, `"Workspace • {settings.userName}"` from Tasks view, `"HABIT EXECUTION"` from Habits view, and `"FINANCE, CASHFLOW ARCHITECTURE"` from Finance view.
+  - **Top Navbar Live Flame Streak Trigger**: Added an animated live fire pill (`Flame` icon with pulse ring) and real-time streak counter to `Navbar.tsx` beside the hamburger menu.
+  - **Unreal Graphic Streak Page with 2 Horizontally Switchable Sections**: Redesigned `StreaksView.tsx` with Section 1 ("Pure Streak" with monumental 9XL typography, pulsing concentric aura rings, floating 3D badge) and Section 2 ("Lab & Heatmap" with 14-week consistency matrix, rank milestones, and freeze shields).
+  - **Apple-Grade Creation Modals**: Replaced inline drawers with centered Apple modals (`TaskModal.tsx`, `HabitModal.tsx`, `FinanceModal.tsx`) with backdrop blur and spring transitions.
+  - **Habits Mobile Optimization**: Redesigned "Today's Routine Check-Ins" header row to flex/wrap gracefully with zero clipping on narrow viewports.
+  - **Custom Dropdowns, Date & Time Pickers**: Created `CustomSelect.tsx`, `CustomDatePicker.tsx`, and `CustomTimePicker.tsx`, removing native OS inputs.
+  - **Horizontal Tab Swiping**: Integrated touch swipe handlers in `App.tsx` allowing users to swipe left and right across tabs smoothly without relying exclusively on bottom buttons.
+  - **Gen-Z Delete Confirmation Dialog**: Built `ConfirmDeleteModal.tsx` wired into `AppContext.requestDelete` with fun copy ("No cap, this will disappear into the void forever fr fr.") and "Yep, yeet it" / "Nope, keep it" options across all tasks, habits, and finance transactions.
+- **Verification Evidence**:
+  - `npm test` -> `node --test test/core-logic.test.mjs` passed (4/4 tests passed in 88ms).
+  - `npm run build` -> `tsc -b && vite build` exited with code 0 in 5.45s (2032 modules transformed, 0 errors, 0 warnings).
+  - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.346s with exit code 0.
+- **Status**: Completed

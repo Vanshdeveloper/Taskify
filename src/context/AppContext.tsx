@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, getTodayString } from '../db';
 import { seedInitialDataIfNeeded } from '../db/seed';
 import type { Task, Habit, HabitLog, Transaction, UserSettings, ActiveTab } from '../types';
+import type { DeleteConfirmOptions } from '../components/modals/ConfirmDeleteModal';
 import { feedback, triggerCompletionConfetti } from '../utils/feedback';
 
 interface FinanceStats {
@@ -50,6 +51,12 @@ interface AppContextType {
   exportDataAsJson: () => Promise<string>;
   importDataFromJson: (jsonString: string) => Promise<boolean>;
   resetToDefaults: () => Promise<void>;
+
+  // Gen-Z Delete Confirmation
+  isDeleteConfirmOpen: boolean;
+  deleteConfirmOptions: DeleteConfirmOptions | null;
+  requestDelete: (options: DeleteConfirmOptions) => void;
+  closeDeleteConfirm: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -65,6 +72,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<ActiveTab>('today');
   const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
   const [isDbReady, setIsDbReady] = useState(false);
+
+  // Gen-Z Delete Confirmation state
+  const [deleteConfirmOptions, setDeleteConfirmOptions] = useState<DeleteConfirmOptions | null>(null);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  const requestDelete = (options: DeleteConfirmOptions) => {
+    setDeleteConfirmOptions(options);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const closeDeleteConfirm = () => {
+    setIsDeleteConfirmOpen(false);
+    setDeleteConfirmOptions(null);
+  };
 
   // Initialize DB and sample data
   useEffect(() => {
@@ -461,6 +482,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         exportDataAsJson,
         importDataFromJson,
         resetToDefaults,
+        isDeleteConfirmOpen,
+        deleteConfirmOptions,
+        requestDelete,
+        closeDeleteConfirm,
       }}
     >
       {children}

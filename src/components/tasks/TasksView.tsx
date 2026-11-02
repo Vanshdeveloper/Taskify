@@ -1,54 +1,33 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   CheckCircle2,
   Plus,
   Search,
-  Calendar,
   Trash2,
   Clock,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString, formatDateRelative } from '../../db';
-import type { Priority } from '../../types';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
+import { TaskModal } from '../modals/TaskModal';
+import { CustomSelect } from '../ui/CustomSelect';
 
 export const TasksView: React.FC = () => {
-  const { tasks, addTask, toggleTask, deleteTask, settings } = useApp();
+  const { tasks, toggleTask, deleteTask, settings, requestDelete } = useApp();
   const today = getTodayString();
 
   // Filters
   const [filterTab, setFilterTab] = useState<'all' | 'today' | 'upcoming' | 'priority' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  // Inline Add Task Form State
-  const [isAdding, setIsAdding] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newDesc, setNewDesc] = useState('');
-  const [newDueDate, setNewDueDate] = useState(today);
-  const [newPriority, setNewPriority] = useState<Priority>('medium');
-  const [newCategory, setNewCategory] = useState('Work');
-
-  const categories = Array.from(new Set(tasks.map((t) => t.category).filter(Boolean)));
-
-  const handleCreateTask = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim()) return;
-
-    await addTask({
-      title: newTitle.trim(),
-      description: newDesc.trim() || undefined,
-      dueDate: newDueDate || today,
-      priority: newPriority,
-      category: newCategory.trim() || 'General',
-      status: 'todo',
-    });
-
-    setNewTitle('');
-    setNewDesc('');
-    setIsAdding(false);
-  };
+  const rawCategories = Array.from(new Set(tasks.map((t) => t.category).filter(Boolean)));
+  const categoryOptions = [
+    { value: 'all', label: 'All Tags' },
+    ...rawCategories.map((c) => ({ value: c, label: c })),
+  ];
 
   const filteredTasks = tasks.filter((task) => {
     if (searchQuery.trim()) {
@@ -70,22 +49,25 @@ export const TasksView: React.FC = () => {
     return true;
   });
 
-  const featuredTask = filteredTasks.find((t) => t.status !== 'completed' && (t.priority === 'urgent' || t.priority === 'high')) || filteredTasks.find((t) => t.status !== 'completed');
+  const featuredTask =
+    filteredTasks.find((t) => t.status !== 'completed' && (t.priority === 'urgent' || t.priority === 'high')) ||
+    filteredTasks.find((t) => t.status !== 'completed');
+
+  const handleDeleteTask = (taskId: string, title: string) => {
+    requestDelete({
+      title: 'You sure you wanna delete this?',
+      message: `No cap, "${title}" will disappear into the void forever fr fr.`,
+      confirmText: 'Yep, yeet it',
+      cancelText: 'Nope, keep it',
+      onConfirm: () => deleteTask(taskId),
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-24 select-none relative z-10">
-      {/* 1. Header */}
+      {/* 1. Header (Cleaned: "Workspace and besides it the name" removed completely) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs text-zinc-400 font-mono">
-              Workspace • {settings.userName}
-            </span>
-            <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{ backgroundColor: 'var(--accent-primary)' }}
-            />
-          </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
             HI {settings.userName}, nice to see you!
           </h1>
@@ -98,7 +80,7 @@ export const TasksView: React.FC = () => {
           type="button"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setIsAdding((prev) => !prev)}
+          onClick={() => setIsTaskModalOpen(true)}
           className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold pressable shadow-lg"
           style={{
             backgroundColor: 'var(--accent-primary)',
@@ -106,11 +88,11 @@ export const TasksView: React.FC = () => {
           }}
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>{isAdding ? 'Close Drawer' : 'New Objective'}</span>
+          <span>New Objective</span>
         </motion.button>
       </div>
 
-      {/* 2. Featured Interactive 3D Card */}
+      {/* 2. Featured Interactive Card */}
       {featuredTask && (
         <div
           className="solid-card p-5 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[220px] border"
@@ -144,7 +126,10 @@ export const TasksView: React.FC = () => {
               }}
             >
               <Clock className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
-              <span>{formatDateRelative(featuredTask.dueDate)}</span>
+              <span>
+                {formatDateRelative(featuredTask.dueDate)}
+                {featuredTask.dueTime ? ` • ${featuredTask.dueTime}` : ''}
+              </span>
             </div>
           </div>
 
@@ -168,7 +153,7 @@ export const TasksView: React.FC = () => {
         </div>
       )}
 
-      {/* 3. Filter Pills Bar */}
+      {/* 3. Filter Pills Bar & Search with CustomSelect */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar">
           {(
@@ -202,7 +187,7 @@ export const TasksView: React.FC = () => {
           })}
         </div>
 
-        {/* Search & Tag filter */}
+        {/* Search & CustomSelect Category Filter */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1 sm:w-52">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
@@ -215,20 +200,13 @@ export const TasksView: React.FC = () => {
             />
           </div>
 
-          {categories.length > 0 && (
-            <select
+          <div className="w-36 shrink-0">
+            <CustomSelect
+              options={categoryOptions}
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="solid-input rounded-xl px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none"
-            >
-              <option value="all">All Tags</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          )}
+              onChange={setSelectedCategory}
+            />
+          </div>
         </div>
       </div>
 
@@ -273,9 +251,18 @@ export const TasksView: React.FC = () => {
                     >
                       ^ {task.priority}
                     </span>
-                    <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
-                      50 min
-                    </span>
+
+                    {task.dueTime ? (
+                      <span className="text-[10px] font-mono text-zinc-300 bg-white/[0.06] px-2 py-0.5 rounded-md border border-white/8 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-zinc-400" />
+                        {task.dueTime}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
+                        50 min
+                      </span>
+                    )}
+
                     <span className="text-[10px] text-zinc-500 font-mono">
                       {formatDateRelative(task.dueDate)}
                     </span>
@@ -333,7 +320,7 @@ export const TasksView: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() => deleteTask(task.id)}
+                    onClick={() => handleDeleteTask(task.id, task.title)}
                     className="opacity-40 hover:opacity-100 p-2 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
                     title="Delete task"
                   >
@@ -346,93 +333,8 @@ export const TasksView: React.FC = () => {
         )}
       </div>
 
-      {/* Expandable Compose Drawer */}
-      <AnimatePresence>
-        {isAdding && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-            className="overflow-hidden"
-          >
-            <div
-              className="solid-card p-5 flex flex-col gap-3.5 shadow-2xl"
-              style={{ backgroundColor: 'var(--bg-card)' }}
-            >
-              <form onSubmit={handleCreateTask} className="flex flex-col gap-3.5">
-                <div className="flex flex-col sm:flex-row gap-2.5">
-                  <input
-                    type="text"
-                    placeholder="Objective title (e.g. Complete project report)..."
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 rounded-xl solid-input text-sm text-white placeholder-zinc-500 focus:outline-none"
-                    autoFocus
-                  />
-                  <input
-                    type="text"
-                    placeholder="Category (e.g. Work, Personal)"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full sm:w-44 px-3 py-2.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-                  />
-                </div>
-
-                <textarea
-                  placeholder="Optional context or deliverables..."
-                  value={newDesc}
-                  onChange={(e) => setNewDesc(e.target.value)}
-                  rows={2}
-                  className="w-full px-3.5 py-2 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
-                />
-
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2 hairline-t">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1.5 rounded-lg border border-white/8 text-xs text-zinc-300">
-                      <Calendar className="w-3.5 h-3.5 text-zinc-500" />
-                      <input
-                        type="date"
-                        value={newDueDate}
-                        onChange={(e) => setNewDueDate(e.target.value)}
-                        className="bg-transparent text-zinc-200 focus:outline-none text-xs"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-0.5 bg-black/30 p-0.5 rounded-lg border border-white/8">
-                      {(['low', 'medium', 'high', 'urgent'] as Priority[]).map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => setNewPriority(p)}
-                          className={`px-2 py-0.5 rounded capitalize text-[11px] font-medium transition-colors ${
-                            newPriority === p
-                              ? 'text-white font-bold'
-                              : 'text-zinc-500 hover:text-zinc-300'
-                          }`}
-                          style={{
-                            backgroundColor: newPriority === p ? 'var(--accent-primary)' : 'transparent',
-                          }}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg ml-auto"
-                    style={{ backgroundColor: 'var(--accent-primary)' }}
-                  >
-                    Create Objective
-                  </button>
-                </div>
-              </form>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Task Creation Modal */}
+      <TaskModal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} />
     </div>
   );
 };

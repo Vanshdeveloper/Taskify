@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Sparkles,
   Plus,
@@ -11,53 +11,26 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
-import type { HabitTimeOfDay, HabitFrequency } from '../../types';
+import type { HabitTimeOfDay } from '../../types';
+import { HabitModal } from '../modals/HabitModal';
 
 export const HabitsView: React.FC = () => {
   const {
     habits,
     habitLogs,
-    addHabit,
     incrementHabit,
     decrementHabit,
     toggleHabit,
     deleteHabit,
     getHabitStreak,
+    requestDelete,
   } = useApp();
 
   const today = getTodayString();
 
   // Filters
   const [timeFilter, setTimeFilter] = useState<'all' | HabitTimeOfDay>('all');
-
-  // Form Drawer state
-  const [isAdding, setIsAdding] = useState(false);
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('Health');
-  const [targetCount, setTargetCount] = useState('1');
-  const [unit, setUnit] = useState('times');
-  const frequency: HabitFrequency = 'daily';
-  const [timeOfDay, setTimeOfDay] = useState<HabitTimeOfDay>('morning');
-  const [color, setColor] = useState('#f26a36');
-
-  const handleCreateHabit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-
-    await addHabit({
-      name: name.trim(),
-      category: category.trim() || 'Health',
-      targetCount: Math.max(1, parseInt(targetCount) || 1),
-      unit: unit.trim() || 'times',
-      frequency,
-      timeOfDay,
-      color,
-      icon: 'sparkles',
-    });
-
-    setName('');
-    setIsAdding(false);
-  };
+  const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
 
   const filteredHabits = habits.filter((h) => {
     if (timeFilter !== 'all' && h.timeOfDay !== timeFilter) return false;
@@ -71,28 +44,21 @@ export const HabitsView: React.FC = () => {
 
   const progressPercent = habits.length > 0 ? Math.round((habitsDoneToday / habits.length) * 100) : 0;
 
-  const colors = [
-    { name: 'Terracotta', hex: '#f26a36' },
-    { name: 'Ochre', hex: '#e5a42f' },
-    { name: 'Matcha', hex: '#7da04a' },
-    { name: 'Rose', hex: '#d6798c' },
-    { name: 'Cobalt', hex: '#3b82f6' },
-  ];
+  const handleDeleteHabit = (habitId: string, name: string) => {
+    requestDelete({
+      title: 'You sure you wanna delete this?',
+      message: `Bestie... are we really ghosting "${name}"? Streak gains will be wiped forever fr fr.`,
+      confirmText: 'Yep, yeet it',
+      cancelText: 'Nope, keep it',
+      onConfirm: () => deleteHabit(habitId),
+    });
+  };
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-28 select-none relative z-10">
-      {/* 1. Header */}
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-24 select-none relative z-10">
+      {/* 1. Header (Cleaned: "HABIT EXECUTION" line removed completely) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">
-              HABIT EXECUTION
-            </span>
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: 'var(--accent-primary)' }}
-            />
-          </div>
           <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
             Atomic Routines
           </h1>
@@ -105,30 +71,42 @@ export const HabitsView: React.FC = () => {
           type="button"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setIsAdding((prev) => !prev)}
+          onClick={() => setIsHabitModalOpen(true)}
           className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs pressable shadow-lg transition-all"
           style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>{isAdding ? 'Close Composer' : 'New Routine'}</span>
+          <span>New Routine</span>
         </motion.button>
       </div>
 
-      {/* 2. Daily Execution Progress Pulse Card */}
+      {/* 2. Today's Routine Check-Ins (Responsive & Optimized for Mobile) */}
       <div
-        className="solid-card p-5 flex flex-col gap-3"
+        className="solid-card p-4 sm:p-5 flex flex-col gap-2.5 shadow-xl"
         style={{ backgroundColor: 'var(--bg-card)' }}
       >
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span className="font-display font-bold text-white">
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="font-display font-bold text-white text-sm sm:text-base">
               Today's Routine Check-Ins
             </span>
           </div>
-          <span className="font-mono font-bold text-white">
-            {habitsDoneToday} of {habits.length} Completed ({progressPercent}%)
-          </span>
+          <div className="flex items-center gap-2 self-start sm:self-auto font-mono">
+            <span className="text-xs text-zinc-400">
+              {habitsDoneToday} of {habits.length} Completed
+            </span>
+            <span
+              className="px-2 py-0.5 rounded-full text-[11px] font-bold border"
+              style={{
+                backgroundColor: 'rgba(242, 106, 54, 0.15)',
+                borderColor: 'rgba(242, 106, 54, 0.3)',
+                color: 'var(--accent-primary)',
+              }}
+            >
+              {progressPercent}%
+            </span>
+          </div>
         </div>
 
         <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden">
@@ -178,8 +156,8 @@ export const HabitsView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {filteredHabits.length === 0 ? (
           <div className="col-span-full solid-card py-16 px-4 text-center flex flex-col items-center justify-center">
-            <CheckCircle2 className="w-10 h-10 text-zinc-600 stroke-[1.5] mb-2" />
-            <span className="text-sm font-semibold text-zinc-300">
+            <CheckCircle2 className="w-10 h-10 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
+            <span className="font-display text-sm font-semibold text-zinc-300">
               No routines in this time block
             </span>
             <p className="text-xs text-zinc-500 mt-1">Tap "+ New Routine" above to design one.</p>
@@ -238,7 +216,7 @@ export const HabitsView: React.FC = () => {
                       </div>
                       <button
                         type="button"
-                        onClick={() => deleteHabit(habit.id)}
+                        onClick={() => handleDeleteHabit(habit.id, habit.name)}
                         className="opacity-40 hover:opacity-100 p-1 rounded text-zinc-500 hover:text-rose-400 pressable transition-opacity"
                         title="Delete routine"
                       >
@@ -248,42 +226,50 @@ export const HabitsView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tactile Pebble Counter Controls & Completion */}
-                <div className="flex items-center justify-between mt-4 pt-3 hairline-t">
-                  <div className="flex items-center gap-1.5">
+                {/* Tactile Counter & Check-in Controls */}
+                <div className="flex items-center justify-between pt-4 mt-4 hairline-t">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => decrementHabit(habit.id)}
                       disabled={count <= 0}
-                      className="w-8 h-8 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable border border-white/8"
+                      className="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable border border-white/6"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="font-mono text-sm font-bold px-2 text-white min-w-8 text-center tabular-nums">
-                      {count}
+
+                    <span className="font-mono text-sm font-bold text-white px-2 min-w-8 text-center">
+                      {count}/{habit.targetCount}
                     </span>
+
                     <button
                       type="button"
                       onClick={(e) => incrementHabit(habit.id, e)}
-                      className="w-8 h-8 rounded-xl flex items-center justify-center pressable shadow-md text-white font-bold"
-                      style={{ backgroundColor: 'var(--accent-primary)' }}
+                      className="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white flex items-center justify-center pressable border border-white/8"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     type="button"
                     onClick={(e) => toggleHabit(habit.id, e)}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs pressable transition-all ${
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold pressable transition-all border ${
                       isCompleted
-                        ? 'bg-emerald-500 text-zinc-950 shadow-md ring-2 ring-emerald-400/40'
-                        : 'bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 border border-white/10'
+                        ? 'shadow-lg ring-2 ring-white/20'
+                        : 'hover:border-white/20'
                     }`}
+                    style={{
+                      backgroundColor: isCompleted ? 'var(--accent-primary)' : 'var(--bg-subtle)',
+                      color: isCompleted ? '#ffffff' : 'var(--text-primary)',
+                      borderColor: isCompleted ? 'var(--accent-primary)' : 'var(--border-card)',
+                    }}
                   >
-                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                    <span>{isCompleted ? 'Done' : 'Mark Complete'}</span>
-                  </button>
+                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>{isCompleted ? 'Done' : 'Check In'}</span>
+                  </motion.button>
                 </div>
               </div>
             );
@@ -291,105 +277,8 @@ export const HabitsView: React.FC = () => {
         )}
       </div>
 
-      {/* 5. Expandable Compose Drawer */}
-      <AnimatePresence>
-        {isAdding && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-            className="overflow-hidden"
-          >
-            <div className="solid-card p-5 flex flex-col gap-3.5 shadow-2xl" style={{ backgroundColor: 'var(--bg-card)' }}>
-              <form onSubmit={handleCreateHabit} className="flex flex-col gap-3.5">
-                <div className="flex flex-col sm:flex-row gap-2.5">
-                  <input
-                    type="text"
-                    placeholder="Routine name (e.g. Morning Mindfulness)..."
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 rounded-xl solid-input text-sm text-white placeholder-zinc-500 focus:outline-none"
-                    autoFocus
-                  />
-                  <input
-                    type="text"
-                    placeholder="Category (e.g. Health, Intellect)"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full sm:w-44 px-3 py-2.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  <div className="flex items-center gap-2 bg-black/30 px-3 py-2 rounded-xl border border-white/8 text-xs">
-                    <span className="text-zinc-500">Target:</span>
-                    <input
-                      type="number"
-                      min="1"
-                      value={targetCount}
-                      onChange={(e) => setTargetCount(e.target.value)}
-                      className="w-12 bg-transparent text-white font-mono font-bold focus:outline-none text-center"
-                    />
-                    <input
-                      type="text"
-                      placeholder="unit"
-                      value={unit}
-                      onChange={(e) => setUnit(e.target.value)}
-                      className="flex-1 bg-transparent text-white placeholder-zinc-500 focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-0.5 bg-black/30 p-1 rounded-xl border border-white/8">
-                    {(['morning', 'afternoon', 'evening', 'anytime'] as HabitTimeOfDay[]).map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setTimeOfDay(t)}
-                        className={`flex-1 py-1 rounded-lg text-[11px] capitalize font-bold transition-colors ${
-                          timeOfDay === t
-                            ? 'text-white'
-                            : 'text-zinc-500 hover:text-zinc-300'
-                        }`}
-                        style={{
-                          backgroundColor: timeOfDay === t ? 'var(--accent-primary)' : 'transparent',
-                        }}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-around bg-black/30 p-1.5 rounded-xl border border-white/8">
-                    {colors.map((c) => (
-                      <button
-                        key={c.hex}
-                        type="button"
-                        onClick={() => setColor(c.hex)}
-                        className={`w-6 h-6 rounded-full transition-transform pressable ${
-                          color === c.hex ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'
-                        }`}
-                        style={{ backgroundColor: c.hex }}
-                        title={c.name}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2 hairline-t">
-                  <button
-                    type="submit"
-                    className="px-5 py-2 rounded-xl font-bold text-xs pressable shadow-lg"
-                    style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
-                  >
-                    Save Routine
-                  </button>
-                </div>
-              </form>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Routine Creation Modal */}
+      <HabitModal isOpen={isHabitModalOpen} onClose={() => setIsHabitModalOpen(false)} />
     </div>
   );
 };

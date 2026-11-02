@@ -4,9 +4,11 @@ import { CheckCircle2, DollarSign, Sparkles, X, ArrowRight, Calendar, Tag } from
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import type { Priority, HabitTimeOfDay } from '../../types';
+import { CustomTimePicker } from '../ui/CustomTimePicker';
+import { CustomSelect } from '../ui/CustomSelect';
 
 export const QuickCaptureModal: React.FC = () => {
-  const { isQuickCaptureOpen, setIsQuickCaptureOpen, addTask, addTransaction, addHabit, settings } = useApp();
+  const { isQuickCaptureOpen, setIsQuickCaptureOpen, addTask, addTransaction, addHabit } = useApp();
   const [activeType, setActiveType] = useState<'task' | 'expense' | 'habit'>('task');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -16,9 +18,21 @@ export const QuickCaptureModal: React.FC = () => {
   const [category, setCategory] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [dueDate, setDueDate] = useState(getTodayString());
+  const [dueTime, setDueTime] = useState('');
   const [habitUnit, setHabitUnit] = useState('times');
   const [habitTarget, setHabitTarget] = useState('1');
   const [habitTime, setHabitTime] = useState<HabitTimeOfDay>('anytime');
+
+  const expenseCategories = [
+    'Food & Dining',
+    'Groceries',
+    'Transport',
+    'Utilities',
+    'Entertainment',
+    'Health',
+    'Shopping',
+    'Other',
+  ];
 
   useEffect(() => {
     if (isQuickCaptureOpen) {
@@ -27,6 +41,7 @@ export const QuickCaptureModal: React.FC = () => {
       setTitle('');
       setAmount('');
       setCategory('');
+      setDueTime('');
     }
   }, [isQuickCaptureOpen]);
 
@@ -55,6 +70,7 @@ export const QuickCaptureModal: React.FC = () => {
         status: 'todo',
         priority,
         dueDate: dueDate || getTodayString(),
+        dueTime: dueTime || undefined,
         category: category.trim() || 'General',
       });
     } else if (activeType === 'expense') {
@@ -71,7 +87,7 @@ export const QuickCaptureModal: React.FC = () => {
     } else if (activeType === 'habit') {
       await addHabit({
         name: title.trim(),
-        targetCount: parseInt(habitTarget) || 1,
+        targetCount: parseInt(habitTarget, 10) || 1,
         unit: habitUnit.trim() || 'times',
         frequency: 'daily',
         timeOfDay: habitTime,
@@ -88,7 +104,7 @@ export const QuickCaptureModal: React.FC = () => {
     <AnimatePresence>
       {isQuickCaptureOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 px-4">
-          {/* Dimmed backdrop with Apple blur */}
+          {/* Dimmed backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -98,7 +114,7 @@ export const QuickCaptureModal: React.FC = () => {
             onClick={() => setIsQuickCaptureOpen(false)}
           />
 
-          {/* Floating Command Palette with Apple spring */}
+          {/* Floating Command Palette */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: -12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -118,9 +134,12 @@ export const QuickCaptureModal: React.FC = () => {
                   onClick={() => setActiveType('task')}
                   className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium pressable transition-all ${
                     activeType === 'task'
-                      ? 'segmented-thumb-active'
+                      ? 'segmented-thumb-active text-white'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
+                  style={{
+                    backgroundColor: activeType === 'task' ? 'var(--accent-primary)' : undefined,
+                  }}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Task</span>
@@ -130,9 +149,12 @@ export const QuickCaptureModal: React.FC = () => {
                   onClick={() => setActiveType('expense')}
                   className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium pressable transition-all ${
                     activeType === 'expense'
-                      ? 'segmented-thumb-active'
+                      ? 'segmented-thumb-active text-white'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
+                  style={{
+                    backgroundColor: activeType === 'expense' ? 'var(--accent-secondary)' : undefined,
+                  }}
                 >
                   <DollarSign className="w-3.5 h-3.5" />
                   <span>Expense</span>
@@ -142,9 +164,12 @@ export const QuickCaptureModal: React.FC = () => {
                   onClick={() => setActiveType('habit')}
                   className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium pressable transition-all ${
                     activeType === 'habit'
-                      ? 'segmented-thumb-active'
+                      ? 'segmented-thumb-active text-white'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
+                  style={{
+                    backgroundColor: activeType === 'habit' ? 'var(--accent-primary)' : undefined,
+                  }}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Habit</span>
@@ -162,11 +187,11 @@ export const QuickCaptureModal: React.FC = () => {
 
             {/* Input Form */}
             <form onSubmit={handleSubmit} className="p-4 sm:p-5 flex flex-col gap-4">
-              <div className="flex flex-col gap-2.5">
+              <div className="flex items-center gap-2">
                 {activeType === 'expense' && (
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-base">
-                      {settings.currency}
+                  <div className="relative w-28 shrink-0">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm font-bold">
+                      $
                     </span>
                     <input
                       type="number"
@@ -174,8 +199,7 @@ export const QuickCaptureModal: React.FC = () => {
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full pl-8 pr-3 py-2 rounded-xl glass-input text-lg font-semibold text-white placeholder-zinc-500 focus:outline-none font-mono tabular-nums"
-                      autoFocus
+                      className="w-full h-10 pl-7 pr-2.5 rounded-xl solid-input text-sm font-mono font-bold text-white placeholder-zinc-500 focus:outline-none"
                     />
                   </div>
                 )}
@@ -185,21 +209,21 @@ export const QuickCaptureModal: React.FC = () => {
                   type="text"
                   placeholder={
                     activeType === 'task'
-                      ? 'What needs to be done?'
+                      ? 'What do you want to accomplish?'
                       : activeType === 'expense'
-                      ? 'Description (e.g. Lunch with team)'
-                      : 'Habit routine (e.g. Read 20 pages)'
+                      ? 'What did you spend on?'
+                      : 'What routine do you want to build?'
                   }
                   value={title}
                   onChange={(e) => handleTitleChange(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm text-white placeholder-zinc-500 focus:outline-none"
+                  className="flex-1 h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
                 />
               </div>
 
-              {/* Contextual Options */}
+              {/* Task Options with Deadline Time Picker */}
               {activeType === 'task' && (
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1.5 bg-zinc-900/60 px-2.5 py-1.5 rounded-lg border border-white/8 text-zinc-300">
+                  <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1.5 rounded-lg border border-white/8 text-zinc-300">
                     <Calendar className="w-3 h-3 text-zinc-500" />
                     <input
                       type="date"
@@ -209,18 +233,22 @@ export const QuickCaptureModal: React.FC = () => {
                     />
                   </div>
 
-                  <div className="flex items-center gap-1.5 bg-zinc-900/60 px-2.5 py-1.5 rounded-lg border border-white/8 text-zinc-300">
+                  <div className="w-36">
+                    <CustomTimePicker value={dueTime} onChange={setDueTime} placeholder="Deadline" />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1.5 rounded-lg border border-white/8 text-zinc-300">
                     <Tag className="w-3 h-3 text-zinc-500" />
                     <input
                       type="text"
                       placeholder="Category..."
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-xs w-24"
+                      className="bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-xs w-20"
                     />
                   </div>
 
-                  <div className="flex items-center gap-0.5 bg-zinc-900/60 p-0.5 rounded-lg border border-white/8">
+                  <div className="flex items-center gap-0.5 bg-black/30 p-0.5 rounded-lg border border-white/8">
                     {(['low', 'medium', 'high', 'urgent'] as Priority[]).map((p) => (
                       <button
                         key={p}
@@ -239,28 +267,21 @@ export const QuickCaptureModal: React.FC = () => {
                 </div>
               )}
 
+              {/* Expense Category Dropdown */}
               {activeType === 'expense' && (
-                <div className="flex items-center gap-2 text-xs">
-                  <select
+                <div className="w-48">
+                  <CustomSelect
+                    options={expenseCategories}
                     value={category || 'Food & Dining'}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="bg-zinc-900/80 border border-white/8 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none"
-                  >
-                    <option value="Food & Dining" className="bg-zinc-900">Food & Dining</option>
-                    <option value="Groceries" className="bg-zinc-900">Groceries</option>
-                    <option value="Transport" className="bg-zinc-900">Transport</option>
-                    <option value="Utilities" className="bg-zinc-900">Utilities</option>
-                    <option value="Entertainment" className="bg-zinc-900">Entertainment</option>
-                    <option value="Health" className="bg-zinc-900">Health</option>
-                    <option value="Shopping" className="bg-zinc-900">Shopping</option>
-                    <option value="Other" className="bg-zinc-900">Other</option>
-                  </select>
+                    onChange={setCategory}
+                  />
                 </div>
               )}
 
+              {/* Habit Configuration */}
               {activeType === 'habit' && (
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1.5 bg-zinc-900/60 px-2.5 py-1.5 rounded-lg border border-white/8">
+                  <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1.5 rounded-lg border border-white/8">
                     <span className="text-zinc-500">Target:</span>
                     <input
                       type="number"
@@ -278,7 +299,7 @@ export const QuickCaptureModal: React.FC = () => {
                     />
                   </div>
 
-                  <div className="flex items-center gap-0.5 bg-zinc-900/60 p-0.5 rounded-lg border border-white/8">
+                  <div className="flex items-center gap-0.5 bg-black/30 p-0.5 rounded-lg border border-white/8">
                     {(['anytime', 'morning', 'afternoon', 'evening'] as HabitTimeOfDay[]).map((time) => (
                       <button
                         key={time}

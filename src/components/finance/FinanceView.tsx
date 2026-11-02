@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   DollarSign,
   TrendingUp,
@@ -15,16 +15,16 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
-import type { TransactionType, PaymentMethod } from '../../types';
+import { FinanceModal } from '../modals/FinanceModal';
 
 export const FinanceView: React.FC = () => {
   const {
     transactions,
-    addTransaction,
     deleteTransaction,
     financeStats,
     settings,
     updateSettings,
+    requestDelete,
   } = useApp();
 
   const today = getTodayString();
@@ -32,38 +32,11 @@ export const FinanceView: React.FC = () => {
   // Filters & Search
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Form Drawer state
-  const [isAdding, setIsAdding] = useState(false);
-  const [txType, setTxType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Food & Dining');
-  const [date, setDate] = useState(today);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
 
   // Budget editing state
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState(settings.monthlyBudget.toString());
-
-  const handleCreateTransaction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) return;
-
-    await addTransaction({
-      type: txType,
-      amount: numAmount,
-      description: description.trim() || category,
-      category,
-      date: date || today,
-      paymentMethod,
-    });
-
-    setAmount('');
-    setDescription('');
-    setIsAdding(false);
-  };
 
   const handleSaveBudget = async () => {
     const val = parseFloat(budgetInput);
@@ -104,45 +77,26 @@ export const FinanceView: React.FC = () => {
     return true;
   });
 
-  const expenseCategories = [
-    'Food & Dining',
-    'Groceries',
-    'Transport',
-    'Housing',
-    'Utilities',
-    'Entertainment',
-    'Health',
-    'Shopping',
-    'Other',
-  ];
-
-  const incomeCategories = [
-    'Salary',
-    'Freelance',
-    'Investment',
-    'Gift',
-    'Other',
-  ];
-
   const budgetUsagePercent = Math.min(
     100,
     Math.round((financeStats.monthlyExpenses / (financeStats.monthlyBudget || 1)) * 100)
   );
 
+  const handleDeleteTransaction = (txId: string, desc: string) => {
+    requestDelete({
+      title: 'You sure you wanna delete this?',
+      message: `It's giving permanent deletion vibes bestie. "${desc}" is about to vanish into thin air fr.`,
+      confirmText: 'Yep, yeet it',
+      cancelText: 'Nope, keep it',
+      onConfirm: () => deleteTransaction(txId),
+    });
+  };
+
   return (
     <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-24 select-none relative z-10">
-      {/* Header */}
+      {/* 1. Header (Cleaned: "FINANCE, CASHFLOW ARCHITECTURE" line removed completely) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span
-              className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: 'rgba(242, 106, 54, 0.15)', color: 'var(--accent-primary)' }}
-            >
-              FINANCE
-            </span>
-            <span className="text-xs text-zinc-400 font-mono">Cashflow Architecture</span>
-          </div>
           <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
             Wealth & Cashflow
           </h1>
@@ -165,17 +119,17 @@ export const FinanceView: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setIsAdding((prev) => !prev)}
+            onClick={() => setIsFinanceModalOpen(true)}
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-white text-xs font-bold pressable shadow-lg transition-all"
             style={{ backgroundColor: 'var(--accent-primary)' }}
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>{isAdding ? 'Close Drawer' : 'Log Record'}</span>
+            <span>Log Record</span>
           </button>
         </div>
       </div>
 
-      {/* 4 Apple Card Style Metric Cards */}
+      {/* 2. 4 Apple Card Style Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Safe-to-Spend Daily */}
         <div
@@ -265,7 +219,7 @@ export const FinanceView: React.FC = () => {
         </div>
       </div>
 
-      {/* Monthly Budget Target Card */}
+      {/* 3. Monthly Budget Target Card */}
       <div
         className="solid-card p-4 sm:p-5 flex flex-col gap-2.5"
         style={{ backgroundColor: 'var(--bg-card)' }}
@@ -335,142 +289,7 @@ export const FinanceView: React.FC = () => {
         </div>
       </div>
 
-      {/* Expandable Transaction Drawer */}
-      <AnimatePresence>
-        {isAdding && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-            className="overflow-hidden"
-          >
-            <form
-              onSubmit={handleCreateTransaction}
-              className="solid-card p-4 sm:p-5 flex flex-col gap-3.5 shadow-xl"
-              style={{ backgroundColor: 'var(--bg-card)' }}
-            >
-              <div className="segmented-track flex items-center gap-0.5 self-start">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTxType('expense');
-                    setCategory('Food & Dining');
-                  }}
-                  className={`px-3 py-1 text-xs font-medium pressable transition-all ${
-                    txType === 'expense'
-                      ? 'segmented-thumb-active font-bold'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
-                  style={{
-                    backgroundColor: txType === 'expense' ? 'var(--accent-primary)' : undefined,
-                    color: txType === 'expense' ? '#ffffff' : undefined,
-                  }}
-                >
-                  Expense
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTxType('income');
-                    setCategory('Salary');
-                  }}
-                  className={`px-3 py-1 text-xs font-medium pressable transition-all ${
-                    txType === 'income'
-                      ? 'segmented-thumb-active font-bold'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
-                  style={{
-                    backgroundColor: txType === 'income' ? 'var(--accent-secondary)' : undefined,
-                    color: txType === 'income' ? '#ffffff' : undefined,
-                  }}
-                >
-                  Income
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm">
-                    {settings.currency}
-                  </span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 rounded-xl solid-input text-sm font-bold text-white placeholder-zinc-500 focus:outline-none font-mono tabular-nums"
-                    autoFocus
-                  />
-                </div>
-
-                <input
-                  type="text"
-                  placeholder="Note / Description (e.g. Organic Groceries)..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1">Category</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full solid-input rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none"
-                  >
-                    {(txType === 'expense' ? expenseCategories : incomeCategories).map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1">Date</label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full solid-input rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1">Payment Method</label>
-                  <select
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                    className="w-full solid-input rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none"
-                  >
-                    <option value="card">Card</option>
-                    <option value="apple_pay">Apple Pay</option>
-                    <option value="cash">Cash</option>
-                    <option value="transfer">Transfer</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-2 hairline-t">
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg"
-                  style={{ backgroundColor: 'var(--accent-primary)' }}
-                >
-                  Record
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Segmented Filter & Search */}
+      {/* 4. Segmented Filter & Search */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="segmented-track flex items-center gap-0.5 self-start">
           {(
@@ -514,7 +333,7 @@ export const FinanceView: React.FC = () => {
         </div>
       </div>
 
-      {/* Clean Unified Transaction Ledger */}
+      {/* 5. Clean Unified Transaction Ledger */}
       <div
         className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden"
         style={{ backgroundColor: 'var(--bg-card)' }}
@@ -585,7 +404,7 @@ export const FinanceView: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() => deleteTransaction(tx.id)}
+                    onClick={() => handleDeleteTransaction(tx.id, tx.description)}
                     className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
                     title="Delete record"
                   >
@@ -597,6 +416,9 @@ export const FinanceView: React.FC = () => {
           })
         )}
       </div>
+
+      {/* Transaction Creation Modal */}
+      <FinanceModal isOpen={isFinanceModalOpen} onClose={() => setIsFinanceModalOpen(false)} />
     </div>
   );
 };

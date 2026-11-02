@@ -7,7 +7,6 @@ import {
   DollarSign,
   Clock,
   ArrowUpRight,
-  TrendingUp,
   Trash2,
   Edit3,
   Search,
@@ -17,28 +16,24 @@ import { getTodayString } from '../../db';
 import { CalendarStrip } from '../ui/CalendarStrip';
 import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
+import { TaskModal } from '../modals/TaskModal';
 
 export const TodayView: React.FC = () => {
   const {
     tasks,
     toggleTask,
-    deleteTask,
     habits,
     habitLogs,
     financeStats,
     settings,
-    setIsQuickCaptureOpen,
     setActiveTab,
-    addTransaction,
+    requestDelete,
+    deleteTask,
   } = useApp();
 
   const todayStr = getTodayString();
   const [selectedDate, setSelectedDate] = useState(todayStr);
-
-  // Inline Quick Expense state
-  const [quickAmount, setQuickAmount] = useState('');
-  const [quickDesc, setQuickDesc] = useState('');
-  const [quickCat, setQuickCat] = useState('Food & Dining');
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   // Filter tasks for selected date
   const dateTasks = tasks.filter(
@@ -46,46 +41,32 @@ export const TodayView: React.FC = () => {
   );
   const completedDateCount = dateTasks.filter((t) => t.status === 'completed').length;
 
-  // Active top focus task for the interactive 3D hero card
+  // Active top focus task for the interactive hero card
   const topFocusTask = dateTasks.find((t) => t.status !== 'completed') || dateTasks[0];
+
+  // Limit to ONLY 3 tasks for Home/Today section as requested
+  const displayedTasks = dateTasks.slice(0, 3);
 
   const habitsDoneToday = habitLogs.filter(
     (l) => l.date === selectedDate && l.completed
   ).length;
 
-  const handleQuickExpense = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const val = parseFloat(quickAmount);
-    if (isNaN(val) || val <= 0) return;
-
-    await addTransaction({
-      type: 'expense',
-      amount: val,
-      category: quickCat,
-      description: quickDesc.trim() || quickCat,
-      date: selectedDate,
-      paymentMethod: 'card',
+  const handleDeleteTask = (taskId: string, title: string) => {
+    requestDelete({
+      title: 'You sure you wanna delete this?',
+      message: `No cap, "${title}" will disappear into the void forever fr fr.`,
+      confirmText: 'Yep, yeet it',
+      cancelText: 'Nope, keep it',
+      onConfirm: () => deleteTask(taskId),
     });
-
-    setQuickAmount('');
-    setQuickDesc('');
   };
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-24 select-none relative z-10">
-      {/* 1. Header (Inspired by Virtual Assistant App concept) */}
+      {/* 1. Header (Cleaned: "TASKIFY, and Daily Nexus" removed completely) */}
       <div className="flex items-center justify-between pt-2">
         <div>
-          <div className="flex items-center gap-2">
-            <span
-              className="text-xs font-bold tracking-wider uppercase font-mono"
-              style={{ color: 'var(--accent-primary)' }}
-            >
-              Taskify
-            </span>
-            <span className="text-xs text-zinc-500 font-mono">• Daily Nexus</span>
-          </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-light text-zinc-400 mt-1">
+          <h1 className="font-display text-2xl sm:text-3xl font-light text-zinc-400">
             Welcome Back,
           </h1>
           <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white mt-0.5">
@@ -120,20 +101,20 @@ export const TodayView: React.FC = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsQuickCaptureOpen(true)}
+            onClick={() => setIsTaskModalOpen(true)}
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-lg pressable cursor-pointer font-bold"
             style={{
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
             }}
-            title="Quick Capture"
+            title="Add Objective"
           >
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </motion.button>
         </div>
       </div>
 
-      {/* 2. Interactive Calendar Strip */}
+      {/* 2. Interactive Calendar Strip (Autoselected Today, Zero Required Scroll) */}
       <div className="solid-card p-3.5 sm:p-4 shadow-xl" style={{ backgroundColor: 'var(--bg-card)' }}>
         <CalendarStrip
           selectedDate={selectedDate}
@@ -142,7 +123,7 @@ export const TodayView: React.FC = () => {
         />
       </div>
 
-      {/* 3. Concept Bento Grid */}
+      {/* 3. Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         {/* Top Focus Task Hero Card (7 cols on desktop) */}
         <div className="lg:col-span-7 flex flex-col">
@@ -198,7 +179,7 @@ export const TodayView: React.FC = () => {
                   }}
                 >
                   <Clock className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
-                  <span>02:00 PM</span>
+                  <span>{topFocusTask.dueTime ? topFocusTask.dueTime : '02:00 PM'}</span>
                 </div>
               </div>
 
@@ -315,7 +296,7 @@ export const TodayView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Today's Clean Task Cards */}
+      {/* 4. Task Management Block (Limited to ONLY 3 tasks, with "View all" button) */}
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
@@ -323,7 +304,7 @@ export const TodayView: React.FC = () => {
               Task Management
             </h3>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/[0.04] text-zinc-400 font-mono border border-white/6">
-              {dateTasks.length} tasks today
+              Showing {displayedTasks.length} of {dateTasks.length}
             </span>
           </div>
 
@@ -342,14 +323,14 @@ export const TodayView: React.FC = () => {
           className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden"
           style={{ backgroundColor: 'var(--bg-card)' }}
         >
-          {dateTasks.length === 0 ? (
+          {displayedTasks.length === 0 ? (
             <div className="p-8 text-center flex flex-col items-center justify-center">
               <CheckCircle2 className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
               <span className="font-display text-sm font-semibold text-white">No tasks scheduled for today</span>
               <p className="text-xs text-zinc-400 mt-1">Tap + to add a quick objective or enjoy your day.</p>
             </div>
           ) : (
-            dateTasks.map((task) => {
+            displayedTasks.map((task) => {
               const isDone = task.status === 'completed';
               return (
                 <motion.div
@@ -361,7 +342,7 @@ export const TodayView: React.FC = () => {
                   className="p-4 sm:p-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.02]"
                 >
                   <div className="flex flex-col min-w-0 pr-2">
-                    {/* Badges: Priority + Estimated Time + Status */}
+                    {/* Badges: Priority + Time + Status */}
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
@@ -374,9 +355,18 @@ export const TodayView: React.FC = () => {
                       >
                         ^ {task.priority}
                       </span>
-                      <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
-                        50 min
-                      </span>
+
+                      {task.dueTime ? (
+                        <span className="text-[10px] font-mono text-zinc-300 bg-white/[0.06] px-2 py-0.5 rounded-md border border-white/8 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-zinc-400" />
+                          {task.dueTime}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
+                          50 min
+                        </span>
+                      )}
+
                       {isDone && (
                         <span
                           className="text-[10px] font-bold px-2 py-0.5 rounded-md border"
@@ -405,7 +395,7 @@ export const TodayView: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Circular Action Button (start / done) & Options */}
+                  {/* Circular Action Button & Options */}
                   <div className="flex items-center gap-2.5 shrink-0">
                     <motion.button
                       whileHover={{ scale: 1.08 }}
@@ -428,7 +418,7 @@ export const TodayView: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => deleteTask(task.id)}
+                      onClick={() => handleDeleteTask(task.id, task.title)}
                       className="opacity-40 hover:opacity-100 p-2 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
                       title="Delete task"
                     >
@@ -442,67 +432,8 @@ export const TodayView: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Rapid Expense Logger & Activity */}
-      <div
-        className="solid-card p-5 flex flex-col gap-3"
-        style={{ backgroundColor: 'var(--bg-card)' }}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
-            <h4 className="font-display text-sm font-bold text-white tracking-tight">
-              Rapid Expense Capture
-            </h4>
-          </div>
-          <span className="text-[11px] font-mono text-zinc-400">
-            Safe: {settings.currency}{financeStats.dailySafeToSpend.toFixed(0)}/day
-          </span>
-        </div>
-
-        <form onSubmit={handleQuickExpense} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          <div className="relative w-full sm:w-36 shrink-0">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs">
-              {settings.currency}
-            </span>
-            <input
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-              value={quickAmount}
-              onChange={(e) => setQuickAmount(e.target.value)}
-              className="w-full h-10 pl-7 pr-3 rounded-xl solid-input text-xs font-mono font-bold text-white placeholder-zinc-500 focus:outline-none"
-            />
-          </div>
-
-          <input
-            type="text"
-            placeholder="Expense note (e.g. Lunch with team)..."
-            value={quickDesc}
-            onChange={(e) => setQuickDesc(e.target.value)}
-            className="w-full sm:flex-1 h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-          />
-
-          <select
-            value={quickCat}
-            onChange={(e) => setQuickCat(e.target.value)}
-            className="w-full sm:w-40 h-10 rounded-xl px-3 text-xs text-zinc-200 focus:outline-none shrink-0 solid-input"
-          >
-            <option value="Food & Dining">Food & Dining</option>
-            <option value="Groceries">Groceries</option>
-            <option value="Transport">Transport</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Shopping">Shopping</option>
-          </select>
-
-          <button
-            type="submit"
-            className="w-full sm:w-auto h-10 px-6 rounded-xl font-bold text-xs pressable shadow-sm shrink-0 flex items-center justify-center text-white"
-            style={{ backgroundColor: 'var(--accent-primary)' }}
-          >
-            Log
-          </button>
-        </form>
-      </div>
+      {/* Task Creation Modal */}
+      <TaskModal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} />
     </div>
   );
 };
