@@ -7,7 +7,7 @@ import { feedback } from '../../utils/feedback';
 import { SPRING_DOCK_LIQUID } from '../../utils/motion';
 
 export const MobileTabBar: React.FC = () => {
-  const { activeTab, setActiveTab, setIsQuickCaptureOpen, closeStreaks, isSwiping } = useApp();
+  const { activeTab, setActiveTab, setIsQuickCaptureOpen, closeStreaks } = useApp();
 
   const leftTabs: { id: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'today', label: 'Today', icon: Sun },
@@ -60,7 +60,6 @@ export const MobileTabBar: React.FC = () => {
                     <motion.div
                       layoutId="mobileTabIndicator"
                       transition={SPRING_DOCK_LIQUID}
-                      animate={isSwiping ? { scaleX: 1.08, scaleY: 0.94 } : { scaleX: 1, scaleY: 1 }}
                       className="absolute inset-0 rounded-xl"
                       style={{
                         backgroundColor: 'var(--bg-card)',
@@ -112,7 +111,6 @@ export const MobileTabBar: React.FC = () => {
                     <motion.div
                       layoutId="mobileTabIndicator"
                       transition={SPRING_DOCK_LIQUID}
-                      animate={isSwiping ? { scaleX: 1.08, scaleY: 0.94 } : { scaleX: 1, scaleY: 1 }}
                       className="absolute inset-0 rounded-xl"
                       style={{
                         backgroundColor: 'var(--bg-card)',

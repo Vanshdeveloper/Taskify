@@ -1,151 +1,199 @@
 import React, { useRef, useEffect } from 'react';
-import { motion, useTransform, animate, type PanInfo } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import { TodayView } from '../today/TodayView';
 import { TasksView } from '../tasks/TasksView';
 import { HabitsView } from '../habits/HabitsView';
 import { FinanceView } from '../finance/FinanceView';
-import { SPRING_VISCOUS_FLUID, projectMomentum } from '../../utils/motion';
 import { feedback } from '../../utils/feedback';
 import type { ActiveTab } from '../../types';
 
 export const MAIN_SLIDE_TABS: ActiveTab[] = ['today', 'tasks', 'habits', 'finance'];
-
-interface LiquidTabItemProps {
-  tab: ActiveTab;
-  index: number;
-  openSearchModal: () => void;
-}
-
-const LiquidTabItem: React.FC<LiquidTabItemProps> = ({ tab, index, openSearchModal }) => {
-  const { slideProgress } = useApp();
-
-  // Apple-grade dynamic scale (1.0 -> 0.975) & opacity (1.0 -> 0.85)
-  // Computes on GPU compositor loop without triggering component re-renders
-  const scale = useTransform(
-    slideProgress,
-    [index - 1, index, index + 1],
-    [0.975, 1.0, 0.975],
-    { clamp: true }
-  );
-
-  const opacity = useTransform(
-    slideProgress,
-    [index - 1, index, index + 1],
-    [0.85, 1.0, 0.85],
-    { clamp: true }
-  );
-
-  return (
-    <div
-      className="w-full h-full shrink-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 no-scrollbar"
-      style={{ touchAction: 'pan-y' }}
-    >
-      <motion.div
-        style={{
-          scale,
-          opacity,
-          willChange: 'transform, opacity',
-          transformOrigin: '50% 50%',
-        }}
-        className="w-full h-full"
-      >
-        {tab === 'today' && <TodayView onOpenSearch={openSearchModal} />}
-        {tab === 'tasks' && <TasksView />}
-        {tab === 'habits' && <HabitsView />}
-        {tab === 'finance' && <FinanceView />}
-      </motion.div>
-    </div>
-  );
-};
 
 interface LiquidTabViewportProps {
   openSearchModal: () => void;
 }
 
 export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearchModal }) => {
-  const { activeTab, setActiveTab, slideProgress, setIsSwiping } = useApp();
+  const { activeTab, setActiveTab, slideProgress } = useApp();
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const currentSlideTab = MAIN_SLIDE_TABS.includes(activeTab) ? activeTab : 'today';
   const activeSlideIndex = MAIN_SLIDE_TABS.indexOf(currentSlideTab);
 
-  // Synchronize continuous slideProgress when activeTab changes (e.g. from dock/keyboard)
+  // Gesture state stored in refs to prevent ANY React re-rendering during drag
+  const isPointerDown = useRef(false);
+  const isDragging = useRef(false);
+  const isIntentDecided = useRef(false);
+  const pointerId = useRef<number | null>(null);
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const currentOffset = useRef(0);
+  const velocityHistory = useRef<{ x: number; t: number }[]>([]);
+
+  // Update track position whenever activeSlideIndex changes
   useEffect(() => {
-    animate(slideProgress, activeSlideIndex, {
-      ...SPRING_VISCOUS_FLUID,
-    });
+    if (trackRef.current && !isDragging.current) {
+      trackRef.current.style.transition = 'transform 0.42s cubic-bezier(0.16, 1, 0.3, 1)';
+      trackRef.current.style.transform = `translate3d(-${activeSlideIndex * 100}%, 0, 0)`;
+      slideProgress.set(activeSlideIndex);
+    }
   }, [activeSlideIndex, slideProgress]);
 
-  const handleDragStart = () => {
-    setIsSwiping(true);
-  };
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // Only primary button (mouse left-click or touch)
+    if (e.button !== 0) return;
 
-  const handleDrag = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const width = containerRef.current?.offsetWidth || window.innerWidth || 1;
-    // Map drag offset directly into continuous slide index space
-    const dynamicProgress = activeSlideIndex - info.offset.x / width;
-    slideProgress.set(dynamicProgress);
-  };
-
-  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    setIsSwiping(false);
-    const width = containerRef.current?.offsetWidth || window.innerWidth || 1;
-
-    // Apple WWDC exponential momentum projection
-    const projectedDeltaX = info.offset.x + projectMomentum(info.velocity.x, 0.992);
-    const projectedIndex = activeSlideIndex - projectedDeltaX / width;
-
-    // Nearest snap point with threshold hysteresis
-    let targetIndex = activeSlideIndex;
-    if (projectedIndex > activeSlideIndex + 0.35 && activeSlideIndex < MAIN_SLIDE_TABS.length - 1) {
-      targetIndex = activeSlideIndex + 1;
-    } else if (projectedIndex < activeSlideIndex - 0.35 && activeSlideIndex > 0) {
-      targetIndex = activeSlideIndex - 1;
+    // Do not capture drag if user is clicking interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button, input, textarea, select, a, [role="button"], .pressable')) {
+      return;
     }
 
-    if (targetIndex !== activeSlideIndex) {
-      feedback.playClick();
-      setActiveTab(MAIN_SLIDE_TABS[targetIndex]);
-    } else {
-      // Snap back smoothly with velocity handoff
-      animate(slideProgress, activeSlideIndex, {
-        velocity: -info.velocity.x / width,
-        ...SPRING_VISCOUS_FLUID,
-      });
+    isPointerDown.current = true;
+    isDragging.current = false;
+    isIntentDecided.current = false;
+    pointerId.current = e.pointerId;
+    startX.current = e.clientX;
+    startY.current = e.clientY;
+    currentOffset.current = 0;
+    velocityHistory.current = [{ x: e.clientX, t: performance.now() }];
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isPointerDown.current) return;
+
+    const dx = e.clientX - startX.current;
+    const dy = e.clientY - startY.current;
+
+    // Disambiguate gesture intent: horizontal swipe vs vertical page scroll
+    if (!isIntentDecided.current) {
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+        isIntentDecided.current = true;
+        if (Math.abs(dx) > Math.abs(dy) * 1.1) {
+          // Horizontal swipe confirmed! Capture pointer and track 1:1
+          isDragging.current = true;
+          try {
+            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          } catch {}
+        } else {
+          // Vertical scroll confirmed! Cancel horizontal tracking
+          isPointerDown.current = false;
+          return;
+        }
+      }
     }
+
+    if (isDragging.current && trackRef.current) {
+      // Record position history for velocity handoff
+      const now = performance.now();
+      velocityHistory.current.push({ x: e.clientX, t: now });
+      if (velocityHistory.current.length > 5) velocityHistory.current.shift();
+
+      // 1:1 Direct Manipulation with Apple boundary rubber-banding
+      const isAtLeftBoundary = activeSlideIndex === 0 && dx > 0;
+      const isAtRightBoundary = activeSlideIndex === MAIN_SLIDE_TABS.length - 1 && dx < 0;
+      const offset = isAtLeftBoundary || isAtRightBoundary ? dx * 0.28 : dx;
+      currentOffset.current = offset;
+
+      // Pure GPU compositor transform update with zero React re-render overhead
+      trackRef.current.style.transition = 'none';
+      trackRef.current.style.transform = `translate3d(calc(-${activeSlideIndex * 100}% + ${offset}px), 0, 0)`;
+
+      // Real-time floating dock pill tracking
+      const width = containerRef.current?.offsetWidth || window.innerWidth || 1;
+      slideProgress.set(activeSlideIndex - offset / width);
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isPointerDown.current) return;
+
+    if (isDragging.current && trackRef.current) {
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {}
+
+      const offset = currentOffset.current;
+      const width = containerRef.current?.offsetWidth || window.innerWidth || 1;
+
+      // Calculate release velocity in px/s from recent history
+      let velocity = 0;
+      const history = velocityHistory.current;
+      if (history.length >= 2) {
+        const last = history[history.length - 1];
+        const first = history[0];
+        const dt = Math.max(1, last.t - first.t);
+        velocity = ((last.x - first.x) / dt) * 1000;
+      }
+
+      // Apple WWDC momentum projection
+      const projectedOffset = offset + velocity * 0.22;
+
+      // Determine target tab: quick flick (>240px/s) or dragged >22% of viewport
+      let targetIndex = activeSlideIndex;
+      if (
+        (velocity < -240 || projectedOffset < -width * 0.22 || offset < -width * 0.28) &&
+        activeSlideIndex < MAIN_SLIDE_TABS.length - 1
+      ) {
+        targetIndex = activeSlideIndex + 1;
+      } else if (
+        (velocity > 240 || projectedOffset > width * 0.22 || offset > width * 0.28) &&
+        activeSlideIndex > 0
+      ) {
+        targetIndex = activeSlideIndex - 1;
+      }
+
+      // Execute newly-greased viscous fluid slide transition
+      trackRef.current.style.transition = 'transform 0.42s cubic-bezier(0.16, 1, 0.3, 1)';
+      trackRef.current.style.transform = `translate3d(-${targetIndex * 100}%, 0, 0)`;
+      slideProgress.set(targetIndex);
+
+      if (targetIndex !== activeSlideIndex) {
+        feedback.playClick();
+        setActiveTab(MAIN_SLIDE_TABS[targetIndex]);
+      }
+    }
+
+    isPointerDown.current = false;
+    isDragging.current = false;
+    isIntentDecided.current = false;
+    currentOffset.current = 0;
+    pointerId.current = null;
+    velocityHistory.current = [];
   };
 
   return (
     <div
       ref={containerRef}
-      className="w-full h-full overflow-hidden relative z-10"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      className="w-full h-full overflow-hidden relative z-10 cursor-grab active:cursor-grabbing select-none"
       style={{ touchAction: 'pan-y' }}
     >
-      <motion.div
-        className="flex w-full h-full cursor-grab active:cursor-grabbing"
-        animate={{ x: `-${activeSlideIndex * 100}%` }}
-        transition={SPRING_VISCOUS_FLUID}
-        drag="x"
-        dragDirectionLock
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.16}
-        onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
+      <div
+        ref={trackRef}
+        className="flex w-full h-full"
         style={{
+          transform: `translate3d(-${activeSlideIndex * 100}%, 0, 0)`,
           willChange: 'transform',
         }}
       >
-        {MAIN_SLIDE_TABS.map((tab, idx) => (
-          <LiquidTabItem
+        {MAIN_SLIDE_TABS.map((tab) => (
+          <div
             key={tab}
-            tab={tab}
-            index={idx}
-            openSearchModal={openSearchModal}
-          />
+            className="w-full h-full shrink-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 no-scrollbar"
+            style={{ touchAction: 'pan-y' }}
+          >
+            {tab === 'today' && <TodayView onOpenSearch={openSearchModal} />}
+            {tab === 'tasks' && <TasksView />}
+            {tab === 'habits' && <HabitsView />}
+            {tab === 'finance' && <FinanceView />}
+          </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };

@@ -20,8 +20,6 @@ interface AppContextType {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   slideProgress: MotionValue<number>;
-  isSwiping: boolean;
-  setIsSwiping: (swiping: boolean) => void;
   isQuickCaptureOpen: boolean;
   setIsQuickCaptureOpen: (open: boolean) => void;
 
@@ -92,7 +90,6 @@ const DEFAULT_SETTINGS: UserSettings = {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('today');
   const slideProgress = useMotionValue(0);
-  const [isSwiping, setIsSwiping] = useState(false);
   const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
   const [isDbReady, setIsDbReady] = useState(false);
 
@@ -503,8 +500,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         activeTab,
         setActiveTab,
         slideProgress,
-        isSwiping,
-        setIsSwiping,
         isQuickCaptureOpen,
         setIsQuickCaptureOpen,
         tasks,

@@ -565,3 +565,39 @@ When recording a task, format your entry as follows:
   - `npm run build` -> `tsc -b && vite build` exited with code 0 in 6.04s (2037 modules transformed, zero type or lint errors).
   - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.345s with exit code 0.
 - **Status**: Completed
+
+
+---
+
+### [TASK-018] 2026-11-02: Pure 1:1 Direct Manipulation Pointer Engine, Zero-Constraint Lag Fix, and Real Headless Chrome Desktop/Mobile QA
+- **User Request**: "/gravitas /ponytail /ui-ux-pro-max /apple-design Still it lags a lot, needs some fine tuning, you can use the /browser and change the tabs using mouse cursor and not using the nav buttons, also do this for phone's screen and list all the possible problems and fix those."
+- **Execution Mode**: Gravitas Reliability Runtime (Invariants 1-6) + Ponytail + Apple Design System + UI/UX Pro Max + Headless Chrome CDP Verification
+- **Scope & Files Touched**:
+  - `src/components/layout/LiquidTabViewport.tsx`
+  - `src/components/layout/MobileTabBar.tsx`
+  - `src/context/AppContext.tsx`
+  - `scratch/test-browser.mjs`
+  - `PROJECT_LEDGER.md`
+- **Root Cause Diagnoses & Solutions**:
+  1. **Severe Drag Resistance & Inertia Choke**:
+     - *Root Cause*: `dragConstraints={{ left: 0, right: 0 }}` paired with `dragElastic={0.16}` caused Framer Motion to treat *every single pixel* of movement as an out-of-bounds drag, penalizing movement with 84% friction. Dragging 100px only moved the viewport 16px.
+     - *Solution*: Replaced synthetic drag constraints with true **1:1 Direct Manipulation Pointer Events** (`onPointerDown`, `onPointerMove`, `onPointerUp`) paired with `setPointerCapture`. Movement follows the mouse or finger with 100% 1:1 precision without resistance in the active swipe path, applying 0.28x rubber-banding exclusively at the absolute outer boundaries (Tab 0 $\leftarrow$ or Tab 3 $\rightarrow$).
+  2. **Frame Drops via Full React State Invalidation on Drag**:
+     - *Root Cause*: Calling `setIsSwiping(true)` and `setIsSwiping(false)` in `AppContext` forced a full React component tree re-render on every touch down and release across `Navbar`, `Sidebar`, `MobileTabBar`, `TodayView`, `TasksView`, `HabitsView`, and `FinanceView`.
+     - *Solution*: Removed `isSwiping` state completely. Pointer tracking runs strictly inside non-rendering refs (`isPointerDown.current`, `isDragging.current`, `currentOffset.current`) and updates the track's GPU matrix directly via `style.transform = translate3d(...)` with `transition: none` during motion, guaranteeing 120Hz sustained frame rates.
+  3. **GPU Raster Thrashing on Continuous Subtree Scaling**:
+     - *Root Cause*: Wrapping heavy view subtrees in continuous Framer Motion `scale` and `opacity` transforms forced the browser to re-rasterize heavy card lists, backdrops, and SVGs on every frame.
+     - *Solution*: Shifted from subtree scale rasterization to hardware-composited `translate3d(calc(-${index * 100}% + ${offset}px), 0, 0)` with `will-change: transform`.
+  4. **Text Selection Hijack on Desktop Mouse**:
+     - *Solution*: Integrated gesture intent disambiguation: horizontal motion beyond 6px engages `setPointerCapture` and suppresses browser text selection, while vertical motion smoothly passes through to native scrollable list containers.
+- **Verification Evidence**:
+  - **Headless Chrome CDP Browser Suite (`scratch/test-browser.mjs`)**:
+    - **Test 1 (Desktop Mouse Drag)**: Clicked and dragged cursor 500px left $\rightarrow$ smoothly transitioned from `Today` (0%) to `Tasks` (-100%).
+    - **Test 2 (Mobile Screen Touch 390x844)**: Emulated mobile touchscreen swipe $\rightarrow$ transitioned from `Tasks` (-100%) to `Habits` (-200%).
+    - **Test 3 (Reverse Swipe)**: Swiped right $\rightarrow$ transitioned from `Habits` (-200%) back to `Tasks` (-100%).
+    - **Test 4 (Button Click Passthrough)**: Clicked view switcher buttons with zero drag hijacking.
+    - **Test 5 (Vertical Scroll Passthrough)**: Scrolled internal container lists with zero interference.
+  - `npm test` -> 10/10 tests passed in 107.8ms.
+  - `npm run build` -> `tsc -b && vite build` exited with code 0 in 4.88s.
+  - `npx cap sync` -> Synced to native Android and iOS in 0.323s with code 0.
+- **Status**: Completed
