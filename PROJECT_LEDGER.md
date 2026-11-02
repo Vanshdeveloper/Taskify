@@ -526,3 +526,42 @@ When recording a task, format your entry as follows:
   - `npm run build` -> `tsc -b && vite build` built cleanly with code 0 in 4.73s (2036 modules transformed, zero type or lint errors).
   - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.315s with code 0.
 - **Status**: Completed
+
+
+---
+
+### [TASK-017] 2026-11-02: Viscous "Oiled Glass" Liquid Tab Transition Engine & Real-Time Dock Indicator Tracking
+- **User Request**: "/gravitas /ponytail /ui-ux-pro-max /apple-design /plan make an costum transition for the slide animation for tabs for exact liquid like transition and no cluttered lag or something just an smooth slide like it webpage is newly greased or oiled., /grill-me me if you don't get my idea or have some questions regarding this."
+- **Execution Mode**: Gravitas Reliability Runtime (Invariants 1-6) + Ponytail + Apple Design System + UI/UX Pro Max + Plan Approval
+- **Scope & Files Touched**:
+  - `src/utils/motion.ts`
+  - `src/components/layout/LiquidTabViewport.tsx` [CREATED]
+  - `src/context/AppContext.tsx`
+  - `src/components/layout/MobileTabBar.tsx`
+  - `src/App.tsx`
+  - `test/core-logic.test.mjs`
+  - `PROJECT_LEDGER.md`
+- **Implementation Details**:
+  1. **Viscous "Oiled Glass" Spring Physics (`src/utils/motion.ts`)**:
+     - Added `SPRING_VISCOUS_FLUID`: Critically damped spring token (`damping: 32, stiffness: 220, mass: 0.85`), providing smooth exponential deceleration without mechanical bouncing or abrupt stops.
+     - Added `SPRING_DOCK_LIQUID`: Fast reactive spring (`damping: 26, stiffness: 340, mass: 0.7`) for the bottom floating dock pill.
+     - Implemented Apple WWDC *Designing Fluid Interfaces* exponential momentum projection: `projectMomentum(velocity, decelerationRate = 0.992) = (v / 1000) * decel / (1 - decel)`. Projects resting destination from gesture velocity.
+  2. **Liquid Glass Parallax & Scale Transforms (`LiquidTabViewport.tsx`)**:
+     - Created encapsulated `<LiquidTabViewport />` managing the horizontal flex track and individual `<LiquidTabItem />` elements.
+     - Dynamic scaling and opacity powered by Framer Motion's compositor-level `useTransform`:
+       - Outgoing tab gently scales down (`1.0` $\rightarrow$ `0.975`) and dims (`1.0` $\rightarrow$ `0.85`) as it slides away.
+       - Incoming tab expands seamlessly from `0.975` to `1.0` and brightens to `1.0`.
+       - All transforms execute directly on the GPU compositor loop with `willChange: 'transform, opacity'`, `translateZ(0)`, and `backfaceVisibility: 'hidden'` (zero React component re-renders).
+  3. **Apple Velocity Handoff & Momentum Snap (`LiquidTabViewport.tsx`)**:
+     - `onDrag`: Maps raw drag pixel offset into continuous `slideProgress` index space.
+     - `onDragEnd`: Evaluates release velocity and projected endpoint using `projectMomentum`. Fast flicks smoothly advance tabs regardless of small drag distance. Hands off release velocity directly into the settling spring animation, completely eliminating velocity discontinuities ("brick wall" deceleration hitch).
+  4. **Real-Time Floating Island Dock Sync (`AppContext.tsx`, `MobileTabBar.tsx`)**:
+     - Added `slideProgress: MotionValue<number>`, `isSwiping: boolean`, and `setIsSwiping` in `AppContext`.
+     - In `MobileTabBar.tsx`, bound the active tab indicator pill to `SPRING_DOCK_LIQUID` with dynamic liquid stretching (`scaleX: 1.08, scaleY: 0.94`) while the user is swiping, snapping cleanly into the committed tab on release.
+  5. **Automated Unit & Stress Testing (`test/core-logic.test.mjs`)**:
+     - Added test verifying Apple exponential momentum projection: zero velocity rest, moderate flick distance projection (~62px), high-speed flick projection (~186px), and opposing direction projection.
+- **Verification Evidence**:
+  - `npm test` -> `node --test test/core-logic.test.mjs` passed (10/10 tests passed in 102.8ms).
+  - `npm run build` -> `tsc -b && vite build` exited with code 0 in 6.04s (2037 modules transformed, zero type or lint errors).
+  - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.345s with exit code 0.
+- **Status**: Completed

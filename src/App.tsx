@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { AppProvider, useApp } from './context/AppContext';
@@ -8,11 +8,8 @@ import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileTabBar } from './components/layout/MobileTabBar';
 import { SlideOverInspector } from './components/layout/SlideOverInspector';
-import { TodayView } from './components/today/TodayView';
-import { TasksView } from './components/tasks/TasksView';
-import { HabitsView } from './components/habits/HabitsView';
+import { LiquidTabViewport } from './components/layout/LiquidTabViewport';
 import { StreaksView } from './components/streaks/StreaksView';
-import { FinanceView } from './components/finance/FinanceView';
 import { SettingsView } from './components/settings/SettingsView';
 import { QuickCaptureModal } from './components/modals/QuickCaptureModal';
 import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
@@ -21,11 +18,6 @@ import { TaskModal } from './components/modals/TaskModal';
 import { HabitModal } from './components/modals/HabitModal';
 import { FinanceModal } from './components/modals/FinanceModal';
 import { AmbientLighting } from './components/effects/AmbientLighting';
-import type { ActiveTab } from './types';
-import { feedback } from './utils/feedback';
-
-// Horizontal sliding carousel tabs (STREAKS IS EXCLUDED: Streaks opens ONLY via streak flame icon)
-const MAIN_SLIDE_TABS: ActiveTab[] = ['today', 'tasks', 'habits', 'finance'];
 
 const MainLayout: React.FC = () => {
   const {
@@ -54,10 +46,6 @@ const MainLayout: React.FC = () => {
   } = useApp();
 
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
-
-  // Active slide tab index (defaults to 'today' if settings is active)
-  const currentSlideTab = MAIN_SLIDE_TABS.includes(activeTab) ? activeTab : 'today';
-  const activeSlideIndex = MAIN_SLIDE_TABS.indexOf(currentSlideTab);
 
   // Maximum active streak for live navbar flame counter
   const streakCount = useMemo(() => {
@@ -120,26 +108,6 @@ const MainLayout: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setActiveTab, openSearchModal, openStreaks, closeStreaks, isStreaksOpen]);
 
-  // Instant Apple-grade Drag & Velocity Flick Gesture
-  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const swipeThreshold = 45;
-    const velocityThreshold = 250;
-
-    if (
-      (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) &&
-      activeSlideIndex < MAIN_SLIDE_TABS.length - 1
-    ) {
-      feedback.playClick();
-      setActiveTab(MAIN_SLIDE_TABS[activeSlideIndex + 1]);
-    } else if (
-      (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) &&
-      activeSlideIndex > 0
-    ) {
-      feedback.playClick();
-      setActiveTab(MAIN_SLIDE_TABS[activeSlideIndex - 1]);
-    }
-  };
-
   return (
     <div
       className="flex flex-col h-screen w-screen overflow-hidden text-[var(--text-primary)] relative select-none"
@@ -168,29 +136,7 @@ const MainLayout: React.FC = () => {
               <SettingsView />
             </div>
           ) : (
-            <motion.div
-              className="flex w-full h-full cursor-grab active:cursor-grabbing"
-              animate={{ x: `-${activeSlideIndex * 100}%` }}
-              transition={{ type: 'spring', damping: 28, stiffness: 280, mass: 0.65 }}
-              drag="x"
-              dragDirectionLock
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.16}
-              onDragEnd={handleDragEnd}
-            >
-              {MAIN_SLIDE_TABS.map((tab) => (
-                <div
-                  key={tab}
-                  className="w-full h-full shrink-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 no-scrollbar"
-                  style={{ touchAction: 'pan-y' }}
-                >
-                  {tab === 'today' && <TodayView onOpenSearch={openSearchModal} />}
-                  {tab === 'tasks' && <TasksView />}
-                  {tab === 'habits' && <HabitsView />}
-                  {tab === 'finance' && <FinanceView />}
-                </div>
-              ))}
-            </motion.div>
+            <LiquidTabViewport openSearchModal={openSearchModal} />
           )}
         </main>
       </div>

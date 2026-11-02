@@ -196,3 +196,24 @@ test('Currency Auto-Detection: Timezone and locale mappings return valid symbols
     assert.equal(symbol, expected);
   }
 });
+
+test('Liquid Tab Engine: Apple exponential momentum projection projects resting positions', () => {
+  function projectMomentum(velocity, decelerationRate = 0.992) {
+    return (velocity / 1000) * decelerationRate / (1 - decelerationRate);
+  }
+
+  // Zero velocity projects 0
+  assert.equal(projectMomentum(0), 0);
+
+  // Moderate flick (500 px/s) projects ~62px forward
+  const proj500 = projectMomentum(500);
+  assert.ok(proj500 > 50 && proj500 < 80, `Expected ~62px, got ${proj500}`);
+
+  // High velocity flick (1500 px/s) projects ~186px forward
+  const proj1500 = projectMomentum(1500);
+  assert.ok(proj1500 > 150 && proj1500 < 220, `Expected ~186px, got ${proj1500}`);
+
+  // Opposing flick projects negative distance
+  const projNeg = projectMomentum(-800);
+  assert.ok(projNeg < -90, `Expected negative projection, got ${projNeg}`);
+});

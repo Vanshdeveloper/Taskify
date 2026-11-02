@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import type { ActiveTab } from '../../types';
 import { feedback } from '../../utils/feedback';
+import { SPRING_DOCK_LIQUID } from '../../utils/motion';
 
 export const MobileTabBar: React.FC = () => {
-  const { activeTab, setActiveTab, setIsQuickCaptureOpen, closeStreaks } = useApp();
+  const { activeTab, setActiveTab, setIsQuickCaptureOpen, closeStreaks, isSwiping } = useApp();
 
   const leftTabs: { id: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'today', label: 'Today', icon: Sun },
@@ -58,11 +59,13 @@ export const MobileTabBar: React.FC = () => {
                   {isActive && (
                     <motion.div
                       layoutId="mobileTabIndicator"
-                      transition={{ type: 'spring', damping: 25, stiffness: 380 }}
+                      transition={SPRING_DOCK_LIQUID}
+                      animate={isSwiping ? { scaleX: 1.08, scaleY: 0.94 } : { scaleX: 1, scaleY: 1 }}
                       className="absolute inset-0 rounded-xl"
                       style={{
                         backgroundColor: 'var(--bg-card)',
                         border: '1px solid var(--border-card)',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
                       }}
                     />
                   )}
@@ -108,11 +111,13 @@ export const MobileTabBar: React.FC = () => {
                   {isActive && (
                     <motion.div
                       layoutId="mobileTabIndicator"
-                      transition={{ type: 'spring', damping: 25, stiffness: 380 }}
+                      transition={SPRING_DOCK_LIQUID}
+                      animate={isSwiping ? { scaleX: 1.08, scaleY: 0.94 } : { scaleX: 1, scaleY: 1 }}
                       className="absolute inset-0 rounded-xl"
                       style={{
                         backgroundColor: 'var(--bg-card)',
                         border: '1px solid var(--border-card)',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
                       }}
                     />
                   )}
