@@ -355,3 +355,33 @@ When recording a task, format your entry as follows:
   - `npm run build` -> `tsc -b && vite build` exited with code 0 in 5.45s (2032 modules transformed, 0 errors, 0 warnings).
   - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.346s with exit code 0.
 - **Status**: Completed
+
+
+---
+
+### [TASK-013] 2026-11-02: Bottom Dock Streak & Floating Status Removal, Creative Bento Milestone & Swiss Tasks Overhaul
+- **User Request**: "/gravitas /ponytail Remove the Streak section from the bottom navbar and also the element which says \"Today: 1/6 Done (17%) . Safe: $80/d\" completely, all the tasks in the list doesn't looks good, do something creative with the tasks section with /ui-ux-pro-max."
+- **Execution Mode**: Gravitas Runtime (Invariants 1-6) + Ponytail + Apple Design Invariants + UI/UX Pro Max
+- **Scope**:
+  - `src/components/layout/MobileTabBar.tsx`
+  - `src/components/tasks/TasksView.tsx`
+  - `src/components/today/TodayView.tsx`
+  - `PROJECT_LEDGER.md`
+- **Changes Implemented**:
+  - **Bottom Dock Streak Removed**: Removed the `Streaks` tab icon from `MobileTabBar.tsx`. The bottom dock is now a perfectly balanced, distraction-free 4-tab + 1-FAB island (`Today`, `Tasks` | `(+) Quick Capture` | `Habits`, `Finance`), allowing larger tap targets and zero crowding. Streaks is exclusively and prominently triggered via the live flame counter in the top navigation bar.
+  - **Floating Status Micro-Pill Removed**: Completely excised the floating `"Today: X/Y Done (Z%) • Safe: $X/d"` pill from above the bottom island bar in `MobileTabBar.tsx`.
+  - **Creative Tasks Section Architecture (`TasksView.tsx`)**:
+    - **Live Metrics HUD Bar**: Added a dynamic overhead telemetry bar showing Active Focus Queue count, Completed Today count, and an animated Completion Velocity progress meter.
+    - **Bento Milestone Cards Grid (`LayoutGrid` view)**: Replaced generic flat rows with interactive, tactile Bento cards featuring:
+      - Vibrant categorized badges (`Work`, `Personal`, `Fitness`, `Creative`, `Finance`, `Study`) with bespoke accent color tags.
+      - Glowing priority indicators (Urgent crimson, High amber, Medium emerald, Low sky).
+      - Space Grotesk display headings and typography.
+      - Scheduled deadline capsules with calendar relative dates and time tags (`CustomTimePicker` formatted).
+      - Apple-tactile `✓ Done` toggle buttons with spring physics and Gen-Z delete confirmations.
+    - **Swiss Compact Minimalist Rows (`List` view)**: Added an instant view mode toggle permitting users to switch to ultra-dense Swiss Minimalist rows with custom checkboxes, category pills, and inline timestamps.
+  - **Today View Task Block Synchronization (`TodayView.tsx`)**: Upgraded the 3-task block on the home dashboard to use the same creative Bento Milestone Card architecture for unified visual polish.
+- **Verification Evidence**:
+  - `npm test` -> `node --test test/core-logic.test.mjs` passed (4/4 tests passed in 94ms).
+  - `npm run build` -> `tsc -b && vite build` exited with code 0 in 5.48s (2032 modules transformed, 0 errors, 0 warnings).
+  - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.328s with exit code 0.
+- **Status**: Completed

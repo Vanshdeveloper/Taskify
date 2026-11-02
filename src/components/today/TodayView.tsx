@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2,
   Plus,
@@ -10,9 +10,10 @@ import {
   Trash2,
   Edit3,
   Search,
+  Check,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { getTodayString } from '../../db';
+import { getTodayString, formatDateRelative } from '../../db';
 import { CalendarStrip } from '../ui/CalendarStrip';
 import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
@@ -59,6 +60,23 @@ export const TodayView: React.FC = () => {
       cancelText: 'Nope, keep it',
       onConfirm: () => deleteTask(taskId),
     });
+  };
+
+  const getCategoryTheme = (cat: string) => {
+    const c = cat.toLowerCase();
+    if (c.includes('work') || c.includes('office')) {
+      return { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' };
+    }
+    if (c.includes('fitness') || c.includes('health')) {
+      return { bg: 'rgba(16, 185, 129, 0.15)', text: '#34d399', border: 'rgba(16, 185, 129, 0.3)' };
+    }
+    if (c.includes('creative') || c.includes('design')) {
+      return { bg: 'rgba(214, 121, 140, 0.15)', text: '#f472b6', border: 'rgba(214, 121, 140, 0.3)' };
+    }
+    if (c.includes('study') || c.includes('learn')) {
+      return { bg: 'rgba(229, 164, 47, 0.15)', text: '#fbbf24', border: 'rgba(229, 164, 47, 0.3)' };
+    }
+    return { bg: 'rgba(255, 255, 255, 0.05)', text: '#d4d4d8', border: 'rgba(255, 255, 255, 0.08)' };
   };
 
   return (
@@ -296,7 +314,7 @@ export const TodayView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Task Management Block (Limited to ONLY 3 tasks, with "View all" button) */}
+      {/* 4. Creative Task Management Block (Capped at 3 tasks, with "View all" redirection) */}
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
@@ -318,118 +336,123 @@ export const TodayView: React.FC = () => {
           </button>
         </div>
 
-        {/* Unified Apple Concept Card */}
-        <div
-          className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden"
-          style={{ backgroundColor: 'var(--bg-card)' }}
-        >
-          {displayedTasks.length === 0 ? (
-            <div className="p-8 text-center flex flex-col items-center justify-center">
-              <CheckCircle2 className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
-              <span className="font-display text-sm font-semibold text-white">No tasks scheduled for today</span>
-              <p className="text-xs text-zinc-400 mt-1">Tap + to add a quick objective or enjoy your day.</p>
-            </div>
-          ) : (
-            displayedTasks.map((task) => {
-              const isDone = task.status === 'completed';
-              return (
-                <motion.div
-                  layout
-                  key={task.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                  className="p-4 sm:p-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.02]"
-                >
-                  <div className="flex flex-col min-w-0 pr-2">
-                    {/* Badges: Priority + Time + Status */}
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                          task.priority === 'urgent'
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/20'
-                            : task.priority === 'high'
-                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/20'
-                            : 'bg-black/30 text-zinc-400 border border-white/5'
+        {/* Creative Bento Milestone Cards for Today's Tasks */}
+        {displayedTasks.length === 0 ? (
+          <div
+            className="solid-card p-8 text-center flex flex-col items-center justify-center border shadow-xl"
+            style={{ backgroundColor: 'var(--bg-card)' }}
+          >
+            <CheckCircle2 className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
+            <span className="font-display text-sm font-semibold text-white">No tasks scheduled for today</span>
+            <p className="text-xs text-zinc-400 mt-1">Tap + to add a quick objective or enjoy your day.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <AnimatePresence>
+              {displayedTasks.map((task) => {
+                const isDone = task.status === 'completed';
+                const catTheme = getCategoryTheme(task.category);
+
+                return (
+                  <motion.div
+                    layout
+                    key={task.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ type: 'spring', damping: 26, stiffness: 360 }}
+                    className={`solid-card p-4 rounded-2xl flex flex-col justify-between shadow-xl border relative transition-all group hover:border-white/20 ${
+                      isDone ? 'opacity-65' : ''
+                    }`}
+                    style={{ backgroundColor: 'var(--bg-card)' }}
+                  >
+                    <div>
+                      {/* Top Badges */}
+                      <div className="flex items-center justify-between gap-1 mb-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span
+                            className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md border"
+                            style={{
+                              backgroundColor: catTheme.bg,
+                              color: catTheme.text,
+                              borderColor: catTheme.border,
+                            }}
+                          >
+                            {task.category}
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border font-mono ${
+                              task.priority === 'urgent'
+                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                : task.priority === 'high'
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                : 'bg-black/30 text-zinc-400 border-white/6'
+                            }`}
+                          >
+                            ^ {task.priority}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteTask(task.id, task.title)}
+                          className="opacity-40 group-hover:opacity-100 p-1 rounded-md text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                          title="Delete task"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Title & Description */}
+                      <h4
+                        className={`font-display text-sm font-bold tracking-tight leading-snug line-clamp-2 ${
+                          isDone ? 'line-through text-zinc-500' : 'text-white'
                         }`}
                       >
-                        ^ {task.priority}
-                      </span>
-
-                      {task.dueTime ? (
-                        <span className="text-[10px] font-mono text-zinc-300 bg-white/[0.06] px-2 py-0.5 rounded-md border border-white/8 flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-zinc-400" />
-                          {task.dueTime}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
-                          50 min
-                        </span>
-                      )}
-
-                      {isDone && (
-                        <span
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-md border"
-                          style={{
-                            backgroundColor: 'rgba(102, 124, 62, 0.2)',
-                            color: 'var(--accent-primary)',
-                            borderColor: 'rgba(102, 124, 62, 0.3)',
-                          }}
-                        >
-                          ✓ done
-                        </span>
+                        {task.title}
+                      </h4>
+                      {task.description && (
+                        <p className="text-[11px] text-zinc-400 mt-1 line-clamp-2 font-body">
+                          {task.description}
+                        </p>
                       )}
                     </div>
 
-                    <h4
-                      className={`text-sm sm:text-base font-bold tracking-tight truncate ${
-                        isDone ? 'line-through text-zinc-500' : 'text-white'
-                      }`}
-                    >
-                      {task.title}
-                    </h4>
-                    {task.description && (
-                      <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
-                        {task.description}
-                      </p>
-                    )}
-                  </div>
+                    {/* Bottom Row */}
+                    <div className="pt-3 mt-3 hairline-t flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-400">
+                        <Clock className="w-3 h-3 text-zinc-500" />
+                        <span>
+                          {formatDateRelative(task.dueDate)}
+                          {task.dueTime ? ` • ${task.dueTime}` : ''}
+                        </span>
+                      </div>
 
-                  {/* Circular Action Button & Options */}
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <motion.button
-                      whileHover={{ scale: 1.08 }}
-                      whileTap={{ scale: 0.92 }}
-                      type="button"
-                      onClick={(e) => toggleTask(task.id, e)}
-                      className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-xs pressable transition-all border ${
-                        isDone
-                          ? 'shadow-lg ring-2 ring-white/20'
-                          : 'hover:border-white/30'
-                      }`}
-                      style={{
-                        backgroundColor: isDone ? 'var(--accent-primary)' : 'var(--bg-subtle)',
-                        color: isDone ? '#ffffff' : 'var(--text-primary)',
-                        borderColor: isDone ? 'var(--accent-primary)' : 'var(--border-card)',
-                      }}
-                    >
-                      {isDone ? '✓' : 'start'}
-                    </motion.button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteTask(task.id, task.title)}
-                      className="opacity-40 hover:opacity-100 p-2 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
-                      title="Delete task"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              );
-            })
-          )}
-        </div>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={(e) => toggleTask(task.id, e)}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-[11px] pressable transition-all border ${
+                          isDone
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                            : 'hover:border-white/25 text-white'
+                        }`}
+                        style={{
+                          backgroundColor: isDone ? undefined : 'var(--bg-subtle)',
+                          borderColor: isDone ? undefined : 'var(--border-card)',
+                        }}
+                      >
+                        <Check className="w-3 h-3 stroke-[2.5]" />
+                        <span>{isDone ? 'Done' : 'Done'}</span>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        )}
       </section>
 
       {/* Task Creation Modal */}
