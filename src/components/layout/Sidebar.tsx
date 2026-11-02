@@ -6,7 +6,18 @@ import type { ActiveTab } from '../../types';
 import { getTodayString } from '../../db';
 
 export const Sidebar: React.FC = () => {
-  const { activeTab, setActiveTab, tasks, habits, habitLogs, financeStats, settings } = useApp();
+  const {
+    activeTab,
+    setActiveTab,
+    tasks,
+    habits,
+    habitLogs,
+    financeStats,
+    settings,
+    openStreaks,
+    closeStreaks,
+    isStreaksOpen,
+  } = useApp();
   const today = getTodayString();
 
   const pendingTodayTasks = tasks.filter(
@@ -95,12 +106,19 @@ export const Sidebar: React.FC = () => {
           </div>
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+            const isActive = item.id === 'streaks' ? isStreaksOpen : activeTab === item.id;
             return (
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  if (item.id === 'streaks') {
+                    openStreaks();
+                  } else {
+                    closeStreaks();
+                    setActiveTab(item.id);
+                  }
+                }}
                 className={`relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold pressable transition-colors ${
                   isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                 }`}

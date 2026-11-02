@@ -15,11 +15,10 @@ import {
 import { useApp } from '../../context/AppContext';
 import { getTodayString, formatDateRelative } from '../../db';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
-import { TaskModal } from '../modals/TaskModal';
 import { CustomSelect } from '../ui/CustomSelect';
 
 export const TasksView: React.FC = () => {
-  const { tasks, toggleTask, deleteTask, settings, requestDelete } = useApp();
+  const { tasks, toggleTask, deleteTask, settings, requestDelete, openTaskModal } = useApp();
   const today = getTodayString();
 
   // View state: Creative Cards Grid vs. Swiss Compact List
@@ -29,7 +28,6 @@ export const TasksView: React.FC = () => {
   const [filterTab, setFilterTab] = useState<'all' | 'today' | 'upcoming' | 'priority' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   // Statistics calculation for the creative HUD bar
   const totalCount = tasks.length;
@@ -112,8 +110,8 @@ export const TasksView: React.FC = () => {
           type="button"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setIsTaskModalOpen(true)}
-          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold pressable shadow-lg"
+          onClick={openTaskModal}
+          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold pressable shadow-lg cursor-pointer"
           style={{
             backgroundColor: 'var(--accent-primary)',
             color: '#ffffff',
@@ -571,9 +569,6 @@ export const TasksView: React.FC = () => {
           })}
         </div>
       )}
-
-      {/* Task Creation Modal */}
-      <TaskModal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} />
     </div>
   );
 };

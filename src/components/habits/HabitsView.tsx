@@ -12,8 +12,6 @@ import {
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import type { HabitTimeOfDay } from '../../types';
-import { HabitModal } from '../modals/HabitModal';
-
 export const HabitsView: React.FC = () => {
   const {
     habits,
@@ -24,13 +22,13 @@ export const HabitsView: React.FC = () => {
     deleteHabit,
     getHabitStreak,
     requestDelete,
+    openHabitModal,
   } = useApp();
 
   const today = getTodayString();
 
   // Filters
   const [timeFilter, setTimeFilter] = useState<'all' | HabitTimeOfDay>('all');
-  const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
 
   const filteredHabits = habits.filter((h) => {
     if (timeFilter !== 'all' && h.timeOfDay !== timeFilter) return false;
@@ -71,8 +69,8 @@ export const HabitsView: React.FC = () => {
           type="button"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setIsHabitModalOpen(true)}
-          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs pressable shadow-lg transition-all"
+          onClick={openHabitModal}
+          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs pressable shadow-lg transition-all cursor-pointer"
           style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -276,9 +274,6 @@ export const HabitsView: React.FC = () => {
           })
         )}
       </div>
-
-      {/* Routine Creation Modal */}
-      <HabitModal isOpen={isHabitModalOpen} onClose={() => setIsHabitModalOpen(false)} />
     </div>
   );
 };

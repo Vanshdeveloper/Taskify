@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, DollarSign, Sparkles, X, ArrowRight, Calendar, Tag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -100,7 +101,9 @@ export const QuickCaptureModal: React.FC = () => {
     setIsQuickCaptureOpen(false);
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isQuickCaptureOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 px-4">
@@ -343,6 +346,7 @@ export const QuickCaptureModal: React.FC = () => {
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

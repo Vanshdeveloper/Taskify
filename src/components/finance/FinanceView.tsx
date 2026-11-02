@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
-import { FinanceModal } from '../modals/FinanceModal';
 
 export const FinanceView: React.FC = () => {
   const {
@@ -25,6 +24,7 @@ export const FinanceView: React.FC = () => {
     settings,
     updateSettings,
     requestDelete,
+    openFinanceModal,
   } = useApp();
 
   const today = getTodayString();
@@ -32,7 +32,6 @@ export const FinanceView: React.FC = () => {
   // Filters & Search
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
 
   // Budget editing state
   const [isEditingBudget, setIsEditingBudget] = useState(false);
@@ -119,8 +118,8 @@ export const FinanceView: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setIsFinanceModalOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-white text-xs font-bold pressable shadow-lg transition-all"
+            onClick={openFinanceModal}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-white text-xs font-bold pressable shadow-lg transition-all cursor-pointer"
             style={{ backgroundColor: 'var(--accent-primary)' }}
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -416,9 +415,6 @@ export const FinanceView: React.FC = () => {
           })
         )}
       </div>
-
-      {/* Transaction Creation Modal */}
-      <FinanceModal isOpen={isFinanceModalOpen} onClose={() => setIsFinanceModalOpen(false)} />
     </div>
   );
 };

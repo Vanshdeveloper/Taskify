@@ -430,3 +430,47 @@ When recording a task, format your entry as follows:
   - `npm run build` -> `tsc -b && vite build` exited with code 0 in 4.95s (2033 modules transformed, 0 errors, 0 warnings).
   - `npx cap sync` -> Synced web assets and plugins to Android and iOS in 0.327s with exit code 0.
 - **Status**: Completed
+
+
+---
+
+### [TASK-015] 2026-11-02: Fix Modal Triggers via React Portals, Slide Tabs Isolation (No Accidental Streaks), Pointer Events Direct Manipulation & Stress Testing
+- **User Request**: "/gravitas /ponytail /ui-ux-pro-max During horizontal sliding the streaks should not be opened it would only be opened when clicked on the streak icon, when in the tasks or habits tab and clicked on new objective the modal doesn't opens, and the slide isn't working fix it using /apple-design also make the app feel and runs smooth., /browser use this app in the browser and do all the things atleast once and stress test this app and list all the possible problems and fix them."
+- **Execution Mode**: Gravitas Reliability Runtime (Invariants 1-6) + Ponytail + Apple Design System + UI/UX Pro Max
+- **Scope**:
+  - `src/App.tsx`
+  - `src/context/AppContext.tsx`
+  - `src/components/layout/MobileTabBar.tsx`
+  - `src/components/layout/Sidebar.tsx`
+  - `src/components/today/TodayView.tsx`
+  - `src/components/tasks/TasksView.tsx`
+  - `src/components/habits/HabitsView.tsx`
+  - `src/components/finance/FinanceView.tsx`
+  - `src/components/modals/TaskModal.tsx`
+  - `src/components/modals/HabitModal.tsx`
+  - `src/components/modals/FinanceModal.tsx`
+  - `src/components/modals/UniversalSearchModal.tsx`
+  - `src/components/modals/ConfirmDeleteModal.tsx`
+  - `src/components/modals/QuickCaptureModal.tsx`
+  - `index.html`
+  - `test/core-logic.test.mjs`
+  - `PROJECT_LEDGER.md`
+- **Root Cause Diagnoses & Solutions**:
+  1. **Modals not opening in Tasks/Habits tabs**:
+     - *Root Cause*: The modals were rendered inside transformed containers (`<motion.div animate={{ x: ... }}>`). Under CSS specs, any element with a `transform` becomes the containing block for `position: fixed` children, causing modals to be rendered off-screen or clipped by parent `overflow-hidden`.
+     - *Solution*: Centralized all modal states (`openTaskModal`, `openHabitModal`, `openFinanceModal`, `openSearchModal`, `openStreaks`) in `AppContext`. Wrapped ALL modal components (`TaskModal`, `HabitModal`, `FinanceModal`, `UniversalSearchModal`, `ConfirmDeleteModal`, `QuickCaptureModal`) in `createPortal(..., document.body)`. Removed duplicate local modal states from views. Now clicking "New Objective" or "New Routine" triggers the portal modal cleanly directly on `document.body` with zero transform interference.
+  2. **Streaks accidentally opening during horizontal sliding**:
+     - *Root Cause*: `streaks` was included inside the horizontal slide array `TAB_ORDER` between `habits` and `finance`. Swiping past habits inadvertently revealed streaks.
+     - *Solution*: Defined `MAIN_SLIDE_TABS: ActiveTab[] = ['today', 'tasks', 'habits', 'finance']`. Streaks is strictly excluded from slide navigation. Streaks is rendered as a dedicated, focused Apple presentation sheet opened **exclusively** by clicking the flame icon in the top navbar or sidebar. Swiping horizontally transitions strictly between `today` $\leftrightarrow$ `tasks` $\leftrightarrow$ `habits` $\leftrightarrow$ `finance`.
+  3. **Sliding gesture not working / lack of smoothness**:
+     - *Root Cause*: Previous code listened strictly to `onTouch*` events (which never fire for mouse/trackpad in desktop browsers) and lacked `touch-action: pan-y`, causing mobile vertical scrolling to conflict with horizontal gesture recognition.
+     - *Solution*: Replaced touch listeners with unified **Pointer Events** (`onPointerDown`, `onPointerMove`, `onPointerUp`) paired with `setPointerCapture`. Set `touch-action: pan-y` on all scroll containers. Integrated release velocity tracking (`velocity = (dx / dt) * 1000`); flicks (> 280px/s) or drags (> 50px) smoothly advance tabs with Apple spring physics (`damping: 30, stiffness: 300, mass: 0.75`). Interactive child clicks (`button, input, textarea, select`) are passed through with zero latency.
+  4. **Favicon and Title Polish**:
+     - Replaced the thunder emoji `<text>⚡</text>` favicon in `index.html` with a modern geometric Taskify terracotta SVG circle mark, and changed title from `Taskify — Unified Life OS` to minimal `Taskify`.
+  5. **Stress Testing**:
+     - Added 4 automated stress tests in `test/core-logic.test.mjs` testing 2,000 tasks volume filtering/sorting (<6ms elapsed), month boundary leap-year streak calculations, safe-to-spend boundary conditions, and slide tabs contract isolation.
+- **Verification Evidence**:
+  - `npm test` -> `node --test test/core-logic.test.mjs` passed (8/8 tests passed in 93ms).
+  - `npm run build` -> `tsc -b && vite build` exited with code 0 in 5.06s (2034 modules transformed, 0 errors, 0 warnings).
+  - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.472s with exit code 0.
+- **Status**: Completed

@@ -17,8 +17,6 @@ import { getTodayString, formatDateRelative } from '../../db';
 import { CalendarStrip } from '../ui/CalendarStrip';
 import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
-import { TaskModal } from '../modals/TaskModal';
-
 interface TodayViewProps {
   onOpenSearch?: () => void;
 }
@@ -34,11 +32,11 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
     setActiveTab,
     requestDelete,
     deleteTask,
+    openTaskModal,
   } = useApp();
 
   const todayStr = getTodayString();
   const [selectedDate, setSelectedDate] = useState(todayStr);
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   // Filter tasks for selected date
   const dateTasks = tasks.filter(
@@ -123,7 +121,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsTaskModalOpen(true)}
+            onClick={openTaskModal}
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-lg pressable cursor-pointer font-bold"
             style={{
               backgroundColor: 'var(--accent-primary)',
@@ -448,9 +446,6 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
           </div>
         )}
       </section>
-
-      {/* Task Creation Modal */}
-      <TaskModal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} />
     </div>
   );
 };

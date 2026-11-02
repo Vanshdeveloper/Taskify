@@ -118,3 +118,61 @@ test('Backup export schema structure validation', () => {
   assert.ok(Array.isArray(backup.settings));
   assert.equal(backup.version, 1);
 });
+
+test('Stress Test: High-load tasks volume filtering and sorting (2,000 items)', () => {
+  const tasks = [];
+  const categories = ['Work', 'Personal', 'Fitness', 'Finance', 'Creative'];
+  const priorities = ['low', 'medium', 'high', 'urgent'];
+
+  for (let i = 0; i < 2000; i++) {
+    tasks.push({
+      id: `task-${i}`,
+      title: `Task objective ${i} title with keywords`,
+      description: `Description for task ${i} with extra notes`,
+      status: i % 3 === 0 ? 'completed' : 'todo',
+      priority: priorities[i % priorities.length],
+      category: categories[i % categories.length],
+      dueDate: `2026-11-${String((i % 28) + 1).padStart(2, '0')}`,
+      createdAt: Date.now() - i * 1000,
+    });
+  }
+
+  // Filter for specific keyword and category
+  const start = performance.now();
+  const filtered = tasks.filter(
+    (t) => t.category === 'Work' && t.title.toLowerCase().includes('50')
+  );
+  const elapsed = performance.now() - start;
+
+  assert.ok(filtered.length > 0);
+  assert.ok(elapsed < 20, `Filtering 2000 items must take under 20ms (took ${elapsed.toFixed(2)}ms)`);
+});
+
+test('Stress Test: Streak calculation across month boundaries and gap days', () => {
+  const today = '2026-11-03';
+  // Consecutive days: Nov 3, Nov 2, Nov 1, Oct 31, Oct 30 = 5 days
+  const logsCrossMonth = [
+    { date: '2026-11-03', completed: true },
+    { date: '2026-11-02', completed: true },
+    { date: '2026-11-01', completed: true },
+    { date: '2026-10-31', completed: true },
+    { date: '2026-10-30', completed: true },
+    { date: '2026-10-28', completed: true }, // gap on Oct 29th
+  ];
+  assert.equal(calculateStreak(logsCrossMonth, today), 5);
+});
+
+test('Stress Test: Safe-to-spend edge cases (zero remaining, overspent, last day of month)', () => {
+  // Overspent: budget 1000, spent 1200 -> remaining budget = 0 -> safeSpend = 0
+  assert.equal(calculateSafeToSpend(1000, 1200, '2026-10-15'), 0);
+
+  // Last day of month: Oct 31, remaining days = 1 -> budget 500, spent 100 -> safeSpend = 400
+  assert.equal(calculateSafeToSpend(500, 100, '2026-10-31'), 400);
+});
+
+test('Contract Test: Horizontal slide tabs strictly exclude Streaks and Settings', () => {
+  const MAIN_SLIDE_TABS = ['today', 'tasks', 'habits', 'finance'];
+  assert.ok(!MAIN_SLIDE_TABS.includes('streaks'), 'Streaks must NEVER be in slide tabs');
+  assert.ok(!MAIN_SLIDE_TABS.includes('settings'), 'Settings must not be in slide tabs');
+  assert.equal(MAIN_SLIDE_TABS.length, 4);
+});

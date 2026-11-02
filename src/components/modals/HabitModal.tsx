@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Sparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -51,7 +52,9 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
@@ -209,6 +212,7 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

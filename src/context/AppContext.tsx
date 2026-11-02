@@ -57,6 +57,23 @@ interface AppContextType {
   deleteConfirmOptions: DeleteConfirmOptions | null;
   requestDelete: (options: DeleteConfirmOptions) => void;
   closeDeleteConfirm: () => void;
+
+  // Shared Modals
+  isTaskModalOpen: boolean;
+  openTaskModal: () => void;
+  closeTaskModal: () => void;
+  isHabitModalOpen: boolean;
+  openHabitModal: () => void;
+  closeHabitModal: () => void;
+  isFinanceModalOpen: boolean;
+  openFinanceModal: () => void;
+  closeFinanceModal: () => void;
+  isSearchModalOpen: boolean;
+  openSearchModal: () => void;
+  closeSearchModal: () => void;
+  isStreaksOpen: boolean;
+  openStreaks: () => void;
+  closeStreaks: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -76,6 +93,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Gen-Z Delete Confirmation state
   const [deleteConfirmOptions, setDeleteConfirmOptions] = useState<DeleteConfirmOptions | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  // Shared Modals state
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
+  const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isStreaksOpen, setIsStreaksOpen] = useState(false);
+
+  const openTaskModal = () => setIsTaskModalOpen(true);
+  const closeTaskModal = () => setIsTaskModalOpen(false);
+
+  const openHabitModal = () => setIsHabitModalOpen(true);
+  const closeHabitModal = () => setIsHabitModalOpen(false);
+
+  const openFinanceModal = () => setIsFinanceModalOpen(true);
+  const closeFinanceModal = () => setIsFinanceModalOpen(false);
+
+  const openSearchModal = () => setIsSearchModalOpen(true);
+  const closeSearchModal = () => setIsSearchModalOpen(false);
+
+  const openStreaks = () => setIsStreaksOpen(true);
+  const closeStreaks = () => setIsStreaksOpen(false);
 
   const requestDelete = (options: DeleteConfirmOptions) => {
     setDeleteConfirmOptions(options);
@@ -486,6 +525,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteConfirmOptions,
         requestDelete,
         closeDeleteConfirm,
+        isTaskModalOpen,
+        openTaskModal,
+        closeTaskModal,
+        isHabitModalOpen,
+        openHabitModal,
+        closeHabitModal,
+        isFinanceModalOpen,
+        openFinanceModal,
+        closeFinanceModal,
+        isSearchModalOpen,
+        openSearchModal,
+        closeSearchModal,
+        isStreaksOpen,
+        openStreaks,
+        closeStreaks,
       }}
     >
       {children}

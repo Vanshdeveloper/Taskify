@@ -6,7 +6,7 @@ import type { ActiveTab } from '../../types';
 import { feedback } from '../../utils/feedback';
 
 export const MobileTabBar: React.FC = () => {
-  const { activeTab, setActiveTab, setIsQuickCaptureOpen } = useApp();
+  const { activeTab, setActiveTab, setIsQuickCaptureOpen, closeStreaks } = useApp();
 
   const leftTabs: { id: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'today', label: 'Today', icon: Sun },
@@ -20,6 +20,7 @@ export const MobileTabBar: React.FC = () => {
 
   const handleTabClick = (tabId: ActiveTab) => {
     feedback.playClick();
+    closeStreaks();
     setActiveTab(tabId);
   };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, DollarSign } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -66,7 +67,9 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
     onClose();
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
@@ -229,6 +232,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
