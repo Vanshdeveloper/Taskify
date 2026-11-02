@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
+import { CustomSelect } from '../ui/CustomSelect';
+import { POPULAR_CURRENCIES, autodetectCurrency } from '../../utils/currency';
+import { feedback } from '../../utils/feedback';
 
 interface SlideOverInspectorProps {
   isOpen: boolean;
@@ -36,6 +39,12 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   const [savedNotice, setSavedNotice] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAutodetectCurrency = () => {
+    const detected = autodetectCurrency();
+    setCurrencyInput(detected.symbol);
+    feedback.playSuccessChime();
+  };
 
   const handleSaveWorkspace = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,14 +228,27 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[10px] text-zinc-400 mb-1 font-mono uppercase">
-                      Currency Symbol
-                    </label>
-                    <input
-                      type="text"
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] text-zinc-400 font-mono uppercase">
+                        Currency Format
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleAutodetectCurrency}
+                        className="text-[10px] font-mono text-zinc-400 hover:text-white flex items-center gap-1 pressable cursor-pointer"
+                        title="Auto-detect based on your local device locale (zero APIs)"
+                      >
+                        <Sparkles className="w-3 h-3 text-amber-400" />
+                        <span>Auto-Detect</span>
+                      </button>
+                    </div>
+                    <CustomSelect
                       value={currencyInput}
-                      onChange={(e) => setCurrencyInput(e.target.value)}
-                      className="w-full h-9 px-3 rounded-xl solid-input text-xs font-mono font-bold focus:outline-none"
+                      onChange={setCurrencyInput}
+                      options={POPULAR_CURRENCIES.map((c) => ({
+                        value: c.symbol,
+                        label: c.label,
+                      }))}
                     />
                   </div>
 

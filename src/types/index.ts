@@ -64,4 +64,11 @@ export interface UserSettings {
 }
 
 export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'settings';
-export type AppTheme = 'espresso-terracotta' | 'forest-rose' | 'obsidian-pure';
+export type AppTheme =
+  | 'espresso-terracotta'
+  | 'forest-rose'
+  | 'obsidian-pure'
+  | 'nordic-frost'
+  | 'tokyo-neon'
+  | 'kyoto-matcha'
+  | 'amber-dune';

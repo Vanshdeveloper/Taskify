@@ -16,6 +16,7 @@ import { useApp } from '../../context/AppContext';
 import { getTodayString, formatDateRelative } from '../../db';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
 import { CustomSelect } from '../ui/CustomSelect';
+import { SPRING_PILL } from '../../utils/motion';
 
 export const TasksView: React.FC = () => {
   const { tasks, toggleTask, deleteTask, settings, requestDelete, openTaskModal } = useApp();
@@ -276,36 +277,38 @@ export const TasksView: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setFilterTab(tab.id as any)}
-                className={`px-3.5 py-1 text-xs font-bold rounded-xl pressable whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'segmented-thumb-active font-semibold'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                className={`relative px-3.5 py-1.5 text-xs font-bold rounded-xl pressable whitespace-nowrap transition-colors ${
+                  isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
-                style={{
-                  backgroundColor: isActive ? 'var(--accent-primary)' : undefined,
-                  color: isActive ? '#ffffff' : undefined,
-                }}
               >
-                {tab.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="taskFilterActiveChip"
+                    transition={SPRING_PILL}
+                    className="absolute inset-0 rounded-xl"
+                    style={{ backgroundColor: 'var(--accent-primary)' }}
+                  />
+                )}
+                <span className="relative z-10">{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Search, CustomSelect & Creative View Mode Switcher */}
+        {/* Search, CustomSelect & Creative View Mode Switcher (Harmonized H-10 Geometry) */}
         <div className="flex items-center gap-2">
-          <div className="relative flex-1 sm:w-48">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <div className="relative flex-1 sm:w-48 h-10">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
             <input
               type="text"
               placeholder="Filter objectives..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+              className="w-full h-10 pl-8 pr-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
             />
           </div>
 
-          <div className="w-32 shrink-0">
+          <div className="w-32 shrink-0 h-10">
             <CustomSelect
               options={categoryOptions}
               value={selectedCategory}
@@ -313,40 +316,50 @@ export const TasksView: React.FC = () => {
             />
           </div>
 
-          {/* View Mode Switcher (Cards vs Compact) */}
-          <div className="segmented-track flex items-center gap-0.5 p-0.5 shrink-0">
+          {/* View Mode Switcher (Cards vs Compact) - Standardized H-10 */}
+          <div
+            className="h-10 px-1 rounded-xl flex items-center gap-0.5 shrink-0 border"
+            style={{
+              backgroundColor: 'var(--bg-subtle)',
+              borderColor: 'var(--border-subtle)',
+            }}
+          >
             <button
               type="button"
               onClick={() => setViewMode('cards')}
-              className={`p-1.5 rounded-lg pressable transition-all ${
-                viewMode === 'cards'
-                  ? 'segmented-thumb-active text-white'
-                  : 'text-zinc-400 hover:text-zinc-200'
+              className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
+                viewMode === 'cards' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
-              style={{
-                backgroundColor: viewMode === 'cards' ? 'var(--accent-primary)' : undefined,
-                color: viewMode === 'cards' ? '#fff' : undefined,
-              }}
               title="Creative Bento Cards View"
             >
-              <LayoutGrid className="w-3.5 h-3.5" />
+              {viewMode === 'cards' && (
+                <motion.div
+                  layoutId="taskViewModePill"
+                  transition={SPRING_PILL}
+                  className="absolute inset-0 rounded-lg"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                />
+              )}
+              <LayoutGrid className="w-3.5 h-3.5 relative z-10" />
             </button>
 
             <button
               type="button"
               onClick={() => setViewMode('compact')}
-              className={`p-1.5 rounded-lg pressable transition-all ${
-                viewMode === 'compact'
-                  ? 'segmented-thumb-active text-white'
-                  : 'text-zinc-400 hover:text-zinc-200'
+              className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
+                viewMode === 'compact' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
-              style={{
-                backgroundColor: viewMode === 'compact' ? 'var(--accent-primary)' : undefined,
-                color: viewMode === 'compact' ? '#fff' : undefined,
-              }}
               title="Minimalist Compact List View"
             >
-              <List className="w-3.5 h-3.5" />
+              {viewMode === 'compact' && (
+                <motion.div
+                  layoutId="taskViewModePill"
+                  transition={SPRING_PILL}
+                  className="absolute inset-0 rounded-lg"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                />
+              )}
+              <List className="w-3.5 h-3.5 relative z-10" />
             </button>
           </div>
         </div>

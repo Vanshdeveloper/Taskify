@@ -5,12 +5,15 @@ import {
   Upload,
   RefreshCw,
   User,
-  DollarSign,
   Smartphone,
   Laptop,
   CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { CustomSelect } from '../ui/CustomSelect';
+import { POPULAR_CURRENCIES, autodetectCurrency } from '../../utils/currency';
+import { feedback } from '../../utils/feedback';
 
 export const SettingsView: React.FC = () => {
   const {
@@ -28,6 +31,12 @@ export const SettingsView: React.FC = () => {
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAutodetectCurrency = () => {
+    const detected = autodetectCurrency();
+    setCurrencyInput(detected.symbol);
+    feedback.playSuccessChime();
+  };
 
   const handleSavePreferences = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,18 +171,28 @@ export const SettingsView: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-[11px] text-zinc-400 mb-1">
-                Currency Symbol
-              </label>
-              <div className="relative">
-                <DollarSign className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-                <input
-                  type="text"
-                  value={currencyInput}
-                  onChange={(e) => setCurrencyInput(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 rounded-xl solid-input text-xs text-white focus:outline-none font-mono"
-                />
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] text-zinc-400">
+                  Currency Format
+                </label>
+                <button
+                  type="button"
+                  onClick={handleAutodetectCurrency}
+                  className="text-[10px] font-mono text-zinc-400 hover:text-white flex items-center gap-1 pressable cursor-pointer"
+                  title="Auto-detect based on your local device locale (zero APIs)"
+                >
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>Auto-Detect</span>
+                </button>
               </div>
+              <CustomSelect
+                value={currencyInput}
+                onChange={setCurrencyInput}
+                options={POPULAR_CURRENCIES.map((c) => ({
+                  value: c.symbol,
+                  label: c.label,
+                }))}
+              />
             </div>
 
             <div>

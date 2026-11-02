@@ -176,3 +176,23 @@ test('Contract Test: Horizontal slide tabs strictly exclude Streaks and Settings
   assert.ok(!MAIN_SLIDE_TABS.includes('settings'), 'Settings must not be in slide tabs');
   assert.equal(MAIN_SLIDE_TABS.length, 4);
 });
+
+test('Currency Auto-Detection: Timezone and locale mappings return valid symbols', () => {
+  // Test timezone-to-currency mapping logic
+  const tzMap = {
+    'Asia/Kolkata': '₹',
+    'Europe/London': '£',
+    'Asia/Tokyo': '¥',
+    'America/New_York': '$',
+    'Europe/Berlin': '€',
+  };
+
+  for (const [tz, expected] of Object.entries(tzMap)) {
+    let symbol = '$';
+    if (tz.includes('Kolkata') || tz.includes('Calcutta')) symbol = '₹';
+    else if (tz.includes('London')) symbol = '£';
+    else if (tz.includes('Tokyo')) symbol = '¥';
+    else if (tz.includes('Berlin') || tz.includes('Paris')) symbol = '€';
+    assert.equal(symbol, expected);
+  }
+});

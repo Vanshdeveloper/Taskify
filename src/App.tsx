@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useMemo } from 'react';
+import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { AppProvider, useApp } from './context/AppContext';
@@ -54,15 +54,6 @@ const MainLayout: React.FC = () => {
   } = useApp();
 
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
-
-  // Apple-grade 1:1 Pointer Events Gesture Tracking (Mouse + Touch + Trackpad)
-  const [dragOffset, setDragOffset] = useState(0);
-  const pointerStartX = useRef<number | null>(null);
-  const pointerStartY = useRef<number | null>(null);
-  const pointerStartTime = useRef<number>(0);
-  const isDragging = useRef(false);
-  const isIntentDecided = useRef(false);
-  const isHorizontalGesture = useRef(false);
 
   // Active slide tab index (defaults to 'today' if settings is active)
   const currentSlideTab = MAIN_SLIDE_TABS.includes(activeTab) ? activeTab : 'today';
@@ -129,80 +120,24 @@ const MainLayout: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setActiveTab, openSearchModal, openStreaks, closeStreaks, isStreaksOpen]);
 
-  // Apple Design Principle 2: Direct Manipulation via Unified Pointer Events
-  const handlePointerDown = (e: React.PointerEvent) => {
-    // Only respond to primary button (left click or touch)
-    if (e.button !== 0) return;
+  // Instant Apple-grade Drag & Velocity Flick Gesture
+  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const swipeThreshold = 45;
+    const velocityThreshold = 250;
 
-    // Do not capture drag if clicking interactive child elements
-    const target = e.target as HTMLElement;
-    if (target.closest('button, input, textarea, select, a, [role="button"], .pressable')) {
-      return;
+    if (
+      (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) &&
+      activeSlideIndex < MAIN_SLIDE_TABS.length - 1
+    ) {
+      feedback.playClick();
+      setActiveTab(MAIN_SLIDE_TABS[activeSlideIndex + 1]);
+    } else if (
+      (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) &&
+      activeSlideIndex > 0
+    ) {
+      feedback.playClick();
+      setActiveTab(MAIN_SLIDE_TABS[activeSlideIndex - 1]);
     }
-
-    pointerStartX.current = e.clientX;
-    pointerStartY.current = e.clientY;
-    pointerStartTime.current = Date.now();
-    isDragging.current = true;
-    isIntentDecided.current = false;
-    isHorizontalGesture.current = false;
-    setDragOffset(0);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging.current || pointerStartX.current === null || pointerStartY.current === null) return;
-    const dx = e.clientX - pointerStartX.current;
-    const dy = e.clientY - pointerStartY.current;
-
-    // Detect gesture intent: Only capture if horizontal motion clearly dominates
-    if (!isIntentDecided.current) {
-      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-        isIntentDecided.current = true;
-        isHorizontalGesture.current = Math.abs(dx) > Math.abs(dy) * 1.25;
-        if (isHorizontalGesture.current) {
-          try {
-            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-          } catch {}
-        }
-      }
-    }
-
-    if (isHorizontalGesture.current) {
-      const isAtLeftBoundary = activeSlideIndex === 0 && dx > 0;
-      const isAtRightBoundary = activeSlideIndex === MAIN_SLIDE_TABS.length - 1 && dx < 0;
-      const rubberBandFactor = isAtLeftBoundary || isAtRightBoundary ? 0.22 : 1;
-      setDragOffset(dx * rubberBandFactor);
-    }
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-
-    if (isHorizontalGesture.current && pointerStartX.current !== null) {
-      const dx = e.clientX - pointerStartX.current;
-      const dt = Math.max(1, Date.now() - pointerStartTime.current);
-      const velocity = (dx / dt) * 1000; // px/s
-
-      // Momentum flick (> 280px/s) or dragged > 50px
-      if ((velocity < -280 || dx < -50) && activeSlideIndex < MAIN_SLIDE_TABS.length - 1) {
-        feedback.playClick();
-        setActiveTab(MAIN_SLIDE_TABS[activeSlideIndex + 1]);
-      } else if ((velocity > 280 || dx > 50) && activeSlideIndex > 0) {
-        feedback.playClick();
-        setActiveTab(MAIN_SLIDE_TABS[activeSlideIndex - 1]);
-      }
-
-      try {
-        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch {}
-    }
-
-    isDragging.current = false;
-    isIntentDecided.current = false;
-    isHorizontalGesture.current = false;
-    setDragOffset(0);
-    pointerStartX.current = null;
-    pointerStartY.current = null;
   };
 
   return (
@@ -225,11 +160,7 @@ const MainLayout: React.FC = () => {
 
         {/* Liquid Horizontal Sliding Viewport: Strictly MAIN_SLIDE_TABS ('today', 'tasks', 'habits', 'finance') */}
         <main
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          className="flex-1 overflow-hidden relative z-10 w-full h-full cursor-grab active:cursor-grabbing"
+          className="flex-1 overflow-hidden relative z-10 w-full h-full"
           style={{ touchAction: 'pan-y' }}
         >
           {activeTab === 'settings' ? (
@@ -238,13 +169,14 @@ const MainLayout: React.FC = () => {
             </div>
           ) : (
             <motion.div
-              className="flex w-full h-full"
-              animate={{ x: `calc(-${activeSlideIndex * 100}% + ${dragOffset}px)` }}
-              transition={
-                dragOffset !== 0
-                  ? { type: 'tween', duration: 0 }
-                  : { type: 'spring', damping: 30, stiffness: 300, mass: 0.75 }
-              }
+              className="flex w-full h-full cursor-grab active:cursor-grabbing"
+              animate={{ x: `-${activeSlideIndex * 100}%` }}
+              transition={{ type: 'spring', damping: 28, stiffness: 280, mass: 0.65 }}
+              drag="x"
+              dragDirectionLock
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.16}
+              onDragEnd={handleDragEnd}
             >
               {MAIN_SLIDE_TABS.map((tab) => (
                 <div

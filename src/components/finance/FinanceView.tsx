@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   DollarSign,
   TrendingUp,
@@ -12,9 +12,12 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   ShieldCheck,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
+import { SPRING_PILL } from '../../utils/motion';
 
 export const FinanceView: React.FC = () => {
   const {
@@ -28,6 +31,9 @@ export const FinanceView: React.FC = () => {
   } = useApp();
 
   const today = getTodayString();
+
+  // View state: Bento Cards vs Swiss Compact Ledger
+  const [viewMode, setViewMode] = useState<'cards' | 'compact'>('cards');
 
   // Filters & Search
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
@@ -104,28 +110,17 @@ export const FinanceView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={exportCsv}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/8 text-zinc-300 text-xs font-medium pressable transition-all"
-            style={{ backgroundColor: 'var(--bg-card)' }}
-            title="Export CSV"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Export CSV</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={openFinanceModal}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-white text-xs font-bold pressable shadow-lg transition-all cursor-pointer"
-            style={{ backgroundColor: 'var(--accent-primary)' }}
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Log Record</span>
-          </button>
-        </div>
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={openFinanceModal}
+          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs pressable shadow-lg transition-all cursor-pointer"
+          style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Log Record</span>
+        </motion.button>
       </div>
 
       {/* 2. 4 Apple Card Style Metric Cards */}
@@ -288,12 +283,13 @@ export const FinanceView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Segmented Filter & Search */}
+      {/* 4. Segmented Filter, Search & View Switcher (Standardized H-10 Geometry) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="segmented-track flex items-center gap-0.5 self-start">
+        {/* Liquid Filter Chips */}
+        <div className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar">
           {(
             [
-              { id: 'all', label: 'All' },
+              { id: 'all', label: `All ${transactions.length}` },
               { id: 'expense', label: 'Expenses' },
               { id: 'income', label: 'Income' },
             ] as const
@@ -304,117 +300,258 @@ export const FinanceView: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setFilterType(tab.id)}
-                className={`px-3 py-1 text-xs font-medium pressable transition-all ${
-                  isActive
-                    ? 'segmented-thumb-active font-bold'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                className={`relative px-3.5 py-1.5 text-xs font-bold rounded-xl pressable whitespace-nowrap transition-colors ${
+                  isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
-                style={{
-                  backgroundColor: isActive ? 'var(--accent-primary)' : undefined,
-                  color: isActive ? '#ffffff' : undefined,
-                }}
               >
-                {tab.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="financeFilterActiveChip"
+                    transition={SPRING_PILL}
+                    className="absolute inset-0 rounded-xl"
+                    style={{ backgroundColor: 'var(--accent-primary)' }}
+                  />
+                )}
+                <span className="relative z-10">{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        <div className="relative flex-1 sm:w-60">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-          <input
-            type="text"
-            placeholder="Search transactions..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 rounded-xl solid-input text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none"
-          />
+        {/* Search, Export CSV & View Switcher - Harmonized H-10 Geometry */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 sm:w-52 h-10">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search records..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-8 pr-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="h-10 px-3 rounded-xl border border-white/8 text-zinc-300 hover:text-white text-xs font-medium pressable flex items-center gap-1.5 shrink-0 transition-colors"
+            style={{ backgroundColor: 'var(--bg-subtle)' }}
+            title="Export CSV"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">CSV</span>
+          </button>
+
+          {/* View Mode Switcher (Cards vs Compact) - Standardized H-10 */}
+          <div
+            className="h-10 px-1 rounded-xl flex items-center gap-0.5 shrink-0 border"
+            style={{
+              backgroundColor: 'var(--bg-subtle)',
+              borderColor: 'var(--border-subtle)',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setViewMode('cards')}
+              className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
+                viewMode === 'cards' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Creative Bento Cards View"
+            >
+              {viewMode === 'cards' && (
+                <motion.div
+                  layoutId="financeViewModePill"
+                  transition={SPRING_PILL}
+                  className="absolute inset-0 rounded-lg"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                />
+              )}
+              <LayoutGrid className="w-4 h-4 relative z-10" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('compact')}
+              className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
+                viewMode === 'compact' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Ultra-Refined Swiss Compact Rows"
+            >
+              {viewMode === 'compact' && (
+                <motion.div
+                  layoutId="financeViewModePill"
+                  transition={SPRING_PILL}
+                  className="absolute inset-0 rounded-lg"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                />
+              )}
+              <List className="w-4 h-4 relative z-10" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 5. Clean Unified Transaction Ledger */}
-      <div
-        className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden"
-        style={{ backgroundColor: 'var(--bg-card)' }}
-      >
-        {filteredTransactions.length === 0 ? (
-          <div className="py-14 px-4 text-center flex flex-col items-center justify-center">
-            <DollarSign className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
-            <span className="font-display text-sm font-semibold text-zinc-300">
-              No transactions recorded
-            </span>
-            <p className="text-xs text-zinc-500 mt-1">Tap "Log Record" above to record your first inflow or expense.</p>
-          </div>
-        ) : (
-          filteredTransactions.map((tx) => {
-            const isIncome = tx.type === 'income';
+      {/* 5. Transactions (Dual Modes: Bento Cards vs Swiss Compact) */}
+      {filteredTransactions.length === 0 ? (
+        <div
+          className="solid-card py-16 px-4 text-center flex flex-col items-center justify-center border"
+          style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+        >
+          <DollarSign className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
+          <span className="font-display text-sm font-semibold text-zinc-300">
+            No transactions recorded
+          </span>
+          <p className="text-xs text-zinc-500 mt-1">Tap "Log Record" above to record your first inflow or expense.</p>
+        </div>
+      ) : viewMode === 'cards' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <AnimatePresence>
+            {filteredTransactions.map((tx) => {
+              const isIncome = tx.type === 'income';
 
-            return (
-              <motion.div
-                layout
-                key={tx.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ type: 'spring', damping: 28, stiffness: 380 }}
-                className="group flex items-center justify-between p-4 sm:p-4.5 text-zinc-200 hover:bg-white/[0.02] transition-colors"
-              >
-                <div className="flex items-center gap-3.5 min-w-0 pr-3">
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
-                    style={{
-                      backgroundColor: isIncome ? 'rgba(102, 124, 62, 0.2)' : 'rgba(255, 255, 255, 0.04)',
-                      color: isIncome ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                      borderColor: isIncome ? 'rgba(102, 124, 62, 0.3)' : 'rgba(255, 255, 255, 0.08)',
-                    }}
-                  >
-                    {isIncome ? (
-                      <ArrowUpRight className="w-4 h-4" />
-                    ) : (
-                      <ArrowDownRight className="w-4 h-4" />
-                    )}
-                  </div>
+              return (
+                <motion.div
+                  layout
+                  key={tx.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-lg border transition-all"
+                  style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
+                          style={{
+                            backgroundColor: isIncome ? 'rgba(102, 124, 62, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                            color: isIncome ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                            borderColor: isIncome ? 'rgba(102, 124, 62, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                          }}
+                        >
+                          {isIncome ? (
+                            <ArrowUpRight className="w-4 h-4" />
+                          ) : (
+                            <ArrowDownRight className="w-4 h-4" />
+                          )}
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/30 text-zinc-300 border border-white/6">
+                          {tx.category}
+                        </span>
+                      </div>
 
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs sm:text-sm font-semibold text-white truncate">
-                      {tx.description}
-                    </span>
-                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 mt-0.5 flex-wrap font-mono">
-                      <span className="px-1.5 py-0.5 rounded bg-black/30 text-zinc-400 border border-white/5">
-                        {tx.category}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteTransaction(tx.id, tx.description)}
+                        className="opacity-40 hover:opacity-100 p-1 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                        title="Delete record"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="mt-3">
+                      <span className="text-sm font-bold text-white block line-clamp-1">
+                        {tx.description}
                       </span>
-                      <span>•</span>
-                      <span>{tx.date}</span>
-                      <span>•</span>
-                      <span className="capitalize">{tx.paymentMethod.replace('_', ' ')}</span>
+                      <span
+                        className={`font-display text-xl font-bold font-mono tabular-nums block mt-1 ${
+                          isIncome ? 'text-emerald-400' : 'text-zinc-100'
+                        }`}
+                      >
+                        {isIncome ? '+' : '-'}
+                        {settings.currency}
+                        {tx.amount.toFixed(2)}
+                      </span>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                  <span
-                    className={`font-display text-xs sm:text-sm font-bold font-mono tabular-nums ${
-                      isIncome ? 'text-emerald-400' : 'text-zinc-100'
-                    }`}
-                  >
-                    {isIncome ? '+' : '-'}
-                    {settings.currency}
-                    {tx.amount.toFixed(2)}
-                  </span>
+                  <div className="flex items-center justify-between pt-3 mt-3 hairline-t text-[10px] font-mono text-zinc-500">
+                    <span>{tx.date}</span>
+                    <span className="capitalize">{tx.paymentMethod.replace('_', ' ')}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      ) : (
+        /* CREATIVE VIEW 2: ULTRA-REFINED SWISS COMPACT ROWS */
+        <div
+          className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden border"
+          style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+        >
+          <AnimatePresence>
+            {filteredTransactions.map((tx) => {
+              const isIncome = tx.type === 'income';
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteTransaction(tx.id, tx.description)}
-                    className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
-                    title="Delete record"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })
-        )}
-      </div>
+              return (
+                <motion.div
+                  layout
+                  key={tx.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="group flex items-center justify-between p-3.5 sm:p-4 text-zinc-200 hover:bg-white/[0.02] transition-colors"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0 pr-3">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
+                      style={{
+                        backgroundColor: isIncome ? 'rgba(102, 124, 62, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                        color: isIncome ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                        borderColor: isIncome ? 'rgba(102, 124, 62, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      {isIncome ? (
+                        <ArrowUpRight className="w-4 h-4" />
+                      ) : (
+                        <ArrowDownRight className="w-4 h-4" />
+                      )}
+                    </div>
+
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs sm:text-sm font-semibold text-white truncate">
+                        {tx.description}
+                      </span>
+                      <div className="flex items-center gap-2 text-[10px] text-zinc-500 mt-0.5 flex-wrap font-mono">
+                        <span className="px-1.5 py-0.5 rounded bg-black/30 text-zinc-400 border border-white/5">
+                          {tx.category}
+                        </span>
+                        <span>•</span>
+                        <span>{tx.date}</span>
+                        <span>•</span>
+                        <span className="capitalize">{tx.paymentMethod.replace('_', ' ')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span
+                      className={`font-display text-xs sm:text-sm font-bold font-mono tabular-nums ${
+                        isIncome ? 'text-emerald-400' : 'text-zinc-100'
+                      }`}
+                    >
+                      {isIncome ? '+' : '-'}
+                      {settings.currency}
+                      {tx.amount.toFixed(2)}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTransaction(tx.id, tx.description)}
+                      className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                      title="Delete record"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

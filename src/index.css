@@ -72,6 +72,94 @@
     --dock-border: rgba(255, 255, 255, 0.12);
   }
 
+  [data-theme="nordic-frost"] {
+    --bg-canvas: #0b0f14;
+    --bg-card: #131b24;
+    --bg-card-hover: #192430;
+    --bg-subtle: #0f151d;
+    --bg-input: #090d12;
+    --border-subtle: rgba(241, 245, 249, 0.08);
+    --border-card: rgba(241, 245, 249, 0.12);
+    --border-focus: rgba(56, 189, 248, 0.5);
+    --accent-primary: #38bdf8;        /* Arctic Sky Blue */
+    --accent-primary-hover: #7dd3fc;
+    --accent-secondary: #818cf8;      /* Glacier Indigo */
+    --accent-secondary-hover: #a5b4fc;
+    --accent-success: #34d399;        /* Mint */
+    --accent-highlight: #f1f5f9;      /* Platinum */
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --dock-bg: #10161f;
+    --dock-border: rgba(241, 245, 249, 0.14);
+  }
+
+  [data-theme="tokyo-neon"] {
+    --bg-canvas: #090a10;
+    --bg-card: #121420;
+    --bg-card-hover: #191b2c;
+    --bg-subtle: #0e0f18;
+    --bg-input: #07080d;
+    --border-subtle: rgba(248, 250, 252, 0.08);
+    --border-card: rgba(248, 250, 252, 0.12);
+    --border-focus: rgba(168, 85, 247, 0.5);
+    --accent-primary: #a855f7;        /* Radiant Violet */
+    --accent-primary-hover: #c084fc;
+    --accent-secondary: #06b6d4;      /* Cyber Cyan */
+    --accent-secondary-hover: #22d3ee;
+    --accent-success: #10b981;        /* Emerald */
+    --accent-highlight: #ffffff;
+    --text-primary: #f8fafc;
+    --text-secondary: #a3a3b2;
+    --text-muted: #5e6074;
+    --dock-bg: #10111d;
+    --dock-border: rgba(168, 85, 247, 0.25);
+  }
+
+  [data-theme="kyoto-matcha"] {
+    --bg-canvas: #0a110c;
+    --bg-card: #131f17;
+    --bg-card-hover: #1a2a1f;
+    --bg-subtle: #0e1710;
+    --bg-input: #080d09;
+    --border-subtle: rgba(247, 254, 231, 0.08);
+    --border-card: rgba(247, 254, 231, 0.12);
+    --border-focus: rgba(132, 204, 22, 0.5);
+    --accent-primary: #84cc16;        /* Fresh Matcha Wasabi */
+    --accent-primary-hover: #a3e635;
+    --accent-secondary: #eab308;      /* Kyoto Amber */
+    --accent-secondary-hover: #facc15;
+    --accent-success: #22c55e;        /* Bamboo */
+    --accent-highlight: #f7fee7;      /* Cream */
+    --text-primary: #f7fee7;
+    --text-secondary: #a3b899;
+    --text-muted: #5f7358;
+    --dock-bg: #101a13;
+    --dock-border: rgba(132, 204, 22, 0.22);
+  }
+
+  [data-theme="amber-dune"] {
+    --bg-canvas: #120e0a;
+    --bg-card: #1e1711;
+    --bg-card-hover: #281f17;
+    --bg-subtle: #16110c;
+    --bg-input: #0e0a07;
+    --border-subtle: rgba(254, 243, 199, 0.08);
+    --border-card: rgba(254, 243, 199, 0.12);
+    --border-focus: rgba(245, 158, 11, 0.5);
+    --accent-primary: #f59e0b;        /* Molten Liquid Gold */
+    --accent-primary-hover: #fbbf24;
+    --accent-secondary: #ea580c;      /* Sunset Flame */
+    --accent-secondary-hover: #f97316;
+    --accent-success: #84cc16;        /* Palm Green */
+    --accent-highlight: #fef3c7;      /* Dune Linen */
+    --text-primary: #fef3c7;
+    --text-secondary: #bfad97;
+    --text-muted: #796856;
+    --dock-bg: #19130e;
+    --dock-border: rgba(245, 158, 11, 0.22);
+  }
+
   body {
     font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-canvas);
