@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { AppProvider, useApp } from './context/AppContext';
@@ -16,6 +16,10 @@ import { FinanceView } from './components/finance/FinanceView';
 import { SettingsView } from './components/settings/SettingsView';
 import { QuickCaptureModal } from './components/modals/QuickCaptureModal';
 import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
+import { UniversalSearchModal } from './components/modals/UniversalSearchModal';
+import { TaskModal } from './components/modals/TaskModal';
+import { HabitModal } from './components/modals/HabitModal';
+import { FinanceModal } from './components/modals/FinanceModal';
 import { AmbientLighting } from './components/effects/AmbientLighting';
 import type { ActiveTab } from './types';
 import { feedback } from './utils/feedback';
@@ -34,10 +38,16 @@ const MainLayout: React.FC = () => {
   } = useApp();
 
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
+  const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
 
-  // Swipe navigation touch state
+  // Swipe navigation touch state with 1:1 direct manipulation tracking
+  const [dragOffset, setDragOffset] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const isHorizontalSwipe = useRef<boolean | null>(null);
 
   // Calculate current maximum active habit streak for the top navbar live fire badge
   const streakCount = useMemo(() => {
@@ -53,9 +63,15 @@ const MainLayout: React.FC = () => {
     }
   }, []);
 
-  // Keyboard navigation 1-6 when not focused in input
+  // Global keyboard shortcut listeners (Cmd+K / Ctrl+K for Universal Search, 1-6 for tabs)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+        return;
+      }
+
       const activeEl = document.activeElement;
       const isInput =
         activeEl?.tagName === 'INPUT' ||
@@ -71,41 +87,62 @@ const MainLayout: React.FC = () => {
       if (e.key === '4') setActiveTab('streaks');
       if (e.key === '5') setActiveTab('finance');
       if (e.key === '6') setActiveTab('settings');
+      if (e.key === '/') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setActiveTab]);
 
-  // Touch Swipe Handlers for horizontal swipe between tabs (Requirement 5)
+  // 1:1 Interactive Touch Swipe Gesture Handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
+    isHorizontalSwipe.current = null;
+    setDragOffset(0);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     if (touchStartX.current === null || touchStartY.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    touchStartX.current = null;
-    touchStartY.current = null;
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
 
-    // Horizontal swipe threshold: dx > 55px and predominantly horizontal
-    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+    if (isHorizontalSwipe.current === null) {
+      if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+        isHorizontalSwipe.current = Math.abs(dx) > Math.abs(dy) * 1.3;
+      }
+    }
+
+    if (isHorizontalSwipe.current) {
       const currentIndex = TAB_ORDER.indexOf(activeTab);
-      if (currentIndex === -1) return;
+      const isAtLeftBoundary = currentIndex === 0 && dx > 0;
+      const isAtRightBoundary = currentIndex === TAB_ORDER.length - 1 && dx < 0;
+      const factor = isAtLeftBoundary || isAtRightBoundary ? 0.22 : 1;
+      setDragOffset(dx * factor);
+    }
+  };
 
-      if (dx < 0 && currentIndex < TAB_ORDER.length - 1) {
-        // Swiped left (finger right to left) -> Go to next tab
+  const handleTouchEnd = () => {
+    if (isHorizontalSwipe.current && Math.abs(dragOffset) > 55) {
+      const currentIndex = TAB_ORDER.indexOf(activeTab);
+      if (dragOffset < -55 && currentIndex < TAB_ORDER.length - 1) {
         feedback.playClick();
         setActiveTab(TAB_ORDER[currentIndex + 1]);
-      } else if (dx > 0 && currentIndex > 0) {
-        // Swiped right (finger left to right) -> Go to prev tab
+      } else if (dragOffset > 55 && currentIndex > 0) {
         feedback.playClick();
         setActiveTab(TAB_ORDER[currentIndex - 1]);
       }
     }
+    setDragOffset(0);
+    touchStartX.current = null;
+    touchStartY.current = null;
+    isHorizontalSwipe.current = null;
   };
+
+  const activeIndex = TAB_ORDER.indexOf(activeTab);
 
   return (
     <div
@@ -125,34 +162,61 @@ const MainLayout: React.FC = () => {
       <div className="flex flex-1 overflow-hidden relative z-10">
         <Sidebar />
 
-        {/* Main View Area with Touch Swipe Support */}
+        {/* Liquid Sliding Viewport: All tabs preloaded, zero opacity blank flash */}
         <main
           onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 relative z-10 scroll-smooth"
+          className="flex-1 overflow-hidden relative z-10 w-full h-full"
         >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="w-full h-full"
-            >
-              {activeTab === 'today' && <TodayView />}
-              {activeTab === 'tasks' && <TasksView />}
-              {activeTab === 'habits' && <HabitsView />}
-              {activeTab === 'streaks' && <StreaksView />}
-              {activeTab === 'finance' && <FinanceView />}
-              {activeTab === 'settings' && <SettingsView />}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            className="flex w-full h-full"
+            animate={{ x: `calc(-${activeIndex * 100}% + ${dragOffset}px)` }}
+            transition={
+              dragOffset !== 0
+                ? { type: 'tween', duration: 0 }
+                : { type: 'spring', damping: 30, stiffness: 280, mass: 0.75 }
+            }
+          >
+            {TAB_ORDER.map((tab) => (
+              <div
+                key={tab}
+                className="w-full h-full shrink-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 no-scrollbar"
+              >
+                {tab === 'today' && <TodayView onOpenSearch={() => setIsSearchOpen(true)} />}
+                {tab === 'tasks' && <TasksView />}
+                {tab === 'habits' && <HabitsView />}
+                {tab === 'streaks' && <StreaksView />}
+                {tab === 'finance' && <FinanceView />}
+                {tab === 'settings' && <SettingsView />}
+              </div>
+            ))}
+          </motion.div>
         </main>
       </div>
 
       <MobileTabBar />
       <QuickCaptureModal />
+      <UniversalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onOpenTaskModal={() => setIsTaskModalOpen(true)}
+        onOpenHabitModal={() => setIsHabitModalOpen(true)}
+        onOpenFinanceModal={() => setIsFinanceModalOpen(true)}
+        onOpenInspector={() => setIsInspectorOpen(true)}
+      />
+      <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+      />
+      <HabitModal
+        isOpen={isHabitModalOpen}
+        onClose={() => setIsHabitModalOpen(false)}
+      />
+      <FinanceModal
+        isOpen={isFinanceModalOpen}
+        onClose={() => setIsFinanceModalOpen(false)}
+      />
       <ConfirmDeleteModal
         isOpen={isDeleteConfirmOpen}
         options={deleteConfirmOptions}

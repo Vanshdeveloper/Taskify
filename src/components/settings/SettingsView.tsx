@@ -82,7 +82,7 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-4xl mx-auto w-full pb-24 select-none relative z-10">
+    <div className="flex flex-col gap-5 max-w-4xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10">
       {/* Header */}
       <div className="pt-1">
         <div className="flex items-center gap-2 mb-1">

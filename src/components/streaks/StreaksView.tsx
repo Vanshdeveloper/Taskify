@@ -20,50 +20,15 @@ interface StreaksViewProps {
 }
 
 export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
-  const { habits, habitLogs, setActiveTab } = useApp();
+  const { habits, habitLogs, setActiveTab, getHabitStreak } = useApp();
 
   const [activeSection, setActiveSection] = useState<'pure' | 'lab'>('pure');
   const [freezeShields, setFreezeShields] = useState(2);
   const [shieldNotice, setShieldNotice] = useState<string | null>(null);
 
-  // Calculate streaks per habit
-  const getStreak = (habitId: string): number => {
-    const logs = habitLogs
-      .filter((l) => l.habitId === habitId && l.completed)
-      .map((l) => l.date)
-      .sort()
-      .reverse();
-
-    if (logs.length === 0) return 0;
-
-    let streak = 0;
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-
-    let checkDate = new Date();
-    if (!logs.includes(todayStr)) {
-      checkDate.setDate(checkDate.getDate() - 1);
-    }
-
-    while (true) {
-      const y = checkDate.getFullYear();
-      const m = String(checkDate.getMonth() + 1).padStart(2, '0');
-      const d = String(checkDate.getDate()).padStart(2, '0');
-      const dateStr = `${y}-${m}-${d}`;
-
-      if (logs.includes(dateStr)) {
-        streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-    return streak;
-  };
-
   const habitStreaks = habits.map((h) => ({
     ...h,
-    streak: getStreak(h.id),
+    streak: getHabitStreak(h.id),
   }));
 
   const maxStreak = habitStreaks.reduce((max, h) => Math.max(max, h.streak), 0);
@@ -107,7 +72,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-28 select-none relative z-10 min-h-[calc(100vh-100px)]">
+    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10 min-h-[calc(100vh-100px)]">
       {/* Top Bar: Back Action & Section Tabs */}
       <div className="flex items-center justify-between pt-1">
         <button

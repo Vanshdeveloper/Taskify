@@ -385,3 +385,48 @@ When recording a task, format your entry as follows:
   - `npm run build` -> `tsc -b && vite build` exited with code 0 in 5.48s (2032 modules transformed, 0 errors, 0 warnings).
   - `npx cap sync` -> Synced web assets and Capacitor plugins to Android and iOS in 0.328s with exit code 0.
 - **Status**: Completed
+
+
+---
+
+### [TASK-014] 2026-11-02: Liquid Sliding Viewport, Universal Spotlight Search, iOS-Grade Pickers, Dynamic Gen-Z Deletes & Open-Source Packaging
+- **User Request**: "/gravitas /ponytail /ui-ux-pro-max Perfecto!, but still some things are eating me from inside those are 1. The whole ui can be more liquified and when i slide all the sections should be loaded up so no fade in animation directly the second section should be shown like liquid glass + smoothest transition possible, and the second thing remove the thunder icon from the inspector and system, in all the section give some space from the beneath so the when the user scroll they actually see the bottom currently the bottom of the last element of the section and the top of the bottom navbar are aligned on each other so no clean space is shown which actually isn't liked by some people, match the border radius of dropdown the tab vs the whole dropdown and also add costum time and date picker like an iOS but with our own taskify taste. Also the universal search button in the home section isn't working when it's clicked it redirects to the tasks section, fix these issues and /plan /ponytail-review see if the whole project is ready to be open-sourced and make an boom on github or something is still remaining on the Logic side or ui or etc. Proceed, but add one thing eveytime user clicks on the delete button new genz text show up not the same everytime."
+- **Execution Mode**: Gravitas Runtime (Invariants 1-6) + Ponytail Mode + Apple Design System + UI/UX Pro Max
+- **Scope**:
+  - `src/App.tsx`
+  - `src/components/modals/UniversalSearchModal.tsx`
+  - `src/components/modals/ConfirmDeleteModal.tsx`
+  - `src/components/today/TodayView.tsx`
+  - `src/components/tasks/TasksView.tsx`
+  - `src/components/habits/HabitsView.tsx`
+  - `src/components/streaks/StreaksView.tsx`
+  - `src/components/finance/FinanceView.tsx`
+  - `src/components/settings/SettingsView.tsx`
+  - `src/components/layout/SlideOverInspector.tsx`
+  - `src/components/ui/CustomSelect.tsx`
+  - `src/components/ui/CustomDatePicker.tsx`
+  - `src/components/ui/CustomTimePicker.tsx`
+  - `README.md`
+  - `LICENSE`
+  - `.github/workflows/ci.yml`
+  - `PROJECT_LEDGER.md`
+- **Changes Implemented**:
+  - **Liquid Sliding Multi-Tab Viewport (`src/App.tsx`)**: Replaced `AnimatePresence mode="wait"` opacity fade-in with a preloaded, continuous horizontal flex track translating via Apple spring physics (`damping: 30, stiffness: 280, mass: 0.75`). All 6 sections remain mounted side-by-side with independent vertical scroll containers, enabling seamless liquid transitions with zero blank flashes. Added 1:1 direct gesture dragging with elastic boundary resistance.
+  - **Universal Spotlight Search (`UniversalSearchModal.tsx`)**: Replaced the dummy `setActiveTab('tasks')` redirect in `TodayView.tsx` with an Apple Spotlight command palette (`Cmd+K`, `/`, and search button). Indexes tasks, habits, transactions, and system shortcuts in real time with keyboard arrow navigation (`↑`/`↓`/`↵`).
+  - **Dynamic Gen-Z Delete Messages (`ConfirmDeleteModal.tsx`)**: Implemented a rotating pool of 7 authentic Gen-Z confirmation dialogs ("No cap, this will disappear into the void forever fr fr", "Whoa bestie, slow down...", "Permanent vibe check 🛑", "Send it to the backrooms?", "It is giving RIP 💀", "Deleting this is crazy 😭", "Bro really clicked delete..."). A fresh random line is chosen every time the delete modal opens.
+  - **Thunder Icon Removals**: Completely removed `⚡` from `SlideOverInspector.tsx` (replaced with a clean, minimal `Sliders` icon) and from the `TodayView.tsx` focus avatar.
+  - **Generous Bottom Scroll Clearance**: Expanded bottom padding across all views (`TodayView`, `TasksView`, `HabitsView`, `StreaksView`, `FinanceView`, `SettingsView`) to `pb-36 sm:pb-32`, providing ~50px of clean breathing room above the floating island dock.
+  - **Concentric Dropdown Radii (`CustomSelect.tsx`)**: Replaced the oversized 24px popover radius with a nested concentric radius (`rounded-xl` trigger, `rounded-xl` popover, `rounded-lg` items).
+  - **iOS-Grade Custom Date & Time Pickers**:
+    - `CustomDatePicker.tsx`: Interactive month calendar grid with weekday headers, month/year navigation chevrons, today border ring, active accent pill, and quick preset chips (`Today`, `Tomorrow`, `+3 Days`, `Next Wk`).
+    - `CustomTimePicker.tsx`: iOS-style dual tumbler with live preview, 12-hour selection grid, 5-minute interval steps, AM/PM segmented switch, and quick presets.
+  - **Streaks Deduplication**: Refactored `StreaksView.tsx` to reuse `getHabitStreak` from `AppContext`, eliminating 35 lines of duplicate calculation logic.
+  - **Open-Source GitHub Boom Packaging**:
+    - Created a showcase `README.md` with badges, ASCII architecture, feature breakdown, local setup instructions, and keyboard shortcuts table.
+    - Added standard MIT `LICENSE`.
+    - Added automated GitHub Actions CI workflow (`.github/workflows/ci.yml`) testing and building on Node 22 for all `push` and `pull_request` events to `main`.
+- **Verification Evidence**:
+  - `npm test` -> `node --test test/core-logic.test.mjs` passed (4/4 tests passed in 93ms).
+  - `npm run build` -> `tsc -b && vite build` exited with code 0 in 4.95s (2033 modules transformed, 0 errors, 0 warnings).
+  - `npx cap sync` -> Synced web assets and plugins to Android and iOS in 0.327s with exit code 0.
+- **Status**: Completed

@@ -93,7 +93,7 @@ export const FinanceView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-24 select-none relative z-10">
+    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10">
       {/* 1. Header (Cleaned: "FINANCE, CASHFLOW ARCHITECTURE" line removed completely) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>

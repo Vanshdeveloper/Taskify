@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, X } from 'lucide-react';
 import { feedback } from '../../utils/feedback';
@@ -17,18 +17,68 @@ interface ConfirmDeleteModalProps {
   onClose: () => void;
 }
 
+const GENZ_DELETE_PRESETS = [
+  {
+    title: 'You sure you wanna delete this?',
+    message: 'No cap, this will disappear into the void forever fr fr.',
+    confirmText: 'Yep, yeet it',
+    cancelText: 'Nope, keep it',
+  },
+  {
+    title: 'Whoa bestie, slow down...',
+    message: 'This action is giving zero-reversibility. It is gone into the digital abyss.',
+    confirmText: 'Yeet to oblivion',
+    cancelText: 'Nah my bad',
+  },
+  {
+    title: 'Permanent vibe check 🛑',
+    message: 'Deleting this is definitely not demure, not mindful. Are we really doing this?',
+    confirmText: 'Delete fr',
+    cancelText: 'Wait hold up',
+  },
+  {
+    title: 'Send it to the backrooms?',
+    message: 'Once deleted, even Ctrl+Z cannot clutch this up. You 100% positive?',
+    confirmText: 'Send it 🚀',
+    cancelText: 'Let it cook',
+  },
+  {
+    title: 'It is giving RIP 💀',
+    message: 'This entry is about to be cooked. Zero saves, zero respawns.',
+    confirmText: 'Cook it',
+    cancelText: 'Spare its life',
+  },
+  {
+    title: 'Deleting this is crazy 😭',
+    message: 'Ong this data will vanish forever. You are really letting it go?',
+    confirmText: 'Straight to trash',
+    cancelText: 'Keep it safe',
+  },
+  {
+    title: 'Bro really clicked delete...',
+    message: 'No take-backsies! This item is about to log off permanently.',
+    confirmText: 'Nuke it',
+    cancelText: 'Cancel immediately',
+  },
+];
+
 export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   isOpen,
   options,
   onClose,
 }) => {
+  // Pick a fresh random Gen-Z text every time the modal is opened
+  const randomPreset = useMemo(() => {
+    const idx = Math.floor(Math.random() * GENZ_DELETE_PRESETS.length);
+    return GENZ_DELETE_PRESETS[idx];
+  }, [isOpen, options]);
+
   if (!options) return null;
 
-  const title = options.title || 'You sure you wanna delete this?';
-  const message =
-    options.message || 'No cap, this will disappear into the void forever fr fr.';
-  const confirmText = options.confirmText || 'Yep, yeet it';
-  const cancelText = options.cancelText || 'Nope, keep it';
+  const title = options.title || randomPreset.title;
+  const message = options.message || randomPreset.message;
+  const confirmText = options.confirmText || randomPreset.confirmText;
+  const cancelText = options.cancelText || randomPreset.cancelText;
 
   const handleConfirm = async () => {
     feedback.playClick();
@@ -61,7 +111,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ type: 'spring', damping: 26, stiffness: 380 }}
-            className="relative w-full max-w-sm solid-card p-6 shadow-2xl flex flex-col gap-4 border z-10"
+            className="relative w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col gap-4 border z-10"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
@@ -83,7 +133,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
               <button
                 type="button"
                 onClick={handleCancel}
-                className="p-1 rounded-lg text-zinc-500 hover:text-white pressable"
+                className="p-1 rounded-lg text-zinc-500 hover:text-white pressable transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -99,26 +149,31 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
               </p>
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2.5 pt-2 hairline-t">
-              <button
+            {/* Actions: Yep vs Nope */}
+            <div className="flex items-center gap-2.5 pt-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
                 type="button"
                 onClick={handleCancel}
-                className="w-full py-2.5 rounded-xl text-xs font-bold text-zinc-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/8 pressable transition-colors"
-              >
-                {cancelText}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleConfirm}
-                className="w-full py-2.5 rounded-xl text-xs font-bold text-white pressable shadow-lg transition-transform"
+                className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white border pressable transition-colors"
                 style={{
-                  backgroundColor: '#e11d48',
+                  backgroundColor: 'var(--bg-subtle)',
+                  borderColor: 'var(--border-card)',
                 }}
               >
+                {cancelText}
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                type="button"
+                onClick={handleConfirm}
+                className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-white shadow-lg pressable transition-opacity bg-rose-600 hover:bg-rose-500"
+              >
                 {confirmText}
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </div>

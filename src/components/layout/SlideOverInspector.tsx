@@ -12,6 +12,7 @@ import {
   Command,
   Check,
   Sparkles,
+  Sliders,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -111,9 +112,9 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
               <div className="flex items-center gap-2.5">
                 <div
                   className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs"
-                  style={{ backgroundColor: 'var(--accent-primary)', color: 'var(--text-primary)' }}
+                  style={{ backgroundColor: 'var(--accent-primary)', color: '#ffffff' }}
                 >
-                  ⚡
+                  <Sliders className="w-3.5 h-3.5 stroke-[2.5]" />
                 </div>
                 <h3 className="font-display text-base font-bold text-white tracking-tight">
                   Inspector & System

@@ -19,7 +19,11 @@ import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
 import { TaskModal } from '../modals/TaskModal';
 
-export const TodayView: React.FC = () => {
+interface TodayViewProps {
+  onOpenSearch?: () => void;
+}
+
+export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
   const {
     tasks,
     toggleTask,
@@ -80,7 +84,7 @@ export const TodayView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-24 select-none relative z-10">
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10">
       {/* 1. Header (Cleaned: "TASKIFY, and Daily Nexus" removed completely) */}
       <div className="flex items-center justify-between pt-2">
         <div>
@@ -104,14 +108,14 @@ export const TodayView: React.FC = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab('tasks')}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center pressable border transition-colors"
+            onClick={onOpenSearch || (() => setActiveTab('tasks'))}
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center pressable border transition-colors cursor-pointer"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
               color: 'var(--text-secondary)',
             }}
-            title="Browse Tasks"
+            title="Universal Search & Command (Cmd+K)"
           >
             <Search className="w-4 h-4" />
           </motion.button>
@@ -159,16 +163,6 @@ export const TodayView: React.FC = () => {
                   <div
                     className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold shadow-sm"
                     style={{
-                      backgroundColor: 'var(--accent-primary)',
-                      borderColor: 'var(--bg-card)',
-                      color: '#ffffff',
-                    }}
-                  >
-                    ⚡
-                  </div>
-                  <div
-                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold shadow-sm"
-                    style={{
                       backgroundColor: 'var(--accent-secondary)',
                       borderColor: 'var(--bg-card)',
                       color: '#160f0d',
@@ -184,7 +178,7 @@ export const TodayView: React.FC = () => {
                       color: 'var(--text-secondary)',
                     }}
                   >
-                    AI
+                    {tasks.filter((t) => t.status === 'completed').length}
                   </div>
                 </div>
 
