@@ -84,6 +84,9 @@ interface AppContextType {
   isStreaksOpen: boolean;
   openStreaks: () => void;
   closeStreaks: () => void;
+  isInspectorOpen: boolean;
+  openInspector: () => void;
+  closeInspector: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -121,6 +124,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isStreaksOpen, setIsStreaksOpen] = useState(false);
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   const openTaskModal = () => setIsTaskModalOpen(true);
   const closeTaskModal = () => setIsTaskModalOpen(false);
@@ -136,6 +140,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const openStreaks = () => setIsStreaksOpen(true);
   const closeStreaks = () => setIsStreaksOpen(false);
+
+  const openInspector = () => setIsInspectorOpen(true);
+  const closeInspector = () => setIsInspectorOpen(false);
 
   const requestDelete = (options: DeleteConfirmOptions) => {
     setDeleteConfirmOptions(options);
@@ -691,6 +698,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isStreaksOpen,
         openStreaks,
         closeStreaks,
+        isInspectorOpen,
+        openInspector,
+        closeInspector,
         activeReminderAlert,
         dismissReminderAlert,
         completeReminderAlert,

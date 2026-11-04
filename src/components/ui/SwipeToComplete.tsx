@@ -18,6 +18,14 @@ export const SwipeToComplete: React.FC<SwipeToCompleteProps> = ({
   const x = useMotionValue(0);
   const backgroundOpacity = useTransform(x, [0, 160], [0.15, 0.45]);
 
+  // Synchronize internal drag state whenever task or completion prop changes
+  React.useEffect(() => {
+    setHasCompleted(isCompleted);
+    if (!isCompleted) {
+      x.set(0);
+    }
+  }, [isCompleted, x]);
+
   const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
     if (info.offset.x > 130 && !hasCompleted) {
       setHasCompleted(true);

@@ -20,6 +20,14 @@ import { getTodayString } from '../../db';
 import { SPRING_PILL } from '../../utils/motion';
 import { getRandomDeletePrompt } from '../../utils/genz';
 
+function getAmountTypographyClass(amountStr: string): string {
+  const len = amountStr.length;
+  if (len > 15) return 'text-xs sm:text-sm lg:text-base';
+  if (len > 11) return 'text-sm sm:text-base lg:text-lg';
+  if (len > 8) return 'text-base sm:text-lg lg:text-xl';
+  return 'text-xl sm:text-2xl';
+}
+
 export const FinanceView: React.FC = () => {
   const {
     transactions,
@@ -131,107 +139,133 @@ export const FinanceView: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Safe-to-Spend Daily */}
         <div
-          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl"
+          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl min-w-0 overflow-hidden"
           style={{ backgroundColor: 'var(--bg-card)' }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 truncate">
               Safe Velocity
             </span>
-            <ShieldCheck className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+            <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
           </div>
-          <div className="mt-3">
-            <span
-              className="font-display text-xl sm:text-2xl font-bold tracking-tight font-mono tabular-nums"
-              style={{ color: 'var(--accent-primary)' }}
-            >
-              {settings.currency}{financeStats.dailySafeToSpend.toFixed(0)}
-            </span>
-            <p className="text-[10px] text-zinc-500 mt-0.5">per day remaining</p>
+          <div className="mt-3 min-w-0">
+            {(() => {
+              const valStr = `${settings.currency}${financeStats.dailySafeToSpend.toFixed(0)}`;
+              return (
+                <span
+                  className={`font-display font-bold tracking-tight font-mono tabular-nums truncate block min-w-0 ${getAmountTypographyClass(valStr)}`}
+                  style={{ color: 'var(--accent-primary)' }}
+                  title={valStr}
+                >
+                  {valStr}
+                </span>
+              );
+            })()}
+            <p className="text-[10px] text-zinc-500 mt-0.5 truncate">per day remaining</p>
           </div>
         </div>
 
         {/* Monthly Income */}
         <div
-          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl"
+          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl min-w-0 overflow-hidden"
           style={{ backgroundColor: 'var(--bg-card)' }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 truncate">
               Monthly Inflow
             </span>
-            <TrendingUp className="w-4 h-4" style={{ color: 'var(--accent-secondary)' }} />
+            <TrendingUp className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-secondary)' }} />
           </div>
-          <div className="mt-3">
-            <span
-              className="font-display text-xl sm:text-2xl font-bold tracking-tight font-mono tabular-nums"
-              style={{ color: 'var(--accent-secondary)' }}
-            >
-              {settings.currency}{financeStats.monthlyIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            <p className="text-[10px] text-zinc-500 mt-0.5">Recorded inflow</p>
+          <div className="mt-3 min-w-0">
+            {(() => {
+              const valStr = `${settings.currency}${financeStats.monthlyIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+              return (
+                <span
+                  className={`font-display font-bold tracking-tight font-mono tabular-nums truncate block min-w-0 ${getAmountTypographyClass(valStr)}`}
+                  style={{ color: 'var(--accent-secondary)' }}
+                  title={valStr}
+                >
+                  {valStr}
+                </span>
+              );
+            })()}
+            <p className="text-[10px] text-zinc-500 mt-0.5 truncate">Recorded inflow</p>
           </div>
         </div>
 
         {/* Monthly Expenses */}
         <div
-          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl"
+          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl min-w-0 overflow-hidden"
           style={{ backgroundColor: 'var(--bg-card)' }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 truncate">
               Monthly Outflow
             </span>
-            <TrendingDown className="w-4 h-4 text-zinc-400" />
+            <TrendingDown className="w-4 h-4 text-zinc-400 shrink-0" />
           </div>
-          <div className="mt-3">
-            <span className="font-display text-xl sm:text-2xl font-bold text-zinc-200 tracking-tight font-mono tabular-nums">
-              {settings.currency}{financeStats.monthlyExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            <p className="text-[10px] text-zinc-500 mt-0.5">Recorded outflow</p>
+          <div className="mt-3 min-w-0">
+            {(() => {
+              const valStr = `${settings.currency}${financeStats.monthlyExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+              return (
+                <span
+                  className={`font-display font-bold text-zinc-200 tracking-tight font-mono tabular-nums truncate block min-w-0 ${getAmountTypographyClass(valStr)}`}
+                  title={valStr}
+                >
+                  {valStr}
+                </span>
+              );
+            })()}
+            <p className="text-[10px] text-zinc-500 mt-0.5 truncate">Recorded outflow</p>
           </div>
         </div>
 
         {/* Net Monthly Balance */}
         <div
-          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl"
+          className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-xl min-w-0 overflow-hidden"
           style={{ backgroundColor: 'var(--bg-card)' }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 truncate">
               Net Surplus
             </span>
-            <PieChart className="w-4 h-4 text-zinc-400" />
+            <PieChart className="w-4 h-4 text-zinc-400 shrink-0" />
           </div>
-          <div className="mt-3">
-            <span
-              className={`font-display text-xl sm:text-2xl font-bold tracking-tight font-mono tabular-nums ${
-                financeStats.netBalance >= 0 ? 'text-white' : 'text-rose-400'
-              }`}
-            >
-              {financeStats.netBalance >= 0 ? '+' : ''}
-              {settings.currency}{financeStats.netBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            <p className="text-[10px] text-zinc-500 mt-0.5">Net capital delta</p>
+          <div className="mt-3 min-w-0">
+            {(() => {
+              const sign = financeStats.netBalance >= 0 ? '+' : '';
+              const valStr = `${sign}${settings.currency}${financeStats.netBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+              return (
+                <span
+                  className={`font-display font-bold tracking-tight font-mono tabular-nums truncate block min-w-0 ${
+                    financeStats.netBalance >= 0 ? 'text-white' : 'text-rose-400'
+                  } ${getAmountTypographyClass(valStr)}`}
+                  title={valStr}
+                >
+                  {valStr}
+                </span>
+              );
+            })()}
+            <p className="text-[10px] text-zinc-500 mt-0.5 truncate">Net capital delta</p>
           </div>
         </div>
       </div>
 
       {/* 3. Monthly Budget Target Card */}
       <div
-        className="solid-card p-4 sm:p-5 flex flex-col gap-2.5"
+        className="solid-card p-4 sm:p-5 flex flex-col gap-2.5 min-w-0 overflow-hidden"
         style={{ backgroundColor: 'var(--bg-card)' }}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+          <div className="min-w-0">
             <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
               Monthly Spend Budget
             </span>
-            <div className="flex items-baseline gap-2 mt-0.5 font-mono tabular-nums">
-              <span className="font-display text-base font-bold text-white">
+            <div className="flex items-baseline gap-2 mt-0.5 font-mono tabular-nums min-w-0 flex-wrap">
+              <span className="font-display text-base font-bold text-white truncate max-w-full">
                 {settings.currency}{financeStats.monthlyExpenses.toFixed(0)}
               </span>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-zinc-500 truncate max-w-full">
                 of {settings.currency}{financeStats.monthlyBudget.toFixed(0)} ({budgetUsagePercent}%)
               </span>
             </div>
@@ -463,19 +497,23 @@ export const FinanceView: React.FC = () => {
                       </button>
                     </div>
 
-                    <div className="mt-3">
+                    <div className="mt-3 min-w-0">
                       <span className="text-sm font-bold text-white block line-clamp-1">
                         {tx.description}
                       </span>
-                      <span
-                        className={`font-display text-xl font-bold font-mono tabular-nums block mt-1 ${
-                          isIncome ? 'text-emerald-400' : 'text-zinc-100'
-                        }`}
-                      >
-                        {isIncome ? '+' : '-'}
-                        {settings.currency}
-                        {tx.amount.toFixed(2)}
-                      </span>
+                      {(() => {
+                        const txAmountStr = `${isIncome ? '+' : '-'}${settings.currency}${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        return (
+                          <span
+                            className={`font-display font-bold font-mono tabular-nums block mt-1 truncate max-w-full ${
+                              txAmountStr.length > 14 ? 'text-base' : 'text-xl'
+                            } ${isIncome ? 'text-emerald-400' : 'text-zinc-100'}`}
+                            title={txAmountStr}
+                          >
+                            {txAmountStr}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -544,21 +582,25 @@ export const FinanceView: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span
-                      className={`font-display text-xs sm:text-sm font-bold font-mono tabular-nums ${
-                        isIncome ? 'text-emerald-400' : 'text-zinc-100'
-                      }`}
-                    >
-                      {isIncome ? '+' : '-'}
-                      {settings.currency}
-                      {tx.amount.toFixed(2)}
-                    </span>
+                  <div className="flex items-center gap-3 shrink-0 max-w-[45%]">
+                    {(() => {
+                      const txAmountStr = `${isIncome ? '+' : '-'}${settings.currency}${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                      return (
+                        <span
+                          className={`font-display font-bold font-mono tabular-nums truncate block max-w-full ${
+                            txAmountStr.length > 14 ? 'text-xs' : 'text-xs sm:text-sm'
+                          } ${isIncome ? 'text-emerald-400' : 'text-zinc-100'}`}
+                          title={txAmountStr}
+                        >
+                          {txAmountStr}
+                        </span>
+                      );
+                    })()}
 
                     <button
                       type="button"
                       onClick={() => handleDeleteTransaction(tx.id, tx.description)}
-                      className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                      className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity shrink-0"
                       title="Delete record"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

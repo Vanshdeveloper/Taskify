@@ -101,11 +101,9 @@ export const QuickCaptureModal: React.FC = () => {
     { value: 'other', label: 'Other' },
   ];
 
-  // Auto-focus and reset on open/close
+  // Reset state on modal close
   useEffect(() => {
-    if (isQuickCaptureOpen) {
-      setTimeout(() => inputRef.current?.focus(), 60);
-    } else {
+    if (!isQuickCaptureOpen) {
       setTaskTitle('');
       setTaskDescription('');
       setTaskDueTime('');

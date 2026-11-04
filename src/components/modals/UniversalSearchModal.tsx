@@ -45,12 +45,11 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus input when opened
+  // Reset query on open
   useEffect(() => {
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
 

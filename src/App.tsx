@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -44,9 +44,10 @@ const MainLayout: React.FC = () => {
     isStreaksOpen,
     openStreaks,
     closeStreaks,
+    isInspectorOpen,
+    openInspector,
+    closeInspector,
   } = useApp();
-
-  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   // Maximum active streak for live navbar flame counter
   const streakCount = useMemo(() => {
@@ -97,18 +98,19 @@ const MainLayout: React.FC = () => {
         setActiveTab('finance');
       } else if (e.key === '6') {
         closeStreaks();
-        setActiveTab('settings');
+        openInspector();
       } else if (e.key === '/') {
         e.preventDefault();
         openSearchModal();
       } else if (e.key === 'Escape') {
         if (isStreaksOpen) closeStreaks();
+        if (isInspectorOpen) closeInspector();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setActiveTab, openSearchModal, openStreaks, closeStreaks, isStreaksOpen]);
+  }, [setActiveTab, openSearchModal, openStreaks, closeStreaks, isStreaksOpen, openInspector, closeInspector, isInspectorOpen]);
 
   return (
     <div
@@ -125,7 +127,7 @@ const MainLayout: React.FC = () => {
       <Navbar
         streakCount={streakCount}
         onOpenStreaks={openStreaks}
-        onOpenInspector={() => setIsInspectorOpen(true)}
+        onOpenInspector={openInspector}
       />
 
       <div className="flex flex-1 overflow-hidden relative z-10">
@@ -173,7 +175,7 @@ const MainLayout: React.FC = () => {
         onOpenTaskModal={openTaskModal}
         onOpenHabitModal={openHabitModal}
         onOpenFinanceModal={openFinanceModal}
-        onOpenInspector={() => setIsInspectorOpen(true)}
+        onOpenInspector={openInspector}
       />
       <TaskModal
         isOpen={isTaskModalOpen}
@@ -194,7 +196,7 @@ const MainLayout: React.FC = () => {
       />
       <SlideOverInspector
         isOpen={isInspectorOpen}
-        onClose={() => setIsInspectorOpen(false)}
+        onClose={closeInspector}
       />
     </div>
   );

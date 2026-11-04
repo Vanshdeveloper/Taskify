@@ -695,3 +695,61 @@ When recording a task, format your entry as follows:
   - `npm run build`: `tsc -b && vite build` built cleanly in 6.47s with 0 errors.
   - `npx cap sync android`: Found 3 plugins, synced assets and native plugins in 0.267s with exit code 0.
 - **Status**: Completed
+
+---
+
+### [TASK-029] 2026-11-04: Settings Unification (Drawer & Desktop '6' Shortcut), Finance Overflow Defense, Status Sync & Virtual Keyboard Polish
+- **User Request**: "Actually there an problem that there are two settings in this app in phone only the hamburger settings is shown but in desktop there are two settings one hamburger one and second the one when we press 6 on the keyboard and now to fix this add the new features to the hamburger settings and in pc when we press 6 on keyboard the hamburger should open. When the amount is large in the fianance the amount overflows in both the desktop and mobile. Today is 4 but why the dot is on both 3 and 4?, I think there's an problem with the task that if i made an brand new task and when i go in the home(today) it shows complete but when i see in the tasks section it shows incomplete. The randomized Gen-Z title should be easy to understand also for the normal people so keep the genz difficulty low. Also when any field is opened no keyboard should be opened, the keyboard should be opened after the user has clicked on the field."
+- **Execution Mode**: Gravitas Runtime (Invariants enforced) & Apple Design System & Ponytail (Lean, robust implementation)
+- **Scope**:
+  - `src/context/AppContext.tsx`
+  - `src/App.tsx`
+  - `src/components/layout/Sidebar.tsx`
+  - `src/components/layout/SlideOverInspector.tsx`
+  - `src/components/finance/FinanceView.tsx`
+  - `src/components/today/TodayView.tsx`
+  - `src/components/ui/CalendarStrip.tsx`
+  - `src/components/ui/SwipeToComplete.tsx`
+  - `src/utils/genz.ts`
+  - `src/components/modals/TaskModal.tsx`
+  - `src/components/modals/HabitModal.tsx`
+  - `src/components/modals/FinanceModal.tsx`
+  - `src/components/modals/QuickCaptureModal.tsx`
+  - `src/components/modals/UniversalSearchModal.tsx`
+  - `PROJECT_LEDGER.md`
+- **Implementation Details**:
+  1. **Unified Settings Experience**:
+     - Consolidated settings into the slide-over inspector drawer across both mobile and desktop.
+     - Added `isInspectorOpen`, `openInspector`, and `closeInspector` to `AppContext`.
+     - Configured the desktop shortcut `6` and `Sidebar` Settings button to trigger `openInspector()`.
+     - Enhanced `SlideOverInspector.tsx` with all settings features in prioritized sequence:
+       - **Workspace Profile & Defaults** (Shown first: Display Name, Currency format selector, Monthly Budget input, Update Profile button).
+       - **Atmosphere & Theme Studio** (ThemeStudio with categorized palettes & single-color harmonic palette generator).
+       - **Navigation Bar Customization** (Header Height: Compact 48px / Default 56px / Spacious 66px; Glass Material: Solid / Frosted 20px blur / Vibrant glow).
+       - **Tactile Sounds & Feedback** (Mechanical click audio toggle).
+       - **Data Sovereignty & Portability** (100% offline Dexie info, Export JSON snapshot, Restore from file, Reset starter database).
+       - **Target Packaging & Specifications** (Capacitor Android/iOS & Electron Desktop specs).
+       - **Keyboard Navigation Guide** (1 Today, 2 Tasks, 3 Habits, 4 Streaks, 5 Finance, 6 Settings, ⌘K, /, ESC).
+  2. **Finance Number Overflow Defense**:
+     - Applied `getAmountTypographyClass` with responsive typography scaling, `truncate block min-w-0 max-w-full`, and hover tooltip inspection (`title={valStr}`) across all 4 metric cards, the Monthly Spend Budget card, and transaction rows (both Bento Cards and Swiss Compact modes).
+     - Guarded `Sidebar.tsx` currency badge with `max-w-[76px] truncate` to prevent large balances (e.g., `₹250,000,004.20`) from overflowing card boundaries.
+  3. **Calendar Date Dots & Today Differentiation**:
+     - In `TodayView.tsx`, filtered `taskDates` to pending tasks only (`t.status !== 'completed'`) so completed tasks do not leave confusing lingering dots on past dates.
+     - In `CalendarStrip.tsx`, labeled the current day as `'Today'` in bright amber to eliminate confusion with adjacent dates.
+     - Added a fixed-height dot container to ensure date buttons retain identical optical dimensions regardless of task existence.
+  4. **Task Completion Status Synchronization**:
+     - Fixed `TodayView.tsx` line 432 where `<span>{isDone ? 'Done' : 'Done'}</span>` was hardcoded to display "Done" regardless of completion status. Changed to `<span>{isDone ? 'Done' : 'Mark Done'}</span>`.
+     - In `SwipeToComplete.tsx`, added `useEffect` to synchronize internal drag state with `isCompleted` prop updates and reset drag offset `x` on reactivation.
+     - Passed `key={topFocusTask.id}` in `TodayView.tsx` to reinitialize slider state whenever a new top focus task is selected.
+     - Removed the confusing completed-task count avatar overlay (`V 11`).
+  5. **Clear & Polite Gen-Z Microcopy**:
+     - Rewrote `src/utils/genz.ts` so all deletion prompts are friendly, polite, and completely understandable to normal users without internet brainrot or obscure slang.
+     - Preserved playful validation warnings ("Hey man, you left this thing alone!") while using standard action buttons ("Delete forever", "Cancel", "Keep it").
+  6. **Prevented Automatic Virtual Keyboard Open**:
+     - Removed `autoFocus` attributes from `TaskModal.tsx`, `HabitModal.tsx`, and `FinanceModal.tsx`.
+     - Removed programmatic `focus()` invocation from `QuickCaptureModal.tsx` and `UniversalSearchModal.tsx` so virtual keyboards on mobile only appear when the user deliberately taps an input field.
+- **Verification Evidence**:
+  - `npm run build`: `tsc -b && vite build` built in 5.75s with exit code 0.
+  - `npm test`: 14/14 unit tests passed in 100ms.
+  - `npx cap sync android`: Synced Android assets and 3 native plugins in 0.224s with exit code 0.
+- **Status**: Completed

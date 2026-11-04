@@ -177,7 +177,6 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
                       className={`w-full h-10 pl-8 pr-3 rounded-xl solid-input text-sm font-mono font-bold text-white placeholder-zinc-500 focus:outline-none transition-all ${
                         validationError ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
                       }`}
-                      autoFocus
                     />
                   </div>
 

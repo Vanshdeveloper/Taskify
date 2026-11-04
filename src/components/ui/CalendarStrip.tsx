@@ -142,24 +142,33 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
               }}
             >
               <span
-                className={`text-[10px] tracking-tight uppercase font-medium ${
-                  isSelected ? 'text-white/80' : 'text-zinc-500'
+                className={`text-[9px] tracking-tight uppercase font-bold ${
+                  item.isToday
+                    ? isSelected
+                      ? 'text-white'
+                      : 'text-amber-400 font-extrabold'
+                    : isSelected
+                    ? 'text-white/80'
+                    : 'text-zinc-500'
                 }`}
               >
-                {item.dayLabel}
+                {item.isToday ? 'Today' : item.dayLabel}
               </span>
               <span className="text-sm font-bold tracking-tight mt-0.5 font-mono">
                 {item.dayNum}
               </span>
 
-              {/* Task Indicator Dot */}
-              {item.hasTasks && (
-                <span
-                  className={`w-1 h-1 rounded-full mt-1 ${
-                    isSelected ? 'bg-white' : 'bg-emerald-400'
-                  }`}
-                />
-              )}
+              {/* Task Indicator Dot with stable height */}
+              <div className="h-1 mt-1 flex items-center justify-center">
+                {item.hasTasks && (
+                  <span
+                    className={`w-1 h-1 rounded-full ${
+                      isSelected ? 'bg-white' : 'bg-emerald-400'
+                    }`}
+                    title="Pending tasks"
+                  />
+                )}
+              </div>
             </motion.button>
           );
         })}

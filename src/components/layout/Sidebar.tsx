@@ -17,6 +17,8 @@ export const Sidebar: React.FC = () => {
     openStreaks,
     closeStreaks,
     isStreaksOpen,
+    openInspector,
+    isInspectorOpen,
   } = useApp();
   const today = getTodayString();
 
@@ -106,7 +108,12 @@ export const Sidebar: React.FC = () => {
           </div>
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = item.id === 'streaks' ? isStreaksOpen : activeTab === item.id;
+            const isActive =
+              item.id === 'streaks'
+                ? isStreaksOpen
+                : item.id === 'settings'
+                ? isInspectorOpen
+                : activeTab === item.id;
             return (
               <button
                 key={item.id}
@@ -114,6 +121,9 @@ export const Sidebar: React.FC = () => {
                 onClick={() => {
                   if (item.id === 'streaks') {
                     openStreaks();
+                  } else if (item.id === 'settings') {
+                    closeStreaks();
+                    openInspector();
                   } else {
                     closeStreaks();
                     setActiveTab(item.id);
@@ -145,14 +155,15 @@ export const Sidebar: React.FC = () => {
                   <span className="tracking-tight">{item.label}</span>
                 </div>
 
-                <div className="relative z-10 flex items-center gap-1.5">
+                <div className="relative z-10 flex items-center gap-1.5 shrink-0">
                   {item.badge !== undefined && (
                     <span
-                      className="text-[10px] px-1.5 py-0.5 rounded-md font-mono tabular-nums font-bold"
+                      className="text-[10px] px-1.5 py-0.5 rounded-md font-mono tabular-nums font-bold max-w-[76px] truncate"
                       style={{
                         backgroundColor: isActive ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.05)',
                         color: isActive ? '#fff' : 'var(--text-secondary)',
                       }}
+                      title={String(item.badge)}
                     >
                       {item.badge}
                     </span>

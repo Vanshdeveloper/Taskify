@@ -132,7 +132,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
         <CalendarStrip
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
-          taskDates={tasks.map((t) => t.dueDate)}
+          taskDates={tasks.filter((t) => t.status !== 'completed').map((t) => t.dueDate)}
         />
       </div>
 
@@ -148,29 +148,22 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
                 borderColor: 'var(--border-card)',
               }}
             >
-              {/* Top Row: Avatars & Time Pill */}
+              {/* Top Row: User Avatar, Category & Time Pill */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center -space-x-2">
+                <div className="flex items-center gap-2">
                   <div
-                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold shadow-sm"
+                    className="w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold shadow-sm"
                     style={{
-                      backgroundColor: 'var(--accent-secondary)',
-                      borderColor: 'var(--bg-card)',
-                      color: '#160f0d',
+                      backgroundColor: 'var(--accent-primary)',
+                      borderColor: 'var(--border-subtle)',
+                      color: '#ffffff',
                     }}
                   >
-                    {settings.userName.charAt(0)}
+                    {settings.userName.charAt(0) || 'U'}
                   </div>
-                  <div
-                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold shadow-sm"
-                    style={{
-                      backgroundColor: 'var(--bg-subtle)',
-                      borderColor: 'var(--bg-card)',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    {tasks.filter((t) => t.status === 'completed').length}
-                  </div>
+                  <span className="text-xs font-mono font-bold text-zinc-400">
+                    {topFocusTask.category}
+                  </span>
                 </div>
 
                 <div
@@ -211,6 +204,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
               <div className="flex items-center gap-3">
                 <div className="flex-1">
                   <SwipeToComplete
+                    key={topFocusTask.id}
                     isCompleted={topFocusTask.status === 'completed'}
                     onComplete={() => toggleTask(topFocusTask.id)}
                   />
@@ -429,7 +423,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
                         }}
                       >
                         <Check className="w-3 h-3 stroke-[2.5]" />
-                        <span>{isDone ? 'Done' : 'Done'}</span>
+                        <span>{isDone ? 'Done' : 'Mark Done'}</span>
                       </motion.button>
                     </div>
                   </motion.div>

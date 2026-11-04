@@ -179,7 +179,6 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                     className={`flex-1 px-3.5 py-2.5 rounded-xl solid-input text-sm text-white placeholder-zinc-500 focus:outline-none transition-all ${
                       validationError ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
                     }`}
-                    autoFocus
                   />
                   <div className="w-full sm:w-44">
                     <CustomSelect
