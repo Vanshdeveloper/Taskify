@@ -10,6 +10,10 @@ import {
   Bell,
   Plus,
   Trash2,
+  Sunrise,
+  Sun,
+  Moon,
+  Sparkles,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
@@ -429,6 +433,7 @@ export const QuickCaptureModal: React.FC = () => {
                         value={taskDueTime}
                         onChange={setTaskDueTime}
                         placeholder="Add deadline time"
+                        align="right"
                       />
                     </div>
                   </div>
@@ -527,6 +532,7 @@ export const QuickCaptureModal: React.FC = () => {
                               value={taskReminderTime}
                               onChange={setTaskReminderTime}
                               placeholder="Set specific reminder time"
+                              align="right"
                             />
                           </div>
                         )}
@@ -612,24 +618,42 @@ export const QuickCaptureModal: React.FC = () => {
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
                       Time of Day
                     </label>
-                    <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/6">
-                      {(['anytime', 'morning', 'afternoon', 'evening'] as HabitTimeOfDay[]).map((time) => (
-                        <button
-                          key={time}
-                          type="button"
-                          onClick={() => {
-                            feedback.playClick();
-                            setHabitTimeOfDay(time);
-                          }}
-                          className={`py-1.5 rounded-lg capitalize text-[11px] font-bold transition-all ${
-                            habitTimeOfDay === time
-                              ? 'bg-white/10 text-white shadow-sm'
-                              : 'text-zinc-500 hover:text-zinc-300'
-                          }`}
-                        >
-                          {time}
-                        </button>
-                      ))}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        { id: 'morning', label: 'Morning', icon: Sunrise, time: '6 AM - 12 PM' },
+                        { id: 'afternoon', label: 'Afternoon', icon: Sun, time: '12 PM - 6 PM' },
+                        { id: 'evening', label: 'Evening', icon: Moon, time: '6 PM - 11 PM' },
+                        { id: 'anytime', label: 'Anytime', icon: Sparkles, time: 'Flexible' },
+                      ].map((item) => {
+                        const Icon = item.icon;
+                        const isSelected = habitTimeOfDay === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              feedback.playClick();
+                              setHabitTimeOfDay(item.id as HabitTimeOfDay);
+                            }}
+                            className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 pressable transition-all cursor-pointer ${
+                              isSelected
+                                ? 'border-white/30 text-white shadow-md'
+                                : 'border-white/8 hover:border-white/16 bg-white/[0.02] text-zinc-400 hover:text-zinc-200'
+                            }`}
+                            style={{
+                              backgroundColor: isSelected ? 'var(--accent-primary)' : undefined,
+                            }}
+                          >
+                            <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-zinc-400'}`} />
+                            <span className="text-[11px] font-bold capitalize">
+                              {item.label}
+                            </span>
+                            <span className={`text-[9px] font-mono ${isSelected ? 'text-white/80' : 'text-zinc-500'}`}>
+                              {item.time}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -753,6 +777,7 @@ export const QuickCaptureModal: React.FC = () => {
                                   value={timeStr || '09:00'}
                                   onChange={(newTime) => handleUpdateHabitTimeSlot(idx, newTime)}
                                   placeholder="09:00 AM"
+                                  align="right"
                                 />
                               </div>
                               {habitReminderTimes.length > 1 && (

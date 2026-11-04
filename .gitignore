@@ -1,5 +1,5 @@
-# Logs
-logs
+# Logs & debugging
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,24 +7,45 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Node modules & dependencies
+node_modules/
+
+# Production build outputs
+dist/
+dist-ssr/
+*.tsbuildinfo
+.eslintcache
+
+# Local environment & secrets
+.env
+.env.local
+.env.*.local
 *.local
+
+# Internal Project Ledger & Local Agent Directives (Kept local, excluded from public repo)
+PROJECT_LEDGER.md
+.agents/
+skills-lock.json
+
+# Design assets & inspirations (Heavy design drafts)
+Palette/
+design inspirations/
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Design and Palette Assets
-Palette/
-design inspirations/
-*.tsbuildinfo
-
+# Android & iOS local build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+ios/App/build/
+ios/App/Pods/

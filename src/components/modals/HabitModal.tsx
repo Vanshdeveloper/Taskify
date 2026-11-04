@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Repeat, Bell } from 'lucide-react';
+import { X, Plus, Repeat, Bell, Sunrise, Sun, Moon, Sparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { HabitTimeOfDay } from '../../types';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -203,54 +203,72 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                 </AnimatePresence>
               </div>
 
-              {/* Target & Unit */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-[10px] text-zinc-400 font-mono mb-1">
-                    Daily Target
-                  </label>
-                  <div className="h-10 flex items-center gap-2 bg-black/30 px-3 rounded-xl border border-white/8 text-xs">
-                    <span className="text-zinc-500">Goal:</span>
-                    <input
-                      type="number"
-                      min="1"
-                      value={targetCount}
-                      onChange={(e) => setTargetCount(e.target.value)}
-                      className="w-12 bg-transparent text-white font-mono font-bold focus:outline-none text-center"
-                    />
-                    <input
-                      type="text"
-                      placeholder="unit (times/mins)"
-                      value={unit}
-                      onChange={(e) => setUnit(e.target.value)}
-                      className="flex-1 bg-transparent text-white placeholder-zinc-500 focus:outline-none"
-                    />
-                  </div>
+              {/* Daily Target */}
+              <div>
+                <label className="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider mb-1">
+                  Daily Target
+                </label>
+                <div className="h-10 flex items-center gap-2 bg-black/30 px-3.5 rounded-xl border border-white/8 text-xs">
+                  <span className="text-zinc-500 font-medium">Goal:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={targetCount}
+                    onChange={(e) => setTargetCount(e.target.value)}
+                    className="w-14 bg-transparent text-white font-mono font-bold focus:outline-none text-center"
+                  />
+                  <span className="text-zinc-600">•</span>
+                  <input
+                    type="text"
+                    placeholder="unit (times, mins, pages, glasses)"
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    className="flex-1 bg-transparent text-white placeholder-zinc-500 focus:outline-none"
+                  />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-[10px] text-zinc-400 font-mono mb-1">
-                    Time of Day
-                  </label>
-                  <div className="h-10 flex items-center gap-1 bg-black/30 p-1 rounded-xl border border-white/8">
-                    {(['morning', 'afternoon', 'evening', 'anytime'] as HabitTimeOfDay[]).map((t) => (
+              {/* Time of Day - Apple Segmented Layout with Visual Icons & Time Ranges */}
+              <div>
+                <label className="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider mb-1.5">
+                  Time of Day
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 'morning', label: 'Morning', icon: Sunrise, time: '6 AM - 12 PM' },
+                    { id: 'afternoon', label: 'Afternoon', icon: Sun, time: '12 PM - 6 PM' },
+                    { id: 'evening', label: 'Evening', icon: Moon, time: '6 PM - 11 PM' },
+                    { id: 'anytime', label: 'Anytime', icon: Sparkles, time: 'Flexible' },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    const isSelected = timeOfDay === item.id;
+                    return (
                       <button
-                        key={t}
+                        key={item.id}
                         type="button"
-                        onClick={() => setTimeOfDay(t)}
-                        className={`flex-1 h-full rounded-lg text-[11px] capitalize font-bold transition-colors cursor-pointer ${
-                          timeOfDay === t
-                            ? 'text-white'
-                            : 'text-zinc-500 hover:text-zinc-300'
+                        onClick={() => {
+                          feedback.playClick();
+                          setTimeOfDay(item.id as HabitTimeOfDay);
+                        }}
+                        className={`relative p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 pressable transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-white/30 text-white shadow-md'
+                            : 'border-white/8 hover:border-white/16 bg-white/[0.02] text-zinc-400 hover:text-zinc-200'
                         }`}
                         style={{
-                          backgroundColor: timeOfDay === t ? 'var(--accent-primary)' : 'transparent',
+                          backgroundColor: isSelected ? 'var(--accent-primary)' : undefined,
                         }}
                       >
-                        {t}
+                        <Icon className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-zinc-400'}`} />
+                        <span className="text-xs font-bold capitalize">
+                          {item.label}
+                        </span>
+                        <span className={`text-[9px] font-mono ${isSelected ? 'text-white/80' : 'text-zinc-500'}`}>
+                          {item.time}
+                        </span>
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -343,6 +361,7 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                                 value={time || '09:00'}
                                 onChange={(newTime) => handleUpdateTimeSlot(idx, newTime)}
                                 placeholder="09:00 AM"
+                                align="right"
                               />
                             </div>
                             {reminderTimes.length > 1 && (

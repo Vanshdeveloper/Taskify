@@ -19,6 +19,7 @@ import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
 import { getCategoryTheme } from '../../utils/category';
 import { getRandomDeletePrompt } from '../../utils/genz';
+import { DailyPokeCard } from './DailyPokeCard';
 interface TodayViewProps {
   onOpenSearch?: () => void;
 }
@@ -136,7 +137,10 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
         />
       </div>
 
-      {/* 3. Bento Grid */}
+      {/* 3. Daily Customized Poke Card (Zomato & Swiggy-Style Witty Nudges) */}
+      <DailyPokeCard />
+
+      {/* 4. Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         {/* Top Focus Task Hero Card (7 cols on desktop) */}
         <div className="lg:col-span-7 flex flex-col">

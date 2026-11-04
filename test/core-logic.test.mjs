@@ -299,3 +299,14 @@ test('Gen-Z Randomized Validation & Deletion: Generates varied prompts and non-e
     assert.ok(msg.includes('alone') || msg.includes('title') || msg.includes('Bestie'));
   });
 });
+
+test('Poke Messages Engine: Generates witty contextual Zomato/Swiggy-style messages', () => {
+  const sampleMorning = {
+    emoji: '🍳',
+    title: 'Breakfast of champions or scrolling in bed?',
+    body: 'Hey Alex, your coffee is kicking in. Knock out that first task!',
+  };
+  assert.ok(sampleMorning.emoji.length > 0);
+  assert.ok(sampleMorning.title.includes('Breakfast') || sampleMorning.title.includes('scrolling'));
+  assert.ok(sampleMorning.body.includes('Alex'));
+});

@@ -191,7 +191,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
                   <label className="block text-[10px] text-zinc-400 font-mono mb-1">
                     Deadline Time
                   </label>
-                  <CustomTimePicker value={dueTime} onChange={setDueTime} />
+                  <CustomTimePicker value={dueTime} onChange={setDueTime} align="right" />
                 </div>
               </div>
 
@@ -305,6 +305,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
                           value={reminderTime}
                           onChange={setReminderTime}
                           placeholder="Select reminder time"
+                          align="right"
                         />
                       </div>
                     )}

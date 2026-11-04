@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications, type LocalNotificationSchema } from '@capacitor/local-notifications';
 import type { ReminderPreset, Task, Habit } from '../types';
+import { getDailyPoke } from './pokeMessages';
 
 /**
  * Standard preset reminder time distributions for daily habits based on frequency count (1x - 5x max)
@@ -236,6 +237,38 @@ export async function syncNativeScheduledReminders(tasks: Task[], habits: Habit[
           });
         }
       });
+    });
+
+    // 3. Schedule daily recurring Zomato/Swiggy-style poke notifications (09:30 AM & 07:30 PM)
+    const pendingCount = tasks.filter((t) => t.status !== 'completed').length;
+    const morningPoke = getDailyPoke('there', pendingCount, 1);
+    notifications.push({
+      id: stringToIntegerId('daily-poke-morning'),
+      title: `${morningPoke.emoji} ${morningPoke.title}`,
+      body: morningPoke.body,
+      channelId: 'taskify_reminders',
+      schedule: {
+        on: { hour: 9, minute: 30 },
+        every: 'day',
+        allowWhileIdle: true,
+      },
+      autoCancel: true,
+      extra: { type: 'poke' },
+    });
+
+    const eveningPoke = getDailyPoke('there', pendingCount, 2);
+    notifications.push({
+      id: stringToIntegerId('daily-poke-evening'),
+      title: `${eveningPoke.emoji} ${eveningPoke.title}`,
+      body: eveningPoke.body,
+      channelId: 'taskify_reminders',
+      schedule: {
+        on: { hour: 19, minute: 30 },
+        every: 'day',
+        allowWhileIdle: true,
+      },
+      autoCancel: true,
+      extra: { type: 'poke' },
     });
 
     if (notifications.length > 0) {

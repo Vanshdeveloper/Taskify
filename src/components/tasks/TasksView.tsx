@@ -21,7 +21,7 @@ import { getCategoryTheme } from '../../utils/category';
 import { getRandomDeletePrompt } from '../../utils/genz';
 
 export const TasksView: React.FC = () => {
-  const { tasks, toggleTask, deleteTask, settings, requestDelete, openTaskModal } = useApp();
+  const { tasks, toggleTask, deleteTask, requestDelete, openTaskModal } = useApp();
   const today = getTodayString();
 
   // View state: Creative Cards Grid vs. Swiss Compact List
@@ -88,8 +88,8 @@ export const TasksView: React.FC = () => {
       {/* 1. Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            HI {settings.userName}, nice to see you!
+          <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
+            Tasks & Objectives
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Focus queue, execution milestones, and scheduled deadlines.
