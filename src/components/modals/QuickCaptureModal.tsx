@@ -579,8 +579,8 @@ export const QuickCaptureModal: React.FC = () => {
                     </AnimatePresence>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                    <div className="flex flex-col gap-1.5 min-w-0">
                       <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
                         Category
                       </label>
@@ -591,24 +591,26 @@ export const QuickCaptureModal: React.FC = () => {
                       />
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1.5 min-w-0">
                       <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
                         Daily Target & Unit
                       </label>
-                      <div className="flex items-center gap-2">
+                      <div className="h-10 flex items-center gap-2 bg-black/30 px-3 rounded-xl border border-white/8 text-xs min-w-0 overflow-hidden">
+                        <span className="text-zinc-500 font-medium shrink-0">Goal:</span>
                         <input
                           type="number"
                           min="1"
                           value={habitTarget}
                           onChange={(e) => setHabitTarget(e.target.value)}
-                          className="w-20 h-10 px-2.5 rounded-xl solid-input text-xs font-mono font-bold text-white text-center focus:outline-none"
+                          className="w-12 bg-transparent text-white font-mono font-bold focus:outline-none text-center shrink-0"
                         />
+                        <span className="text-zinc-600 shrink-0">•</span>
                         <input
                           type="text"
                           placeholder="unit (e.g. pages, km)"
                           value={habitUnit}
                           onChange={(e) => setHabitUnit(e.target.value)}
-                          className="flex-1 h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+                          className="flex-1 min-w-0 bg-transparent text-white placeholder-zinc-500 focus:outline-none truncate"
                         />
                       </div>
                     </div>
@@ -667,7 +669,15 @@ export const QuickCaptureModal: React.FC = () => {
                         {HABIT_ICON_OPTIONS.find((i) => i.id === habitIcon)?.label || 'Target'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                    <div
+                      className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth touch-pan-x select-none"
+                      style={{ touchAction: 'pan-x' }}
+                      onWheel={(e) => {
+                        if (e.deltaY !== 0) {
+                          e.currentTarget.scrollLeft += e.deltaY;
+                        }
+                      }}
+                    >
                       {HABIT_ICON_OPTIONS.map((item) => {
                         const IconC = item.icon;
                         const isSelected = habitIcon === item.id;

@@ -149,7 +149,11 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
  * Synchronize native OS background alarms via @capacitor/local-notifications.
  * Ensures notifications trigger reliably even when Taskify is closed or killed!
  */
-export async function syncNativeScheduledReminders(tasks: Task[], habits: Habit[]): Promise<void> {
+export async function syncNativeScheduledReminders(
+  tasks: Task[],
+  habits: Habit[],
+  userName: string = 'Alex'
+): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
 
   try {
@@ -241,7 +245,7 @@ export async function syncNativeScheduledReminders(tasks: Task[], habits: Habit[
 
     // 3. Schedule daily recurring Zomato/Swiggy-style poke notifications (09:30 AM & 07:30 PM)
     const pendingCount = tasks.filter((t) => t.status !== 'completed').length;
-    const morningPoke = getDailyPoke('there', pendingCount, 1);
+    const morningPoke = getDailyPoke(userName, pendingCount, 1);
     notifications.push({
       id: stringToIntegerId('daily-poke-morning'),
       title: `${morningPoke.emoji} ${morningPoke.title}`,
@@ -256,7 +260,7 @@ export async function syncNativeScheduledReminders(tasks: Task[], habits: Habit[
       extra: { type: 'poke' },
     });
 
-    const eveningPoke = getDailyPoke('there', pendingCount, 2);
+    const eveningPoke = getDailyPoke(userName, pendingCount, 2);
     notifications.push({
       id: stringToIntegerId('daily-poke-evening'),
       title: `${eveningPoke.emoji} ${eveningPoke.title}`,

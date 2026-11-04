@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Sparkles, Bell } from 'lucide-react';
+import { Check, X, Sparkles, Bell, Flame } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
 
@@ -65,6 +65,8 @@ export const ReminderBanner: React.FC = () => {
                 >
                   {activeReminderAlert.type === 'habit' ? (
                     <Sparkles className="w-3 h-3 stroke-[2.5]" />
+                  ) : activeReminderAlert.type === 'poke' ? (
+                    <Flame className="w-3 h-3 stroke-[2.5]" />
                   ) : (
                     <Bell className="w-3 h-3 stroke-[2.5]" />
                   )}
@@ -75,7 +77,7 @@ export const ReminderBanner: React.FC = () => {
                 </span>
                 <span className="text-zinc-500">•</span>
                 <span className="capitalize text-zinc-400 font-medium">
-                  {activeReminderAlert.type === 'habit' ? 'Routine' : 'Objective'}
+                  {activeReminderAlert.type === 'habit' ? 'Routine' : activeReminderAlert.type === 'poke' ? 'Daily Poke' : 'Objective'}
                 </span>
               </div>
 
@@ -119,7 +121,11 @@ export const ReminderBanner: React.FC = () => {
               >
                 <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>
-                  {activeReminderAlert.type === 'habit' ? 'Check In' : 'Complete'}
+                  {activeReminderAlert.type === 'habit'
+                    ? 'Check In'
+                    : activeReminderAlert.type === 'poke'
+                    ? 'Conquer'
+                    : 'Complete'}
                 </span>
               </motion.button>
             </div>

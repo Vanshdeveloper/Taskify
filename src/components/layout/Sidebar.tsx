@@ -180,12 +180,15 @@ export const Sidebar: React.FC = () => {
 
       {/* Bottom Safe Velocity Progress Card */}
       <div
-        className="p-3.5 rounded-2xl border flex flex-col gap-2.5"
+        className="p-3.5 rounded-2xl border flex flex-col gap-2.5 min-w-0 overflow-hidden"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
       >
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-zinc-400 font-medium">Safe Velocity</span>
-          <span className="font-bold font-mono tabular-nums text-emerald-400">
+        <div className="flex items-center justify-between text-xs gap-1.5 min-w-0">
+          <span className="text-zinc-400 font-medium shrink-0">Safe Velocity</span>
+          <span
+            className="font-bold font-mono tabular-nums text-emerald-400 truncate max-w-[125px] text-right"
+            title={`${settings.currency}${financeStats.dailySafeToSpend.toFixed(0)}/d`}
+          >
             {settings.currency}{financeStats.dailySafeToSpend.toFixed(0)}/d
           </span>
         </div>
@@ -205,9 +208,19 @@ export const Sidebar: React.FC = () => {
             }}
           />
         </div>
-        <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono tabular-nums">
-          <span>Spent: {settings.currency}{financeStats.monthlyExpenses.toFixed(0)}</span>
-          <span>Budget: {settings.currency}{financeStats.monthlyBudget.toFixed(0)}</span>
+        <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono tabular-nums gap-1 min-w-0">
+          <span
+            className="truncate max-w-[48%]"
+            title={`Spent: ${settings.currency}${financeStats.monthlyExpenses.toFixed(0)}`}
+          >
+            Spent: {settings.currency}{financeStats.monthlyExpenses.toFixed(0)}
+          </span>
+          <span
+            className="truncate max-w-[48%] text-right"
+            title={`Budget: ${settings.currency}${financeStats.monthlyBudget.toFixed(0)}`}
+          >
+            Budget: {settings.currency}{financeStats.monthlyBudget.toFixed(0)}
+          </span>
         </div>
       </div>
     </aside>

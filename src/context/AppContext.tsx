@@ -8,6 +8,7 @@ import type { DeleteConfirmOptions } from '../components/modals/ConfirmDeleteMod
 import { feedback, triggerCompletionConfetti } from '../utils/feedback';
 import { formatTime12Hour, sendNativeNotification, requestNotificationPermission, syncNativeScheduledReminders } from '../utils/reminder';
 import { autodetectCurrency } from '../utils/currency';
+import { getPokeNotification } from '../utils/pokeMessages';
 
 interface FinanceStats {
   monthlyIncome: number;
@@ -532,6 +533,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await toggleTask(alert.entityId);
     } else if (alert.type === 'habit') {
       await incrementHabit(alert.entityId);
+    } else if (alert.type === 'poke') {
+      feedback.playSuccessChime();
     }
     setActiveReminderAlert(null);
   };
@@ -612,6 +615,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         });
       });
+
+      // Check daily poke at 09:30 AM & 07:30 PM
+      if (currentHHMM === '09:30' || currentHHMM === '19:30') {
+        const pokeKey = `daily-poke-${todayStr}-${currentHHMM}`;
+        if (!firedReminderKeysRef.current.has(pokeKey)) {
+          firedReminderKeysRef.current.add(pokeKey);
+          const pendingTasks = tasks.filter((t) => t.status !== 'completed');
+          const poke = getPokeNotification(settings.userName || 'Alex', pendingTasks.length, pendingTasks[0]?.title);
+
+          if (typeof document !== 'undefined' && !document.hidden) {
+            setActiveReminderAlert({
+              id: pokeKey,
+              type: 'poke',
+              entityId: poke.id,
+              title: `${poke.emoji} ${poke.title}`,
+              subtitle: poke.body,
+              time: currentHHMM,
+            });
+            feedback.playSuccessChime();
+          } else {
+            sendNativeNotification(`${poke.emoji} ${poke.title}`, {
+              body: poke.body,
+              tag: pokeKey,
+            });
+          }
+        }
+      }
     };
 
     checkReminders();
@@ -628,14 +658,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       clearInterval(timer);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [isDbReady, tasks, habits, habitLogs]);
+  }, [isDbReady, tasks, habits, habitLogs, settings.userName]);
 
   // Synchronize system-level native background alarms with Android AlarmManager
   // Ensures notifications fire on schedule even when the app is killed or suspended
   useEffect(() => {
     if (!isDbReady) return;
-    syncNativeScheduledReminders(tasks, habits);
-  }, [isDbReady, tasks, habits]);
+    syncNativeScheduledReminders(tasks, habits, settings.userName);
+  }, [isDbReady, tasks, habits, settings.userName]);
 
   if (!isDbReady) {
     return (

@@ -41,7 +41,7 @@ export interface Habit {
 
 export interface ReminderAlert {
   id: string;
-  type: 'task' | 'habit';
+  type: 'task' | 'habit' | 'poke';
   entityId: string;
   title: string;
   subtitle: string;

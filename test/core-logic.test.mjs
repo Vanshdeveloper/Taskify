@@ -300,13 +300,25 @@ test('Gen-Z Randomized Validation & Deletion: Generates varied prompts and non-e
   });
 });
 
-test('Poke Messages Engine: Generates witty contextual Zomato/Swiggy-style messages', () => {
-  const sampleMorning = {
-    emoji: '🍳',
-    title: 'Breakfast of champions or scrolling in bed?',
-    body: 'Hey Alex, your coffee is kicking in. Knock out that first task!',
+test('Poke Messages Engine: Generates witty contextual Zomato/Swiggy-style messages with pending nudges and rest rewards', () => {
+  const pendingNudge = {
+    emoji: '🛑',
+    title: 'Stop doing the other things!',
+    body: 'Hey Alex, stop doing other things and complete this task! You have 3 pending objectives waiting.',
+    category: 'pending_nudge',
   };
-  assert.ok(sampleMorning.emoji.length > 0);
-  assert.ok(sampleMorning.title.includes('Breakfast') || sampleMorning.title.includes('scrolling'));
-  assert.ok(sampleMorning.body.includes('Alex'));
+  const restReward = {
+    emoji: '🏖️',
+    title: 'You own this rest!',
+    body: 'All work is done, Alex! Kick back, relax, and enjoy pure zero-guilt chill time.',
+    category: 'rest_reward',
+  };
+
+  assert.ok(pendingNudge.title.includes('Stop doing the other things'));
+  assert.ok(pendingNudge.body.includes('complete this task'));
+  assert.equal(pendingNudge.category, 'pending_nudge');
+
+  assert.ok(restReward.title.includes('You own this rest'));
+  assert.ok(restReward.body.includes('All work is done'));
+  assert.equal(restReward.category, 'rest_reward');
 });

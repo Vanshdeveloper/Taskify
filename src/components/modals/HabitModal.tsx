@@ -392,7 +392,15 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                     {HABIT_ICON_OPTIONS.find((i) => i.id === selectedIcon)?.label || 'Target'}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                <div
+                  className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth touch-pan-x select-none"
+                  style={{ touchAction: 'pan-x' }}
+                  onWheel={(e) => {
+                    if (e.deltaY !== 0) {
+                      e.currentTarget.scrollLeft += e.deltaY;
+                    }
+                  }}
+                >
                   {HABIT_ICON_OPTIONS.map((item) => {
                     const IconC = item.icon;
                     const isSelected = selectedIcon === item.id;

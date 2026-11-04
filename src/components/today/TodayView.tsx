@@ -19,7 +19,7 @@ import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
 import { getCategoryTheme } from '../../utils/category';
 import { getRandomDeletePrompt } from '../../utils/genz';
-import { DailyPokeCard } from './DailyPokeCard';
+
 interface TodayViewProps {
   onOpenSearch?: () => void;
 }
@@ -137,10 +137,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
         />
       </div>
 
-      {/* 3. Daily Customized Poke Card (Zomato & Swiggy-Style Witty Nudges) */}
-      <DailyPokeCard />
-
-      {/* 4. Bento Grid */}
+      {/* 3. Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         {/* Top Focus Task Hero Card (7 cols on desktop) */}
         <div className="lg:col-span-7 flex flex-col">
@@ -251,42 +248,67 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
           />
 
           {/* Safe Velocity & Daily Habit Streaks Side-by-Side in 2-column grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-w-0">
             {/* Safe Velocity & Daily Cashflow */}
             <div
               onClick={() => setActiveTab('finance')}
-              className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable"
+              className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable min-w-0 overflow-hidden"
               style={{ backgroundColor: 'var(--bg-card)' }}
             >
-              <div className="flex items-center justify-between text-xs text-zinc-400">
-                <span className="font-display font-medium text-zinc-300">Safe Velocity</span>
-                <DollarSign className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+              <div className="flex items-center justify-between text-xs text-zinc-400 gap-1 min-w-0">
+                <span className="font-display font-medium text-zinc-300 truncate">Safe Velocity</span>
+                <DollarSign className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
               </div>
-              <div className="mt-2 flex flex-col font-mono tabular-nums">
-                <span className="font-display text-2xl sm:text-3xl font-bold" style={{ color: 'var(--accent-primary)' }}>
-                  {settings.currency}{financeStats.dailySafeToSpend.toFixed(0)}
-                </span>
-                <span className="text-[11px] text-zinc-500 mt-0.5">
-                  Spent: {settings.currency}{financeStats.todaySpend.toFixed(2)}
-                </span>
+              <div className="mt-2 flex flex-col font-mono tabular-nums min-w-0">
+                {(() => {
+                  const valStr = `${settings.currency}${financeStats.dailySafeToSpend.toFixed(0)}`;
+                  const fontSize =
+                    valStr.length > 14
+                      ? 'text-sm sm:text-base'
+                      : valStr.length > 11
+                      ? 'text-base sm:text-lg'
+                      : valStr.length > 8
+                      ? 'text-lg sm:text-xl'
+                      : 'text-2xl sm:text-3xl';
+                  return (
+                    <span
+                      className={`font-display font-bold truncate block min-w-0 max-w-full ${fontSize}`}
+                      style={{ color: 'var(--accent-primary)' }}
+                      title={valStr}
+                    >
+                      {valStr}
+                    </span>
+                  );
+                })()}
+                {(() => {
+                  const spentStr = `Spent: ${settings.currency}${financeStats.todaySpend.toFixed(2)}`;
+                  return (
+                    <span
+                      className="text-[11px] text-zinc-500 mt-0.5 truncate block max-w-full"
+                      title={spentStr}
+                    >
+                      {spentStr}
+                    </span>
+                  );
+                })()}
               </div>
             </div>
 
             {/* Daily Habit Streaks Quick Pulse */}
             <div
               onClick={() => setActiveTab('streaks')}
-              className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable"
+              className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable min-w-0 overflow-hidden"
               style={{ backgroundColor: 'var(--bg-card)' }}
             >
-              <div className="flex items-center justify-between text-xs text-zinc-400">
-                <span className="font-display font-medium text-zinc-300">Habit Streaks</span>
-                <Flame className="w-4 h-4 animate-pulse" style={{ color: 'var(--accent-secondary)' }} />
+              <div className="flex items-center justify-between text-xs text-zinc-400 gap-1 min-w-0">
+                <span className="font-display font-medium text-zinc-300 truncate">Habit Streaks</span>
+                <Flame className="w-4 h-4 shrink-0 animate-pulse" style={{ color: 'var(--accent-secondary)' }} />
               </div>
-              <div className="mt-2 flex flex-col font-mono tabular-nums">
-                <span className="font-display text-2xl sm:text-3xl font-bold" style={{ color: 'var(--accent-secondary)' }}>
+              <div className="mt-2 flex flex-col font-mono tabular-nums min-w-0">
+                <span className="font-display text-2xl sm:text-3xl font-bold truncate block" style={{ color: 'var(--accent-secondary)' }}>
                   {habitsDoneToday}/{habits.length || 0}
                 </span>
-                <span className="text-[11px] text-zinc-500 mt-0.5">
+                <span className="text-[11px] text-zinc-500 mt-0.5 truncate block">
                   {habits.length > 0 && habitsDoneToday === habits.length
                     ? 'All routines logged'
                     : 'routines checked'}
