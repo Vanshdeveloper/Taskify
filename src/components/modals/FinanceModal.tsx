@@ -8,6 +8,7 @@ import type { TransactionType, PaymentMethod } from '../../types';
 import { CustomSelect } from '../ui/CustomSelect';
 import { CustomDatePicker } from '../ui/CustomDatePicker';
 import { feedback } from '../../utils/feedback';
+import { getEmptyFieldError } from '../../utils/genz';
 
 interface FinanceModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
   const [category, setCategory] = useState('Food & Dining');
   const [date, setDate] = useState(today);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const expenseCategories = [
     'Food & Dining',
@@ -50,7 +52,11 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) return;
+    if (isNaN(numAmount) || numAmount <= 0) {
+      feedback.playClick();
+      setValidationError(getEmptyFieldError('finance_amount'));
+      return;
+    }
 
     await addTransaction({
       type: txType,
@@ -64,6 +70,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
     feedback.playSuccessChime();
     setAmount('');
     setDescription('');
+    setValidationError(null);
     onClose();
   };
 
@@ -152,29 +159,49 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
               </div>
 
               {/* Amount & Description */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm font-bold">
-                    {settings.currency}
-                  </span>
+              <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm font-bold">
+                      {settings.currency}
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => {
+                        setAmount(e.target.value);
+                        if (validationError) setValidationError(null);
+                      }}
+                      className={`w-full h-10 pl-8 pr-3 rounded-xl solid-input text-sm font-mono font-bold text-white placeholder-zinc-500 focus:outline-none transition-all ${
+                        validationError ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
+                      }`}
+                      autoFocus
+                    />
+                  </div>
+
                   <input
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="w-full h-10 pl-8 pr-3 rounded-xl solid-input text-sm font-mono font-bold text-white placeholder-zinc-500 focus:outline-none"
-                    autoFocus
+                    type="text"
+                    placeholder="Note (e.g. Lunch with team)..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
                   />
                 </div>
-
-                <input
-                  type="text"
-                  placeholder="Note (e.g. Lunch with team)..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-                />
+                <AnimatePresence>
+                  {validationError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                      className="mt-1.5 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                    >
+                      <span className="shrink-0 text-sm">💀</span>
+                      <span>{validationError}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Category, Date & Payment Method */}

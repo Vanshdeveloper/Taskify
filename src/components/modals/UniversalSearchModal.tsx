@@ -5,7 +5,7 @@ import {
   Search,
   X,
   CheckSquare,
-  Sparkles,
+  Repeat,
   PieChart,
   Flame,
   Plus,
@@ -78,7 +78,7 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
           type: 'action' as const,
           title: 'Create New Habit',
           subtitle: 'Track daily routine & build consistency',
-          icon: Sparkles,
+          icon: Repeat,
           badge: 'Habit',
           onSelect: () => {
             onClose();
@@ -163,7 +163,7 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
         type: 'habit' as const,
         title: h.name,
         subtitle: `${h.category} • ${h.frequency} • Target ${h.targetCount} ${h.unit}`,
-        icon: Sparkles,
+        icon: Repeat,
         badge: 'Habit',
         onSelect: () => {
           onClose();

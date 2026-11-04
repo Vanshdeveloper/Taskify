@@ -18,6 +18,7 @@ import { TaskModal } from './components/modals/TaskModal';
 import { HabitModal } from './components/modals/HabitModal';
 import { FinanceModal } from './components/modals/FinanceModal';
 import { AmbientLighting } from './components/effects/AmbientLighting';
+import { ReminderBanner } from './components/ui/ReminderBanner';
 
 const MainLayout: React.FC = () => {
   const {
@@ -57,7 +58,8 @@ const MainLayout: React.FC = () => {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
-      StatusBar.setBackgroundColor({ color: '#160f0d' }).catch(() => {});
+      StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: '#00000000' }).catch(() => {});
     }
   }, []);
 
@@ -116,6 +118,9 @@ const MainLayout: React.FC = () => {
       {/* Interactive Cursor Spotlight & Tab-Reactive Ambient Lighting */}
       <AmbientLighting />
 
+      {/* Floating In-App Apple-Grade Reminder Alert Banner */}
+      <ReminderBanner />
+
       {/* Top Navbar with Live Flame Streak Trigger & Inspector */}
       <Navbar
         streakCount={streakCount}
@@ -149,8 +154,11 @@ const MainLayout: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="fixed inset-0 z-50 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6"
-            style={{ backgroundColor: 'var(--bg-canvas)' }}
+            className="fixed inset-0 z-50 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-5 sm:pb-6"
+            style={{
+              backgroundColor: 'var(--bg-canvas)',
+              paddingTop: 'calc(max(var(--sat, 0px), 0.75rem) + 0.5rem)',
+            }}
           >
             <StreaksView onClose={closeStreaks} />
           </motion.div>

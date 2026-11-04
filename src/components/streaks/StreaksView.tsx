@@ -6,7 +6,7 @@ import {
   Trophy,
   Award,
   Zap,
-  Sparkles,
+  Crown,
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
@@ -60,7 +60,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
     { title: '7-Day Ignition', days: 7, desc: 'Ignite atomic momentum with a 7-day run', icon: Award, unlocked: maxStreak >= 7 },
     { title: '21-Day Habit Loop', days: 21, desc: 'Lock routine into neuroplastic habituation', icon: Trophy, unlocked: maxStreak >= 21 },
     { title: '50-Day Momentum Titan', days: 50, desc: 'Unshakable discipline sustained over half a century', icon: Zap, unlocked: maxStreak >= 50 },
-    { title: '100-Day Centurion', days: 100, desc: 'Elite consistency hall of fame induction', icon: Sparkles, unlocked: maxStreak >= 100 },
+    { title: '100-Day Centurion', days: 100, desc: 'Elite consistency hall of fame induction', icon: Crown, unlocked: maxStreak >= 100 },
   ];
 
   const handleBack = () => {
@@ -72,7 +72,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10 min-h-[calc(100vh-100px)]">
+    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-64 sm:pb-56 select-none relative z-10 min-h-[calc(100vh-100px)]">
       {/* Top Bar: Back Action & Section Tabs */}
       <div className="flex items-center justify-between pt-1">
         <button

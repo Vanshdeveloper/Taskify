@@ -1,5 +1,6 @@
 import { db, getTodayString } from './index';
 import type { Task, Habit, Transaction } from '../types';
+import { autodetectCurrency } from '../utils/currency';
 
 export async function seedInitialDataIfNeeded() {
   const taskCount = await db.tasks.count();
@@ -17,6 +18,10 @@ export async function seedInitialDataIfNeeded() {
       status: 'todo',
       priority: 'high',
       dueDate: today,
+      dueTime: '14:30',
+      reminderEnabled: true,
+      reminderPreset: 'at_due',
+      reminderTime: '14:30',
       category: 'Work',
       tags: ['planning', 'strategy'],
       createdAt: now - 3600000 * 5,
@@ -51,6 +56,10 @@ export async function seedInitialDataIfNeeded() {
       status: 'todo',
       priority: 'urgent',
       dueDate: today,
+      dueTime: '14:30',
+      reminderEnabled: true,
+      reminderPreset: 'at_due',
+      reminderTime: '14:30',
       category: 'Work',
       tags: ['client', 'demo'],
       createdAt: now - 3600000 * 3,
@@ -68,8 +77,10 @@ export async function seedInitialDataIfNeeded() {
       unit: 'glasses',
       frequency: 'daily',
       timeOfDay: 'anytime',
+      reminderEnabled: true,
+      reminderTimes: ['09:00', '13:00', '18:00'],
       color: '#38bdf8', // sky-400
-      icon: 'droplets',
+      icon: 'droplet',
       createdAt: now - 86400000 * 7,
     },
     {
@@ -82,7 +93,7 @@ export async function seedInitialDataIfNeeded() {
       frequency: 'weekdays',
       timeOfDay: 'morning',
       color: '#a855f7', // purple-500
-      icon: 'sparkles',
+      icon: 'code',
       createdAt: now - 86400000 * 14,
     },
     {
@@ -95,7 +106,7 @@ export async function seedInitialDataIfNeeded() {
       frequency: 'daily',
       timeOfDay: 'evening',
       color: '#34d399', // emerald-400
-      icon: 'book-open',
+      icon: 'book',
       createdAt: now - 86400000 * 10,
     },
     {
@@ -108,7 +119,7 @@ export async function seedInitialDataIfNeeded() {
       frequency: 'daily',
       timeOfDay: 'afternoon',
       color: '#f59e0b', // amber-500
-      icon: 'activity',
+      icon: 'dumbbell',
       createdAt: now - 86400000 * 5,
     },
   ];
@@ -190,9 +201,11 @@ export async function seedInitialDataIfNeeded() {
   await db.habitLogs.bulkAdd(sampleHabitLogs);
   await db.transactions.bulkAdd(sampleTransactions);
 
+  const detected = autodetectCurrency();
   await db.settings.bulkPut([
     { key: 'monthlyBudget', value: 2400 },
-    { key: 'currency', value: '$' },
+    { key: 'currency', value: detected.symbol || '$' },
+    { key: 'currencyExplicit', value: false },
     { key: 'userName', value: 'Alex' },
     { key: 'darkMode', value: true },
   ]);

@@ -1,11 +1,13 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useRef } from 'react';
 import { useMotionValue, type MotionValue } from 'framer-motion';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, getTodayString } from '../db';
 import { seedInitialDataIfNeeded } from '../db/seed';
-import type { Task, Habit, HabitLog, Transaction, UserSettings, ActiveTab } from '../types';
+import type { Task, Habit, HabitLog, Transaction, UserSettings, ActiveTab, ReminderAlert } from '../types';
 import type { DeleteConfirmOptions } from '../components/modals/ConfirmDeleteModal';
 import { feedback, triggerCompletionConfetti } from '../utils/feedback';
+import { formatTime12Hour, sendNativeNotification, requestNotificationPermission, syncNativeScheduledReminders } from '../utils/reminder';
+import { autodetectCurrency } from '../utils/currency';
 
 interface FinanceStats {
   monthlyIncome: number;
@@ -60,6 +62,12 @@ interface AppContextType {
   requestDelete: (options: DeleteConfirmOptions) => void;
   closeDeleteConfirm: () => void;
 
+  // Reminders & Notifications
+  activeReminderAlert: ReminderAlert | null;
+  dismissReminderAlert: () => void;
+  completeReminderAlert: (alert: ReminderAlert) => Promise<void>;
+  requestNotificationPermission: () => Promise<NotificationPermission>;
+
   // Shared Modals
   isTaskModalOpen: boolean;
   openTaskModal: () => void;
@@ -82,9 +90,11 @@ const AppContext = createContext<AppContextType | null>(null);
 
 const DEFAULT_SETTINGS: UserSettings = {
   monthlyBudget: 2400,
-  currency: '$',
+  currency: typeof window !== 'undefined' ? autodetectCurrency().symbol : '$',
   userName: 'Alex',
   darkMode: true,
+  navbarHeight: 'default',
+  navbarGlass: 'solid',
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -96,6 +106,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Gen-Z Delete Confirmation state
   const [deleteConfirmOptions, setDeleteConfirmOptions] = useState<DeleteConfirmOptions | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  // Reminders & Notifications state
+  const [activeReminderAlert, setActiveReminderAlert] = useState<ReminderAlert | null>(null);
+  const firedReminderKeysRef = useRef<Set<string>>(new Set());
+
+  const dismissReminderAlert = () => {
+    setActiveReminderAlert(null);
+  };
 
   // Shared Modals state
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -136,6 +154,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   }, []);
 
+  // Auto-adapt to user's device currency if not explicitly overridden
+  useEffect(() => {
+    if (!isDbReady) return;
+    const checkCurrencyAdaptation = async () => {
+      try {
+        const explicitEntry = await db.settings.get('currencyExplicit');
+        if (!explicitEntry || !explicitEntry.value) {
+          const detected = autodetectCurrency();
+          if (detected.symbol) {
+            await db.settings.put({ key: 'currency', value: detected.symbol });
+          }
+        }
+      } catch {}
+    };
+    checkCurrencyAdaptation();
+  }, [isDbReady]);
+
   // Keyboard shortcut listener for universal Quick Capture (Cmd+K / Ctrl+K)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -166,6 +201,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       currency: map.currency ?? DEFAULT_SETTINGS.currency,
       userName: map.userName ?? DEFAULT_SETTINGS.userName,
       darkMode: map.darkMode ?? DEFAULT_SETTINGS.darkMode,
+      navbarHeight: map.navbarHeight ?? DEFAULT_SETTINGS.navbarHeight,
+      navbarGlass: map.navbarGlass ?? DEFAULT_SETTINGS.navbarGlass,
     };
   }, [settingsEntries]);
 
@@ -483,6 +520,116 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     feedback.playClick();
   };
 
+  const completeReminderAlert = async (alert: ReminderAlert) => {
+    if (alert.type === 'task') {
+      await toggleTask(alert.entityId);
+    } else if (alert.type === 'habit') {
+      await incrementHabit(alert.entityId);
+    }
+    setActiveReminderAlert(null);
+  };
+
+  // Background / Foreground scheduled reminder checker
+  useEffect(() => {
+    if (!isDbReady) return;
+
+    const checkReminders = () => {
+      const now = new Date();
+      const currentHH = String(now.getHours()).padStart(2, '0');
+      const currentMM = String(now.getMinutes()).padStart(2, '0');
+      const currentHHMM = `${currentHH}:${currentMM}`;
+      const todayStr = getTodayString();
+
+      // Check tasks due today with reminder enabled
+      tasks.forEach((t) => {
+        if (t.status === 'completed' || !t.reminderEnabled) return;
+        if (t.dueDate !== todayStr) return;
+
+        const targetTimes = t.reminderTimes && t.reminderTimes.length > 0
+          ? t.reminderTimes
+          : (t.reminderTime || t.dueTime ? [t.reminderTime || t.dueTime!] : []);
+
+        targetTimes.forEach((targetTime) => {
+          const key = `task-${t.id}-${todayStr}-${targetTime}`;
+          if (targetTime === currentHHMM && !firedReminderKeysRef.current.has(key)) {
+            firedReminderKeysRef.current.add(key);
+
+            if (typeof document !== 'undefined' && !document.hidden) {
+              setActiveReminderAlert({
+                id: key,
+                type: 'task',
+                entityId: t.id,
+                title: t.title,
+                subtitle: `Due today at ${formatTime12Hour(t.dueTime || targetTime)}`,
+                time: targetTime,
+              });
+              feedback.playSuccessChime();
+            } else {
+              sendNativeNotification(`Task Reminder: ${t.title}`, {
+                body: `Scheduled for today at ${formatTime12Hour(t.dueTime || targetTime)} • ${t.category}`,
+                tag: key,
+              });
+            }
+          }
+        });
+      });
+
+      // Check daily habits with reminderTimes
+      habits.forEach((h) => {
+        if (!h.reminderEnabled || !h.reminderTimes || !h.reminderTimes.length) return;
+
+        const todayLog = habitLogs.find((l) => l.habitId === h.id && l.date === todayStr);
+        if (todayLog?.completed) return;
+
+        h.reminderTimes.forEach((time) => {
+          const key = `habit-${h.id}-${todayStr}-${time}`;
+          if (time === currentHHMM && !firedReminderKeysRef.current.has(key)) {
+            firedReminderKeysRef.current.add(key);
+
+            if (typeof document !== 'undefined' && !document.hidden) {
+              setActiveReminderAlert({
+                id: key,
+                type: 'habit',
+                entityId: h.id,
+                title: h.name,
+                subtitle: `Daily routine check-in (${todayLog?.currentCount || 0}/${h.targetCount} ${h.unit})`,
+                time,
+              });
+              feedback.playSuccessChime();
+            } else {
+              sendNativeNotification(`Daily Routine: ${h.name}`, {
+                body: `Time for your daily routine: ${h.targetCount} ${h.unit} • ${h.timeOfDay}`,
+                tag: key,
+              });
+            }
+          }
+        });
+      });
+    };
+
+    checkReminders();
+    const timer = setInterval(checkReminders, 20000);
+
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        checkReminders();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [isDbReady, tasks, habits, habitLogs]);
+
+  // Synchronize system-level native background alarms with Android AlarmManager
+  // Ensures notifications fire on schedule even when the app is killed or suspended
+  useEffect(() => {
+    if (!isDbReady) return;
+    syncNativeScheduledReminders(tasks, habits);
+  }, [isDbReady, tasks, habits]);
+
   if (!isDbReady) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-zinc-950 text-zinc-400">
@@ -544,6 +691,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isStreaksOpen,
         openStreaks,
         closeStreaks,
+        activeReminderAlert,
+        dismissReminderAlert,
+        completeReminderAlert,
+        requestNotificationPermission,
       }}
     >
       {children}

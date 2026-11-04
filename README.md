@@ -1,6 +1,6 @@
 <div align="center">
 
-# Taskify ⚡
+# Taskify •
 ### The Local-First, Privacy-Native Productivity Operating System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -30,7 +30,9 @@ Every interaction runs sub-16ms with zero network lag, storing all relational da
 
 ## ✨ Key Features
 
-- **📱 Liquid Sliding Multi-Tab Architecture**: All sections (`Today`, `Tasks`, `Habits`, `Streaks`, `Finance`, `Settings`) are preloaded and transition horizontally with fluid Apple spring physics (`damping: 30, stiffness: 280`). Zero blank flash, zero opacity lag.
+- **📱 Pure 120Hz Viscous Oil Glide**: Preloaded horizontal sliding across main tabs (`Today`, `Tasks`, `Habits`, `Finance`) powered by flat 2D hardware-composited tape motion, Apple exponential momentum projection, release velocity handoff, and deferred state commit. Zero blank flash, zero frame drops on budget or flagship hardware.
+- **⚡ Unified Full-Featured Quick Capture (`+`)**: One-tap quick capture dialog available from the bottom dock and home screen, providing all fields for Tasks (deadline date & time, priority, reminder), Routines (category, target, time of day, accent color, reminders), and Cashflow (income/expense, payment method, category, date).
+- **🔔 Native Apple In-App Alert Banner & Multi-Reminders**: Dynamic Island floating alert banner with Web Audio bell chime, native mobile haptic feedback, and configurable daily routine reminders (1x to 5x presets) and task deadline alerts.
 - **🔍 Universal Spotlight Search (`Cmd+K` / `/`)**: Rapid command palette querying tasks, routines, cashflow ledger, and direct system actions in real time.
 - **🔥 Consistency Hall of Fame**:
   - Live animated flame counter in the top navigation bar.
@@ -41,18 +43,24 @@ Every interaction runs sub-16ms with zero network lag, storing all relational da
   - Instant Swiss Minimalist Compact Rows toggle for dense productivity triage.
 - **💳 Wealth & Cashflow Architecture**:
   - Real-time **Daily Safe-to-Spend** calculation based on monthly budget and remaining calendar days.
-  - Income and expense capture with payment method classification.
-- **🎨 Dynamic Solid Color Theming**:
-  - `Espresso Terracotta` (Flagship warm earth minimal)
-  - `Forest Rose` (Deep evergreen and rose quartz)
-  - `Obsidian Pure` (Monochrome high-contrast OLED black)
+  - Income and expense capture with payment method classification (Card, Apple Pay, Cash, Bank Transfer, Other).
+  - Client-side zero-API currency auto-detection from locale & timezone.
+- **🎨 7 Handcrafted Solid Color Palettes**:
+  - `Warm Espresso & Ochre` (Flagship warm earth minimal)
+  - `Nordic Frost & Platinum` (Glacier cyan & deep slate)
+  - `Kyoto Matcha & Bamboo` (Zen moss & bamboo green)
+  - `Amber Dune & Sahara Gold` (Molten liquid gold & dusk)
+  - `Forest Moss & Rose Noir` (Woodland green & dusty rose)
+  - `Tokyo Cyber Amethyst` (Midnight black & electric violet)
+  - `Obsidian Pure OLED` (Monochrome high-contrast pitch black)
 - **📅 iOS-Grade Custom Date & Time Pickers**:
   - Month calendar grid with ISO weekday alignment and quick preset chips.
-  - Dual-tumbler time roller with 12-hour grid, minute steps, and AM/PM segmented switch.
+  - Dual-tumbler drum dial with 12-hour grid, 5-minute multiples, AM/PM segmented switch, and quick presets.
 - **😂 Dynamic Gen-Z Delete Dialogs**:
   - Rotating pool of playful, authentic confirmation dialogs ("No cap, this will disappear into the void forever fr fr").
-- **📲 True Cross-Platform**:
+- **📲 True Cross-Platform & Wireless Debugging**:
   - Native iOS & Android builds configured via `@capacitor/core`.
+  - Android Studio ready with cleartext development config and Chrome remote debugging (`chrome://inspect`).
   - JSON system export & import with full backup portability.
 
 ---

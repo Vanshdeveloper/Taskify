@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, CheckSquare, Sparkles, Flame, PieChart, Settings } from 'lucide-react';
+import { Sun, CheckSquare, Repeat, Flame, PieChart, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import type { ActiveTab } from '../../types';
@@ -46,7 +46,7 @@ export const Sidebar: React.FC = () => {
     {
       id: 'habits',
       label: 'Habits',
-      icon: Sparkles,
+      icon: Repeat,
       badge: `${habitsDoneToday}/${habits.length}`,
       shortcut: '3',
     },

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2,
@@ -17,6 +17,8 @@ import { getTodayString, formatDateRelative } from '../../db';
 import { CalendarStrip } from '../ui/CalendarStrip';
 import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
+import { getCategoryTheme } from '../../utils/category';
+import { getRandomDeletePrompt } from '../../utils/genz';
 interface TodayViewProps {
   onOpenSearch?: () => void;
 }
@@ -32,57 +34,48 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
     setActiveTab,
     requestDelete,
     deleteTask,
-    openTaskModal,
+    setIsQuickCaptureOpen,
   } = useApp();
 
   const todayStr = getTodayString();
   const [selectedDate, setSelectedDate] = useState(todayStr);
 
   // Filter tasks for selected date
-  const dateTasks = tasks.filter(
-    (t) => t.dueDate === selectedDate || (t.status !== 'completed' && t.dueDate < selectedDate)
-  );
-  const completedDateCount = dateTasks.filter((t) => t.status === 'completed').length;
+  const dateTasks = useMemo(() => {
+    return tasks.filter(
+      (t) => t.dueDate === selectedDate || (t.status !== 'completed' && t.dueDate < selectedDate)
+    );
+  }, [tasks, selectedDate]);
+
+  const completedDateCount = useMemo(() => {
+    return dateTasks.filter((t) => t.status === 'completed').length;
+  }, [dateTasks]);
 
   // Active top focus task for the interactive hero card
-  const topFocusTask = dateTasks.find((t) => t.status !== 'completed') || dateTasks[0];
+  const topFocusTask = useMemo(() => {
+    return dateTasks.find((t) => t.status !== 'completed') || dateTasks[0];
+  }, [dateTasks]);
 
   // Limit to ONLY 3 tasks for Home/Today section as requested
-  const displayedTasks = dateTasks.slice(0, 3);
+  const displayedTasks = useMemo(() => dateTasks.slice(0, 3), [dateTasks]);
 
-  const habitsDoneToday = habitLogs.filter(
-    (l) => l.date === selectedDate && l.completed
-  ).length;
+  const habitsDoneToday = useMemo(() => {
+    return habitLogs.filter((l) => l.date === selectedDate && l.completed).length;
+  }, [habitLogs, selectedDate]);
 
   const handleDeleteTask = (taskId: string, title: string) => {
+    const prompt = getRandomDeletePrompt('task', title);
     requestDelete({
-      title: 'You sure you wanna delete this?',
-      message: `No cap, "${title}" will disappear into the void forever fr fr.`,
-      confirmText: 'Yep, yeet it',
-      cancelText: 'Nope, keep it',
+      title: prompt.title,
+      message: prompt.message,
+      confirmText: prompt.confirmText,
+      cancelText: prompt.cancelText,
       onConfirm: () => deleteTask(taskId),
     });
   };
 
-  const getCategoryTheme = (cat: string) => {
-    const c = cat.toLowerCase();
-    if (c.includes('work') || c.includes('office')) {
-      return { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' };
-    }
-    if (c.includes('fitness') || c.includes('health')) {
-      return { bg: 'rgba(16, 185, 129, 0.15)', text: '#34d399', border: 'rgba(16, 185, 129, 0.3)' };
-    }
-    if (c.includes('creative') || c.includes('design')) {
-      return { bg: 'rgba(214, 121, 140, 0.15)', text: '#f472b6', border: 'rgba(214, 121, 140, 0.3)' };
-    }
-    if (c.includes('study') || c.includes('learn')) {
-      return { bg: 'rgba(229, 164, 47, 0.15)', text: '#fbbf24', border: 'rgba(229, 164, 47, 0.3)' };
-    }
-    return { bg: 'rgba(255, 255, 255, 0.05)', text: '#d4d4d8', border: 'rgba(255, 255, 255, 0.08)' };
-  };
-
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10">
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-64 sm:pb-56 select-none relative z-10">
       {/* 1. Header (Cleaned: "TASKIFY, and Daily Nexus" removed completely) */}
       <div className="flex items-center justify-between pt-2">
         <div>
@@ -121,13 +114,13 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={openTaskModal}
+            onClick={() => setIsQuickCaptureOpen(true)}
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-lg pressable cursor-pointer font-bold"
             style={{
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
             }}
-            title="Add Objective"
+            title="Quick Capture (+)"
           >
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </motion.button>

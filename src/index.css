@@ -51,6 +51,52 @@
     --dock-border: rgba(247, 249, 246, 0.14);
   }
 
+  /* Palette 340: Pistachio Leaf & Blush Cream */
+  [data-theme="pistachio-cream"] {
+    --bg-canvas: #131910;
+    --bg-card: #1c2518;
+    --bg-card-hover: #242e20;
+    --bg-subtle: #172014;
+    --bg-input: #10150d;
+    --border-subtle: rgba(255, 255, 246, 0.08);
+    --border-card: rgba(255, 255, 246, 0.12);
+    --border-focus: rgba(198, 215, 123, 0.5);
+    --accent-primary: #c6d77b;        /* Pistachio Leaf */
+    --accent-primary-hover: #d7e691;
+    --accent-secondary: #c17685;      /* Dusty Rose */
+    --accent-secondary-hover: #d48a98;
+    --accent-success: #687737;        /* Olive */
+    --accent-highlight: #fffff6;      /* Soft Cream Milk */
+    --text-primary: #fffff6;
+    --text-secondary: #bdc5b2;
+    --text-muted: #79836e;
+    --dock-bg: #182014;
+    --dock-border: rgba(198, 215, 123, 0.22);
+  }
+
+  /* Palette 340: Velvet Burgundy & Dusty Rose Noir */
+  [data-theme="velvet-burgundy"] {
+    --bg-canvas: #12080a;
+    --bg-card: #1d0f12;
+    --bg-card-hover: #261519;
+    --bg-subtle: #170b0e;
+    --bg-input: #0e0608;
+    --border-subtle: rgba(255, 255, 246, 0.08);
+    --border-card: rgba(255, 255, 246, 0.12);
+    --border-focus: rgba(193, 118, 133, 0.5);
+    --accent-primary: #c17685;        /* Dusty Rose Mauve */
+    --accent-primary-hover: #d68b9a;
+    --accent-secondary: #f2cece;      /* Soft Blush Pink */
+    --accent-secondary-hover: #fce3e3;
+    --accent-success: #687737;
+    --accent-highlight: #fffff6;      /* Pure Ivory */
+    --text-primary: #fffff6;
+    --text-secondary: #cbb4b9;
+    --text-muted: #856a70;
+    --dock-bg: #1a0d10;
+    --dock-border: rgba(193, 118, 133, 0.25);
+  }
+
   [data-theme="obsidian-pure"] {
     --bg-canvas: #070709;
     --bg-card: #121217;
@@ -263,4 +309,44 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* High-Performance Native View Transitions (Chromium 125+, Safari 18.2+, Firefox 144+) */
+/* Isolate root rendering and use normal blend mode to eliminate mobile GPU texture thrash */
+::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation-duration: 140ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+::view-transition-old(root) {
+  animation-name: vt-fade-out;
+}
+::view-transition-new(root) {
+  animation-name: vt-fade-in;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Isolate persistent navigations from root snapshot flicker */
+::view-transition-group(persistent-nav),
+::view-transition-group(persistent-tabbar) {
+  animation: none;
+  z-index: 100;
+}
+
+/* Hardware-accelerated List Item Culling & Containment (Vercel React Native & Rendering Rules) */
+.list-item-optimized {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 76px;
 }

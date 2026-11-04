@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useApp } from '../../context/AppContext';
 
 interface NavbarProps {
   onOpenInspector: () => void;
@@ -13,10 +14,40 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenStreaks,
   streakCount,
 }) => {
+  const { settings } = useApp();
+
+  const heightClass =
+    settings.navbarHeight === 'compact'
+      ? 'py-2'
+      : settings.navbarHeight === 'spacious'
+      ? 'py-4 sm:py-5'
+      : 'py-3';
+
+  const glassStyle: React.CSSProperties =
+    settings.navbarGlass === 'glass'
+      ? {
+          backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 85%, transparent)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        }
+      : settings.navbarGlass === 'vibrant'
+      ? {
+          backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 78%, transparent)',
+          backdropFilter: 'blur(24px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+          boxShadow: '0 4px 24px -4px rgba(0,0,0,0.5), 0 1px 0 0 var(--border-subtle)',
+        }
+      : {
+          backgroundColor: 'var(--bg-canvas)',
+        };
+
   return (
     <header
-      className="sticky top-0 z-30 w-full px-5 sm:px-8 py-3.5 flex items-center justify-between select-none hairline-b transition-colors"
-      style={{ backgroundColor: 'var(--bg-canvas)' }}
+      className={`sticky top-0 z-30 w-full px-5 sm:px-8 flex items-center justify-between select-none hairline-b transition-all duration-200 ${heightClass}`}
+      style={{
+        ...glassStyle,
+        paddingTop: 'max(var(--sat, 0px), 0.75rem)',
+      }}
     >
       {/* Brand Title: Minimal "Taskify" wordmark */}
       <div className="flex items-center gap-2">

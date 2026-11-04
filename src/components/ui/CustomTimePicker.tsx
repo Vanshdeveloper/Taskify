@@ -8,6 +8,7 @@ interface CustomTimePickerProps {
   onChange: (timeStr: string) => void;
   className?: string;
   placeholder?: string;
+  popoverClassName?: string;
 }
 
 export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
@@ -15,16 +16,18 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
   onChange,
   className = '',
   placeholder = 'Add deadline time',
+  popoverClassName = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Parse existing value or default to 09:00 AM
+  // Parse existing value or default to 09:00 AM (rounding minutes to nearest multiple of 5)
   const parseTime = (val: string) => {
     if (!val) return { hour12: 9, minute: 0, ampm: 'AM' as const };
     const [hStr, mStr] = val.split(':');
     const h = parseInt(hStr, 10) || 0;
-    const m = parseInt(mStr, 10) || 0;
+    const rawM = parseInt(mStr, 10) || 0;
+    const m = Math.round(rawM / 5) * 5 % 60;
     const ampm = h >= 12 ? ('PM' as const) : ('AM' as const);
     const hour12 = h % 12 || 12;
     return { hour12, minute: m, ampm };
@@ -132,7 +135,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
         </div>
       </button>
 
-      {/* iOS-Style Drum Dial Popover */}
+      {/* Clean Apple Drum Dial Popover (Multiples of 5 Only) */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -140,7 +143,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -4 }}
             transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-            className="absolute left-0 right-0 sm:right-auto sm:w-80 top-full mt-1.5 z-50 rounded-2xl shadow-2xl p-4 flex flex-col gap-3.5 border backdrop-blur-xl"
+            className={`absolute left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 top-full mt-1.5 z-50 w-[min(340px,calc(100vw-2.5rem))] sm:w-84 rounded-2xl shadow-2xl p-4 flex flex-col gap-3.5 border backdrop-blur-xl ${popoverClassName}`}
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
@@ -176,7 +179,10 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
             </div>
 
             {/* Time Preview Header & AM/PM Segmented Control */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-subtle)', borderColor: 'var(--border-subtle)' }}>
+            <div
+              className="flex items-center justify-between p-2.5 rounded-xl border"
+              style={{ backgroundColor: 'var(--bg-subtle)', borderColor: 'var(--border-subtle)' }}
+            >
               <div className="flex items-baseline gap-1 font-mono text-xl font-black text-white pl-1">
                 <span>{String(selectedHour).padStart(2, '0')}</span>
                 <span className="text-zinc-500 animate-pulse">:</span>
@@ -184,7 +190,10 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
               </div>
 
               {/* AM / PM Segmented Switch */}
-              <div className="flex items-center p-0.5 rounded-lg border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}>
+              <div
+                className="flex items-center p-0.5 rounded-lg border"
+                style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+              >
                 {(['AM', 'PM'] as const).map((period) => {
                   const active = selectedAmPm === period;
                   return (
@@ -196,9 +205,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
                         setSelectedAmPm(period);
                       }}
                       className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all ${
-                        active
-                          ? 'text-white shadow-sm'
-                          : 'text-zinc-400 hover:text-white'
+                        active ? 'text-white shadow-sm' : 'text-zinc-400 hover:text-white'
                       }`}
                       style={{
                         backgroundColor: active ? 'var(--accent-primary)' : 'transparent',
@@ -211,7 +218,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
               </div>
             </div>
 
-            {/* Dial Selectors: Hours & Minutes */}
+            {/* Dial Selectors: Hours & Minutes (Multiples of 5 only) */}
             <div className="grid grid-cols-2 gap-3 text-center">
               {/* Hours Column */}
               <div>
@@ -229,7 +236,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
                           feedback.playClick();
                           setSelectedHour(h);
                         }}
-                        className={`h-7 rounded-lg text-xs font-mono font-medium transition-all pressable ${
+                        className={`h-8 rounded-lg text-xs font-mono font-medium transition-all pressable flex items-center justify-center ${
                           isSelected
                             ? 'text-white font-bold'
                             : 'text-zinc-400 hover:text-white hover:bg-white/10'
@@ -245,7 +252,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
                 </div>
               </div>
 
-              {/* Minutes Column */}
+              {/* Minutes Column (Strictly multiples of 5) */}
               <div>
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">
                   Minute
@@ -261,7 +268,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
                           feedback.playClick();
                           setSelectedMinute(m);
                         }}
-                        className={`h-7 rounded-lg text-xs font-mono font-medium transition-all pressable ${
+                        className={`h-8 rounded-lg text-xs font-mono font-medium transition-all pressable flex items-center justify-center ${
                           isSelected
                             ? 'text-white font-bold'
                             : 'text-zinc-400 hover:text-white hover:bg-white/10'
@@ -283,7 +290,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
               <button
                 type="button"
                 onClick={handleClear}
-                className="text-xs font-medium text-zinc-400 hover:text-rose-400 pressable transition-colors"
+                className="text-xs font-medium text-zinc-400 hover:text-rose-400 pressable transition-colors cursor-pointer"
               >
                 Clear
               </button>
@@ -291,7 +298,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
               <button
                 type="button"
                 onClick={handleApply}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow-md pressable transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow-md pressable transition-all cursor-pointer"
                 style={{ backgroundColor: 'var(--accent-primary)' }}
               >
                 <Check className="w-3.5 h-3.5 stroke-[2.5]" />

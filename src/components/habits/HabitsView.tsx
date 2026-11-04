@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Sparkles,
+  Repeat,
   Plus,
   Minus,
   Check,
@@ -10,11 +10,15 @@ import {
   CheckCircle2,
   LayoutGrid,
   List,
+  Bell,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import type { HabitTimeOfDay } from '../../types';
 import { SPRING_PILL } from '../../utils/motion';
+import { HabitIconRenderer } from './HabitIconRenderer';
+import { getRandomDeletePrompt } from '../../utils/genz';
+
 export const HabitsView: React.FC = () => {
   const {
     habits,
@@ -36,31 +40,42 @@ export const HabitsView: React.FC = () => {
   // Filters
   const [timeFilter, setTimeFilter] = useState<'all' | HabitTimeOfDay>('all');
 
-  const filteredHabits = habits.filter((h) => {
-    if (timeFilter !== 'all' && h.timeOfDay !== timeFilter) return false;
-    return true;
-  });
+  const filteredHabits = useMemo(() => {
+    if (timeFilter === 'all') return habits;
+    return habits.filter((h) => h.timeOfDay === timeFilter);
+  }, [habits, timeFilter]);
 
-  const habitsDoneToday = habits.filter((h) => {
-    const log = habitLogs.find((l) => l.habitId === h.id && l.date === today);
-    return log?.completed;
-  }).length;
+  const completedHabitIdSet = useMemo(() => {
+    const set = new Set<string>();
+    for (let i = 0; i < habitLogs.length; i++) {
+      const l = habitLogs[i];
+      if (l.date === today && l.completed) {
+        set.add(l.habitId);
+      }
+    }
+    return set;
+  }, [habitLogs, today]);
+
+  const habitsDoneToday = useMemo(() => {
+    return habits.filter((h) => completedHabitIdSet.has(h.id)).length;
+  }, [habits, completedHabitIdSet]);
 
   const progressPercent = habits.length > 0 ? Math.round((habitsDoneToday / habits.length) * 100) : 0;
 
   const handleDeleteHabit = (habitId: string, name: string) => {
+    const prompt = getRandomDeletePrompt('habit', name);
     requestDelete({
-      title: 'You sure you wanna delete this?',
-      message: `Bestie... are we really ghosting "${name}"? Streak gains will be wiped forever fr fr.`,
-      confirmText: 'Yep, yeet it',
-      cancelText: 'Nope, keep it',
+      title: prompt.title,
+      message: prompt.message,
+      confirmText: prompt.confirmText,
+      cancelText: prompt.cancelText,
       onConfirm: () => deleteHabit(habitId),
     });
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10">
-      {/* 1. Header (Cleaned: "HABIT EXECUTION" line removed completely) */}
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-64 sm:pb-56 select-none relative z-10">
+      {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
           <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
@@ -84,14 +99,14 @@ export const HabitsView: React.FC = () => {
         </motion.button>
       </div>
 
-      {/* 2. Today's Routine Check-Ins (Responsive & Optimized for Mobile) */}
+      {/* 2. Today's Routine Check-Ins */}
       <div
         className="solid-card p-4 sm:p-5 flex flex-col gap-2.5 shadow-xl"
         style={{ backgroundColor: 'var(--bg-card)' }}
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+            <Repeat className="w-4 h-4 text-amber-400 shrink-0" />
             <span className="font-display font-bold text-white text-sm sm:text-base">
               Today's Routine Check-Ins
             </span>
@@ -165,7 +180,7 @@ export const HabitsView: React.FC = () => {
             {filteredHabits.length} routines active
           </span>
 
-          {/* View Mode Switcher (Cards vs Compact) - Standardized H-10 */}
+          {/* View Mode Switcher (Cards vs Compact) */}
           <div
             className="h-10 px-1 rounded-xl flex items-center gap-0.5 shrink-0 border"
             style={{
@@ -222,247 +237,355 @@ export const HabitsView: React.FC = () => {
           </span>
           <p className="text-xs text-zinc-500 mt-1">Tap "+ New Routine" above to design one.</p>
         </div>
-      ) : viewMode === 'cards' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          <AnimatePresence>
-            {filteredHabits.map((habit) => {
-              const todayLog = habitLogs.find(
-                (l) => l.habitId === habit.id && l.date === today
-              );
-              const count = todayLog?.currentCount ?? 0;
-              const isCompleted = todayLog?.completed ?? false;
-              const streak = getHabitStreak(habit.id);
+      ) : (
+        <AnimatePresence mode="wait">
+          {viewMode === 'cards' ? (
+            <motion.div
+              key="habits-cards"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-3.5"
+            >
+              <AnimatePresence>
+                {filteredHabits.map((habit) => {
+                  const todayLog = habitLogs.find(
+                    (l) => l.habitId === habit.id && l.date === today
+                  );
+                  const count = todayLog?.currentCount ?? 0;
+                  const isCompleted = todayLog?.completed ?? false;
+                  const streak = getHabitStreak(habit.id);
 
-              return (
-                <motion.div
-                  layout
-                  key={habit.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className={`solid-card p-5 flex flex-col justify-between transition-all ${
-                    isCompleted ? 'border-emerald-500/30' : ''
-                  }`}
-                  style={{ backgroundColor: 'var(--bg-card)' }}
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-md font-bold text-sm"
-                          style={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                            color: habit.color || 'var(--accent-primary)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                          }}
-                        >
-                          <Sparkles className="w-5 h-5" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm sm:text-base font-bold text-white tracking-tight">
-                            {habit.name}
-                          </span>
-                          <span className="text-xs text-zinc-400 mt-0.5 font-mono">
-                            Target: {habit.targetCount} {habit.unit} • {habit.timeOfDay}
-                          </span>
+                  return (
+                    <motion.div
+                      key={habit.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className={`solid-card p-5 flex flex-col justify-between transition-all ${
+                        isCompleted ? 'border-emerald-500/30' : ''
+                      }`}
+                      style={{ backgroundColor: 'var(--bg-card)' }}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-md font-bold text-sm"
+                              style={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                color: habit.color || 'var(--accent-primary)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                              }}
+                            >
+                              <HabitIconRenderer icon={habit.icon} className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm sm:text-base font-bold text-white tracking-tight">
+                                {habit.name}
+                              </span>
+                              <div className="flex items-center gap-1.5 text-xs text-zinc-400 mt-0.5 font-mono flex-wrap">
+                                <span>Target: {habit.targetCount} {habit.unit} • {habit.timeOfDay}</span>
+                                {habit.reminderEnabled && habit.reminderTimes && habit.reminderTimes.length > 0 && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-amber-400 flex items-center gap-0.5 font-bold">
+                                      <Bell className="w-3 h-3 inline" /> {habit.reminderTimes.length}x/day
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-bold border"
+                              style={{
+                                backgroundColor: 'rgba(242, 106, 54, 0.12)',
+                                color: 'var(--accent-primary)',
+                                borderColor: 'rgba(242, 106, 54, 0.25)',
+                              }}
+                            >
+                              <Flame className="w-3.5 h-3.5 fill-current" />
+                              <span>{streak}d</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteHabit(habit.id, habit.name)}
+                              className="opacity-40 hover:opacity-100 p-1 rounded text-zinc-500 hover:text-rose-400 pressable transition-opacity cursor-pointer"
+                              title="Delete routine"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      {/* Tactile Counter & Check-in Controls */}
+                      <div className="flex items-center justify-between pt-4 mt-4 hairline-t">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => decrementHabit(habit.id)}
+                            disabled={count <= 0}
+                            className="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable border border-white/6 cursor-pointer"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+
+                          <span className="font-mono text-sm font-bold text-white px-2 min-w-8 text-center tabular-nums">
+                            {count}/{habit.targetCount}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={(e) => incrementHabit(habit.id, e)}
+                            className="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white flex items-center justify-center pressable border border-white/8 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          type="button"
+                          onClick={(e) => toggleHabit(habit.id, e)}
+                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold pressable transition-all border cursor-pointer ${
+                            isCompleted
+                              ? 'shadow-lg ring-2 ring-white/20'
+                              : 'hover:border-white/20'
+                          }`}
+                          style={{
+                            backgroundColor: isCompleted ? 'var(--accent-primary)' : 'var(--bg-subtle)',
+                            color: isCompleted ? '#ffffff' : 'var(--text-primary)',
+                            borderColor: isCompleted ? 'var(--accent-primary)' : 'var(--border-card)',
+                          }}
+                        >
+                          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                          <span>{isCompleted ? 'Done' : 'Check In'}</span>
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            /* ========================================================
+               CREATIVE VIEW 2: APPLE ATOMIC ROUTINE LIST CARDS
+               (Rich Apple Health / Fitness style progressive cards)
+               ======================================================== */
+            <motion.div
+              key="habits-compact"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="flex flex-col gap-3"
+            >
+              {filteredHabits.map((habit) => {
+                const todayLog = habitLogs.find(
+                  (l) => l.habitId === habit.id && l.date === today
+                );
+                const count = todayLog?.currentCount ?? 0;
+                const isCompleted = todayLog?.completed ?? false;
+                const streak = getHabitStreak(habit.id);
+                const habitPct = Math.min(100, Math.round((count / Math.max(1, habit.targetCount)) * 100));
+
+                return (
+                  <motion.div
+                    key={habit.id}
+                    layout
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className={`solid-card p-4 sm:p-4.5 rounded-2xl border transition-all flex flex-col gap-3 ${
+                      isCompleted ? 'border-emerald-500/30' : ''
+                    }`}
+                    style={{
+                      backgroundColor: 'var(--bg-card)',
+                      borderColor: isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-card)',
+                    }}
+                  >
+                    {/* Top Row: Circular Progress Ring, Title & Badges, Streak & Delete */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                        {/* Circular Progress Ring with Tactile Check-In */}
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          type="button"
+                          onClick={(e) => toggleHabit(habit.id, e)}
+                          className="relative w-11 h-11 shrink-0 rounded-full flex items-center justify-center cursor-pointer group"
+                          title={isCompleted ? 'Completed! Click to reset' : 'Click to complete routine'}
+                        >
+                          <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
+                            <circle
+                              cx="22"
+                              cy="22"
+                              r="18"
+                              stroke="currentColor"
+                              strokeWidth="3.5"
+                              fill="transparent"
+                              className="text-white/[0.08]"
+                            />
+                            <circle
+                              cx="22"
+                              cy="22"
+                              r="18"
+                              stroke={isCompleted ? '#10b981' : habit.color || 'var(--accent-primary)'}
+                              strokeWidth="3.5"
+                              strokeDasharray={113.1}
+                              strokeDashoffset={113.1 - (113.1 * (isCompleted ? 100 : habitPct)) / 100}
+                              strokeLinecap="round"
+                              fill="transparent"
+                              className="transition-all duration-500 ease-out"
+                            />
+                          </svg>
+
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {isCompleted ? (
+                              <Check className="w-5 h-5 text-emerald-400 stroke-[3]" />
+                            ) : (
+                              <span
+                                className="font-mono text-[10px] font-bold"
+                                style={{ color: habit.color || 'var(--accent-primary)' }}
+                              >
+                                {habitPct}%
+                              </span>
+                            )}
+                          </div>
+                        </motion.button>
+
+                        {/* Title & Metadata Badges */}
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span
+                            className={`text-sm sm:text-base font-bold tracking-tight truncate ${
+                              isCompleted ? 'line-through text-zinc-400' : 'text-white'
+                            }`}
+                          >
+                            {habit.name}
+                          </span>
+
+                          <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400 mt-1 flex-wrap">
+                            <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/6 text-zinc-300">
+                              {habit.category}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/6 capitalize">
+                              {habit.timeOfDay}
+                            </span>
+                            <span className="text-zinc-500 hidden sm:inline">•</span>
+                            <span className="font-bold text-zinc-300">
+                              Goal: {habit.targetCount} {habit.unit}
+                            </span>
+                            {habit.reminderEnabled && habit.reminderTimes && habit.reminderTimes.length > 0 && (
+                              <span className="flex items-center gap-1 text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20">
+                                <Bell className="w-2.5 h-2.5" />
+                                {habit.reminderTimes.length}x/day
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Streak Flame & Delete Button */}
+                      <div className="flex items-center gap-2 shrink-0">
                         <div
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-bold border"
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-mono font-bold border shadow-sm"
                           style={{
                             backgroundColor: 'rgba(242, 106, 54, 0.12)',
                             color: 'var(--accent-primary)',
                             borderColor: 'rgba(242, 106, 54, 0.25)',
                           }}
                         >
-                          <Flame className="w-3.5 h-3.5 fill-current" />
+                          <Flame className="w-3.5 h-3.5 fill-current text-amber-500" />
                           <span>{streak}d</span>
                         </div>
+
                         <button
                           type="button"
                           onClick={() => handleDeleteHabit(habit.id, habit.name)}
-                          className="opacity-40 hover:opacity-100 p-1 rounded text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                          className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 pressable transition-all cursor-pointer opacity-50 hover:opacity-100"
                           title="Delete routine"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Tactile Counter & Check-in Controls */}
-                  <div className="flex items-center justify-between pt-4 mt-4 hairline-t">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => decrementHabit(habit.id)}
-                        disabled={count <= 0}
-                        className="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable border border-white/6"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-
-                      <span className="font-mono text-sm font-bold text-white px-2 min-w-8 text-center">
-                        {count}/{habit.targetCount}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={(e) => incrementHabit(habit.id, e)}
-                        className="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white flex items-center justify-center pressable border border-white/8"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
+                    {/* Dynamic Health Progress Bar */}
+                    <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
+                      <motion.div
+                        initial={false}
+                        animate={{ width: `${isCompleted ? 100 : habitPct}%` }}
+                        transition={{ duration: 0.35, ease: 'easeOut' }}
+                        className="h-full rounded-full"
+                        style={{
+                          backgroundColor: isCompleted ? '#10b981' : habit.color || 'var(--accent-primary)',
+                        }}
+                      />
                     </div>
 
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      type="button"
-                      onClick={(e) => toggleHabit(habit.id, e)}
-                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold pressable transition-all border ${
-                        isCompleted
-                          ? 'shadow-lg ring-2 ring-white/20'
-                          : 'hover:border-white/20'
-                      }`}
-                      style={{
-                        backgroundColor: isCompleted ? 'var(--accent-primary)' : 'var(--bg-subtle)',
-                        color: isCompleted ? '#ffffff' : 'var(--text-primary)',
-                        borderColor: isCompleted ? 'var(--accent-primary)' : 'var(--border-card)',
-                      }}
-                    >
-                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                      <span>{isCompleted ? 'Done' : 'Check In'}</span>
-                    </motion.button>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      ) : (
-        /* ========================================================
-           CREATIVE VIEW 2: ULTRA-REFINED SWISS COMPACT ROWS
-           ======================================================== */
-        <div
-          className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden border"
-          style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
-        >
-          <AnimatePresence>
-            {filteredHabits.map((habit) => {
-              const todayLog = habitLogs.find(
-                (l) => l.habitId === habit.id && l.date === today
-              );
-              const count = todayLog?.currentCount ?? 0;
-              const isCompleted = todayLog?.completed ?? false;
-              const streak = getHabitStreak(habit.id);
+                    {/* Bottom Row: Stepper Controls & Quick Check-in Button */}
+                    <div className="flex items-center justify-between pt-1">
+                      {/* Tactile Micro-Stepper */}
+                      <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/8 shadow-inner">
+                        <button
+                          type="button"
+                          onClick={() => decrementHabit(habit.id)}
+                          disabled={count <= 0}
+                          className="w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable cursor-pointer transition-colors"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
 
-              return (
-                <motion.div
-                  layout
-                  key={habit.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="p-3.5 sm:p-4 flex items-center justify-between gap-3.5 transition-colors hover:bg-white/[0.02]"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div
-                      className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold"
-                      style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        color: habit.color || 'var(--accent-primary)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                      }}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <div className="flex flex-col min-w-0 pr-2">
-                      <span
-                        className={`text-xs sm:text-sm font-bold tracking-tight truncate ${
-                          isCompleted ? 'line-through text-zinc-500' : 'text-white'
-                        }`}
-                      >
-                        {habit.name}
-                      </span>
-                      <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono mt-0.5">
-                        <span>
-                          {habit.targetCount} {habit.unit}
-                        </span>
-                        <span>•</span>
-                        <span className="capitalize">{habit.timeOfDay}</span>
+                        <div className="px-2 min-w-16 text-center">
+                          <span className="font-mono text-xs font-bold text-white tabular-nums">
+                            {count}
+                          </span>
+                          <span className="font-mono text-[11px] text-zinc-500 mx-1">/</span>
+                          <span className="font-mono text-xs text-zinc-400 tabular-nums">
+                            {habit.targetCount} {habit.unit}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => incrementHabit(habit.id, e)}
+                          className="w-7 h-7 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] text-white flex items-center justify-center pressable cursor-pointer transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                    <div
-                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-mono font-bold border"
-                      style={{
-                        backgroundColor: 'rgba(242, 106, 54, 0.12)',
-                        color: 'var(--accent-primary)',
-                        borderColor: 'rgba(242, 106, 54, 0.25)',
-                      }}
-                    >
-                      <Flame className="w-3 h-3 fill-current" />
-                      <span>{streak}d</span>
-                    </div>
-
-                    {/* Compact Stepper */}
-                    <div className="flex items-center gap-1 bg-white/[0.03] p-0.5 rounded-xl border border-white/6">
-                      <button
+                      {/* Check-In / Completed Action */}
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         type="button"
-                        onClick={() => decrementHabit(habit.id)}
-                        disabled={count <= 0}
-                        className="w-6 h-6 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable"
+                        onClick={(e) => toggleHabit(habit.id, e)}
+                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold pressable transition-all border cursor-pointer ${
+                          isCompleted
+                            ? 'shadow-md border-emerald-500/50 bg-emerald-500/20 text-emerald-300'
+                            : 'hover:border-white/20 text-white'
+                        }`}
+                        style={{
+                          backgroundColor: isCompleted ? undefined : 'var(--bg-subtle)',
+                          borderColor: isCompleted ? undefined : 'var(--border-card)',
+                        }}
                       >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="font-mono text-xs font-bold text-white px-1.5 min-w-6 text-center">
-                        {count}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => incrementHabit(habit.id, e)}
-                        className="w-6 h-6 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white flex items-center justify-center pressable"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>{isCompleted ? 'Completed' : 'Check In'}</span>
+                      </motion.button>
                     </div>
-
-                    {/* Check toggle */}
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      type="button"
-                      onClick={(e) => toggleHabit(habit.id, e)}
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center pressable border transition-all ${
-                        isCompleted ? 'text-white' : 'hover:border-white/20 text-zinc-400'
-                      }`}
-                      style={{
-                        backgroundColor: isCompleted ? 'var(--accent-primary)' : 'var(--bg-subtle)',
-                        borderColor: isCompleted ? 'var(--accent-primary)' : 'var(--border-card)',
-                      }}
-                      title={isCompleted ? 'Completed' : 'Check In'}
-                    >
-                      <Check className="w-4 h-4 stroke-[2.5]" />
-                    </motion.button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteHabit(habit.id, habit.name)}
-                      className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
-                      title="Delete routine"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
     </div>
   );

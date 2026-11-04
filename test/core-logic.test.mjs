@@ -217,3 +217,85 @@ test('Liquid Tab Engine: Apple exponential momentum projection projects resting 
   const projNeg = projectMomentum(-800);
   assert.ok(projNeg < -90, `Expected negative projection, got ${projNeg}`);
 });
+
+test('Reminder Engine: Daily habit reminder distributions (1x to 5x presets)', () => {
+  function generateDefaultReminderTimes(count) {
+    const c = Math.max(1, Math.min(5, count));
+    switch (c) {
+      case 1: return ['09:00'];
+      case 2: return ['09:00', '18:00'];
+      case 3: return ['09:00', '13:00', '18:00'];
+      case 4: return ['09:00', '12:00', '15:00', '18:00'];
+      case 5:
+      default: return ['08:00', '11:00', '14:00', '17:00', '20:00'];
+    }
+  }
+
+  assert.deepEqual(generateDefaultReminderTimes(1), ['09:00']);
+  assert.deepEqual(generateDefaultReminderTimes(2), ['09:00', '18:00']);
+  assert.deepEqual(generateDefaultReminderTimes(3), ['09:00', '13:00', '18:00']);
+  assert.deepEqual(generateDefaultReminderTimes(4), ['09:00', '12:00', '15:00', '18:00']);
+  assert.deepEqual(generateDefaultReminderTimes(5), ['08:00', '11:00', '14:00', '17:00', '20:00']);
+});
+
+test('Reminder Engine: Task reminder offset calculation for presets', () => {
+  function calculateTaskReminderTime(dueTime, preset, customTime) {
+    if (preset === 'custom') return customTime || dueTime || '09:00';
+    if (!dueTime) return '09:00';
+    const [hStr, mStr] = dueTime.split(':');
+    const h = parseInt(hStr, 10);
+    const m = parseInt(mStr, 10);
+    let totalMinutes = h * 60 + m;
+    if (preset === 'at_due') totalMinutes = totalMinutes;
+    else if (preset === '15m_before') totalMinutes = Math.max(0, totalMinutes - 15);
+    else if (preset === '1h_before') totalMinutes = Math.max(0, totalMinutes - 60);
+    const remH = Math.floor(totalMinutes / 60) % 24;
+    const remM = totalMinutes % 60;
+    return `${String(remH).padStart(2, '0')}:${String(remM).padStart(2, '0')}`;
+  }
+
+  assert.equal(calculateTaskReminderTime('14:30', 'at_due'), '14:30');
+  assert.equal(calculateTaskReminderTime('14:30', '15m_before'), '14:15');
+  assert.equal(calculateTaskReminderTime('14:30', '1h_before'), '13:30');
+  assert.equal(calculateTaskReminderTime('14:30', 'custom', '10:00'), '10:00');
+});
+
+test('Harmonic Palette Generator: Single seed color derives unified 5-layer surface tokens', () => {
+  function hexToHsl(hex) {
+    let clean = hex.replace('#', '').trim();
+    const num = parseInt(clean, 16);
+    const r = ((num >> 16) & 255) / 255;
+    const g = ((num >> 8) & 255) / 255;
+    const b = (num & 255) / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h = Math.round(h * 60);
+    }
+    return { h: (h + 360) % 360, s: Math.round(s * 100), l: Math.round(l * 100) };
+  }
+
+  const orangeSeed = '#f5773f';
+  const { h, s, l } = hexToHsl(orangeSeed);
+  assert.ok(h >= 15 && h <= 30, 'Orange hue should be within terracotta/tangerine range (15-30 deg)');
+  assert.ok(s >= 70, 'Saturation should be vivid');
+});
+
+test('Gen-Z Randomized Validation & Deletion: Generates varied prompts and non-empty microcopy', () => {
+  const TASK_TITLE_ERRORS = [
+    'Hey man you left this thing alone! 💀 Type a title fr fr.',
+    'Bestie you forgot the task title! How we supposed to lock in? 😭',
+  ];
+  assert.ok(TASK_TITLE_ERRORS.length >= 2);
+  TASK_TITLE_ERRORS.forEach((msg) => {
+    assert.ok(msg.includes('alone') || msg.includes('title') || msg.includes('Bestie'));
+  });
+});

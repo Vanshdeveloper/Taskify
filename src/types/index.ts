@@ -1,5 +1,6 @@
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskStatus = 'todo' | 'in_progress' | 'completed';
+export type ReminderPreset = 'at_due' | '15m_before' | '1h_before' | '1d_before' | 'custom';
 
 export interface Task {
   id: string;
@@ -9,6 +10,10 @@ export interface Task {
   priority: Priority;
   dueDate: string; // YYYY-MM-DD
   dueTime?: string; // HH:MM (e.g. "14:30")
+  reminderEnabled?: boolean;
+  reminderPreset?: ReminderPreset;
+  reminderTime?: string; // HH:MM (e.g. "14:15")
+  reminderTimes?: string[]; // Multiple reminder times (e.g. ["13:45", "14:00"])
   category: string;
   tags?: string[];
   createdAt: number;
@@ -29,7 +34,18 @@ export interface Habit {
   timeOfDay: HabitTimeOfDay;
   color: string;
   icon: string;
+  reminderEnabled?: boolean;
+  reminderTimes?: string[]; // Array of "HH:MM", e.g. ["09:00", "13:00", "18:00"]
   createdAt: number;
+}
+
+export interface ReminderAlert {
+  id: string;
+  type: 'task' | 'habit';
+  entityId: string;
+  title: string;
+  subtitle: string;
+  time: string;
 }
 
 export interface HabitLog {
@@ -55,20 +71,31 @@ export interface Transaction {
   createdAt: number;
 }
 
+export type NavbarHeight = 'compact' | 'default' | 'spacious';
+export type NavbarGlass = 'solid' | 'glass' | 'vibrant';
+
 export interface UserSettings {
   monthlyBudget: number;
   currency: string;
+  currencyExplicit?: boolean;
   userName: string;
   darkMode: boolean;
   theme?: AppTheme;
+  navbarHeight?: NavbarHeight;
+  navbarGlass?: NavbarGlass;
 }
 
 export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'settings';
+export type ThemeCategory = 'all' | 'soft' | 'dark' | 'minimalist' | 'custom';
+
 export type AppTheme =
   | 'espresso-terracotta'
   | 'forest-rose'
+  | 'pistachio-cream'
+  | 'velvet-burgundy'
   | 'obsidian-pure'
   | 'nordic-frost'
   | 'tokyo-neon'
   | 'kyoto-matcha'
-  | 'amber-dune';
+  | 'amber-dune'
+  | (string & {});

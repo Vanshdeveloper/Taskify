@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  DollarSign,
+  Wallet,
   TrendingUp,
   TrendingDown,
   Plus,
@@ -18,6 +18,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import { SPRING_PILL } from '../../utils/motion';
+import { getRandomDeletePrompt } from '../../utils/genz';
 
 export const FinanceView: React.FC = () => {
   const {
@@ -71,16 +72,18 @@ export const FinanceView: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  const filteredTransactions = transactions.filter((t) => {
-    if (filterType !== 'all' && t.type !== filterType) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchDesc = t.description.toLowerCase().includes(q);
-      const matchCat = t.category.toLowerCase().includes(q);
-      if (!matchDesc && !matchCat) return false;
-    }
-    return true;
-  });
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t) => {
+      if (filterType !== 'all' && t.type !== filterType) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchDesc = t.description.toLowerCase().includes(q);
+        const matchCat = t.category.toLowerCase().includes(q);
+        if (!matchDesc && !matchCat) return false;
+      }
+      return true;
+    });
+  }, [transactions, filterType, searchQuery]);
 
   const budgetUsagePercent = Math.min(
     100,
@@ -88,17 +91,18 @@ export const FinanceView: React.FC = () => {
   );
 
   const handleDeleteTransaction = (txId: string, desc: string) => {
+    const prompt = getRandomDeletePrompt('finance', desc);
     requestDelete({
-      title: 'You sure you wanna delete this?',
-      message: `It's giving permanent deletion vibes bestie. "${desc}" is about to vanish into thin air fr.`,
-      confirmText: 'Yep, yeet it',
-      cancelText: 'Nope, keep it',
+      title: prompt.title,
+      message: prompt.message,
+      confirmText: prompt.confirmText,
+      cancelText: prompt.cancelText,
       onConfirm: () => deleteTransaction(txId),
     });
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-36 sm:pb-32 select-none relative z-10">
+    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-64 sm:pb-56 select-none relative z-10">
       {/* 1. Header (Cleaned: "FINANCE, CASHFLOW ARCHITECTURE" line removed completely) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
@@ -396,14 +400,23 @@ export const FinanceView: React.FC = () => {
           className="solid-card py-16 px-4 text-center flex flex-col items-center justify-center border"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
         >
-          <DollarSign className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
+          <Wallet className="w-8 h-8 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
           <span className="font-display text-sm font-semibold text-zinc-300">
             No transactions recorded
           </span>
           <p className="text-xs text-zinc-500 mt-1">Tap "Log Record" above to record your first inflow or expense.</p>
         </div>
-      ) : viewMode === 'cards' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+      ) : (
+        <AnimatePresence mode="wait">
+          {viewMode === 'cards' ? (
+            <motion.div
+              key="finance-cards"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"
+            >
           <AnimatePresence>
             {filteredTransactions.map((tx) => {
               const isIncome = tx.type === 'income';
@@ -474,10 +487,15 @@ export const FinanceView: React.FC = () => {
               );
             })}
           </AnimatePresence>
-        </div>
+        </motion.div>
       ) : (
         /* CREATIVE VIEW 2: ULTRA-REFINED SWISS COMPACT ROWS */
-        <div
+        <motion.div
+          key="finance-compact"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
           className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden border"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
         >
@@ -550,8 +568,10 @@ export const FinanceView: React.FC = () => {
               );
             })}
           </AnimatePresence>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
+  )}
     </div>
   );
 };

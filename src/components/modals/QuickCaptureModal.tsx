@@ -1,33 +1,89 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, DollarSign, Sparkles, X, ArrowRight, Calendar, Tag } from 'lucide-react';
+import {
+  CheckCircle2,
+  Wallet,
+  Repeat,
+  X,
+  ArrowRight,
+  Bell,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
-import type { Priority, HabitTimeOfDay } from '../../types';
+import type { Priority, HabitTimeOfDay, ReminderPreset, TransactionType, PaymentMethod } from '../../types';
+import { CustomDatePicker } from '../ui/CustomDatePicker';
 import { CustomTimePicker } from '../ui/CustomTimePicker';
 import { CustomSelect } from '../ui/CustomSelect';
+import { feedback } from '../../utils/feedback';
+import {
+  calculateTaskReminderTime,
+  generateDefaultReminderTimes,
+  requestNotificationPermission,
+} from '../../utils/reminder';
+import { HABIT_ICON_OPTIONS } from '../habits/HabitIconRenderer';
+import { getEmptyFieldError } from '../../utils/genz';
 
 export const QuickCaptureModal: React.FC = () => {
-  const { isQuickCaptureOpen, setIsQuickCaptureOpen, addTask, addTransaction, addHabit } = useApp();
-  const [activeType, setActiveType] = useState<'task' | 'expense' | 'habit'>('task');
+  const { isQuickCaptureOpen, setIsQuickCaptureOpen, addTask, addHabit, addTransaction, tasks, settings } = useApp();
+  const [activeType, setActiveType] = useState<'task' | 'habit' | 'finance'>('task');
+  const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const today = getTodayString();
 
-  // Form states
-  const [title, setTitle] = useState('');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
-  const [priority, setPriority] = useState<Priority>('medium');
-  const [dueDate, setDueDate] = useState(getTodayString());
-  const [dueTime, setDueTime] = useState('');
-  const [habitUnit, setHabitUnit] = useState('times');
+  // Task form state
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDueDate, setTaskDueDate] = useState(today);
+  const [taskDueTime, setTaskDueTime] = useState('');
+  const [taskPriority, setTaskPriority] = useState<Priority>('medium');
+  const [taskCategory, setTaskCategory] = useState('Work');
+  const [taskReminderEnabled, setTaskReminderEnabled] = useState(false);
+  const [taskReminderPreset, setTaskReminderPreset] = useState<ReminderPreset>('at_due');
+  const [taskReminderTime, setTaskReminderTime] = useState('');
+
+  // Habit form state
+  const [habitName, setHabitName] = useState('');
+  const [habitCategory, setHabitCategory] = useState('Health');
   const [habitTarget, setHabitTarget] = useState('1');
-  const [habitTime, setHabitTime] = useState<HabitTimeOfDay>('anytime');
+  const [habitUnit, setHabitUnit] = useState('times');
+  const [habitTimeOfDay, setHabitTimeOfDay] = useState<HabitTimeOfDay>('morning');
+  const [habitColor, setHabitColor] = useState('#f26a36');
+  const [habitIcon, setHabitIcon] = useState('target');
+  const [habitReminderEnabled, setHabitReminderEnabled] = useState(false);
+  const [habitReminderFreq, setHabitReminderFreq] = useState(1);
+  const [habitReminderTimes, setHabitReminderTimes] = useState<string[]>(['09:00']);
+
+  // Finance form state
+  const [txType, setTxType] = useState<TransactionType>('expense');
+  const [txAmount, setTxAmount] = useState('');
+  const [txDescription, setTxDescription] = useState('');
+  const [txCategory, setTxCategory] = useState('Food & Dining');
+  const [txDate, setTxDate] = useState(today);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+
+  // Categories & Options
+  const taskCategories = Array.from(
+    new Set(['Work', 'Personal', 'Study', 'Fitness', ...tasks.map((t) => t.category)])
+  ).filter(Boolean);
+
+  const habitCategories = ['Health', 'Intellect', 'Fitness', 'Productivity', 'Mindset', 'Creative'];
+
+  const habitColors = [
+    { name: 'Terracotta', hex: '#f26a36' },
+    { name: 'Ochre', hex: '#e5a42f' },
+    { name: 'Matcha', hex: '#7da04a' },
+    { name: 'Rose', hex: '#d6798c' },
+    { name: 'Cobalt', hex: '#3b82f6' },
+  ];
 
   const expenseCategories = [
     'Food & Dining',
     'Groceries',
     'Transport',
+    'Housing',
     'Utilities',
     'Entertainment',
     'Health',
@@ -35,69 +91,174 @@ export const QuickCaptureModal: React.FC = () => {
     'Other',
   ];
 
+  const incomeCategories = ['Salary', 'Freelance', 'Investment', 'Gift', 'Other'];
+
+  const paymentMethods = [
+    { value: 'card', label: 'Credit/Debit Card' },
+    { value: 'apple_pay', label: 'Apple Pay' },
+    { value: 'cash', label: 'Cash' },
+    { value: 'transfer', label: 'Bank Transfer' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  // Auto-focus and reset on open/close
   useEffect(() => {
     if (isQuickCaptureOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => inputRef.current?.focus(), 60);
     } else {
-      setTitle('');
-      setAmount('');
-      setCategory('');
-      setDueTime('');
+      setTaskTitle('');
+      setTaskDescription('');
+      setTaskDueTime('');
+      setTaskReminderEnabled(false);
+      setTaskReminderTime('');
+      setHabitName('');
+      setHabitReminderEnabled(false);
+      setHabitReminderFreq(1);
+      setHabitReminderTimes(['09:00']);
+      setTxAmount('');
+      setTxDescription('');
     }
   }, [isQuickCaptureOpen]);
 
-  // Smart input parser on typing
-  const handleTitleChange = (val: string) => {
-    setTitle(val);
-    if (val.startsWith('$') || /^\d+(\.\d+)?\s*(spent|for|lunch|coffee|dinner|uber|groceries)/i.test(val)) {
-      if (activeType !== 'expense') {
-        setActiveType('expense');
-        const match = val.match(/\$?(\d+(?:\.\d+)?)/);
-        if (match) {
-          setAmount(match[1]);
-          setTitle(val.replace(/\$?\d+(?:\.\d+)?/, '').trim());
-        }
+  // Task reminder handlers
+  const handleToggleTaskReminder = async () => {
+    feedback.playClick();
+    const next = !taskReminderEnabled;
+    setTaskReminderEnabled(next);
+    if (next) {
+      await requestNotificationPermission();
+      if (!taskReminderTime && taskDueTime) {
+        setTaskReminderTime(taskDueTime);
       }
     }
   };
 
+  const handleTaskPresetSelect = (preset: ReminderPreset) => {
+    feedback.playClick();
+    setTaskReminderPreset(preset);
+    const computed = calculateTaskReminderTime(taskDueTime, preset, taskReminderTime);
+    setTaskReminderTime(computed);
+  };
+
+  // Habit reminder handlers
+  const handleToggleHabitReminder = async () => {
+    feedback.playClick();
+    const next = !habitReminderEnabled;
+    setHabitReminderEnabled(next);
+    if (next) {
+      await requestNotificationPermission();
+      if (!habitReminderTimes.length) {
+        setHabitReminderTimes(generateDefaultReminderTimes(habitReminderFreq));
+      }
+    }
+  };
+
+  const handleSelectHabitFreq = (count: number) => {
+    feedback.playClick();
+    setHabitReminderFreq(count);
+    setHabitReminderTimes(generateDefaultReminderTimes(count));
+  };
+
+  const handleUpdateHabitTimeSlot = (index: number, newTime: string) => {
+    const updated = [...habitReminderTimes];
+    updated[index] = newTime || '09:00';
+    setHabitReminderTimes(updated);
+  };
+
+  const handleRemoveHabitTimeSlot = (index: number) => {
+    feedback.playClick();
+    const updated = habitReminderTimes.filter((_, idx) => idx !== index);
+    const finalTimes = updated.length ? updated : ['09:00'];
+    setHabitReminderTimes(finalTimes);
+    setHabitReminderFreq(Math.max(1, finalTimes.length));
+  };
+
+  const handleAddHabitTimeSlot = () => {
+    if (habitReminderTimes.length >= 5) return;
+    feedback.playClick();
+    const defaults = ['09:00', '12:00', '15:00', '18:00', '21:00'];
+    const nextTime = defaults[habitReminderTimes.length] || '12:00';
+    const updated = [...habitReminderTimes, nextTime];
+    setHabitReminderTimes(updated);
+    setHabitReminderFreq(updated.length);
+  };
+
+  // Submission handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() && (activeType !== 'expense' || !amount)) return;
 
     if (activeType === 'task') {
+      if (!taskTitle.trim()) {
+        feedback.playClick();
+        setValidationError(getEmptyFieldError('task_title'));
+        return;
+      }
+      const computedReminderTime = taskReminderEnabled
+        ? calculateTaskReminderTime(taskDueTime, taskReminderPreset, taskReminderTime)
+        : undefined;
+
       await addTask({
-        title: title.trim(),
+        title: taskTitle.trim(),
+        description: taskDescription.trim() || undefined,
+        dueDate: taskDueDate || today,
+        dueTime: taskDueTime || undefined,
+        priority: taskPriority,
+        category: taskCategory.trim() || 'General',
         status: 'todo',
-        priority,
-        dueDate: dueDate || getTodayString(),
-        dueTime: dueTime || undefined,
-        category: category.trim() || 'General',
+        reminderEnabled: taskReminderEnabled,
+        reminderPreset: taskReminderEnabled ? taskReminderPreset : undefined,
+        reminderTime: computedReminderTime,
       });
-    } else if (activeType === 'expense') {
-      const numAmount = parseFloat(amount);
-      if (isNaN(numAmount) || numAmount <= 0) return;
-      await addTransaction({
-        type: 'expense',
-        amount: numAmount,
-        category: category.trim() || 'Food & Dining',
-        description: title.trim() || 'Quick Expense',
-        date: getTodayString(),
-        paymentMethod: 'card',
-      });
+      feedback.playSuccessChime();
     } else if (activeType === 'habit') {
+      if (!habitName.trim()) {
+        feedback.playClick();
+        setValidationError(getEmptyFieldError('habit_name'));
+        return;
+      }
+      const validTimes = habitReminderTimes
+        .map((t) => t.trim())
+        .filter(Boolean);
       await addHabit({
-        name: title.trim(),
+        name: habitName.trim(),
         targetCount: parseInt(habitTarget, 10) || 1,
         unit: habitUnit.trim() || 'times',
         frequency: 'daily',
-        timeOfDay: habitTime,
-        category: category.trim() || 'Health',
-        color: '#6366f1',
-        icon: 'sparkles',
+        timeOfDay: habitTimeOfDay,
+        category: habitCategory.trim() || 'Health',
+        color: habitColor,
+        icon: habitIcon,
+        reminderEnabled: habitReminderEnabled,
+        reminderTimes: habitReminderEnabled
+          ? validTimes.length
+            ? validTimes
+            : ['09:00']
+          : undefined,
       });
+      feedback.playSuccessChime();
+      setHabitName('');
+      setHabitReminderEnabled(false);
+      setHabitReminderFreq(1);
+      setHabitReminderTimes(['09:00']);
+    } else if (activeType === 'finance') {
+      const numAmount = parseFloat(txAmount);
+      if (isNaN(numAmount) || numAmount <= 0) {
+        feedback.playClick();
+        setValidationError(getEmptyFieldError('finance_amount'));
+        return;
+      }
+      await addTransaction({
+        type: txType,
+        amount: numAmount,
+        description: txDescription.trim() || txCategory,
+        category: txCategory,
+        date: txDate || today,
+        paymentMethod,
+      });
+      feedback.playSuccessChime();
     }
 
+    setValidationError(null);
     setIsQuickCaptureOpen(false);
   };
 
@@ -106,241 +267,681 @@ export const QuickCaptureModal: React.FC = () => {
   return createPortal(
     <AnimatePresence>
       {isQuickCaptureOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 select-none">
           {/* Dimmed backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 bg-black/75 backdrop-blur-md"
             onClick={() => setIsQuickCaptureOpen(false)}
           />
 
-          {/* Floating Command Palette */}
+          {/* Unified Quick Capture Modal Window */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: -12 }}
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: -8 }}
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', damping: 28, stiffness: 380 }}
-            className="relative w-full max-w-lg solid-card shadow-2xl overflow-hidden z-10 border"
+            className="relative w-full max-w-lg solid-card shadow-2xl overflow-hidden z-10 border max-h-[90vh] flex flex-col"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
             }}
           >
-            {/* Header with Segmented Control */}
-            <div className="flex items-center justify-between px-4 py-3 hairline-b bg-white/[0.01]">
-              <div className="segmented-track flex items-center gap-1">
+            {/* Header: Segmented Type Switcher & Close */}
+            <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 hairline-b bg-white/[0.02] shrink-0">
+              <div className="segmented-track flex items-center gap-1 p-1">
                 <button
                   type="button"
-                  onClick={() => setActiveType('task')}
-                  className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium pressable transition-all ${
+                  onClick={() => {
+                    feedback.playClick();
+                    setActiveType('task');
+                    setValidationError(null);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all cursor-pointer ${
                     activeType === 'task'
-                      ? 'segmented-thumb-active text-white'
+                      ? 'text-white shadow-md'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                   style={{
-                    backgroundColor: activeType === 'task' ? 'var(--accent-primary)' : undefined,
+                    backgroundColor: activeType === 'task' ? 'var(--accent-primary)' : 'transparent',
                   }}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Task</span>
+                  <span>Objective</span>
                 </button>
+
                 <button
                   type="button"
-                  onClick={() => setActiveType('expense')}
-                  className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium pressable transition-all ${
-                    activeType === 'expense'
-                      ? 'segmented-thumb-active text-white'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
-                  style={{
-                    backgroundColor: activeType === 'expense' ? 'var(--accent-secondary)' : undefined,
+                  onClick={() => {
+                    feedback.playClick();
+                    setActiveType('habit');
+                    setValidationError(null);
                   }}
-                >
-                  <DollarSign className="w-3.5 h-3.5" />
-                  <span>Expense</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveType('habit')}
-                  className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium pressable transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all cursor-pointer ${
                     activeType === 'habit'
-                      ? 'segmented-thumb-active text-white'
+                      ? 'text-white shadow-md'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                   style={{
-                    backgroundColor: activeType === 'habit' ? 'var(--accent-primary)' : undefined,
+                    backgroundColor: activeType === 'habit' ? 'var(--accent-primary)' : 'transparent',
                   }}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Habit</span>
+                  <Repeat className="w-3.5 h-3.5" />
+                  <span>Routine</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    feedback.playClick();
+                    setActiveType('finance');
+                    setValidationError(null);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all cursor-pointer ${
+                    activeType === 'finance'
+                      ? 'text-white shadow-md'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                  style={{
+                    backgroundColor: activeType === 'finance' ? 'var(--accent-primary)' : 'transparent',
+                  }}
+                >
+                  <Wallet className="w-3.5 h-3.5" />
+                  <span>Cashflow</span>
                 </button>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsQuickCaptureOpen(false)}
-                className="p-1 rounded-lg text-zinc-500 hover:text-zinc-200 pressable"
+                className="p-1.5 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.04] pressable transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Input Form */}
-            <form onSubmit={handleSubmit} className="p-4 sm:p-5 flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                {activeType === 'expense' && (
-                  <div className="relative w-28 shrink-0">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm font-bold">
-                      $
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="w-full h-10 pl-7 pr-2.5 rounded-xl solid-input text-sm font-mono font-bold text-white placeholder-zinc-500 focus:outline-none"
-                    />
-                  </div>
-                )}
-
-                <input
-                  ref={inputRef}
-                  type="text"
-                  placeholder={
-                    activeType === 'task'
-                      ? 'What do you want to accomplish?'
-                      : activeType === 'expense'
-                      ? 'What did you spend on?'
-                      : 'What routine do you want to build?'
-                  }
-                  value={title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  className="flex-1 h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-                />
-              </div>
-
-              {/* Task Options with Deadline Time Picker */}
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSubmit} className="p-4 sm:p-5 flex flex-col gap-4 overflow-y-auto no-scrollbar">
+              {/* ============================================================ */}
+              {/* 1. OBJECTIVE (TASK) COMPLETE FORM                           */}
+              {/* ============================================================ */}
               {activeType === 'task' && (
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1.5 rounded-lg border border-white/8 text-zinc-300">
-                    <Calendar className="w-3 h-3 text-zinc-500" />
+                <>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Objective Title
+                    </label>
                     <input
-                      type="date"
-                      value={dueDate}
-                      onChange={(e) => setDueDate(e.target.value)}
-                      className="bg-transparent text-zinc-200 focus:outline-none text-xs"
-                    />
-                  </div>
-
-                  <div className="w-36">
-                    <CustomTimePicker value={dueTime} onChange={setDueTime} placeholder="Deadline" />
-                  </div>
-
-                  <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1.5 rounded-lg border border-white/8 text-zinc-300">
-                    <Tag className="w-3 h-3 text-zinc-500" />
-                    <input
+                      ref={inputRef}
                       type="text"
-                      placeholder="Category..."
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-xs w-20"
+                      placeholder="e.g., Deliver Quarterly Roadmap Brief"
+                      value={taskTitle}
+                      onChange={(e) => {
+                        setTaskTitle(e.target.value);
+                        if (validationError) setValidationError(null);
+                      }}
+                      className={`w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none transition-all ${
+                        validationError && activeType === 'task' ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
+                      }`}
+                    />
+                    <AnimatePresence>
+                      {validationError && activeType === 'task' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                          className="mt-1 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                        >
+                          <span className="shrink-0 text-sm">💀</span>
+                          <span>{validationError}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Description / Notes (Optional)
+                    </label>
+                    <textarea
+                      placeholder="Add key deliverables, links, or context..."
+                      rows={2}
+                      value={taskDescription}
+                      onChange={(e) => setTaskDescription(e.target.value)}
+                      className="w-full p-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
                     />
                   </div>
 
-                  <div className="flex items-center gap-0.5 bg-black/30 p-0.5 rounded-lg border border-white/8">
-                    {(['low', 'medium', 'high', 'urgent'] as Priority[]).map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setPriority(p)}
-                        className={`px-2 py-0.5 rounded capitalize text-[11px] transition-colors ${
-                          priority === p
-                            ? 'bg-white/10 text-white font-medium'
-                            : 'text-zinc-500 hover:text-zinc-300'
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Target Date
+                      </label>
+                      <CustomDatePicker value={taskDueDate} onChange={setTaskDueDate} />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Deadline Time
+                      </label>
+                      <CustomTimePicker
+                        value={taskDueTime}
+                        onChange={setTaskDueTime}
+                        placeholder="Add deadline time"
+                      />
+                    </div>
                   </div>
-                </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Priority Level
+                      </label>
+                      <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/6">
+                        {(['low', 'medium', 'high', 'urgent'] as Priority[]).map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => {
+                              feedback.playClick();
+                              setTaskPriority(p);
+                            }}
+                            className={`py-1.5 rounded-lg capitalize text-[11px] font-bold transition-all ${
+                              taskPriority === p
+                                ? 'bg-white/10 text-white shadow-sm'
+                                : 'text-zinc-500 hover:text-zinc-300'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Category
+                      </label>
+                      <CustomSelect
+                        options={taskCategories}
+                        value={taskCategory}
+                        onChange={setTaskCategory}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Task Reminder Configuration */}
+                  <div className="solid-card p-3 rounded-xl flex flex-col gap-2.5 border bg-white/[0.01]">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Bell className={`w-4 h-4 ${taskReminderEnabled ? 'text-amber-400' : 'text-zinc-500'}`} />
+                        <span className="text-xs font-bold text-zinc-200">Task Reminder Alert</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleToggleTaskReminder}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          taskReminderEnabled
+                            ? 'text-white shadow-md'
+                            : 'bg-white/[0.05] text-zinc-400 hover:text-zinc-200'
+                        }`}
+                        style={{
+                          backgroundColor: taskReminderEnabled ? 'var(--accent-primary)' : undefined,
+                        }}
+                      >
+                        {taskReminderEnabled ? 'Enabled' : 'Off'}
+                      </button>
+                    </div>
+
+                    {taskReminderEnabled && (
+                      <div className="pt-2 hairline-t flex flex-col gap-2">
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
+                          {(
+                            [
+                              { id: 'at_due', label: 'At Due' },
+                              { id: '15m_before', label: '15m Prior' },
+                              { id: '1h_before', label: '1h Prior' },
+                              { id: '1d_before', label: '1d Prior' },
+                              { id: 'custom', label: 'Custom' },
+                            ] as const
+                          ).map((preset) => (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => handleTaskPresetSelect(preset.id)}
+                              className={`py-1 rounded-md text-[10px] font-bold transition-colors ${
+                                taskReminderPreset === preset.id
+                                  ? 'bg-white/10 text-white border border-white/20'
+                                  : 'text-zinc-500 hover:text-zinc-300'
+                              }`}
+                            >
+                              {preset.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {taskReminderPreset === 'custom' && (
+                          <div className="pt-1">
+                            <CustomTimePicker
+                              value={taskReminderTime}
+                              onChange={setTaskReminderTime}
+                              placeholder="Set specific reminder time"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
 
-              {/* Expense Category Dropdown */}
-              {activeType === 'expense' && (
-                <div className="w-48">
-                  <CustomSelect
-                    options={expenseCategories}
-                    value={category || 'Food & Dining'}
-                    onChange={setCategory}
-                  />
-                </div>
-              )}
-
-              {/* Habit Configuration */}
+              {/* ============================================================ */}
+              {/* 2. ROUTINE (HABIT) COMPLETE FORM                             */}
+              {/* ============================================================ */}
               {activeType === 'habit' && (
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1.5 rounded-lg border border-white/8">
-                    <span className="text-zinc-500">Target:</span>
+                <>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Routine Name
+                    </label>
                     <input
-                      type="number"
-                      min="1"
-                      value={habitTarget}
-                      onChange={(e) => setHabitTarget(e.target.value)}
-                      className="w-10 bg-transparent text-zinc-200 focus:outline-none text-xs text-center font-mono"
-                    />
-                    <input
+                      ref={inputRef}
                       type="text"
-                      placeholder="unit"
-                      value={habitUnit}
-                      onChange={(e) => setHabitUnit(e.target.value)}
-                      className="w-16 bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-xs"
+                      placeholder="e.g., Deep Focus Meditation"
+                      value={habitName}
+                      onChange={(e) => {
+                        setHabitName(e.target.value);
+                        if (validationError) setValidationError(null);
+                      }}
+                      className={`w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none transition-all ${
+                        validationError && activeType === 'habit' ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
+                      }`}
                     />
+                    <AnimatePresence>
+                      {validationError && activeType === 'habit' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                          className="mt-1 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                        >
+                          <span className="shrink-0 text-sm">💀</span>
+                          <span>{validationError}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
-                  <div className="flex items-center gap-0.5 bg-black/30 p-0.5 rounded-lg border border-white/8">
-                    {(['anytime', 'morning', 'afternoon', 'evening'] as HabitTimeOfDay[]).map((time) => (
-                      <button
-                        key={time}
-                        type="button"
-                        onClick={() => setHabitTime(time)}
-                        className={`px-2 py-0.5 rounded capitalize text-[11px] transition-colors ${
-                          habitTime === time
-                            ? 'bg-white/10 text-white font-medium'
-                            : 'text-zinc-500 hover:text-zinc-300'
-                        }`}
-                      >
-                        {time}
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Category
+                      </label>
+                      <CustomSelect
+                        options={habitCategories}
+                        value={habitCategory}
+                        onChange={setHabitCategory}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Daily Target & Unit
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="1"
+                          value={habitTarget}
+                          onChange={(e) => setHabitTarget(e.target.value)}
+                          className="w-20 h-10 px-2.5 rounded-xl solid-input text-xs font-mono font-bold text-white text-center focus:outline-none"
+                        />
+                        <input
+                          type="text"
+                          placeholder="unit (e.g. pages, km)"
+                          value={habitUnit}
+                          onChange={(e) => setHabitUnit(e.target.value)}
+                          className="flex-1 h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Time of Day
+                    </label>
+                    <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/6">
+                      {(['anytime', 'morning', 'afternoon', 'evening'] as HabitTimeOfDay[]).map((time) => (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => {
+                            feedback.playClick();
+                            setHabitTimeOfDay(time);
+                          }}
+                          className={`py-1.5 rounded-lg capitalize text-[11px] font-bold transition-all ${
+                            habitTimeOfDay === time
+                              ? 'bg-white/10 text-white shadow-sm'
+                              : 'text-zinc-500 hover:text-zinc-300'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Habit Icon Selection */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Habit Icon
+                      </label>
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        {HABIT_ICON_OPTIONS.find((i) => i.id === habitIcon)?.label || 'Target'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                      {HABIT_ICON_OPTIONS.map((item) => {
+                        const IconC = item.icon;
+                        const isSelected = habitIcon === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              feedback.playClick();
+                              setHabitIcon(item.id);
+                            }}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium shrink-0 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'text-white border-white/40 shadow-sm'
+                                : 'text-zinc-400 hover:text-white border-white/6 hover:border-white/20 bg-white/[0.02]'
+                            }`}
+                            style={{
+                              backgroundColor: isSelected ? 'var(--accent-primary)' : undefined,
+                            }}
+                          >
+                            <IconC className="w-3.5 h-3.5" />
+                            <span>{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Habit Color Swatches */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Accent Color
+                    </label>
+                    <div className="flex items-center gap-2.5">
+                      {habitColors.map((c) => (
+                        <button
+                          key={c.hex}
+                          type="button"
+                          onClick={() => {
+                            feedback.playClick();
+                            setHabitColor(c.hex);
+                          }}
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                            habitColor === c.hex ? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-950 scale-110' : 'opacity-70 hover:opacity-100'
+                          }`}
+                          style={{ backgroundColor: c.hex }}
+                          title={c.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Habit Daily Reminders Configuration */}
+                  <div className="solid-card p-3 rounded-xl flex flex-col gap-2.5 border bg-white/[0.01]">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Bell className={`w-4 h-4 ${habitReminderEnabled ? 'text-amber-400' : 'text-zinc-500'}`} />
+                        <span className="text-xs font-bold text-zinc-200">Daily Reminders</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleToggleHabitReminder}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          habitReminderEnabled
+                            ? 'text-white shadow-md'
+                            : 'bg-white/[0.05] text-zinc-400 hover:text-zinc-200'
+                        }`}
+                        style={{
+                          backgroundColor: habitReminderEnabled ? 'var(--accent-primary)' : undefined,
+                        }}
+                      >
+                        {habitReminderEnabled ? 'Enabled' : 'Off'}
+                      </button>
+                    </div>
+
+                    {habitReminderEnabled && (
+                      <div className="pt-2 hairline-t flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-zinc-400 font-mono">Daily Frequency:</span>
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((freq) => (
+                              <button
+                                key={freq}
+                                type="button"
+                                onClick={() => handleSelectHabitFreq(freq)}
+                                className={`w-7 h-7 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                                  habitReminderFreq === freq
+                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                                    : 'bg-white/[0.04] text-zinc-400 hover:text-white border border-white/6'
+                                }`}
+                              >
+                                {freq}x
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Configured Time Slots */}
+                        <div className="flex flex-col gap-2">
+                          {habitReminderTimes.map((timeStr, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <span className="w-7 text-[11px] font-mono text-zinc-400 font-bold text-center shrink-0">
+                                #{idx + 1}
+                              </span>
+                              <div className="flex-1">
+                                <CustomTimePicker
+                                  value={timeStr || '09:00'}
+                                  onChange={(newTime) => handleUpdateHabitTimeSlot(idx, newTime)}
+                                  placeholder="09:00 AM"
+                                />
+                              </div>
+                              {habitReminderTimes.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveHabitTimeSlot(idx)}
+                                  className="p-2 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                                  title="Remove slot"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        {habitReminderTimes.length < 5 && (
+                          <button
+                            type="button"
+                            onClick={handleAddHabitTimeSlot}
+                            className="self-start flex items-center gap-1.5 text-[11px] font-bold text-amber-400 hover:text-amber-300 transition-colors cursor-pointer py-1"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add Daily Alert Slot ({habitReminderTimes.length}/5)</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
 
-              {/* Bottom Action Row */}
-              <div className="flex items-center justify-between pt-2 hairline-t text-xs">
-                <div className="hidden sm:flex items-center gap-2 text-zinc-500 text-[11px]">
-                  <span>Press <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400 font-mono">↵</kbd> to save</span>
-                  <span>•</span>
-                  <span><kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400 font-mono">ESC</kbd> to dismiss</span>
-                </div>
+              {/* ============================================================ */}
+              {/* 3. CASHFLOW (FINANCE) COMPLETE FORM                          */}
+              {/* ============================================================ */}
+              {activeType === 'finance' && (
+                <>
+                  {/* Expense vs Income Switch */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Transaction Type
+                    </label>
+                    <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/6">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          feedback.playClick();
+                          setTxType('expense');
+                          setTxCategory('Food & Dining');
+                        }}
+                        className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                          txType === 'expense'
+                            ? 'bg-rose-500 text-white shadow-md'
+                            : 'text-zinc-400 hover:text-zinc-200'
+                        }`}
+                      >
+                        Expense (-)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          feedback.playClick();
+                          setTxType('income');
+                          setTxCategory('Salary');
+                        }}
+                        className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                          txType === 'income'
+                            ? 'bg-emerald-500 text-white shadow-md'
+                            : 'text-zinc-400 hover:text-zinc-200'
+                        }`}
+                      >
+                        Income (+)
+                      </button>
+                    </div>
+                  </div>
 
-                <div className="sm:hidden text-[11px] text-zinc-500 font-mono">
-                  Quick Capture
-                </div>
+                  {/* Amount Input */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Amount ({settings.currency})
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-base font-bold">
+                        {settings.currency}
+                      </span>
+                      <input
+                        ref={inputRef}
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={txAmount}
+                        onChange={(e) => {
+                          setTxAmount(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
+                        className={`w-full h-11 pl-8 pr-3.5 rounded-xl solid-input text-base font-mono font-bold text-white placeholder-zinc-500 focus:outline-none transition-all ${
+                          validationError && activeType === 'finance' ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
+                        }`}
+                      />
+                    </div>
+                    <AnimatePresence>
+                      {validationError && activeType === 'finance' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                          className="mt-1 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                        >
+                          <span className="shrink-0 text-sm">💀</span>
+                          <span>{validationError}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
-                <button
+                  {/* Description / Memo */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Description / Merchant
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Grocery run at Whole Foods"
+                      value={txDescription}
+                      onChange={(e) => setTxDescription(e.target.value)}
+                      className="w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Category
+                      </label>
+                      <CustomSelect
+                        options={txType === 'expense' ? expenseCategories : incomeCategories}
+                        value={txCategory}
+                        onChange={setTxCategory}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                        Payment Method
+                      </label>
+                      <CustomSelect
+                        options={paymentMethods.map((m) => m.label)}
+                        value={paymentMethods.find((m) => m.value === paymentMethod)?.label || 'Credit/Debit Card'}
+                        onChange={(lbl) => {
+                          const found = paymentMethods.find((m) => m.label === lbl);
+                          if (found) setPaymentMethod(found.value as PaymentMethod);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Transaction Date
+                    </label>
+                    <CustomDatePicker value={txDate} onChange={setTxDate} />
+                  </div>
+                </>
+              )}
+
+              {/* Bottom Footer Actions */}
+              <div className="flex items-center justify-between pt-3 hairline-t shrink-0">
+                <span className="text-[11px] text-zinc-500 font-mono hidden sm:inline">
+                  ESC to dismiss
+                </span>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-white font-bold text-xs pressable shadow-lg"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-xs pressable shadow-lg ml-auto cursor-pointer"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
-                  <span>Create</span>
+                  <span>
+                    {activeType === 'task'
+                      ? 'Create Objective'
+                      : activeType === 'habit'
+                      ? 'Establish Routine'
+                      : 'Log Record'}
+                  </span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                </motion.button>
               </div>
             </form>
           </motion.div>

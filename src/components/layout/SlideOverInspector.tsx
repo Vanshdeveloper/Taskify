@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -10,15 +11,14 @@ import {
   Volume2,
   VolumeX,
   Command,
-  Check,
-  Sparkles,
   Sliders,
+  User,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { useTheme } from '../../context/ThemeContext';
 import { CustomSelect } from '../ui/CustomSelect';
-import { POPULAR_CURRENCIES, autodetectCurrency } from '../../utils/currency';
+import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
+import { ThemeStudio } from '../settings/ThemeStudio';
 
 interface SlideOverInspectorProps {
   isOpen: boolean;
@@ -30,7 +30,6 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   onClose,
 }) => {
   const { settings, updateSettings, exportDataAsJson, importDataFromJson, resetToDefaults } = useApp();
-  const { theme, setTheme, themes } = useTheme();
 
   const [userNameInput, setUserNameInput] = useState(settings.userName);
   const [currencyInput, setCurrencyInput] = useState(settings.currency);
@@ -40,10 +39,15 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAutodetectCurrency = () => {
-    const detected = autodetectCurrency();
-    setCurrencyInput(detected.symbol);
-    feedback.playSuccessChime();
+  useEffect(() => {
+    setCurrencyInput(settings.currency);
+    setUserNameInput(settings.userName);
+  }, [settings.currency, settings.userName]);
+
+  const handleCurrencyChange = async (val: string) => {
+    setCurrencyInput(val);
+    await updateSettings({ currency: val, currencyExplicit: true });
+    feedback.playClick();
   };
 
   const handleSaveWorkspace = async (e: React.FormEvent) => {
@@ -93,7 +97,9 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
     }
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
@@ -116,93 +122,72 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
             className="relative w-full max-w-md h-full z-10 flex flex-col shadow-2xl border-l border-white/10"
             style={{ backgroundColor: 'var(--bg-canvas)' }}
           >
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between px-6 py-4 hairline-b">
+            {/* Drawer Header: Exactly matches Main Navbar Height, Safe Area, and Styling */}
+            <div
+              className={`sticky top-0 z-20 w-full px-5 sm:px-8 flex items-center justify-between select-none hairline-b transition-all duration-200 shrink-0 ${
+                settings.navbarHeight === 'compact'
+                  ? 'py-2'
+                  : settings.navbarHeight === 'spacious'
+                  ? 'py-4 sm:py-5'
+                  : 'py-3'
+              }`}
+              style={{
+                backgroundColor: 'var(--bg-canvas)',
+                paddingTop: 'max(var(--sat, 0px), 0.75rem)',
+              }}
+            >
               <div className="flex items-center gap-2.5">
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs"
-                  style={{ backgroundColor: 'var(--accent-primary)', color: '#ffffff' }}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm border border-white/8 shrink-0"
+                  style={{ backgroundColor: 'var(--bg-card)', color: 'var(--accent-primary)' }}
                 >
-                  <Sliders className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <Sliders className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <h3 className="font-display text-base font-bold text-white tracking-tight">
-                  Inspector & System
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em]">
+                    Inspector & System
+                  </h3>
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: 'var(--accent-primary)' }}
+                  />
+                </div>
               </div>
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
                 onClick={onClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.08] pressable transition-colors"
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable transition-colors border border-white/8 hover:border-white/16 cursor-pointer shrink-0"
+                style={{ backgroundColor: 'var(--bg-card)' }}
+                aria-label="Close Inspector"
+                title="Close Inspector (ESC)"
               >
-                <X className="w-4 h-4" />
-              </button>
+                <X className="w-4 h-4 stroke-[2]" />
+              </motion.button>
             </div>
 
             {/* Drawer Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-6 no-scrollbar">
-              {/* Section 1: Themes & Palettes */}
+            <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-5 flex flex-col gap-6 no-scrollbar pb-[max(var(--sab,0px),2.5rem)]">
+              {/* Section 1: Themes & Palettes Studio */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Palette className="w-4 h-4 text-zinc-400" />
                   <span className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
-                    Solid Color Themes
+                    Atmosphere & Colorways
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-2.5">
-                  {themes.map((t) => {
-                    const isActive = theme === t.id;
-                    return (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => setTheme(t.id)}
-                        className={`w-full text-left p-3.5 rounded-2xl border transition-all pressable ${
-                          isActive
-                            ? 'border-white/40 ring-1 ring-white/30 bg-white/[0.06]'
-                            : 'border-white/8 hover:border-white/20 bg-white/[0.02]'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white tracking-tight">
-                            {t.name}
-                          </span>
-                          {isActive && (
-                            <span
-                              className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
-                              style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
-                            >
-                              <Check className="w-3 h-3 stroke-[3]" />
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="text-[11px] text-zinc-400 mt-1 line-clamp-1 leading-normal">
-                          {t.description}
-                        </p>
-
-                        {/* Color Swatch Dots */}
-                        <div className="flex items-center gap-2 mt-2.5">
-                          {t.colors.map((c, idx) => (
-                            <span
-                              key={idx}
-                              className="w-4 h-4 rounded-full border border-white/20 shadow-sm"
-                              style={{ backgroundColor: c }}
-                            />
-                          ))}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                <ThemeStudio />
               </div>
 
               {/* Section 2: Workspace Configuration */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-zinc-400" />
+                    <User className="w-4 h-4 text-zinc-400" />
                     <span className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
                       Workspace Profile
                     </span>
@@ -228,23 +213,12 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[10px] text-zinc-400 font-mono uppercase">
-                        Currency Format
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleAutodetectCurrency}
-                        className="text-[10px] font-mono text-zinc-400 hover:text-white flex items-center gap-1 pressable cursor-pointer"
-                        title="Auto-detect based on your local device locale (zero APIs)"
-                      >
-                        <Sparkles className="w-3 h-3 text-amber-400" />
-                        <span>Auto-Detect</span>
-                      </button>
-                    </div>
+                    <label className="block text-[10px] text-zinc-400 font-mono uppercase mb-1.5">
+                      Currency Format
+                    </label>
                     <CustomSelect
                       value={currencyInput}
-                      onChange={setCurrencyInput}
+                      onChange={handleCurrencyChange}
                       options={POPULAR_CURRENCIES.map((c) => ({
                         value: c.symbol,
                         label: c.label,
@@ -367,6 +341,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
           </motion.aside>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

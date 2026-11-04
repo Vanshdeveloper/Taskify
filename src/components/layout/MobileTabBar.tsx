@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, CheckSquare, Sparkles, PieChart, Plus } from 'lucide-react';
+import { Sun, CheckSquare, Repeat, PieChart, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import type { ActiveTab } from '../../types';
@@ -15,7 +15,7 @@ export const MobileTabBar: React.FC = () => {
   ];
 
   const rightTabs: { id: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
-    { id: 'habits', label: 'Habits', icon: Sparkles },
+    { id: 'habits', label: 'Habits', icon: Repeat },
     { id: 'finance', label: 'Finance', icon: PieChart },
   ];
 
