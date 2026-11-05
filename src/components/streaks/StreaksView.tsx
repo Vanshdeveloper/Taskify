@@ -168,7 +168,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
               <div className="relative z-10 flex items-center gap-2 px-3 py-1 rounded-full border bg-black/40 backdrop-blur-md">
                 <Flame className="w-4 h-4 text-amber-500 fill-current animate-pulse" />
                 <span className="text-xs font-mono font-bold tracking-widest uppercase text-white">
-                  MOMENTUM ENGINE
+                  ACTIVE MOMENTUM
                 </span>
                 <span className="text-zinc-500">•</span>
                 <span className="text-xs font-mono text-zinc-300">
@@ -356,7 +356,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
                 <div className="flex items-center justify-between mb-3 px-1">
                   <div className="flex items-center gap-2">
                     <span className="font-display font-bold text-sm text-white">
-                      14-Week Consistency Matrix
+                      14-Week Consistency History
                     </span>
                     <span className="text-[10px] text-zinc-400 font-mono">98 Days</span>
                   </div>

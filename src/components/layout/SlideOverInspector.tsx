@@ -23,7 +23,7 @@ import { CustomSelect } from '../ui/CustomSelect';
 import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from '../settings/ThemeStudio';
-import type { NavbarHeight, NavbarGlass } from '../../types';
+import type { NavbarHeight, NavbarGlass, NavbarLogoAlign } from '../../types';
 
 interface SlideOverInspectorProps {
   isOpen: boolean;
@@ -84,6 +84,11 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   const handleNavbarGlassChange = async (glass: NavbarGlass) => {
     feedback.playClick();
     await updateSettings({ navbarGlass: glass });
+  };
+
+  const handleNavbarLogoAlignChange = async (align: NavbarLogoAlign) => {
+    feedback.playClick();
+    await updateSettings({ navbarLogoAlign: align });
   };
 
   const handleExportBackup = async () => {
@@ -357,6 +362,42 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                               </span>
                               <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">
                                 {g.desc}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Logo Alignment */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+                        Brand Logo Alignment
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {(
+                          [
+                            { id: 'left', label: 'Left Aligned', desc: 'Classic layout' },
+                            { id: 'center', label: 'Center Aligned', desc: 'Centered symmetry' },
+                          ] as const
+                        ).map((a) => {
+                          const isSel = (settings.navbarLogoAlign || 'left') === a.id;
+                          return (
+                            <button
+                              key={a.id}
+                              type="button"
+                              onClick={() => handleNavbarLogoAlignChange(a.id)}
+                              className={`p-2 rounded-xl border text-left transition-all cursor-pointer pressable ${
+                                isSel
+                                  ? 'border-white/30 ring-1 ring-white/20 bg-white/[0.08]'
+                                  : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
+                              }`}
+                            >
+                              <span className="text-xs font-bold text-white block">
+                                {a.label}
+                              </span>
+                              <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">
+                                {a.desc}
                               </span>
                             </button>
                           );

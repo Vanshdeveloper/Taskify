@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Repeat, Bell, Sunrise, Sun, Moon, Sparkles } from 'lucide-react';
+import { X, Plus, Repeat, Bell, Sunrise, Sun, Moon, Clock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { HabitTimeOfDay } from '../../types';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -238,7 +238,7 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                     { id: 'morning', label: 'Morning', icon: Sunrise, time: '6 AM - 12 PM' },
                     { id: 'afternoon', label: 'Afternoon', icon: Sun, time: '12 PM - 6 PM' },
                     { id: 'evening', label: 'Evening', icon: Moon, time: '6 PM - 11 PM' },
-                    { id: 'anytime', label: 'Anytime', icon: Sparkles, time: 'Flexible' },
+                    { id: 'anytime', label: 'Anytime', icon: Clock, time: 'Flexible' },
                   ].map((item) => {
                     const Icon = item.icon;
                     const isSelected = timeOfDay === item.id;
@@ -434,7 +434,13 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                 <label className="block text-[10px] text-zinc-400 font-mono mb-1.5">
                   Habit Color Identifier
                 </label>
-                <div className="flex items-center gap-3 bg-black/30 p-2.5 rounded-xl border border-white/8">
+                <div
+                  className="flex items-center gap-3 bg-black/30 p-2.5 rounded-xl border border-white/8 overflow-x-auto no-scrollbar scroll-smooth"
+                  style={{ touchAction: 'pan-x' }}
+                  onWheel={(e) => {
+                    if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+                  }}
+                >
                   {colors.map((c) => (
                     <button
                       key={c.hex}

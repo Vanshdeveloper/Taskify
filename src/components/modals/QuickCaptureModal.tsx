@@ -13,7 +13,7 @@ import {
   Sunrise,
   Sun,
   Moon,
-  Sparkles,
+  Clock,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
@@ -625,7 +625,7 @@ export const QuickCaptureModal: React.FC = () => {
                         { id: 'morning', label: 'Morning', icon: Sunrise, time: '6 AM - 12 PM' },
                         { id: 'afternoon', label: 'Afternoon', icon: Sun, time: '12 PM - 6 PM' },
                         { id: 'evening', label: 'Evening', icon: Moon, time: '6 PM - 11 PM' },
-                        { id: 'anytime', label: 'Anytime', icon: Sparkles, time: 'Flexible' },
+                        { id: 'anytime', label: 'Anytime', icon: Clock, time: 'Flexible' },
                       ].map((item) => {
                         const Icon = item.icon;
                         const isSelected = habitTimeOfDay === item.id;
@@ -711,7 +711,13 @@ export const QuickCaptureModal: React.FC = () => {
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
                       Accent Color
                     </label>
-                    <div className="flex items-center gap-2.5">
+                    <div
+                      className="flex items-center gap-2.5 overflow-x-auto no-scrollbar scroll-smooth py-1"
+                      style={{ touchAction: 'pan-x' }}
+                      onWheel={(e) => {
+                        if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+                      }}
+                    >
                       {habitColors.map((c) => (
                         <button
                           key={c.hex}

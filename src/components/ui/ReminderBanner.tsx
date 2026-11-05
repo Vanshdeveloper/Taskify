@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Sparkles, Bell, Flame } from 'lucide-react';
+import { Check, X, Repeat, Bell, Flame } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
 
@@ -64,7 +64,7 @@ export const ReminderBanner: React.FC = () => {
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
                   {activeReminderAlert.type === 'habit' ? (
-                    <Sparkles className="w-3 h-3 stroke-[2.5]" />
+                    <Repeat className="w-3 h-3 stroke-[2.5]" />
                   ) : activeReminderAlert.type === 'poke' ? (
                     <Flame className="w-3 h-3 stroke-[2.5]" />
                   ) : (

@@ -182,7 +182,13 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
             }}
           >
             {/* Quick Presets Bar */}
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5">
+            <div
+              className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5 scroll-smooth"
+              style={{ touchAction: 'pan-x' }}
+              onWheel={(e) => {
+                if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+              }}
+            >
               {presets.map((p) => {
                 const isSelected = value === p.value;
                 return (

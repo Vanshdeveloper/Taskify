@@ -250,7 +250,13 @@ export const TasksView: React.FC = () => {
       {/* 4. Filter Pills Bar, Search & View Switcher */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Filter Pills */}
-        <div className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar">
+        <div
+          className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth"
+          style={{ touchAction: 'pan-x' }}
+          onWheel={(e) => {
+            if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+          }}
+        >
           {(
             [
               { id: 'all', label: `All ${tasks.length}` },
@@ -319,7 +325,7 @@ export const TasksView: React.FC = () => {
               className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
                 viewMode === 'cards' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
-              title="Creative Bento Cards View"
+              title="Card View"
             >
               {viewMode === 'cards' && (
                 <motion.div

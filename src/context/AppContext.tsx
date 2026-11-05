@@ -99,6 +99,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   darkMode: true,
   navbarHeight: 'default',
   navbarGlass: 'solid',
+  navbarLogoAlign: 'left',
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -211,6 +212,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       darkMode: map.darkMode ?? DEFAULT_SETTINGS.darkMode,
       navbarHeight: map.navbarHeight ?? DEFAULT_SETTINGS.navbarHeight,
       navbarGlass: map.navbarGlass ?? DEFAULT_SETTINGS.navbarGlass,
+      navbarLogoAlign: map.navbarLogoAlign ?? DEFAULT_SETTINGS.navbarLogoAlign,
     };
   }, [settingsEntries]);
 

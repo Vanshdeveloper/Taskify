@@ -1,5 +1,5 @@
 /**
- * Zomato & Swiggy-Style Daily Poke Engine
+ * Daily Poke Service
  * Generates witty, varied, contextual poke notifications:
  * - If tasks are pending: Nudges user with "Stop doing other things and complete this task!" style prompts.
  * - If all work is completed: Celebrates with "You own this rest!" style reward messages.
@@ -82,7 +82,7 @@ const ALL_COMPLETED_POKES = [
     body: `Mission fully accomplished, ${name}! Enjoy your evening like royalty with 100% peace of mind.`,
   }),
   (name: string) => ({
-    emoji: '✨',
+    emoji: '🏆',
     title: 'Undeniable victory today!',
     body: `Nothing left on your to-do list, ${name}. Sleep like royalty tonight, you own this rest!`,
   }),

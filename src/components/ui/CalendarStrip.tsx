@@ -122,6 +122,10 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
       <div
         ref={scrollContainerRef}
         className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-0.5 scroll-smooth"
+        style={{ touchAction: 'pan-x' }}
+        onWheel={(e) => {
+          if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+        }}
       >
         {days.map((item) => {
           const isSelected = item.dateStr === selectedDate;

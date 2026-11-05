@@ -41,16 +41,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           backgroundColor: 'var(--bg-canvas)',
         };
 
+  const isCenterLogo = settings.navbarLogoAlign === 'center';
+
   return (
     <header
-      className={`sticky top-0 z-30 w-full px-5 sm:px-8 flex items-center justify-between select-none hairline-b transition-all duration-200 ${heightClass}`}
+      className={`sticky top-0 z-30 w-full px-5 sm:px-8 flex items-center justify-between select-none hairline-b transition-all duration-200 relative ${heightClass}`}
       style={{
         ...glassStyle,
         paddingTop: 'max(var(--sat, 0px), 0.75rem)',
       }}
     >
+      {/* Spacer when centered so right controls remain on right */}
+      {isCenterLogo && <div className="w-1 sm:w-2" />}
+
       {/* Brand Title: Minimal "Taskify" wordmark */}
-      <div className="flex items-center gap-2">
+      <div
+        className={`flex items-center gap-2 transition-all ${
+          isCenterLogo
+            ? 'absolute left-1/2 -translate-x-1/2 pointer-events-none'
+            : ''
+        }`}
+      >
         <span className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em]">
           Taskify
         </span>
@@ -61,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Right Controls: Live Flame Streak Trigger & Minimal Inspector Trigger */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 ml-auto">
         {/* Live Flame Streak Pill */}
         <motion.button
           type="button"

@@ -9,9 +9,11 @@ import {
   Layers,
   Moon,
   Feather,
-  Sparkles,
   CheckCircle2,
   ArrowRight,
+  Copy,
+  CheckCheck,
+  ShieldCheck,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { feedback } from '../../utils/feedback';
@@ -20,6 +22,11 @@ import {
   SEED_COLOR_PRESETS,
   getToneName,
   hexToHsl,
+  getWcagContrast,
+  exportPaletteAsCss,
+  exportPaletteAsJson,
+  type HarmonyMode,
+  type SurfaceTone,
 } from '../../utils/paletteGenerator';
 
 export const ThemeStudio: React.FC = () => {
@@ -35,14 +42,25 @@ export const ThemeStudio: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'soft' | 'dark' | 'minimalist' | 'custom'>('all');
   const [isCreatorOpen, setIsCreatorOpen] = useState(false);
 
-  // Single-Color Harmonic Seed State
+  // Single-Color Harmonic Seed & Tools State
   const [seedColor, setSeedColor] = useState('#f5773f');
   const [customName, setCustomName] = useState('');
+  const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('analogous');
+  const [surfaceTone, setSurfaceTone] = useState<SurfaceTone>('charcoal');
+  const [copiedType, setCopiedType] = useState<'css' | 'json' | null>(null);
 
-  // Live generated palette derived dynamically from the SINGLE chosen color
+  // Live generated palette derived dynamically from chosen color & selected tools
   const generatedPalette = useMemo(() => {
-    return generateHarmonicPalette(seedColor, customName);
-  }, [seedColor, customName]);
+    return generateHarmonicPalette(seedColor, customName, {
+      harmony: harmonyMode,
+      surface: surfaceTone,
+    });
+  }, [seedColor, customName, harmonyMode, surfaceTone]);
+
+  // Real-time WCAG Accessibility Contrast Ratio
+  const contrastInfo = useMemo(() => {
+    return getWcagContrast(generatedPalette.primaryColor, generatedPalette.canvasColor);
+  }, [generatedPalette]);
 
   const filteredThemes = themes.filter((t) => {
     if (activeCategory === 'all') return true;
@@ -56,6 +74,30 @@ export const ThemeStudio: React.FC = () => {
     addHarmonicTheme(generatedPalette);
     setIsCreatorOpen(false);
     setCustomName('');
+  };
+
+  const handleCopyCss = async () => {
+    try {
+      feedback.playClick();
+      const css = exportPaletteAsCss(generatedPalette);
+      await navigator.clipboard.writeText(css);
+      setCopiedType('css');
+      setTimeout(() => setCopiedType(null), 2000);
+    } catch {
+      // ignore clipboard errors
+    }
+  };
+
+  const handleCopyJson = async () => {
+    try {
+      feedback.playClick();
+      const json = exportPaletteAsJson(generatedPalette);
+      await navigator.clipboard.writeText(json);
+      setCopiedType('json');
+      setTimeout(() => setCopiedType(null), 2000);
+    } catch {
+      // ignore clipboard errors
+    }
   };
 
   const getCategoryBadge = (cat: string) => {
@@ -77,7 +119,13 @@ export const ThemeStudio: React.FC = () => {
     <div className="flex flex-col gap-4">
       {/* Category Segmented Chips & Creator Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+        <div
+          className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth"
+          style={{ touchAction: 'pan-x' }}
+          onWheel={(e) => {
+            if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+          }}
+        >
           {(
             [
               { id: 'all', label: 'All Themes' },
@@ -121,8 +169,8 @@ export const ThemeStudio: React.FC = () => {
           className="self-start sm:self-auto flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs text-white border border-white/15 pressable shadow-lg transition-all cursor-pointer"
           style={{ backgroundColor: 'var(--accent-primary)' }}
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Harmonic Palette Generator</span>
+          <Palette className="w-3.5 h-3.5" />
+          <span>Harmonic Palette Studio</span>
         </button>
       </div>
 
@@ -251,14 +299,14 @@ export const ThemeStudio: React.FC = () => {
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-white shadow-sm"
                     style={{ backgroundColor: seedColor }}
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <Palette className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className="font-display text-base font-bold text-white tracking-tight">
                       Harmonic Palette Studio
                     </h3>
                     <p className="text-[11px] text-zinc-400">
-                      Pick 1 color — precision shades & contrast balance are generated automatically.
+                      Pick 1 color — derive balanced harmony modes, surface depth, and contrast tokens.
                     </p>
                   </div>
                 </div>
@@ -284,7 +332,13 @@ export const ThemeStudio: React.FC = () => {
                   </div>
 
                   {/* Seed Swatches Grid */}
-                  <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-3">
+                  <div
+                    className="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-3 overflow-x-auto no-scrollbar scroll-smooth"
+                    style={{ touchAction: 'pan-x' }}
+                    onWheel={(e) => {
+                      if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+                    }}
+                  >
                     {SEED_COLOR_PRESETS.map((p) => {
                       const isChosen = seedColor.toLowerCase() === p.hex.toLowerCase();
                       return (
@@ -327,10 +381,119 @@ export const ThemeStudio: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. Precision Generated Harmony Stops */}
+                {/* 2. Precision Tools: Harmony Mode Selector */}
                 <div>
                   <label className="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider font-bold mb-1.5">
-                    Algorithmically Derived System Stops
+                    Harmony Mode
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                    {(
+                      [
+                        { id: 'analogous', label: 'Analogous', desc: '+35° Natural' },
+                        { id: 'monochromatic', label: 'Monochrome', desc: 'Pure Tones' },
+                        { id: 'complementary', label: 'Contrast', desc: '180° Opposite' },
+                        { id: 'triadic', label: 'Triadic', desc: '120° Dynamic' },
+                      ] as const
+                    ).map((h) => {
+                      const isSel = harmonyMode === h.id;
+                      return (
+                        <button
+                          key={h.id}
+                          type="button"
+                          onClick={() => {
+                            feedback.playClick();
+                            setHarmonyMode(h.id);
+                          }}
+                          className={`p-2 rounded-xl border text-left transition-all cursor-pointer pressable ${
+                            isSel
+                              ? 'border-white/30 ring-1 ring-white/20 bg-white/[0.08]'
+                              : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
+                          }`}
+                        >
+                          <span className="text-xs font-bold text-white block">{h.label}</span>
+                          <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">{h.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3. Precision Tools: Surface Depth & Tone */}
+                <div>
+                  <label className="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider font-bold mb-1.5">
+                    Surface Depth & Tone
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(
+                      [
+                        { id: 'oled', label: 'OLED Pure', desc: '1.8% Black' },
+                        { id: 'charcoal', label: 'Charcoal', desc: '5.5% Slate' },
+                        { id: 'velvet', label: 'Velvet', desc: '8.0% Tinted' },
+                      ] as const
+                    ).map((s) => {
+                      const isSel = surfaceTone === s.id;
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => {
+                            feedback.playClick();
+                            setSurfaceTone(s.id);
+                          }}
+                          className={`p-2 rounded-xl border text-left transition-all cursor-pointer pressable ${
+                            isSel
+                              ? 'border-white/30 ring-1 ring-white/20 bg-white/[0.08]'
+                              : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
+                          }`}
+                        >
+                          <span className="text-xs font-bold text-white block">{s.label}</span>
+                          <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">{s.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 4. Contrast Accessibility & Token Export Tools Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-xl bg-black/40 border border-white/8 gap-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className={`w-4 h-4 shrink-0 ${contrastInfo.passAA ? 'text-emerald-400' : 'text-amber-400'}`} />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-white font-mono">
+                        {contrastInfo.ratio}:1 Contrast Ratio
+                      </span>
+                      <span className="text-[10px] text-zinc-400 font-mono">
+                        WCAG 2.1 {contrastInfo.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={handleCopyCss}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1 pressable transition-all cursor-pointer"
+                      title="Copy CSS variables to clipboard"
+                    >
+                      {copiedType === 'css' ? <CheckCheck className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedType === 'css' ? 'Copied' : 'Copy CSS'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyJson}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1 pressable transition-all cursor-pointer"
+                      title="Copy JSON tokens to clipboard"
+                    >
+                      {copiedType === 'json' ? <CheckCheck className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedType === 'json' ? 'Copied' : 'JSON'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 5. Harmonic Color System Stops */}
+                <div>
+                  <label className="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider font-bold mb-1.5">
+                    Harmonic Color System
                   </label>
                   <div className="grid grid-cols-5 gap-1.5 p-2 rounded-xl bg-black/40 border border-white/8">
                     {[

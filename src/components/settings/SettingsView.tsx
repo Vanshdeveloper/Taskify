@@ -400,7 +400,7 @@ export const SettingsView: React.FC = () => {
             100% Offline-First Architecture
           </h2>
           <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
-            Taskify persists all objectives, atomic routines, and financial cashflow records exclusively within your browser's local IndexedDB engine via Dexie. Zero cloud telemetry, zero account walls, and complete data ownership.
+            Taskify persists all objectives, atomic routines, and financial cashflow records exclusively within your browser's local offline IndexedDB storage via Dexie. Zero cloud telemetry, zero account walls, and complete data ownership.
           </p>
         </div>
       </div>

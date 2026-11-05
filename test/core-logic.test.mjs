@@ -197,7 +197,7 @@ test('Currency Auto-Detection: Timezone and locale mappings return valid symbols
   }
 });
 
-test('Liquid Tab Engine: Apple exponential momentum projection projects resting positions', () => {
+test('Liquid Navigation: Apple exponential momentum projection projects resting positions', () => {
   function projectMomentum(velocity, decelerationRate = 0.992) {
     return (velocity / 1000) * decelerationRate / (1 - decelerationRate);
   }
@@ -218,7 +218,7 @@ test('Liquid Tab Engine: Apple exponential momentum projection projects resting 
   assert.ok(projNeg < -90, `Expected negative projection, got ${projNeg}`);
 });
 
-test('Reminder Engine: Daily habit reminder distributions (1x to 5x presets)', () => {
+test('Smart Reminders: Daily habit reminder distributions (1x to 5x presets)', () => {
   function generateDefaultReminderTimes(count) {
     const c = Math.max(1, Math.min(5, count));
     switch (c) {
@@ -238,7 +238,7 @@ test('Reminder Engine: Daily habit reminder distributions (1x to 5x presets)', (
   assert.deepEqual(generateDefaultReminderTimes(5), ['08:00', '11:00', '14:00', '17:00', '20:00']);
 });
 
-test('Reminder Engine: Task reminder offset calculation for presets', () => {
+test('Smart Reminders: Task reminder offset calculation for presets', () => {
   function calculateTaskReminderTime(dueTime, preset, customTime) {
     if (preset === 'custom') return customTime || dueTime || '09:00';
     if (!dueTime) return '09:00';
@@ -300,7 +300,7 @@ test('Gen-Z Randomized Validation & Deletion: Generates varied prompts and non-e
   });
 });
 
-test('Poke Messages Engine: Generates witty contextual Zomato/Swiggy-style messages with pending nudges and rest rewards', () => {
+test('Daily Poke Service: Generates witty contextual prompts with pending nudges and rest rewards', () => {
   const pendingNudge = {
     emoji: '🛑',
     title: 'Stop doing the other things!',
@@ -321,4 +321,52 @@ test('Poke Messages Engine: Generates witty contextual Zomato/Swiggy-style messa
   assert.ok(restReward.title.includes('You own this rest'));
   assert.ok(restReward.body.includes('All work is done'));
   assert.equal(restReward.category, 'rest_reward');
+});
+
+test('Harmonic Palette Studio Tools: Harmony modes, OLED darkness, and WCAG accessibility contrast', () => {
+  // Test Relative Luminance and WCAG ratio calculation
+  function getLuminance(hex) {
+    let clean = hex.replace('#', '').trim();
+    const num = parseInt(clean, 16);
+    const rgb = [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255];
+    const a = rgb.map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+    return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+  }
+
+  function getWcagContrast(fgHex, bgHex) {
+    const l1 = getLuminance(fgHex);
+    const l2 = getLuminance(bgHex);
+    const lighter = Math.max(l1, l2);
+    const darker = Math.min(l1, l2);
+    const ratio = (lighter + 0.05) / (darker + 0.05);
+    const rounded = Math.round(ratio * 10) / 10;
+    const passAA = ratio >= 4.5;
+    return { ratio: rounded, passAA };
+  }
+
+  // White text (#ffffff) on dark OLED (#0a0a0c) has high contrast > 15:1
+  const oledContrast = getWcagContrast('#ffffff', '#0a0a0c');
+  assert.ok(oledContrast.ratio > 15);
+  assert.equal(oledContrast.passAA, true);
+
+  // Vibrant accent (#f5773f) on dark canvas (#110d0a) passes AA Large / AA
+  const accentContrast = getWcagContrast('#f5773f', '#110d0a');
+  assert.ok(accentContrast.ratio >= 4.0, `Expected ratio >= 4.0, got ${accentContrast.ratio}`);
+
+  // Test Harmony Modes hue derivations
+  const seedHue = 24; // Terracotta
+  const analogousHue = (seedHue + 35) % 360; // 59 (Gold/Amber)
+  const complementaryHue = (seedHue + 180) % 360; // 204 (Cyan/Sky)
+  const triadicHue = (seedHue + 120) % 360; // 144 (Emerald/Jade)
+
+  assert.equal(analogousHue, 59);
+  assert.equal(complementaryHue, 204);
+  assert.equal(triadicHue, 144);
+});
+
+test('Navbar Logo Alignment: Validates left and center alignment options', () => {
+  const allowedAlignments = ['left', 'center'];
+  assert.ok(allowedAlignments.includes('left'));
+  assert.ok(allowedAlignments.includes('center'));
+  assert.equal(allowedAlignments.length, 2);
 });

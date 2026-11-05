@@ -5,6 +5,9 @@
  * from a single seed color.
  */
 
+export type HarmonyMode = 'analogous' | 'monochromatic' | 'complementary' | 'triadic';
+export type SurfaceTone = 'charcoal' | 'oled' | 'velvet';
+
 export interface GeneratedPalette {
   seedHex: string;
   name: string;
@@ -18,6 +21,8 @@ export interface GeneratedPalette {
   highlightColor: string;
   dockColor: string;
   colors: string[]; // [canvas, primary, secondary, highlight]
+  harmonyMode?: HarmonyMode;
+  surfaceTone?: SurfaceTone;
 }
 
 // Convert Hex to HSL
@@ -114,43 +119,82 @@ export function getToneName(hue: number): string {
 }
 
 /**
- * Generates an aesthetic, unified palette from a single seed color.
+ * Generates an aesthetic, unified palette from a single seed color with precision tools.
  */
-export function generateHarmonicPalette(seedHex: string, customName?: string): GeneratedPalette {
+export function generateHarmonicPalette(
+  seedHex: string,
+  customName?: string,
+  options?: { harmony?: HarmonyMode; surface?: SurfaceTone }
+): GeneratedPalette {
   const { h, s, l } = hexToHsl(seedHex);
+  const harmony = options?.harmony || 'analogous';
+  const surface = options?.surface || 'charcoal';
 
-  // 1. Canvas: deep dark tinted background (5.5% lightness)
-  const canvasColor = hslToHex(h, Math.min(s * 0.35, 26), 5.5);
+  // Base surface lightness by surface tone
+  let canvasL = 5.5;
+  let cardL = 10.5;
+  let cardHoverL = 14;
+  let subtleL = 8;
+  let inputL = 7;
+  let dockL = 8.5;
 
-  // 2. Card Surface: elevated container with optical depth (10.5% lightness)
-  const cardColor = hslToHex(h, Math.min(s * 0.3, 22), 10.5);
+  if (surface === 'oled') {
+    canvasL = 1.8;
+    cardL = 6.2;
+    cardHoverL = 9.5;
+    subtleL = 4.2;
+    inputL = 3.5;
+    dockL = 4.0;
+  } else if (surface === 'velvet') {
+    canvasL = 8.0;
+    cardL = 13.0;
+    cardHoverL = 16.5;
+    subtleL = 10.5;
+    inputL = 9.5;
+    dockL = 11.0;
+  }
 
-  // 3. Card Hover: tactile interactive hover (14% lightness)
-  const cardHoverColor = hslToHex(h, Math.min(s * 0.3, 22), 14);
+  // 1. Canvas: deep dark tinted background
+  const canvasColor = hslToHex(h, Math.min(s * 0.35, 26), canvasL);
 
-  // 4. Subtle Surface: slightly elevated over canvas (8% lightness)
-  const subtleColor = hslToHex(h, Math.min(s * 0.25, 20), 8);
+  // 2. Card Surface: elevated container with optical depth
+  const cardColor = hslToHex(h, Math.min(s * 0.3, 22), cardL);
 
-  // 5. Sunken Input: recessed field (7% lightness)
-  const inputColor = hslToHex(h, Math.min(s * 0.25, 18), 7);
+  // 3. Card Hover: tactile interactive hover
+  const cardHoverColor = hslToHex(h, Math.min(s * 0.3, 22), cardHoverL);
+
+  // 4. Subtle Surface: slightly elevated over canvas
+  const subtleColor = hslToHex(h, Math.min(s * 0.25, 20), subtleL);
+
+  // 5. Sunken Input: recessed field
+  const inputColor = hslToHex(h, Math.min(s * 0.25, 18), inputL);
 
   // 6. Primary Accent: chosen seed with calibrated luminance for crisp readability
   const calibratedLightness = Math.min(65, Math.max(48, l));
   const primaryColor = hslToHex(h, Math.max(s, 60), calibratedLightness);
 
-  // 7. Secondary Accent: harmonious analogous split ((h + 35) % 360)
-  const secondaryHue = (h + 35) % 360;
-  const secondaryColor = hslToHex(
-    secondaryHue,
-    Math.min(s * 0.95, 88),
-    Math.min(64, Math.max(50, l))
-  );
+  // 7. Secondary Accent: derived from selected Harmony Mode
+  let secondaryHue = (h + 35) % 360;
+  let secondarySat = Math.min(s * 0.95, 88);
+  let secondaryLight = Math.min(64, Math.max(50, l));
+
+  if (harmony === 'monochromatic') {
+    secondaryHue = h;
+    secondarySat = Math.max(20, s * 0.5);
+    secondaryLight = Math.min(85, calibratedLightness + 20);
+  } else if (harmony === 'complementary') {
+    secondaryHue = (h + 180) % 360;
+  } else if (harmony === 'triadic') {
+    secondaryHue = (h + 120) % 360;
+  }
+
+  const secondaryColor = hslToHex(secondaryHue, secondarySat, secondaryLight);
 
   // 8. Highlight: luminous tinted typography / off-white (96% lightness)
   const highlightColor = hslToHex(h, Math.min(s * 0.15, 14), 96);
 
   // 9. Dock Glass: tinted translucent bar
-  const dockColor = hslToHex(h, Math.min(s * 0.3, 25), 8.5);
+  const dockColor = hslToHex(h, Math.min(s * 0.3, 25), dockL);
 
   const defaultName = `${getToneName(h)} Studio`;
 
@@ -167,7 +211,78 @@ export function generateHarmonicPalette(seedHex: string, customName?: string): G
     highlightColor,
     dockColor,
     colors: [canvasColor, primaryColor, secondaryColor, highlightColor],
+    harmonyMode: harmony,
+    surfaceTone: surface,
   };
+}
+
+// Relative luminance for WCAG contrast calculation
+function getLuminance(hex: string): number {
+  let clean = hex.replace('#', '').trim();
+  if (clean.length === 3) {
+    clean = clean.split('').map((c) => c + c).join('');
+  }
+  const num = parseInt(clean, 16);
+  if (isNaN(num)) return 0;
+  const rgb = [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255];
+  const a = rgb.map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+  return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+}
+
+/**
+ * Calculates WCAG 2.1 contrast ratio and rating between foreground and background.
+ */
+export function getWcagContrast(
+  fgHex: string,
+  bgHex: string
+): { ratio: number; label: string; passAA: boolean } {
+  const l1 = getLuminance(fgHex);
+  const l2 = getLuminance(bgHex);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  const ratio = (lighter + 0.05) / (darker + 0.05);
+  const rounded = Math.round(ratio * 10) / 10;
+  const passAA = ratio >= 4.5;
+  const label = ratio >= 7 ? 'AAA Pass' : ratio >= 4.5 ? 'AA Pass' : ratio >= 3 ? 'AA Large' : 'Fair';
+  return { ratio: rounded, label, passAA };
+}
+
+/**
+ * Exports generated palette tokens as clean CSS custom properties.
+ */
+export function exportPaletteAsCss(palette: GeneratedPalette): string {
+  return `:root {
+  --bg-canvas: ${palette.canvasColor};
+  --bg-card: ${palette.cardColor};
+  --bg-subtle: ${palette.subtleColor};
+  --accent-primary: ${palette.primaryColor};
+  --accent-secondary: ${palette.secondaryColor};
+  --text-highlight: ${palette.highlightColor};
+  --dock-bg: ${palette.dockColor};
+}`;
+}
+
+/**
+ * Exports generated palette colors as JSON hex array.
+ */
+export function exportPaletteAsJson(palette: GeneratedPalette): string {
+  return JSON.stringify(
+    {
+      name: palette.name,
+      seedHex: palette.seedHex,
+      harmony: palette.harmonyMode,
+      surface: palette.surfaceTone,
+      tokens: {
+        canvas: palette.canvasColor,
+        card: palette.cardColor,
+        primary: palette.primaryColor,
+        secondary: palette.secondaryColor,
+        highlight: palette.highlightColor,
+      },
+    },
+    null,
+    2
+  );
 }
 
 export const SEED_COLOR_PRESETS = [

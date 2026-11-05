@@ -324,7 +324,13 @@ export const FinanceView: React.FC = () => {
       {/* 4. Segmented Filter, Search & View Switcher (Standardized H-10 Geometry) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Liquid Filter Chips */}
-        <div className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar">
+        <div
+          className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth"
+          style={{ touchAction: 'pan-x' }}
+          onWheel={(e) => {
+            if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+          }}
+        >
           {(
             [
               { id: 'all', label: `All ${transactions.length}` },
@@ -394,7 +400,7 @@ export const FinanceView: React.FC = () => {
               className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
                 viewMode === 'cards' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
-              title="Creative Bento Cards View"
+              title="Card View"
             >
               {viewMode === 'cards' && (
                 <motion.div
@@ -412,7 +418,7 @@ export const FinanceView: React.FC = () => {
               className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
                 viewMode === 'compact' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
-              title="Ultra-Refined Swiss Compact Rows"
+              title="Compact List View"
             >
               {viewMode === 'compact' && (
                 <motion.div
