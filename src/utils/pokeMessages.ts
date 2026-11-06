@@ -14,6 +14,22 @@ export interface PokeMessage {
   category: 'pending_nudge' | 'rest_reward';
 }
 
+/**
+ * Daily recurring poke schedule times (7 times a day: 2 baseline + 5 additional daytime checks)
+ * Perfectly spaced every 2 hours from 09:30 AM to 09:30 PM.
+ */
+export const DAILY_POKE_SCHEDULE = [
+  { time: '09:30', hour: 9, minute: 30, slotId: 'morning-kickoff', label: 'Morning Ignition' },
+  { time: '11:30', hour: 11, minute: 30, slotId: 'mid-morning', label: 'Mid-Morning Focus' },
+  { time: '13:30', hour: 13, minute: 30, slotId: 'post-lunch', label: 'Post-Lunch Push' },
+  { time: '15:30', hour: 15, minute: 30, slotId: 'afternoon-slump', label: 'Afternoon Slump Buster' },
+  { time: '17:30', hour: 17, minute: 30, slotId: 'evening-wrap', label: 'Evening Momentum' },
+  { time: '19:30', hour: 19, minute: 30, slotId: 'evening-review', label: 'Evening Review' },
+  { time: '21:30', hour: 21, minute: 30, slotId: 'night-reflection', label: 'Night Reflection' },
+] as const;
+
+export const DAILY_POKE_TIMES: readonly string[] = DAILY_POKE_SCHEDULE.map((s) => s.time);
+
 const PENDING_TASKS_POKES = [
   (name: string, pending: number, topTask?: string) => ({
     emoji: '🛑',
@@ -58,6 +74,25 @@ const PENDING_TASKS_POKES = [
     title: 'Time to conquer this task!',
     body: `Hey ${name}, drop whatever else you're doing. Knock out one objective right now and feel like a champion (${pending} pending).`,
   }),
+  (name: string, pending: number, topTask?: string) => ({
+    emoji: '🚀',
+    title: 'Momentum is calling!',
+    body: topTask
+      ? `Hey ${name}, 5 minutes on "${topTask}" right now beats 2 hours of regret later.`
+      : `Hey ${name}, 5 minutes on your next objective right now beats 2 hours of regret later (${pending} left).`,
+  }),
+  (name: string, pending: number) => ({
+    emoji: '🔥',
+    title: 'Protect your streak today!',
+    body: `Don't let today slip away, ${name}. Knock out one pending task now and keep the winning streak alive (${pending} waiting).`,
+  }),
+  (name: string, pending: number, topTask?: string) => ({
+    emoji: '⏰',
+    title: 'Two-minute rule check-in!',
+    body: topTask
+      ? `If "${topTask}" takes under 5 minutes, finish it right now ${name}!`
+      : `If your next task takes under 5 minutes, knock it out right now ${name} (${pending} left)!`,
+  }),
 ];
 
 const ALL_COMPLETED_POKES = [
@@ -90,6 +125,16 @@ const ALL_COMPLETED_POKES = [
     emoji: '🎉',
     title: 'All clear for the day!',
     body: `Every task is finished, ${name}. Go do whatever you love—you've earned every minute of it!`,
+  }),
+  (name: string) => ({
+    emoji: '🧘',
+    title: 'Unbothered, moisturized, in your lane!',
+    body: `All objectives cleared, ${name}. Breathe easy and bask in the bliss of a finished day.`,
+  }),
+  (name: string) => ({
+    emoji: '⭐',
+    title: 'Masterclass in execution today!',
+    body: `You crushed every single priority on the agenda, ${name}. Take the night off, legend!`,
   }),
 ];
 
@@ -131,19 +176,19 @@ export function getPokeNotification(
 export function getDailyPoke(
   userName: string = 'Alex',
   pendingCount: number = 0,
-  _streakCount: number = 1
+  slotNumber: number = 1
 ): PokeMessage {
   const dayOfYear = Math.floor(
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24)
   );
 
   const pool = pendingCount > 0 ? PENDING_TASKS_POKES : ALL_COMPLETED_POKES;
-  const idx = dayOfYear % pool.length;
+  const idx = Math.abs((dayOfYear * 7 + slotNumber) % pool.length);
   const fn = pool[idx];
   const item = (fn as any)(userName, pendingCount);
 
   return {
-    id: `daily-poke-${dayOfYear}`,
+    id: `daily-poke-${dayOfYear}-${slotNumber}`,
     ...item,
     category: pendingCount > 0 ? 'pending_nudge' : 'rest_reward',
   };

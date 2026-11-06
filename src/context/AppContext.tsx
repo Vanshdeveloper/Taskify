@@ -8,7 +8,7 @@ import type { DeleteConfirmOptions } from '../components/modals/ConfirmDeleteMod
 import { feedback, triggerCompletionConfetti } from '../utils/feedback';
 import { formatTime12Hour, sendNativeNotification, requestNotificationPermission, syncNativeScheduledReminders } from '../utils/reminder';
 import { autodetectCurrency } from '../utils/currency';
-import { getPokeNotification } from '../utils/pokeMessages';
+import { getPokeNotification, DAILY_POKE_TIMES } from '../utils/pokeMessages';
 
 interface FinanceStats {
   monthlyIncome: number;
@@ -680,8 +680,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         });
       });
 
-      // Check daily poke at 09:30 AM & 07:30 PM
-      if (currentHHMM === '09:30' || currentHHMM === '19:30') {
+      // Check daily recurring pokes (7 times/day spaced every 2 hours: 09:30 AM to 09:30 PM)
+      if (DAILY_POKE_TIMES.includes(currentHHMM)) {
         const pokeKey = `daily-poke-${todayStr}-${currentHHMM}`;
         if (!firedReminderKeysRef.current.has(pokeKey)) {
           firedReminderKeysRef.current.add(pokeKey);

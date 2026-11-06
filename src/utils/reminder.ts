@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications, type LocalNotificationSchema } from '@capacitor/local-notifications';
 import type { ReminderPreset, Task, Habit } from '../types';
-import { getDailyPoke } from './pokeMessages';
+import { getDailyPoke, DAILY_POKE_SCHEDULE } from './pokeMessages';
 
 /**
  * Standard preset reminder time distributions for daily habits based on frequency count (1x - 5x max)
@@ -243,36 +243,23 @@ export async function syncNativeScheduledReminders(
       });
     });
 
-    // 3. Schedule daily recurring Zomato/Swiggy-style poke notifications (09:30 AM & 07:30 PM)
+    // 3. Schedule daily recurring witty poke notifications (7 times/day spaced every 2 hours)
     const pendingCount = tasks.filter((t) => t.status !== 'completed').length;
-    const morningPoke = getDailyPoke(userName, pendingCount, 1);
-    notifications.push({
-      id: stringToIntegerId('daily-poke-morning'),
-      title: `${morningPoke.emoji} ${morningPoke.title}`,
-      body: morningPoke.body,
-      channelId: 'taskify_reminders',
-      schedule: {
-        on: { hour: 9, minute: 30 },
-        every: 'day',
-        allowWhileIdle: true,
-      },
-      autoCancel: true,
-      extra: { type: 'poke' },
-    });
-
-    const eveningPoke = getDailyPoke(userName, pendingCount, 2);
-    notifications.push({
-      id: stringToIntegerId('daily-poke-evening'),
-      title: `${eveningPoke.emoji} ${eveningPoke.title}`,
-      body: eveningPoke.body,
-      channelId: 'taskify_reminders',
-      schedule: {
-        on: { hour: 19, minute: 30 },
-        every: 'day',
-        allowWhileIdle: true,
-      },
-      autoCancel: true,
-      extra: { type: 'poke' },
+    DAILY_POKE_SCHEDULE.forEach((slot, idx) => {
+      const poke = getDailyPoke(userName, pendingCount, idx + 1);
+      notifications.push({
+        id: stringToIntegerId(`daily-poke-${slot.slotId}`),
+        title: `${poke.emoji} ${poke.title}`,
+        body: poke.body,
+        channelId: 'taskify_reminders',
+        schedule: {
+          on: { hour: slot.hour, minute: slot.minute },
+          every: 'day',
+          allowWhileIdle: true,
+        },
+        autoCancel: true,
+        extra: { type: 'poke', slot: slot.slotId },
+      });
     });
 
     if (notifications.length > 0) {

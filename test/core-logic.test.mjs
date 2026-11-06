@@ -321,6 +321,17 @@ test('Daily Poke Service: Generates witty contextual prompts with pending nudges
   assert.ok(restReward.title.includes('You own this rest'));
   assert.ok(restReward.body.includes('All work is done'));
   assert.equal(restReward.category, 'rest_reward');
+
+  // Verify daily poke schedule frequency (7 times/day: baseline 2 + 5 additional)
+  const pokeTimes = ['09:30', '11:30', '13:30', '15:30', '17:30', '19:30', '21:30'];
+  assert.equal(pokeTimes.length, 7);
+  assert.ok(pokeTimes.includes('09:30'));
+  assert.ok(pokeTimes.includes('19:30'));
+  assert.ok(pokeTimes.includes('11:30'));
+  assert.ok(pokeTimes.includes('13:30'));
+  assert.ok(pokeTimes.includes('15:30'));
+  assert.ok(pokeTimes.includes('17:30'));
+  assert.ok(pokeTimes.includes('21:30'));
 });
 
 test('Harmonic Palette Studio Tools: Harmony modes, OLED darkness, and WCAG accessibility contrast', () => {
