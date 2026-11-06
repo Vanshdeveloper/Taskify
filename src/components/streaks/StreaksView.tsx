@@ -64,11 +64,8 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
   ];
 
   const handleBack = () => {
-    if (onClose) {
-      onClose();
-    } else {
-      setActiveTab('today');
-    }
+    onClose?.();
+    setActiveTab('today');
   };
 
   return (
@@ -148,21 +145,14 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
                 borderColor: 'var(--border-card)',
               }}
             >
-              {/* Concentric Kinetic Pulsing Flame Rings */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-                <motion.div
-                  animate={{ scale: [1, 1.25, 1], opacity: [0.15, 0.35, 0.15] }}
-                  transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-72 sm:w-96 h-72 sm:h-96 rounded-full blur-3xl"
-                  style={{ backgroundColor: 'var(--accent-primary)' }}
-                />
-                <motion.div
-                  animate={{ scale: [1.1, 0.95, 1.1], opacity: [0.1, 0.25, 0.1] }}
-                  transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-96 sm:w-[480px] h-96 sm:h-[480px] rounded-full blur-[100px]"
-                  style={{ backgroundColor: 'var(--accent-secondary)' }}
-                />
-              </div>
+              {/* Concentric Subtle Radiant Flame Core (Hardware-accelerated) */}
+              <div
+                className="absolute inset-0 pointer-events-none opacity-20"
+                style={{
+                  background:
+                    'radial-gradient(circle at 50% 50%, var(--accent-primary) 0%, transparent 65%)',
+                }}
+              />
 
               {/* Status Pill */}
               <div className="relative z-10 flex items-center gap-2 px-3 py-1 rounded-full border bg-black/40 backdrop-blur-md">

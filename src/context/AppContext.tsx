@@ -37,6 +37,7 @@ interface AppContextType {
   habits: Habit[];
   habitLogs: HabitLog[];
   addHabit: (data: Omit<Habit, 'id' | 'createdAt'>) => Promise<string>;
+  updateHabit: (id: string, updates: Partial<Habit>) => Promise<void>;
   incrementHabit: (id: string, event?: React.MouseEvent) => Promise<void>;
   decrementHabit: (id: string) => Promise<void>;
   toggleHabit: (id: string, event?: React.MouseEvent) => Promise<void>;
@@ -47,6 +48,7 @@ interface AppContextType {
   // Finance
   transactions: Transaction[];
   addTransaction: (data: Omit<Transaction, 'id' | 'createdAt'>) => Promise<string>;
+  updateTransaction: (id: string, updates: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   financeStats: FinanceStats;
 
@@ -69,15 +71,21 @@ interface AppContextType {
   completeReminderAlert: (alert: ReminderAlert) => Promise<void>;
   requestNotificationPermission: () => Promise<NotificationPermission>;
 
-  // Shared Modals
+  // Shared Modals & Editing
   isTaskModalOpen: boolean;
+  editingTask: Task | null;
   openTaskModal: () => void;
+  openEditTaskModal: (task: Task) => void;
   closeTaskModal: () => void;
   isHabitModalOpen: boolean;
+  editingHabit: Habit | null;
   openHabitModal: () => void;
+  openEditHabitModal: (habit: Habit) => void;
   closeHabitModal: () => void;
   isFinanceModalOpen: boolean;
+  editingTransaction: Transaction | null;
   openFinanceModal: () => void;
+  openEditFinanceModal: (tx: Transaction) => void;
   closeFinanceModal: () => void;
   isSearchModalOpen: boolean;
   openSearchModal: () => void;
@@ -88,6 +96,9 @@ interface AppContextType {
   isInspectorOpen: boolean;
   openInspector: () => void;
   closeInspector: () => void;
+  isExecutiveDashboardOpen: boolean;
+  openExecutiveDashboard: () => void;
+  closeExecutiveDashboard: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -99,7 +110,6 @@ const DEFAULT_SETTINGS: UserSettings = {
   darkMode: true,
   navbarHeight: 'default',
   navbarGlass: 'solid',
-  navbarLogoAlign: 'left',
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -120,31 +130,74 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveReminderAlert(null);
   };
 
-  // Shared Modals state
+  // Shared Modals & Editing state
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+
   const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+
   const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isStreaksOpen, setIsStreaksOpen] = useState(false);
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
+  const [isExecutiveDashboardOpen, setIsExecutiveDashboardOpen] = useState(false);
 
-  const openTaskModal = () => setIsTaskModalOpen(true);
-  const closeTaskModal = () => setIsTaskModalOpen(false);
+  const openTaskModal = () => {
+    setEditingTask(null);
+    setIsTaskModalOpen(true);
+  };
+  const openEditTaskModal = (task: Task) => {
+    setEditingTask(task);
+    setIsTaskModalOpen(true);
+  };
+  const closeTaskModal = () => {
+    setIsTaskModalOpen(false);
+    setEditingTask(null);
+  };
 
-  const openHabitModal = () => setIsHabitModalOpen(true);
-  const closeHabitModal = () => setIsHabitModalOpen(false);
+  const openHabitModal = () => {
+    setEditingHabit(null);
+    setIsHabitModalOpen(true);
+  };
+  const openEditHabitModal = (habit: Habit) => {
+    setEditingHabit(habit);
+    setIsHabitModalOpen(true);
+  };
+  const closeHabitModal = () => {
+    setIsHabitModalOpen(false);
+    setEditingHabit(null);
+  };
 
-  const openFinanceModal = () => setIsFinanceModalOpen(true);
-  const closeFinanceModal = () => setIsFinanceModalOpen(false);
+  const openFinanceModal = () => {
+    setEditingTransaction(null);
+    setIsFinanceModalOpen(true);
+  };
+  const openEditFinanceModal = (tx: Transaction) => {
+    setEditingTransaction(tx);
+    setIsFinanceModalOpen(true);
+  };
+  const closeFinanceModal = () => {
+    setIsFinanceModalOpen(false);
+    setEditingTransaction(null);
+  };
 
   const openSearchModal = () => setIsSearchModalOpen(true);
   const closeSearchModal = () => setIsSearchModalOpen(false);
 
   const openStreaks = () => setIsStreaksOpen(true);
-  const closeStreaks = () => setIsStreaksOpen(false);
+  const closeStreaks = () => {
+    setIsStreaksOpen(false);
+    setActiveTab((prev) => (prev === 'streaks' ? 'today' : prev));
+  };
 
   const openInspector = () => setIsInspectorOpen(true);
   const closeInspector = () => setIsInspectorOpen(false);
+
+  const openExecutiveDashboard = () => setIsExecutiveDashboardOpen(true);
+  const closeExecutiveDashboard = () => setIsExecutiveDashboardOpen(false);
 
   const requestDelete = (options: DeleteConfirmOptions) => {
     setDeleteConfirmOptions(options);
@@ -212,7 +265,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       darkMode: map.darkMode ?? DEFAULT_SETTINGS.darkMode,
       navbarHeight: map.navbarHeight ?? DEFAULT_SETTINGS.navbarHeight,
       navbarGlass: map.navbarGlass ?? DEFAULT_SETTINGS.navbarGlass,
-      navbarLogoAlign: map.navbarLogoAlign ?? DEFAULT_SETTINGS.navbarLogoAlign,
     };
   }, [settingsEntries]);
 
@@ -365,6 +417,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     feedback.playClick();
   };
 
+  const updateHabit = async (id: string, updates: Partial<Habit>) => {
+    await db.habits.update(id, updates);
+    feedback.playClick();
+  };
+
   const getHabitStreak = (habitId: string): number => {
     // Calculate consecutive completed days going backward from yesterday or today
     const logs = habitLogs
@@ -416,6 +473,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deleteTransaction = async (id: string) => {
     await db.transactions.delete(id);
+    feedback.playClick();
+  };
+
+  const updateTransaction = async (id: string, updates: Partial<Transaction>) => {
+    await db.transactions.update(id, updates);
     feedback.playClick();
   };
 
@@ -700,10 +762,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         decrementHabit,
         toggleHabit,
         deleteHabit,
+        updateHabit,
         getHabitTodayLog,
         getHabitStreak,
         transactions,
         addTransaction,
+        updateTransaction,
         deleteTransaction,
         financeStats,
         settings,
@@ -716,13 +780,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         requestDelete,
         closeDeleteConfirm,
         isTaskModalOpen,
+        editingTask,
         openTaskModal,
+        openEditTaskModal,
         closeTaskModal,
         isHabitModalOpen,
+        editingHabit,
         openHabitModal,
+        openEditHabitModal,
         closeHabitModal,
         isFinanceModalOpen,
+        editingTransaction,
         openFinanceModal,
+        openEditFinanceModal,
         closeFinanceModal,
         isSearchModalOpen,
         openSearchModal,
@@ -733,6 +803,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isInspectorOpen,
         openInspector,
         closeInspector,
+        isExecutiveDashboardOpen,
+        openExecutiveDashboard,
+        closeExecutiveDashboard,
         activeReminderAlert,
         dismissReminderAlert,
         completeReminderAlert,

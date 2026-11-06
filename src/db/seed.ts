@@ -4,7 +4,48 @@ import { autodetectCurrency } from '../utils/currency';
 
 export async function seedInitialDataIfNeeded() {
   const taskCount = await db.tasks.count();
-  if (taskCount > 0) return; // already seeded
+  const habitLogCount = await db.habitLogs.count();
+
+  // If already seeded tasks, but missing historical habit logs, backfill them
+  if (taskCount > 0) {
+    if (habitLogCount <= 3) {
+      const backfillLogs: {
+        id: string;
+        habitId: string;
+        date: string;
+        currentCount: number;
+        completed: boolean;
+        timestamp: number;
+      }[] = [];
+      const habits = await db.habits.toArray();
+      const habitIds = habits.length ? habits.map((h) => h.id) : ['h-1', 'h-2', 'h-3', 'h-4'];
+
+      for (let i = 0; i <= 35; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+        const ts = d.getTime();
+
+        habitIds.forEach((hId, idx) => {
+          if ((i + idx) % 3 !== 0) {
+            backfillLogs.push({
+              id: `hl-${hId}-${dateStr}`,
+              habitId: hId,
+              date: dateStr,
+              currentCount: 1,
+              completed: true,
+              timestamp: ts,
+            });
+          }
+        });
+      }
+      await db.habitLogs.bulkPut(backfillLogs);
+    }
+    return;
+  }
 
   const today = getTodayString();
   const now = Date.now();
@@ -124,33 +165,74 @@ export async function seedInitialDataIfNeeded() {
     },
   ];
 
-  // Initial habit logs for today to demonstrate functionality
-  const sampleHabitLogs = [
-    {
-      id: `hl-h-1-${today}`,
-      habitId: 'h-1',
-      date: today,
-      currentCount: 5,
-      completed: false,
-      timestamp: now,
-    },
-    {
-      id: `hl-h-2-${today}`,
-      habitId: 'h-2',
-      date: today,
-      currentCount: 2,
-      completed: true,
-      timestamp: now,
-    },
-    {
-      id: `hl-h-3-${today}`,
-      habitId: 'h-3',
-      date: today,
-      currentCount: 15,
-      completed: false,
-      timestamp: now,
-    },
-  ];
+  // Generate authentic historical logs for the past 35 days so heatmaps & streaks thrive
+  const sampleHabitLogs: {
+    id: string;
+    habitId: string;
+    date: string;
+    currentCount: number;
+    completed: boolean;
+    timestamp: number;
+  }[] = [];
+
+  for (let i = 0; i <= 35; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${day}`;
+    const ts = d.getTime();
+
+    // h-1: Hydration target (high consistency, completed most days)
+    if (i !== 3 && i !== 12 && i !== 22) {
+      sampleHabitLogs.push({
+        id: `hl-h-1-${dateStr}`,
+        habitId: 'h-1',
+        date: dateStr,
+        currentCount: 8,
+        completed: true,
+        timestamp: ts,
+      });
+    }
+
+    // h-2: Deep Work Session (weekdays)
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek >= 1 && dayOfWeek <= 5 && i !== 8 && i !== 19) {
+      sampleHabitLogs.push({
+        id: `hl-h-2-${dateStr}`,
+        habitId: 'h-2',
+        date: dateStr,
+        currentCount: 2,
+        completed: true,
+        timestamp: ts,
+      });
+    }
+
+    // h-3: Read Technical Book
+    if (i % 2 === 0 || i < 7) {
+      sampleHabitLogs.push({
+        id: `hl-h-3-${dateStr}`,
+        habitId: 'h-3',
+        date: dateStr,
+        currentCount: 20,
+        completed: true,
+        timestamp: ts,
+      });
+    }
+
+    // h-4: Mobility stretch
+    if (i % 3 !== 0) {
+      sampleHabitLogs.push({
+        id: `hl-h-4-${dateStr}`,
+        habitId: 'h-4',
+        date: dateStr,
+        currentCount: 3,
+        completed: true,
+        timestamp: ts,
+      });
+    }
+  }
 
   // Initial Transactions
   const sampleTransactions: Transaction[] = [

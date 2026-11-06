@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Bell } from 'lucide-react';
+import { X, Plus, Check, Bell } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import type { Priority, ReminderPreset } from '../../types';
@@ -18,7 +18,7 @@ interface TaskModalProps {
 }
 
 export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
-  const { addTask, tasks } = useApp();
+  const { addTask, updateTask, editingTask, tasks } = useApp();
   const today = getTodayString();
 
   const [title, setTitle] = useState('');
@@ -33,6 +33,33 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
   const [reminderPreset, setReminderPreset] = useState<ReminderPreset>('at_due');
   const [reminderTime, setReminderTime] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Sync state when editingTask or isOpen changes
+  useEffect(() => {
+    if (isOpen && editingTask) {
+      setTitle(editingTask.title);
+      setDescription(editingTask.description || '');
+      setDueDate(editingTask.dueDate);
+      setDueTime(editingTask.dueTime || '');
+      setPriority(editingTask.priority);
+      setCategory(editingTask.category);
+      setReminderEnabled(!!editingTask.reminderEnabled);
+      setReminderPreset(editingTask.reminderPreset || 'at_due');
+      setReminderTime(editingTask.reminderTime || '');
+      setValidationError(null);
+    } else if (isOpen && !editingTask) {
+      setTitle('');
+      setDescription('');
+      setDueDate(today);
+      setDueTime('');
+      setPriority('medium');
+      setCategory('Work');
+      setReminderEnabled(false);
+      setReminderPreset('at_due');
+      setReminderTime('');
+      setValidationError(null);
+    }
+  }, [isOpen, editingTask, today]);
 
   const categories = Array.from(
     new Set(['Work', 'Personal', 'Study', 'Fitness', ...tasks.map((t) => t.category)])
@@ -69,18 +96,32 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
       ? calculateTaskReminderTime(dueTime, reminderPreset, reminderTime)
       : undefined;
 
-    await addTask({
-      title: title.trim(),
-      description: description.trim() || undefined,
-      dueDate: dueDate || today,
-      dueTime: dueTime || undefined,
-      priority,
-      category: category.trim() || 'General',
-      status: 'todo',
-      reminderEnabled,
-      reminderPreset: reminderEnabled ? reminderPreset : undefined,
-      reminderTime: computedReminderTime,
-    });
+    if (editingTask) {
+      await updateTask(editingTask.id, {
+        title: title.trim(),
+        description: description.trim() || undefined,
+        dueDate: dueDate || today,
+        dueTime: dueTime || undefined,
+        priority,
+        category: category.trim() || 'General',
+        reminderEnabled,
+        reminderPreset: reminderEnabled ? reminderPreset : undefined,
+        reminderTime: computedReminderTime,
+      });
+    } else {
+      await addTask({
+        title: title.trim(),
+        description: description.trim() || undefined,
+        dueDate: dueDate || today,
+        dueTime: dueTime || undefined,
+        priority,
+        category: category.trim() || 'General',
+        status: 'todo',
+        reminderEnabled,
+        reminderPreset: reminderEnabled ? reminderPreset : undefined,
+        reminderTime: computedReminderTime,
+      });
+    }
 
     feedback.playSuccessChime();
     setTitle('');
@@ -128,7 +169,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 />
                 <h3 className="font-display text-base font-bold text-white tracking-tight">
-                  New Task Objective
+                  {editingTask ? 'Edit Task Objective' : 'New Task Objective'}
                 </h3>
               </div>
               <button
@@ -328,8 +369,17 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
                   className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg flex items-center gap-1.5 cursor-pointer"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
-                  <span>Create Objective</span>
+                  {editingTask ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <span>Save Changes</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                      <span>Create Objective</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

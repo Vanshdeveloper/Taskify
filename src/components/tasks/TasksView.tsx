@@ -21,7 +21,7 @@ import { getCategoryTheme } from '../../utils/category';
 import { getRandomDeletePrompt } from '../../utils/genz';
 
 export const TasksView: React.FC = () => {
-  const { tasks, toggleTask, deleteTask, requestDelete, openTaskModal } = useApp();
+  const { tasks, toggleTask, deleteTask, requestDelete, openTaskModal, openEditTaskModal } = useApp();
   const today = getTodayString();
 
   // View state: Creative Cards Grid vs. Swiss Compact List
@@ -171,7 +171,7 @@ export const TasksView: React.FC = () => {
           style={{ backgroundColor: 'var(--bg-card)' }}
         >
           <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
-            <span className="text-zinc-400 text-[10px] uppercase tracking-wider">Completion Velocity</span>
+            <span className="text-zinc-400 text-[10px] uppercase tracking-wider">Completion Rate</span>
             <span className="font-bold text-white">{progressRatio}%</span>
           </div>
           <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden">
@@ -227,8 +227,12 @@ export const TasksView: React.FC = () => {
             </div>
           </div>
 
-          <div className="my-4">
-            <h3 className="font-display text-xl sm:text-2xl font-black tracking-tight leading-snug text-white">
+          <div
+            className="my-4 cursor-pointer group/hero"
+            onClick={() => openEditTaskModal(featuredTask)}
+            title="Click to edit objective"
+          >
+            <h3 className="font-display text-xl sm:text-2xl font-black tracking-tight leading-snug text-white group-hover/hero:text-[var(--accent-primary)] transition-colors">
               {featuredTask.title}
             </h3>
             {featuredTask.description && (
@@ -398,7 +402,8 @@ export const TasksView: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.96 }}
                       transition={{ type: 'spring', damping: 26, stiffness: 360 }}
-                      className={`solid-card p-5 rounded-3xl flex flex-col justify-between shadow-xl border relative transition-all group hover:border-white/20 ${
+                      onClick={() => openEditTaskModal(task)}
+                      className={`solid-card p-5 rounded-3xl flex flex-col justify-between shadow-xl border relative transition-all group hover:border-white/20 cursor-pointer ${
                         isDone ? 'opacity-65' : ''
                       }`}
                       style={{ backgroundColor: 'var(--bg-card)' }}
@@ -443,7 +448,10 @@ export const TasksView: React.FC = () => {
 
                           <button
                             type="button"
-                            onClick={() => handleDeleteTask(task.id, task.title)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTask(task.id, task.title);
+                            }}
                             className="opacity-40 group-hover:opacity-100 p-1 rounded-md text-zinc-500 hover:text-rose-400 pressable transition-opacity cursor-pointer"
                             title="Delete task"
                           >
@@ -485,7 +493,10 @@ export const TasksView: React.FC = () => {
                           whileHover={{ scale: 1.04 }}
                           whileTap={{ scale: 0.96 }}
                           type="button"
-                          onClick={(e) => toggleTask(task.id, e)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleTask(task.id, e);
+                          }}
                           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs pressable transition-all border cursor-pointer ${
                             isDone
                               ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
@@ -524,13 +535,17 @@ export const TasksView: React.FC = () => {
                 return (
                   <div
                     key={task.id}
-                    className="p-4 flex items-center justify-between gap-3.5 transition-colors hover:bg-white/[0.02]"
+                    onClick={() => openEditTaskModal(task)}
+                    className="p-4 flex items-center justify-between gap-3.5 transition-colors hover:bg-white/[0.04] cursor-pointer"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       {/* Quick Check Trigger */}
                       <button
                         type="button"
-                        onClick={(e) => toggleTask(task.id, e)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleTask(task.id, e);
+                        }}
                         className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border pressable transition-all cursor-pointer ${
                           isDone
                             ? 'shadow-sm text-white'
@@ -589,7 +604,10 @@ export const TasksView: React.FC = () => {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteTask(task.id, task.title)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTask(task.id, task.title);
+                        }}
                         className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity cursor-pointer"
                         title="Delete task"
                       >

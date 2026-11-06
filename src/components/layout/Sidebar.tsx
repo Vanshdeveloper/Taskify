@@ -76,7 +76,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className="hidden md:flex flex-col w-60 lg:w-64 shrink-0 hairline-r p-4 justify-between h-[calc(100vh-57px)] select-none relative z-10 transition-colors"
+      className="hidden md:flex flex-col w-60 lg:w-64 shrink-0 hairline-r p-4 justify-between h-full overflow-hidden select-none relative z-10 transition-colors"
       style={{ backgroundColor: 'var(--bg-canvas)' }}
     >
       <div className="flex flex-col gap-6">
@@ -178,13 +178,13 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Bottom Safe Velocity Progress Card */}
+      {/* Bottom Safe Spend Progress Card */}
       <div
         className="p-3.5 rounded-2xl border flex flex-col gap-2.5 min-w-0 overflow-hidden"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
       >
         <div className="flex items-center justify-between text-xs gap-1.5 min-w-0">
-          <span className="text-zinc-400 font-medium shrink-0">Safe Velocity</span>
+          <span className="text-zinc-400 font-medium shrink-0">Safe Spend</span>
           <span
             className="font-bold font-mono tabular-nums text-emerald-400 truncate max-w-[125px] text-right"
             title={`${settings.currency}${financeStats.dailySafeToSpend.toFixed(0)}/d`}

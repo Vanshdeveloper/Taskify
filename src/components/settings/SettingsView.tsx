@@ -10,6 +10,8 @@ import {
   CheckCircle2,
   Palette,
   PanelTop,
+  TrendingUp,
+  ArrowUpRight,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -25,6 +27,7 @@ export const SettingsView: React.FC = () => {
     exportDataAsJson,
     importDataFromJson,
     resetToDefaults,
+    openExecutiveDashboard,
   } = useApp();
 
   const [userNameInput, setUserNameInput] = useState(settings.userName);
@@ -208,7 +211,52 @@ export const SettingsView: React.FC = () => {
         </form>
       </div>
 
-      {/* 3. Atmosphere & Theme System (Shown SECOND) */}
+      {/* 3. Analytics Launch Card */}
+      <div
+        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border cursor-pointer hover:border-white/20 transition-all group"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+        onClick={() => {
+          feedback.playClick();
+          openExecutiveDashboard();
+        }}
+      >
+        <div className="flex items-center gap-3.5">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-md border shrink-0 transition-transform group-hover:scale-105"
+            style={{
+              backgroundColor: 'color-mix(in srgb, var(--accent-primary) 15%, transparent)',
+              borderColor: 'color-mix(in srgb, var(--accent-primary) 30%, transparent)',
+              color: 'var(--accent-primary)',
+            }}
+          >
+            <TrendingUp className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="font-display text-sm font-bold text-white tracking-tight">
+              Analytics
+            </h3>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Activity trends, task completion by category, and routine consistency.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="px-4 py-2 rounded-xl text-xs font-bold text-white pressable shadow-lg flex items-center gap-2 shrink-0 self-start sm:self-auto cursor-pointer"
+          style={{ backgroundColor: 'var(--accent-primary)' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            feedback.playClick();
+            openExecutiveDashboard();
+          }}
+        >
+          <span>Open Analytics</span>
+          <ArrowUpRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* 4. Atmosphere & Theme System (Shown NEXT) */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col gap-3.5"
         style={{ backgroundColor: 'var(--bg-card)' }}

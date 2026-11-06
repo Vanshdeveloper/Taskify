@@ -136,7 +136,7 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
               type="button"
               whileTap={{ scale: 0.94 }}
               onClick={() => onSelectDate(item.dateStr)}
-              className={`flex flex-col items-center justify-center min-w-[3.35rem] py-2.5 px-2 rounded-2xl pressable transition-all relative shrink-0 ${
+              className={`flex flex-col items-center justify-center min-w-[3.35rem] h-[4.5rem] px-2 rounded-2xl pressable transition-all relative shrink-0 ${
                 isSelected
                   ? 'text-white font-bold shadow-md'
                   : 'bg-white/[0.03] hover:bg-white/[0.07] text-zinc-400 border border-white/6'
@@ -145,25 +145,27 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
                 backgroundColor: isSelected ? 'var(--accent-primary)' : undefined,
               }}
             >
-              <span
-                className={`text-[9px] tracking-tight uppercase font-bold ${
-                  item.isToday
-                    ? isSelected
-                      ? 'text-white'
-                      : 'text-amber-400 font-extrabold'
-                    : isSelected
-                    ? 'text-white/80'
-                    : 'text-zinc-500'
-                }`}
-              >
-                {item.isToday ? 'Today' : item.dayLabel}
-              </span>
-              <span className="text-sm font-bold tracking-tight mt-0.5 font-mono">
-                {item.dayNum}
-              </span>
+              <div className="flex flex-col items-center justify-center -translate-y-0.5">
+                <span
+                  className={`text-[9px] tracking-tight uppercase font-bold leading-none ${
+                    item.isToday
+                      ? isSelected
+                        ? 'text-white'
+                        : 'text-amber-400 font-extrabold'
+                      : isSelected
+                      ? 'text-white/80'
+                      : 'text-zinc-500'
+                  }`}
+                >
+                  {item.isToday ? 'Today' : item.dayLabel}
+                </span>
+                <span className="text-sm font-bold tracking-tight font-mono leading-none mt-1.5">
+                  {item.dayNum}
+                </span>
+              </div>
 
-              {/* Task Indicator Dot with stable height */}
-              <div className="h-1 mt-1 flex items-center justify-center">
+              {/* Task Indicator Dot positioned at bottom without shifting center */}
+              <div className="absolute bottom-2 inset-x-0 flex items-center justify-center h-1 pointer-events-none">
                 {item.hasTasks && (
                   <span
                     className={`w-1 h-1 rounded-full ${

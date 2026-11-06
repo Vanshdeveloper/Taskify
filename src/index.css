@@ -206,6 +206,213 @@
     --dock-border: rgba(245, 158, 11, 0.22);
   }
 
+  /* Lavender Mist & Soft Lilac */
+  [data-theme="lavender-mist"] {
+    --bg-canvas: #13101c;
+    --bg-card: #1c182a;
+    --bg-card-hover: #242036;
+    --bg-subtle: #171322;
+    --bg-input: #100d17;
+    --border-subtle: rgba(250, 245, 255, 0.08);
+    --border-card: rgba(250, 245, 255, 0.12);
+    --border-focus: rgba(192, 132, 252, 0.5);
+    --accent-primary: #c084fc;        /* Soft Lilac */
+    --accent-primary-hover: #d8b4fe;
+    --accent-secondary: #f472b6;      /* Pastel Rose */
+    --accent-secondary-hover: #f9a8d4;
+    --accent-success: #4ade80;
+    --accent-highlight: #faf5ff;      /* Lavender Cream */
+    --text-primary: #faf5ff;
+    --text-secondary: #c4b5d4;
+    --text-muted: #7e6c92;
+    --dock-bg: #191426;
+    --dock-border: rgba(192, 132, 252, 0.22);
+  }
+
+  /* Peach Cashmere & Warm Truffle */
+  [data-theme="peach-cashmere"] {
+    --bg-canvas: #17110e;
+    --bg-card: #251b17;
+    --bg-card-hover: #30231e;
+    --bg-subtle: #1d1512;
+    --bg-input: #120d0b;
+    --border-subtle: rgba(255, 247, 237, 0.08);
+    --border-card: rgba(255, 247, 237, 0.12);
+    --border-focus: rgba(251, 146, 60, 0.5);
+    --accent-primary: #fb923c;        /* Peach Apricot */
+    --accent-primary-hover: #fdba74;
+    --accent-secondary: #f59e0b;      /* Honey Amber */
+    --accent-secondary-hover: #fbbf24;
+    --accent-success: #84cc16;
+    --accent-highlight: #fff7ed;      /* Cashmere Cream */
+    --text-primary: #fff7ed;
+    --text-secondary: #ccb4a5;
+    --text-muted: #826c5e;
+    --dock-bg: #201713;
+    --dock-border: rgba(251, 146, 60, 0.22);
+  }
+
+  /* Cherry Blossom & Sakura Noir */
+  [data-theme="cherry-blossom"] {
+    --bg-canvas: #150d14;
+    --bg-card: #231622;
+    --bg-card-hover: #2e1c2c;
+    --bg-subtle: #1a1019;
+    --bg-input: #110a10;
+    --border-subtle: rgba(255, 241, 242, 0.08);
+    --border-card: rgba(255, 241, 242, 0.12);
+    --border-focus: rgba(244, 114, 182, 0.5);
+    --accent-primary: #f472b6;        /* Sakura Petal */
+    --accent-primary-hover: #f9a8d4;
+    --accent-secondary: #fb7185;      /* Blossom Rose */
+    --accent-secondary-hover: #fda4af;
+    --accent-success: #4ade80;
+    --accent-highlight: #fff1f2;      /* Cherry Cream */
+    --text-primary: #fff1f2;
+    --text-secondary: #c9b0c2;
+    --text-muted: #7f6678;
+    --dock-bg: #1e131d;
+    --dock-border: rgba(244, 114, 182, 0.22);
+  }
+
+  /* Matcha Latte & Sweet Vanilla */
+  [data-theme="matcha-latte"] {
+    --bg-canvas: #0f1713;
+    --bg-card: #17241d;
+    --bg-card-hover: #1f3027;
+    --bg-subtle: #121c17;
+    --bg-input: #0b120f;
+    --border-subtle: rgba(240, 253, 244, 0.08);
+    --border-card: rgba(240, 253, 244, 0.12);
+    --border-focus: rgba(74, 222, 128, 0.5);
+    --accent-primary: #4ade80;        /* Sweet Mint */
+    --accent-primary-hover: #86efac;
+    --accent-secondary: #facc15;      /* Vanilla Foam */
+    --accent-secondary-hover: #fde047;
+    --accent-success: #22c55e;
+    --accent-highlight: #f0fdf4;      /* Milk Froth */
+    --text-primary: #f0fdf4;
+    --text-secondary: #acc1b3;
+    --text-muted: #627768;
+    --dock-bg: #141e18;
+    --dock-border: rgba(74, 222, 128, 0.22);
+  }
+
+  /* Cloud Nine & Cotton Candy */
+  [data-theme="cloud-nine"] {
+    --bg-canvas: #0d131f;
+    --bg-card: #151e30;
+    --bg-card-hover: #1b263d;
+    --bg-subtle: #101726;
+    --bg-input: #0a0e18;
+    --border-subtle: rgba(239, 246, 255, 0.08);
+    --border-card: rgba(239, 246, 255, 0.12);
+    --border-focus: rgba(96, 165, 250, 0.5);
+    --accent-primary: #60a5fa;        /* Soft Periwinkle */
+    --accent-primary-hover: #93c5fd;
+    --accent-secondary: #c084fc;      /* Cotton Lilac */
+    --accent-secondary-hover: #d8b4fe;
+    --accent-success: #34d399;
+    --accent-highlight: #eff6ff;      /* Cloud Milk */
+    --text-primary: #eff6ff;
+    --text-secondary: #adc0d9;
+    --text-muted: #647690;
+    --dock-bg: #121a2b;
+    --dock-border: rgba(96, 165, 250, 0.22);
+  }
+
+  /* Sage Studio & Danish Pine */
+  [data-theme="sage-studio"] {
+    --bg-canvas: #0d1411;
+    --bg-card: #15221c;
+    --bg-card-hover: #1c2c24;
+    --bg-subtle: #111a15;
+    --bg-input: #0a0f0d;
+    --border-subtle: rgba(240, 253, 244, 0.08);
+    --border-card: rgba(240, 253, 244, 0.12);
+    --border-focus: rgba(134, 239, 172, 0.5);
+    --accent-primary: #86efac;        /* Danish Sage */
+    --accent-primary-hover: #bbf7d0;
+    --accent-secondary: #94a3b8;      /* Clean Slate */
+    --accent-secondary-hover: #cbd5e1;
+    --accent-success: #4ade80;
+    --accent-highlight: #f0fdf4;      /* Pure Frost */
+    --text-primary: #f0fdf4;
+    --text-secondary: #abbcb2;
+    --text-muted: #63776a;
+    --dock-bg: #131e18;
+    --dock-border: rgba(134, 239, 172, 0.2);
+  }
+
+  /* Monochrome Pure & Titanium */
+  [data-theme="monochrome-pure"] {
+    --bg-canvas: #09090b;
+    --bg-card: #18181b;
+    --bg-card-hover: #27272a;
+    --bg-subtle: #121215;
+    --bg-input: #0e0e11;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-card: rgba(255, 255, 255, 0.14);
+    --border-focus: rgba(255, 255, 255, 0.4);
+    --accent-primary: #f4f4f5;        /* Titanium White */
+    --accent-primary-hover: #ffffff;
+    --accent-secondary: #a1a1aa;      /* Zinc Mist */
+    --accent-secondary-hover: #d4d4d8;
+    --accent-success: #10b981;
+    --accent-highlight: #ffffff;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --dock-bg: #141417;
+    --dock-border: rgba(255, 255, 255, 0.18);
+  }
+
+  /* Warm Sandstone & Alabaster */
+  [data-theme="warm-sandstone"] {
+    --bg-canvas: #141210;
+    --bg-card: #201c19;
+    --bg-card-hover: #2b2521;
+    --bg-subtle: #191614;
+    --bg-input: #100e0c;
+    --border-subtle: rgba(250, 247, 242, 0.08);
+    --border-card: rgba(250, 247, 242, 0.12);
+    --border-focus: rgba(212, 185, 150, 0.5);
+    --accent-primary: #d4b996;        /* Warm Sandstone */
+    --accent-primary-hover: #e5cdb0;
+    --accent-secondary: #a89078;      /* Desert Silt */
+    --accent-secondary-hover: #c4ad95;
+    --accent-success: #667c3e;
+    --accent-highlight: #faf7f2;      /* Alabaster Linen */
+    --text-primary: #faf7f2;
+    --text-secondary: #c2b5a7;
+    --text-muted: #7a6e61;
+    --dock-bg: #1c1815;
+    --dock-border: rgba(212, 185, 150, 0.22);
+  }
+
+  /* Midnight Ocean & Abyssal Cyan */
+  [data-theme="midnight-ocean"] {
+    --bg-canvas: #080e18;
+    --bg-card: #101a2c;
+    --bg-card-hover: #16243d;
+    --bg-subtle: #0c1422;
+    --bg-input: #060a12;
+    --border-subtle: rgba(240, 253, 250, 0.08);
+    --border-card: rgba(240, 253, 250, 0.12);
+    --border-focus: rgba(34, 211, 238, 0.5);
+    --accent-primary: #22d3ee;        /* Bioluminescent Cyan */
+    --accent-primary-hover: #67e8f9;
+    --accent-secondary: #38bdf8;      /* Marine Sky */
+    --accent-secondary-hover: #7dd3fc;
+    --accent-success: #10b981;
+    --accent-highlight: #f0fdfa;      /* Pure Foam */
+    --text-primary: #f0fdfa;
+    --text-secondary: #9fc1cd;
+    --text-muted: #577884;
+    --dock-bg: #0e1625;
+    --dock-border: rgba(34, 211, 238, 0.25);
+  }
+
   body {
     font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-canvas);

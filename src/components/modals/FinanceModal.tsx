@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, DollarSign } from 'lucide-react';
+import { X, Plus, Check, DollarSign } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import type { TransactionType, PaymentMethod } from '../../types';
@@ -16,7 +16,7 @@ interface FinanceModalProps {
 }
 
 export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) => {
-  const { addTransaction, settings } = useApp();
+  const { addTransaction, updateTransaction, editingTransaction, settings } = useApp();
   const today = getTodayString();
 
   const [txType, setTxType] = useState<TransactionType>('expense');
@@ -26,6 +26,27 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
   const [date, setDate] = useState(today);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Sync state when editingTransaction or isOpen changes
+  useEffect(() => {
+    if (isOpen && editingTransaction) {
+      setTxType(editingTransaction.type);
+      setAmount(String(editingTransaction.amount));
+      setDescription(editingTransaction.description || '');
+      setCategory(editingTransaction.category);
+      setDate(editingTransaction.date);
+      setPaymentMethod(editingTransaction.paymentMethod || 'card');
+      setValidationError(null);
+    } else if (isOpen && !editingTransaction) {
+      setTxType('expense');
+      setAmount('');
+      setDescription('');
+      setCategory('Food & Dining');
+      setDate(today);
+      setPaymentMethod('card');
+      setValidationError(null);
+    }
+  }, [isOpen, editingTransaction, today]);
 
   const expenseCategories = [
     'Food & Dining',
@@ -58,14 +79,25 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
       return;
     }
 
-    await addTransaction({
-      type: txType,
-      amount: numAmount,
-      description: description.trim() || category,
-      category,
-      date: date || today,
-      paymentMethod,
-    });
+    if (editingTransaction) {
+      await updateTransaction(editingTransaction.id, {
+        type: txType,
+        amount: numAmount,
+        description: description.trim() || category,
+        category,
+        date: date || today,
+        paymentMethod,
+      });
+    } else {
+      await addTransaction({
+        type: txType,
+        amount: numAmount,
+        description: description.trim() || category,
+        category,
+        date: date || today,
+        paymentMethod,
+      });
+    }
 
     feedback.playSuccessChime();
     setAmount('');
@@ -105,7 +137,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
               <div className="flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-emerald-400" />
                 <h3 className="font-display text-base font-bold text-white tracking-tight">
-                  New Cashflow Record
+                  {editingTransaction ? 'Edit Cashflow Record' : 'New Cashflow Record'}
                 </h3>
               </div>
               <button
@@ -247,11 +279,20 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
 
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg flex items-center gap-1.5 cursor-pointer"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
-                  <span>Log Cashflow</span>
+                  {editingTransaction ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <span>Save Changes</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                      <span>Log Cashflow</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

@@ -38,6 +38,7 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
     incrementHabit,
     transactions,
     setActiveTab,
+    openStreaks,
     settings,
   } = useApp();
 
@@ -105,7 +106,7 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
           badge: 'Streaks',
           onSelect: () => {
             onClose();
-            setActiveTab('streaks');
+            openStreaks();
           },
         },
         {

@@ -1,57 +1,57 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { HabitLog } from '../../types';
 
 interface StreakHeatmapProps {
   habitLogs: HabitLog[];
   habitId?: string;
   habitTitle?: string;
-  accentColor?: string; // e.g. '#f43f5e'
+  accentColor?: string;
 }
 
 export const StreakHeatmap: React.FC<StreakHeatmapProps> = ({
   habitLogs,
   habitId,
   habitTitle = 'All Habits Consistency',
-  accentColor = '#f43f5e',
+  accentColor = 'var(--accent-primary)',
 }) => {
-  // Generate last 14 weeks (98 days), grouped by day of week (0=Mon .. 6=Sun)
+  // Generate 14 weeks (98 days) strictly aligned Monday through Sunday
   const today = new Date();
-  const dayOfWeek = (today.getDay() + 6) % 7; // 0 = Mon, 6 = Sun
+  today.setHours(0, 0, 0, 0);
 
-  const days: { dateStr: string; dayIndex: number; isToday: boolean }[] = [];
-  const totalDays = 14 * 7; // 14 weeks
+  const todayDayOfWeek = (today.getDay() + 6) % 7; // 0 = Mon, 6 = Sun
 
-  for (let i = totalDays - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(today.getDate() - (i - dayOfWeek));
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const dateStr = `${y}-${m}-${day}`;
-    const dDayIndex = (d.getDay() + 6) % 7;
+  // End date of the 14-week block is this week's Sunday
+  const currentWeekSunday = new Date(today);
+  currentWeekSunday.setDate(today.getDate() + (6 - todayDayOfWeek));
 
-    days.push({
-      dateStr,
-      dayIndex: dDayIndex,
-      isToday: i === dayOfWeek,
-    });
+  // Start date is 14 weeks prior on Monday (14 * 7 - 1 days before current Sunday)
+  const startMonday = new Date(currentWeekSunday);
+  startMonday.setDate(currentWeekSunday.getDate() - (14 * 7 - 1));
+
+  // Build 14 week columns of 7 days each
+  const weeks: { dateStr: string; dayIndex: number; isToday: boolean; isFuture: boolean }[][] = [];
+  for (let w = 0; w < 14; w++) {
+    const col: { dateStr: string; dayIndex: number; isToday: boolean; isFuture: boolean }[] = [];
+    for (let d = 0; d < 7; d++) {
+      const cellDate = new Date(startMonday);
+      cellDate.setDate(startMonday.getDate() + (w * 7 + d));
+      const y = cellDate.getFullYear();
+      const m = String(cellDate.getMonth() + 1).padStart(2, '0');
+      const day = String(cellDate.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${day}`;
+      const isToday = cellDate.getTime() === today.getTime();
+      const isFuture = cellDate.getTime() > today.getTime();
+      col.push({ dateStr, dayIndex: d, isToday, isFuture });
+    }
+    weeks.push(col);
   }
 
-  // Group into 7 rows (Mon-Sun) x 14 columns
-  const rows: { label: string; cells: typeof days }[] = [
-    { label: 'M', cells: days.filter((d) => d.dayIndex === 0) },
-    { label: 'T', cells: days.filter((d) => d.dayIndex === 1) },
-    { label: 'W', cells: days.filter((d) => d.dayIndex === 2) },
-    { label: 'T', cells: days.filter((d) => d.dayIndex === 3) },
-    { label: 'F', cells: days.filter((d) => d.dayIndex === 4) },
-    { label: 'S', cells: days.filter((d) => d.dayIndex === 5) },
-    { label: 'S', cells: days.filter((d) => d.dayIndex === 6) },
-  ];
+  // Row labels Mon - Sun
+  const rowLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-  const startDateStr = days[0]?.dateStr ?? '';
-  const endDateStr = days[days.length - 1]?.dateStr ?? '';
+  const startDateStr = weeks[0]?.[0]?.dateStr ?? '';
+  const endDateStr = weeks[13]?.[6]?.dateStr ?? '';
 
   const formatDateLabel = (str: string) => {
     if (!str) return '';
@@ -64,24 +64,24 @@ export const StreakHeatmap: React.FC<StreakHeatmapProps> = ({
       habitId ? l.habitId === habitId && l.date === dateStr && l.completed : l.date === dateStr && l.completed
     );
 
-    if (relevantLogs.length === 0) return null;
-    if (relevantLogs.length === 1) return 'level-1';
-    if (relevantLogs.length === 2) return 'level-2';
-    return 'level-3';
+    if (relevantLogs.length === 0) return 0;
+    if (relevantLogs.length === 1) return 1;
+    if (relevantLogs.length === 2) return 2;
+    return 3;
   };
 
   return (
-    <div className="glass-card-pro p-4 sm:p-5 rounded-3xl border border-white/8 bg-[#12080a]/60 flex flex-col justify-between shadow-2xl relative overflow-hidden select-none">
-      {/* Subtle background glow */}
-      <div
-        className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] pointer-events-none opacity-20"
-        style={{ backgroundColor: accentColor }}
-      />
-
+    <div
+      className="p-4 sm:p-5 rounded-3xl border flex flex-col justify-between shadow-2xl relative overflow-hidden select-none"
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        borderColor: 'var(--border-card)',
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 relative z-10">
+      <div className="flex items-center justify-between mb-3 relative z-10">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-zinc-100 tracking-tight">
+          <span className="text-sm font-bold text-white tracking-tight">
             {habitTitle}
           </span>
         </div>
@@ -93,62 +93,86 @@ export const StreakHeatmap: React.FC<StreakHeatmapProps> = ({
       {/* Grid Canvas */}
       <div className="flex items-center justify-start sm:justify-center overflow-x-auto no-scrollbar py-2 px-1 relative z-10 w-full">
         <div className="flex flex-col gap-1.5 min-w-max mx-auto sm:mx-0">
-          {rows.map((row, rIdx) => (
-            <div key={rIdx} className="flex items-center gap-1.5">
-              <span className="w-4 text-[9px] font-mono text-zinc-500 text-center font-bold">
-                {row.label}
-              </span>
-              <div className="flex items-center gap-1.5">
-                {row.cells.map((cell) => {
-                  const fill = getCellFill(cell.dateStr);
-                  const isFilled = fill !== null;
+          {rowLabels.map((label, rIdx) => {
+            const rowCells = weeks.map((w) => w[rIdx]);
 
-                  return (
-                    <motion.div
-                      key={cell.dateStr}
-                      whileHover={{ scale: 1.35 }}
-                      transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-[4px] cursor-pointer transition-colors ${
-                        cell.isToday ? 'ring-1 ring-white/60' : ''
-                      }`}
-                      style={{
-                        backgroundColor:
-                          fill === 'level-3'
-                            ? accentColor
-                            : fill === 'level-2'
-                            ? `${accentColor}cc`
-                            : fill === 'level-1'
-                            ? `${accentColor}88`
-                            : 'rgba(255, 255, 255, 0.04)',
-                        boxShadow: isFilled
-                          ? `0 0 10px ${accentColor}80`
-                          : 'none',
-                      }}
-                      title={`${cell.dateStr}: ${isFilled ? 'Completed' : 'No entries'}`}
-                    />
-                  );
-                })}
+            return (
+              <div key={rIdx} className="flex items-center gap-1.5">
+                <span className="w-3 text-[9px] font-mono text-zinc-500 text-center font-bold shrink-0">
+                  {label}
+                </span>
+
+                <div className="flex items-center gap-1.5">
+                  {rowCells.map((cell) => {
+                    const fillLevel = cell.isFuture ? 0 : getCellFill(cell.dateStr);
+                    const isFilled = fillLevel > 0;
+
+                    let bg = 'rgba(255, 255, 255, 0.04)';
+                    if (cell.isFuture) {
+                      bg = 'rgba(255, 255, 255, 0.015)';
+                    } else if (fillLevel === 3) {
+                      bg = accentColor;
+                    } else if (fillLevel === 2) {
+                      bg = `color-mix(in srgb, ${accentColor} 70%, transparent)`;
+                    } else if (fillLevel === 1) {
+                      bg = `color-mix(in srgb, ${accentColor} 40%, transparent)`;
+                    }
+
+                    return (
+                      <motion.div
+                        key={cell.dateStr}
+                        whileHover={!cell.isFuture ? { scale: 1.3 } : undefined}
+                        transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+                        className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-[4px] transition-colors shrink-0 ${
+                          cell.isToday
+                            ? 'ring-1.5 ring-white shadow-sm'
+                            : cell.isFuture
+                            ? 'opacity-30'
+                            : ''
+                        }`}
+                        style={{
+                          backgroundColor: bg,
+                          boxShadow: isFilled
+                            ? `0 0 8px color-mix(in srgb, ${accentColor} 50%, transparent)`
+                            : 'none',
+                        }}
+                        title={`${cell.dateStr}${cell.isToday ? ' (Today)' : ''}: ${
+                          cell.isFuture
+                            ? 'Upcoming'
+                            : isFilled
+                            ? `${fillLevel} completed`
+                            : 'No entries'
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* Date Range Navigation Footer */}
+      {/* Legend & Date Range Footer */}
       <div className="flex items-center justify-between pt-3 mt-2 hairline-t text-xs relative z-10">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            className="w-6 h-6 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 flex items-center justify-center pressable"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            className="w-6 h-6 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 flex items-center justify-center pressable"
-          >
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-mono">
+          <span>Less</span>
+          <div className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-[2px] bg-white/[0.04]" />
+            <span
+              className="w-2.5 h-2.5 rounded-[2px]"
+              style={{ backgroundColor: `color-mix(in srgb, ${accentColor} 40%, transparent)` }}
+            />
+            <span
+              className="w-2.5 h-2.5 rounded-[2px]"
+              style={{ backgroundColor: `color-mix(in srgb, ${accentColor} 70%, transparent)` }}
+            />
+            <span
+              className="w-2.5 h-2.5 rounded-[2px]"
+              style={{ backgroundColor: accentColor }}
+            />
+          </div>
+          <span>More</span>
         </div>
 
         <span className="text-[11px] font-mono text-zinc-400">

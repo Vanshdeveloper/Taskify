@@ -30,6 +30,7 @@ export const HabitsView: React.FC = () => {
     getHabitStreak,
     requestDelete,
     openHabitModal,
+    openEditHabitModal,
   } = useApp();
 
   const today = getTodayString();
@@ -273,7 +274,8 @@ export const HabitsView: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.96 }}
                       transition={{ type: 'spring', damping: 28, stiffness: 380 }}
-                      className={`solid-card p-4 sm:p-5 flex flex-col justify-between gap-3.5 rounded-2xl sm:rounded-3xl border transition-all duration-200 relative overflow-hidden ${
+                      onClick={() => openEditHabitModal(habit)}
+                      className={`solid-card p-4 sm:p-5 flex flex-col justify-between gap-3.5 rounded-2xl sm:rounded-3xl border transition-all duration-200 relative overflow-hidden cursor-pointer ${
                         isCompleted ? 'border-emerald-500/35 ring-1 ring-emerald-500/20' : 'hover:border-white/20'
                       }`}
                       style={{
@@ -339,7 +341,10 @@ export const HabitsView: React.FC = () => {
                           </div>
                           <button
                             type="button"
-                            onClick={() => handleDeleteHabit(habit.id, habit.name)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteHabit(habit.id, habit.name);
+                            }}
                             className="opacity-30 hover:opacity-100 p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 pressable transition-all cursor-pointer"
                             title="Delete routine"
                           >
@@ -389,7 +394,10 @@ export const HabitsView: React.FC = () => {
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
-                            onClick={() => decrementHabit(habit.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              decrementHabit(habit.id);
+                            }}
                             disabled={count <= 0}
                             className="w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-400 hover:text-white flex items-center justify-center pressable border border-white/6 cursor-pointer transition-colors"
                             title="Decrement counter"
@@ -399,7 +407,10 @@ export const HabitsView: React.FC = () => {
 
                           <button
                             type="button"
-                            onClick={(e) => incrementHabit(habit.id, e)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              incrementHabit(habit.id, e);
+                            }}
                             className="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-white flex items-center justify-center pressable border border-white/8 cursor-pointer transition-colors"
                             title="Increment counter"
                           >
@@ -413,6 +424,7 @@ export const HabitsView: React.FC = () => {
                           whileTap={{ scale: 0.96 }}
                           type="button"
                           onClick={(e) => {
+                            e.stopPropagation();
                             if (isCompleted) {
                               toggleHabit(habit.id, e);
                             } else {
@@ -467,7 +479,8 @@ export const HabitsView: React.FC = () => {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98 }}
-                    className={`solid-card p-4 sm:p-4.5 rounded-2xl border transition-all flex flex-col gap-3 ${
+                    onClick={() => openEditHabitModal(habit)}
+                    className={`solid-card p-4 sm:p-4.5 rounded-2xl border transition-all flex flex-col gap-3 cursor-pointer hover:border-white/20 ${
                       isCompleted ? 'border-emerald-500/30' : ''
                     }`}
                     style={{
@@ -482,7 +495,10 @@ export const HabitsView: React.FC = () => {
                         <motion.button
                           whileTap={{ scale: 0.92 }}
                           type="button"
-                          onClick={(e) => toggleHabit(habit.id, e)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleHabit(habit.id, e);
+                          }}
                           className="relative w-11 h-11 shrink-0 rounded-full flex items-center justify-center cursor-pointer group"
                           title={isCompleted ? 'Completed! Click to reset' : 'Click to complete routine'}
                         >
@@ -571,7 +587,10 @@ export const HabitsView: React.FC = () => {
 
                         <button
                           type="button"
-                          onClick={() => handleDeleteHabit(habit.id, habit.name)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteHabit(habit.id, habit.name);
+                          }}
                           className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 pressable transition-all cursor-pointer opacity-50 hover:opacity-100"
                           title="Delete routine"
                         >
@@ -599,7 +618,10 @@ export const HabitsView: React.FC = () => {
                       <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/8 shadow-inner">
                         <button
                           type="button"
-                          onClick={() => decrementHabit(habit.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            decrementHabit(habit.id);
+                          }}
                           disabled={count <= 0}
                           className="w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable cursor-pointer transition-colors"
                         >
@@ -618,7 +640,10 @@ export const HabitsView: React.FC = () => {
 
                         <button
                           type="button"
-                          onClick={(e) => incrementHabit(habit.id, e)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            incrementHabit(habit.id, e);
+                          }}
                           className="w-7 h-7 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] text-white flex items-center justify-center pressable cursor-pointer transition-colors"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -630,7 +655,10 @@ export const HabitsView: React.FC = () => {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         type="button"
-                        onClick={(e) => toggleHabit(habit.id, e)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleHabit(habit.id, e);
+                        }}
                         className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold pressable transition-all border cursor-pointer ${
                           isCompleted
                             ? 'shadow-md border-emerald-500/50 bg-emerald-500/20 text-emerald-300'

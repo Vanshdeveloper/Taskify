@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Repeat, Bell, Sunrise, Sun, Moon, Clock } from 'lucide-react';
+import { X, Plus, Check, Repeat, Bell, Sunrise, Sun, Moon, Clock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { HabitTimeOfDay } from '../../types';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -17,7 +17,7 @@ interface HabitModalProps {
 }
 
 export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
-  const { addHabit } = useApp();
+  const { addHabit, updateHabit, editingHabit } = useApp();
 
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Health');
@@ -32,6 +32,35 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
   const [reminderFrequency, setReminderFrequency] = useState(1);
   const [reminderTimes, setReminderTimes] = useState<string[]>(['09:00']);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Sync state when editingHabit or isOpen changes
+  useEffect(() => {
+    if (isOpen && editingHabit) {
+      setName(editingHabit.name);
+      setCategory(editingHabit.category);
+      setTargetCount(String(editingHabit.targetCount));
+      setUnit(editingHabit.unit);
+      setTimeOfDay(editingHabit.timeOfDay || 'morning');
+      setColor(editingHabit.color);
+      setSelectedIcon(editingHabit.icon || 'target');
+      setReminderEnabled(!!editingHabit.reminderEnabled);
+      setReminderTimes(editingHabit.reminderTimes || ['09:00']);
+      setReminderFrequency(editingHabit.reminderTimes?.length || 1);
+      setValidationError(null);
+    } else if (isOpen && !editingHabit) {
+      setName('');
+      setCategory('Health');
+      setTargetCount('1');
+      setUnit('times');
+      setTimeOfDay('morning');
+      setColor('#f26a36');
+      setSelectedIcon('target');
+      setReminderEnabled(false);
+      setReminderTimes(['09:00']);
+      setReminderFrequency(1);
+      setValidationError(null);
+    }
+  }, [isOpen, editingHabit]);
 
   const categories = ['Health', 'Intellect', 'Fitness', 'Productivity', 'Mindset', 'Creative'];
 
@@ -96,22 +125,40 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
 
     const validTimes = reminderTimes.map((t) => t.trim()).filter(Boolean);
 
-    await addHabit({
-      name: name.trim(),
-      category: category.trim() || 'Health',
-      targetCount: Math.max(1, parseInt(targetCount, 10) || 1),
-      unit: unit.trim() || 'times',
-      frequency: 'daily',
-      timeOfDay,
-      color,
-      icon: selectedIcon,
-      reminderEnabled,
-      reminderTimes: reminderEnabled
-        ? validTimes.length
-          ? validTimes
-          : ['09:00']
-        : undefined,
-    });
+    if (editingHabit) {
+      await updateHabit(editingHabit.id, {
+        name: name.trim(),
+        category: category.trim() || 'Health',
+        targetCount: Math.max(1, parseInt(targetCount, 10) || 1),
+        unit: unit.trim() || 'times',
+        timeOfDay,
+        color,
+        icon: selectedIcon,
+        reminderEnabled,
+        reminderTimes: reminderEnabled
+          ? validTimes.length
+            ? validTimes
+            : ['09:00']
+          : undefined,
+      });
+    } else {
+      await addHabit({
+        name: name.trim(),
+        category: category.trim() || 'Health',
+        targetCount: Math.max(1, parseInt(targetCount, 10) || 1),
+        unit: unit.trim() || 'times',
+        frequency: 'daily',
+        timeOfDay,
+        color,
+        icon: selectedIcon,
+        reminderEnabled,
+        reminderTimes: reminderEnabled
+          ? validTimes.length
+            ? validTimes
+            : ['09:00']
+          : undefined,
+      });
+    }
 
     feedback.playSuccessChime();
     setName('');
@@ -153,7 +200,7 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
               <div className="flex items-center gap-2">
                 <Repeat className="w-4 h-4 text-amber-400" />
                 <h3 className="font-display text-base font-bold text-white tracking-tight">
-                  New Routine Habit
+                  {editingHabit ? 'Edit Routine Habit' : 'New Routine Habit'}
                 </h3>
               </div>
               <button
@@ -474,8 +521,17 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                   className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg flex items-center gap-1.5 cursor-pointer"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
-                  <span>Create Routine</span>
+                  {editingHabit ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <span>Save Changes</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                      <span>Create Routine</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

@@ -10,6 +10,7 @@ import { MobileTabBar } from './components/layout/MobileTabBar';
 import { SlideOverInspector } from './components/layout/SlideOverInspector';
 import { LiquidTabViewport } from './components/layout/LiquidTabViewport';
 import { StreaksView } from './components/streaks/StreaksView';
+import { ExecutiveDashboardView } from './components/analytics/ExecutiveDashboardView';
 import { SettingsView } from './components/settings/SettingsView';
 import { QuickCaptureModal } from './components/modals/QuickCaptureModal';
 import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
@@ -47,6 +48,8 @@ const MainLayout: React.FC = () => {
     isInspectorOpen,
     openInspector,
     closeInspector,
+    isExecutiveDashboardOpen,
+    closeExecutiveDashboard,
   } = useApp();
 
   // Maximum active streak for live navbar flame counter
@@ -105,12 +108,24 @@ const MainLayout: React.FC = () => {
       } else if (e.key === 'Escape') {
         if (isStreaksOpen) closeStreaks();
         if (isInspectorOpen) closeInspector();
+        if (isExecutiveDashboardOpen) closeExecutiveDashboard();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setActiveTab, openSearchModal, openStreaks, closeStreaks, isStreaksOpen, openInspector, closeInspector, isInspectorOpen]);
+  }, [
+    setActiveTab,
+    openSearchModal,
+    openStreaks,
+    closeStreaks,
+    isStreaksOpen,
+    openInspector,
+    closeInspector,
+    isInspectorOpen,
+    isExecutiveDashboardOpen,
+    closeExecutiveDashboard,
+  ]);
 
   return (
     <div
@@ -166,6 +181,27 @@ const MainLayout: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Dedicated Full-Screen Analytics Dashboard */}
+      <AnimatePresence>
+        {isExecutiveDashboardOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            className="fixed inset-0 z-50 overflow-y-auto px-3.5 sm:px-6 lg:px-8 pb-20 sm:pb-12 no-scrollbar"
+            style={{
+              backgroundColor: 'var(--bg-canvas)',
+              paddingTop: 'calc(max(var(--sat, 0px), 0.75rem) + 0.5rem)',
+            }}
+          >
+            <ExecutiveDashboardView onClose={closeExecutiveDashboard} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
 
       <MobileTabBar />
       <QuickCaptureModal />

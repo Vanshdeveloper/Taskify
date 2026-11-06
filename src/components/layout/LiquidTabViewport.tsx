@@ -54,9 +54,9 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
     // Only primary button (mouse left-click or touch)
     if (e.button !== 0) return;
 
-    // Do not capture drag if user is interacting with form controls or interactive buttons
+    // Do not capture drag if user is typing in form inputs or using dedicated slider thumbs
     const target = e.target as HTMLElement;
-    if (target.closest('button, input, textarea, select, a, [role="button"], .pressable')) {
+    if (target.closest('input:not([type="button"]):not([type="submit"]):not([type="reset"]), textarea, select, [data-no-swipe], .no-tab-swipe')) {
       return;
     }
 
@@ -121,6 +121,13 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
     if (!isPointerDown.current) return;
 
     if (isDragging.current && trackRef.current) {
+      // Suppress any accidental click on the source element when an intentional drag occurred
+      const preventClick = (clickEvent: MouseEvent) => {
+        clickEvent.stopPropagation();
+        clickEvent.preventDefault();
+      };
+      window.addEventListener('click', preventClick, { capture: true, once: true });
+
       try {
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
       } catch {}

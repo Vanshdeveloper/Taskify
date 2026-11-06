@@ -17,13 +17,15 @@ import {
   Smartphone,
   Laptop,
   CheckCircle2,
+  TrendingUp,
+  ArrowUpRight,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
 import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from '../settings/ThemeStudio';
-import type { NavbarHeight, NavbarGlass, NavbarLogoAlign } from '../../types';
+import type { NavbarHeight, NavbarGlass } from '../../types';
 
 interface SlideOverInspectorProps {
   isOpen: boolean;
@@ -40,6 +42,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
     exportDataAsJson,
     importDataFromJson,
     resetToDefaults,
+    openExecutiveDashboard,
   } = useApp();
 
   const [userNameInput, setUserNameInput] = useState(settings.userName);
@@ -84,11 +87,6 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   const handleNavbarGlassChange = async (glass: NavbarGlass) => {
     feedback.playClick();
     await updateSettings({ navbarGlass: glass });
-  };
-
-  const handleNavbarLogoAlignChange = async (align: NavbarLogoAlign) => {
-    feedback.playClick();
-    await updateSettings({ navbarLogoAlign: align });
   };
 
   const handleExportBackup = async () => {
@@ -272,7 +270,54 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                 </form>
               </div>
 
-              {/* Section 2: Themes & Palettes Studio (Shown SECOND) */}
+              {/* Section 2: Analytics Launch Card */}
+              <div
+                className="solid-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border cursor-pointer hover:border-white/20 transition-all group"
+                style={{ borderColor: 'var(--border-card)' }}
+                onClick={() => {
+                  feedback.playClick();
+                  onClose();
+                  openExecutiveDashboard();
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shadow-md border shrink-0 transition-transform group-hover:scale-105"
+                    style={{
+                      backgroundColor: 'color-mix(in srgb, var(--accent-primary) 15%, transparent)',
+                      borderColor: 'color-mix(in srgb, var(--accent-primary) 30%, transparent)',
+                      color: 'var(--accent-primary)',
+                    }}
+                  >
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xs font-bold text-white tracking-tight">
+                      Analytics
+                    </h3>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
+                      Activity trends, category progress, and routine consistency.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white pressable shadow-md flex items-center gap-1.5 shrink-0 self-start sm:self-auto cursor-pointer"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    feedback.playClick();
+                    onClose();
+                    openExecutiveDashboard();
+                  }}
+                >
+                  <span>Open</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Section 3: Themes & Palettes Studio */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Palette className="w-4 h-4 text-zinc-400" />
@@ -362,42 +407,6 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                               </span>
                               <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">
                                 {g.desc}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Logo Alignment */}
-                    <div className="sm:col-span-2">
-                      <label className="block text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
-                        Brand Logo Alignment
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {(
-                          [
-                            { id: 'left', label: 'Left Aligned', desc: 'Classic layout' },
-                            { id: 'center', label: 'Center Aligned', desc: 'Centered symmetry' },
-                          ] as const
-                        ).map((a) => {
-                          const isSel = (settings.navbarLogoAlign || 'left') === a.id;
-                          return (
-                            <button
-                              key={a.id}
-                              type="button"
-                              onClick={() => handleNavbarLogoAlignChange(a.id)}
-                              className={`p-2 rounded-xl border text-left transition-all cursor-pointer pressable ${
-                                isSel
-                                  ? 'border-white/30 ring-1 ring-white/20 bg-white/[0.08]'
-                                  : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
-                              }`}
-                            >
-                              <span className="text-xs font-bold text-white block">
-                                {a.label}
-                              </span>
-                              <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">
-                                {a.desc}
                               </span>
                             </button>
                           );

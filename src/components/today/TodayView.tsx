@@ -28,11 +28,13 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
   const {
     tasks,
     toggleTask,
+    openEditTaskModal,
     habits,
     habitLogs,
     financeStats,
     settings,
     setActiveTab,
+    openStreaks,
     requestDelete,
     deleteTask,
     setIsQuickCaptureOpen,
@@ -212,14 +214,14 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveTab('tasks')}
-                  className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg pressable shrink-0 border"
+                  onClick={() => openEditTaskModal(topFocusTask)}
+                  className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg pressable shrink-0 border cursor-pointer"
                   style={{
                     backgroundColor: 'var(--accent-highlight)',
                     color: '#160f0d',
                     borderColor: 'var(--border-card)',
                   }}
-                  title="View in Tasks"
+                  title="Edit Objective"
                 >
                   <Edit3 className="w-4 h-4" />
                 </button>
@@ -237,7 +239,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
           )}
         </div>
 
-        {/* Right Bento Column: 10-Dot Progress Matrix & Safe Velocity + Habits (5 cols) */}
+        {/* Right Bento Column: 10-Dot Progress Matrix & Safe Spend + Habits (5 cols) */}
         <div className="lg:col-span-5 flex flex-col justify-between gap-3.5">
           {/* Dot Progress Matrix */}
           <DotProgressMatrix
@@ -247,16 +249,16 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
             dotColor="var(--accent-primary)"
           />
 
-          {/* Safe Velocity & Daily Habit Streaks Side-by-Side in 2-column grid */}
+          {/* Safe Spend & Daily Habit Streaks Side-by-Side in 2-column grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-w-0">
-            {/* Safe Velocity & Daily Cashflow */}
+            {/* Safe Spend & Daily Cashflow */}
             <div
               onClick={() => setActiveTab('finance')}
               className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable min-w-0 overflow-hidden"
               style={{ backgroundColor: 'var(--bg-card)' }}
             >
               <div className="flex items-center justify-between text-xs text-zinc-400 gap-1 min-w-0">
-                <span className="font-display font-medium text-zinc-300 truncate">Safe Velocity</span>
+                <span className="font-display font-medium text-zinc-300 truncate">Safe Spend</span>
                 <DollarSign className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
               </div>
               <div className="mt-2 flex flex-col font-mono tabular-nums min-w-0">
@@ -296,7 +298,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
 
             {/* Daily Habit Streaks Quick Pulse */}
             <div
-              onClick={() => setActiveTab('streaks')}
+              onClick={openStreaks}
               className="solid-card p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between h-full pressable min-w-0 overflow-hidden"
               style={{ backgroundColor: 'var(--bg-card)' }}
             >
@@ -366,7 +368,8 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96 }}
                     transition={{ type: 'spring', damping: 26, stiffness: 360 }}
-                    className={`solid-card p-4 rounded-2xl flex flex-col justify-between shadow-xl border relative transition-all group hover:border-white/20 ${
+                    onClick={() => openEditTaskModal(task)}
+                    className={`solid-card p-4 rounded-2xl flex flex-col justify-between shadow-xl border relative transition-all group hover:border-white/20 cursor-pointer ${
                       isDone ? 'opacity-65' : ''
                     }`}
                     style={{ backgroundColor: 'var(--bg-card)' }}
@@ -400,8 +403,11 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
 
                         <button
                           type="button"
-                          onClick={() => handleDeleteTask(task.id, task.title)}
-                          className="opacity-40 group-hover:opacity-100 p-1 rounded-md text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTask(task.id, task.title);
+                          }}
+                          className="opacity-40 group-hover:opacity-100 p-1 rounded-md text-zinc-500 hover:text-rose-400 pressable transition-opacity cursor-pointer"
                           title="Delete task"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -437,8 +443,11 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         type="button"
-                        onClick={(e) => toggleTask(task.id, e)}
-                        className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-[11px] pressable transition-all border ${
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleTask(task.id, e);
+                        }}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-[11px] pressable transition-all border cursor-pointer ${
                           isDone
                             ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                             : 'hover:border-white/25 text-white'

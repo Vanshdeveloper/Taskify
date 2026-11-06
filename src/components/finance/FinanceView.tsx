@@ -37,6 +37,7 @@ export const FinanceView: React.FC = () => {
     updateSettings,
     requestDelete,
     openFinanceModal,
+    openEditFinanceModal,
   } = useApp();
 
   const today = getTodayString();
@@ -118,7 +119,7 @@ export const FinanceView: React.FC = () => {
             Wealth & Cashflow
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Maintain daily safe spend discipline and inspect capital velocity.
+            Maintain daily safe spend discipline and track your monthly budget.
           </p>
         </div>
 
@@ -144,7 +145,7 @@ export const FinanceView: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 truncate">
-              Safe Velocity
+              Safe Spend
             </span>
             <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
           </div>
@@ -468,7 +469,8 @@ export const FinanceView: React.FC = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-lg border transition-all"
+                  onClick={() => openEditFinanceModal(tx)}
+                  className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-lg border transition-all cursor-pointer hover:border-white/20"
                   style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
                 >
                   <div>
@@ -495,8 +497,11 @@ export const FinanceView: React.FC = () => {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteTransaction(tx.id, tx.description)}
-                        className="opacity-40 hover:opacity-100 p-1 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTransaction(tx.id, tx.description);
+                        }}
+                        className="opacity-40 hover:opacity-100 p-1 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity cursor-pointer"
                         title="Delete record"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -554,7 +559,8 @@ export const FinanceView: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="group flex items-center justify-between p-3.5 sm:p-4 text-zinc-200 hover:bg-white/[0.02] transition-colors"
+                  onClick={() => openEditFinanceModal(tx)}
+                  className="group flex items-center justify-between p-3.5 sm:p-4 text-zinc-200 hover:bg-white/[0.04] transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3.5 min-w-0 pr-3">
                     <div
@@ -605,8 +611,11 @@ export const FinanceView: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => handleDeleteTransaction(tx.id, tx.description)}
-                      className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteTransaction(tx.id, tx.description);
+                      }}
+                      className="opacity-40 hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 pressable transition-opacity shrink-0 cursor-pointer"
                       title="Delete record"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

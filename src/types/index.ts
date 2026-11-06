@@ -73,7 +73,6 @@ export interface Transaction {
 
 export type NavbarHeight = 'compact' | 'default' | 'spacious';
 export type NavbarGlass = 'solid' | 'glass' | 'vibrant';
-export type NavbarLogoAlign = 'left' | 'center';
 
 export interface UserSettings {
   monthlyBudget: number;
@@ -84,7 +83,6 @@ export interface UserSettings {
   theme?: AppTheme;
   navbarHeight?: NavbarHeight;
   navbarGlass?: NavbarGlass;
-  navbarLogoAlign?: NavbarLogoAlign;
 }
 
 export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'settings';

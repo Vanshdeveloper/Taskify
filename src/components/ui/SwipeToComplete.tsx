@@ -48,6 +48,7 @@ export const SwipeToComplete: React.FC<SwipeToCompleteProps> = ({
   return (
     <div
       ref={containerRef}
+      data-no-swipe="true"
       className="relative w-full h-11 rounded-full bg-black/30 border border-white/10 overflow-hidden flex items-center px-1 select-none"
     >
       {/* Background track fill on drag */}

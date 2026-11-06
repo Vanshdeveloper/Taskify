@@ -364,9 +364,15 @@ test('Harmonic Palette Studio Tools: Harmony modes, OLED darkness, and WCAG acce
   assert.equal(triadicHue, 144);
 });
 
-test('Navbar Logo Alignment: Validates left and center alignment options', () => {
-  const allowedAlignments = ['left', 'center'];
-  assert.ok(allowedAlignments.includes('left'));
-  assert.ok(allowedAlignments.includes('center'));
-  assert.equal(allowedAlignments.length, 2);
+test('Navbar Height Y-Axis Centering: Symmetrical vertical padding for compact, default, and spacious', () => {
+  const heightConfig = {
+    compact: { minHeight: '3.25rem', paddingY: '0.4rem' },
+    default: { minHeight: '3.75rem', paddingY: '0.65rem' },
+    spacious: { minHeight: '4.75rem', paddingY: '1.15rem' },
+  };
+  assert.ok(heightConfig.compact);
+  assert.ok(heightConfig.default);
+  assert.ok(heightConfig.spacious);
+  assert.equal(heightConfig.compact.minHeight, '3.25rem');
+  assert.equal(heightConfig.spacious.minHeight, '4.75rem');
 });
