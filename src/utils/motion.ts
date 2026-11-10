@@ -1,4 +1,35 @@
 // Apple-grade unified fluid motion tokens for consistent 60-120fps physics
+
+/**
+ * Standard Apple Design System Spring Tokens (Directive 2 & M2 Contract)
+ * - modal: Critically damped (zeta = 1.0, duration = 0.35s) for zero overshoot dialog presentation.
+ * - sheet: Critically damped (zeta = 1.0, duration = 0.35s) for slide-over side drawers and bottom sheets.
+ * - snappy: Snappy response (duration = 0.30s, damping = 28, stiffness = 380) for slider rebounds and flicks.
+ */
+export const APPLE_SPRINGS = {
+  modal: {
+    type: 'spring' as const,
+    damping: 38,
+    stiffness: 360,
+    bounce: 0,
+    duration: 0.35,
+  },
+  sheet: {
+    type: 'spring' as const,
+    damping: 36,
+    stiffness: 340,
+    bounce: 0,
+    duration: 0.35,
+  },
+  snappy: {
+    type: 'spring' as const,
+    damping: 28,
+    stiffness: 380,
+    bounce: 0,
+    duration: 0.30,
+  },
+} as const;
+
 export const SPRING_LIQUID = {
   type: 'spring' as const,
   damping: 30,
@@ -18,11 +49,10 @@ export const SPRING_PILL = {
   stiffness: 420,
 };
 
-export const SPRING_MODAL = {
-  type: 'spring' as const,
-  damping: 28,
-  stiffness: 380,
-};
+// Aliases for backwards compatibility across existing components
+export const SPRING_MODAL = APPLE_SPRINGS.modal;
+export const SPRING_SHEET = APPLE_SPRINGS.sheet;
+export const SPRING_SNAPPY = APPLE_SPRINGS.snappy;
 
 // Viscous fluid damping (newly greased / oiled glass glide)
 export const SPRING_VISCOUS_FLUID = {

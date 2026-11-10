@@ -1,14 +1,17 @@
-import React, { createContext, useContext, useEffect, useState, useMemo, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useMotionValue, type MotionValue } from 'framer-motion';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, getTodayString } from '../db';
 import { seedInitialDataIfNeeded } from '../db/seed';
-import type { Task, Habit, HabitLog, Transaction, UserSettings, ActiveTab, ReminderAlert } from '../types';
+import type { Task, Habit, HabitLog, Transaction, UserSettings, ActiveTab, ReminderAlert, TaskTemplate, Subtask } from '../types';
 import type { DeleteConfirmOptions } from '../components/modals/ConfirmDeleteModal';
 import { feedback, triggerCompletionConfetti } from '../utils/feedback';
 import { formatTime12Hour, sendNativeNotification, requestNotificationPermission, syncNativeScheduledReminders } from '../utils/reminder';
 import { autodetectCurrency } from '../utils/currency';
 import { getPokeNotification, DAILY_POKE_TIMES } from '../utils/pokeMessages';
+import { DAYPART_SCHEDULE, generateDaypartGreeting } from '../utils/daypartGreetings';
+import { BUILTIN_TASK_TEMPLATES, duplicateTaskData, createTaskFromTemplateData } from '../utils/taskTemplates';
+import { syncWidgetData, pollWidgetEvents } from '../utils/widgetSync';
 
 interface FinanceStats {
   monthlyIncome: number;
@@ -20,6 +23,7 @@ interface FinanceStats {
 }
 
 interface AppContextType {
+  isDbReady: boolean;
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   slideProgress: MotionValue<number>;
@@ -32,6 +36,10 @@ interface AppContextType {
   toggleTask: (id: string, event?: React.MouseEvent) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+  duplicateTask: (id: string) => Promise<string>;
+  createTaskFromTemplate: (templateIdOrData: string | TaskTemplate) => Promise<string>;
+  updateTaskSubtasks: (taskId: string, subtasks: Subtask[]) => Promise<void>;
+
 
   // Habits
   habits: Habit[];
@@ -108,8 +116,10 @@ const DEFAULT_SETTINGS: UserSettings = {
   currency: typeof window !== 'undefined' ? autodetectCurrency().symbol : '$',
   userName: 'Alex',
   darkMode: true,
+  appAesthetic: 'dynamic-theme',
   navbarHeight: 'default',
   navbarGlass: 'solid',
+  hapticFeedback: true,
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -126,9 +136,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeReminderAlert, setActiveReminderAlert] = useState<ReminderAlert | null>(null);
   const firedReminderKeysRef = useRef<Set<string>>(new Set());
 
-  const dismissReminderAlert = () => {
+  const dismissReminderAlert = useCallback(() => {
     setActiveReminderAlert(null);
-  };
+  }, []);
 
   // Shared Modals & Editing state
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -145,75 +155,80 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const [isExecutiveDashboardOpen, setIsExecutiveDashboardOpen] = useState(false);
 
-  const openTaskModal = () => {
+  const openTaskModal = useCallback(() => {
     setEditingTask(null);
     setIsTaskModalOpen(true);
-  };
-  const openEditTaskModal = (task: Task) => {
+  }, []);
+  const openEditTaskModal = useCallback((task: Task) => {
     setEditingTask(task);
     setIsTaskModalOpen(true);
-  };
-  const closeTaskModal = () => {
+  }, []);
+  const closeTaskModal = useCallback(() => {
     setIsTaskModalOpen(false);
     setEditingTask(null);
-  };
+  }, []);
 
-  const openHabitModal = () => {
+  const openHabitModal = useCallback(() => {
     setEditingHabit(null);
     setIsHabitModalOpen(true);
-  };
-  const openEditHabitModal = (habit: Habit) => {
+  }, []);
+  const openEditHabitModal = useCallback((habit: Habit) => {
     setEditingHabit(habit);
     setIsHabitModalOpen(true);
-  };
-  const closeHabitModal = () => {
+  }, []);
+  const closeHabitModal = useCallback(() => {
     setIsHabitModalOpen(false);
     setEditingHabit(null);
-  };
+  }, []);
 
-  const openFinanceModal = () => {
+  const openFinanceModal = useCallback(() => {
     setEditingTransaction(null);
     setIsFinanceModalOpen(true);
-  };
-  const openEditFinanceModal = (tx: Transaction) => {
+  }, []);
+  const openEditFinanceModal = useCallback((tx: Transaction) => {
     setEditingTransaction(tx);
     setIsFinanceModalOpen(true);
-  };
-  const closeFinanceModal = () => {
+  }, []);
+  const closeFinanceModal = useCallback(() => {
     setIsFinanceModalOpen(false);
     setEditingTransaction(null);
-  };
+  }, []);
 
-  const openSearchModal = () => setIsSearchModalOpen(true);
-  const closeSearchModal = () => setIsSearchModalOpen(false);
+  const openSearchModal = useCallback(() => setIsSearchModalOpen(true), []);
+  const closeSearchModal = useCallback(() => setIsSearchModalOpen(false), []);
 
-  const openStreaks = () => setIsStreaksOpen(true);
-  const closeStreaks = () => {
+  const openStreaks = useCallback(() => setIsStreaksOpen(true), []);
+  const closeStreaks = useCallback(() => {
     setIsStreaksOpen(false);
     setActiveTab((prev) => (prev === 'streaks' ? 'today' : prev));
-  };
+  }, []);
 
-  const openInspector = () => setIsInspectorOpen(true);
-  const closeInspector = () => setIsInspectorOpen(false);
+  const openInspector = useCallback(() => setIsInspectorOpen(true), []);
+  const closeInspector = useCallback(() => setIsInspectorOpen(false), []);
 
-  const openExecutiveDashboard = () => setIsExecutiveDashboardOpen(true);
-  const closeExecutiveDashboard = () => setIsExecutiveDashboardOpen(false);
+  const openExecutiveDashboard = useCallback(() => setIsExecutiveDashboardOpen(true), []);
+  const closeExecutiveDashboard = useCallback(() => setIsExecutiveDashboardOpen(false), []);
 
-  const requestDelete = (options: DeleteConfirmOptions) => {
+  const requestDelete = useCallback((options: DeleteConfirmOptions) => {
     setDeleteConfirmOptions(options);
     setIsDeleteConfirmOpen(true);
-  };
+  }, []);
 
-  const closeDeleteConfirm = () => {
+  const closeDeleteConfirm = useCallback(() => {
     setIsDeleteConfirmOpen(false);
     setDeleteConfirmOptions(null);
-  };
+  }, []);
 
   // Initialize DB and sample data
   useEffect(() => {
-    seedInitialDataIfNeeded().then(() => {
-      setIsDbReady(true);
-    });
+    seedInitialDataIfNeeded()
+      .then(() => {
+        setIsDbReady(true);
+      })
+      .catch((err) => {
+        console.error('Failed to seed DB:', err);
+        setIsDbReady(true);
+      });
   }, []);
 
   // Auto-adapt to user's device currency if not explicitly overridden
@@ -263,13 +278,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       currency: map.currency ?? DEFAULT_SETTINGS.currency,
       userName: map.userName ?? DEFAULT_SETTINGS.userName,
       darkMode: map.darkMode ?? DEFAULT_SETTINGS.darkMode,
+      appAesthetic: map.appAesthetic ?? DEFAULT_SETTINGS.appAesthetic,
       navbarHeight: map.navbarHeight ?? DEFAULT_SETTINGS.navbarHeight,
       navbarGlass: map.navbarGlass ?? DEFAULT_SETTINGS.navbarGlass,
+      hapticFeedback: map.hapticFeedback ?? DEFAULT_SETTINGS.hapticFeedback,
     };
   }, [settingsEntries]);
 
+  // Synchronize haptics user preference with the feedback engine
+  useEffect(() => {
+    feedback.setHapticsEnabled(settings.hapticFeedback ?? true);
+  }, [settings.hapticFeedback]);
+
   // Tasks actions
-  const addTask = async (data: Omit<Task, 'id' | 'createdAt'>): Promise<string> => {
+  const addTask = useCallback(async (data: Omit<Task, 'id' | 'createdAt'>): Promise<string> => {
     const id = 't-' + Math.random().toString(36).substring(2, 9);
     const newTask: Task = {
       ...data,
@@ -279,16 +301,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await db.tasks.add(newTask);
     feedback.playClick();
     return id;
-  };
+  }, []);
 
-  const toggleTask = async (id: string, event?: React.MouseEvent) => {
+  const toggleTask = useCallback(async (id: string, event?: React.MouseEvent) => {
     const task = await db.tasks.get(id);
     if (!task) return;
 
     const nextStatus = task.status === 'completed' ? 'todo' : 'completed';
     const completedAt = nextStatus === 'completed' ? Date.now() : undefined;
 
-    await db.tasks.update(id, { status: nextStatus, completedAt });
+    // Auto-mark all subtasks complete when parent task is completed
+    let updatedSubtasks = task.subtasks;
+    if (nextStatus === 'completed' && task.subtasks && task.subtasks.length > 0) {
+      updatedSubtasks = task.subtasks.map((st) => ({ ...st, completed: true }));
+    }
+
+    await db.tasks.update(id, {
+      status: nextStatus,
+      completedAt,
+      ...(updatedSubtasks ? { subtasks: updatedSubtasks } : {}),
+    });
 
     if (nextStatus === 'completed') {
       const x = event ? event.clientX / window.innerWidth : 0.5;
@@ -297,20 +329,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } else {
       feedback.playClick();
     }
-  };
+  }, []);
 
-  const updateTask = async (id: string, updates: Partial<Task>) => {
+  const updateTask = useCallback(async (id: string, updates: Partial<Task>) => {
     await db.tasks.update(id, updates);
     feedback.playClick();
-  };
+  }, []);
 
-  const deleteTask = async (id: string) => {
+  const deleteTask = useCallback(async (id: string) => {
     await db.tasks.delete(id);
     feedback.playClick();
-  };
+  }, []);
+
+  const duplicateTask = useCallback(async (id: string): Promise<string> => {
+    const source = await db.tasks.get(id);
+    if (!source) throw new Error(`Task with id ${id} not found`);
+
+    const duplicated = duplicateTaskData(source);
+    await db.tasks.add(duplicated);
+    feedback.playClick();
+    return duplicated.id;
+  }, []);
+
+  const createTaskFromTemplate = useCallback(async (templateIdOrData: string | TaskTemplate): Promise<string> => {
+    const template = typeof templateIdOrData === 'string'
+      ? BUILTIN_TASK_TEMPLATES.find((t) => t.id === templateIdOrData)
+      : templateIdOrData;
+
+    if (!template) throw new Error(`Template not found: ${templateIdOrData}`);
+
+    const todayStr = getTodayString();
+    const newTask = createTaskFromTemplateData(template, { today: todayStr });
+    await db.tasks.add(newTask);
+    feedback.playSuccessChime();
+    return newTask.id;
+  }, []);
+
+  const updateTaskSubtasks = useCallback(async (taskId: string, subtasks: Subtask[]): Promise<void> => {
+    await db.tasks.update(taskId, { subtasks });
+    feedback.playClick();
+  }, []);
+
 
   // Habits actions
-  const addHabit = async (data: Omit<Habit, 'id' | 'createdAt'>): Promise<string> => {
+  const addHabit = useCallback(async (data: Omit<Habit, 'id' | 'createdAt'>): Promise<string> => {
     const id = 'h-' + Math.random().toString(36).substring(2, 9);
     const newHabit: Habit = {
       ...data,
@@ -320,14 +382,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await db.habits.add(newHabit);
     feedback.playClick();
     return id;
-  };
+  }, []);
 
-  const getHabitTodayLog = (habitId: string): HabitLog | undefined => {
+  const getHabitTodayLog = useCallback((habitId: string): HabitLog | undefined => {
     const today = getTodayString();
     return habitLogs.find((l) => l.habitId === habitId && l.date === today);
-  };
+  }, [habitLogs]);
 
-  const incrementHabit = async (habitId: string, event?: React.MouseEvent) => {
+  const incrementHabit = useCallback(async (habitId: string, event?: React.MouseEvent) => {
     const today = getTodayString();
     const habit = await db.habits.get(habitId);
     if (!habit) return;
@@ -354,9 +416,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } else {
       feedback.playClick();
     }
-  };
+  }, []);
 
-  const decrementHabit = async (habitId: string) => {
+  const decrementHabit = useCallback(async (habitId: string) => {
     const today = getTodayString();
     const habit = await db.habits.get(habitId);
     if (!habit) return;
@@ -375,9 +437,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       timestamp: Date.now(),
     });
     feedback.playClick();
-  };
+  }, []);
 
-  const toggleHabit = async (habitId: string, event?: React.MouseEvent) => {
+  const toggleHabit = useCallback(async (habitId: string, event?: React.MouseEvent) => {
     const today = getTodayString();
     const habit = await db.habits.get(habitId);
     if (!habit) return;
@@ -409,28 +471,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const y = event ? event.clientY / window.innerHeight : 0.5;
       triggerCompletionConfetti(x, y);
     }
-  };
+  }, []);
 
-  const deleteHabit = async (habitId: string) => {
+  const deleteHabit = useCallback(async (habitId: string) => {
     await db.habits.delete(habitId);
     await db.habitLogs.where('habitId').equals(habitId).delete();
     feedback.playClick();
-  };
+  }, []);
 
-  const updateHabit = async (id: string, updates: Partial<Habit>) => {
+  const updateHabit = useCallback(async (id: string, updates: Partial<Habit>) => {
     await db.habits.update(id, updates);
     feedback.playClick();
-  };
+  }, []);
 
-  const getHabitStreak = (habitId: string): number => {
-    // Calculate consecutive completed days going backward from yesterday or today
-    const logs = habitLogs
-      .filter((l) => l.habitId === habitId && l.completed)
-      .map((l) => l.date)
-      .sort()
-      .reverse();
+  const getHabitStreak = useCallback((habitId: string): number => {
+    // Collect consecutive completed dates into an O(1) Set in a single O(N) pass
+    const completedDates = new Set<string>();
+    for (let i = 0; i < habitLogs.length; i++) {
+      const l = habitLogs[i];
+      if (l.habitId === habitId && l.completed) {
+        completedDates.add(l.date);
+      }
+    }
 
-    if (logs.length === 0) return 0;
+    if (completedDates.size === 0) return 0;
 
     let streak = 0;
     const checkDate = new Date();
@@ -438,7 +502,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const todayStr = getTodayString();
     let currentStr = todayStr;
 
-    if (!logs.includes(todayStr)) {
+    if (!completedDates.has(todayStr)) {
       checkDate.setDate(checkDate.getDate() - 1);
       const y = checkDate.getFullYear();
       const m = String(checkDate.getMonth() + 1).padStart(2, '0');
@@ -446,7 +510,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       currentStr = `${y}-${m}-${d}`;
     }
 
-    while (logs.includes(currentStr)) {
+    while (completedDates.has(currentStr)) {
       streak++;
       checkDate.setDate(checkDate.getDate() - 1);
       const y = checkDate.getFullYear();
@@ -456,10 +520,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     return streak;
-  };
+  }, [habitLogs]);
 
   // Finance actions
-  const addTransaction = async (data: Omit<Transaction, 'id' | 'createdAt'>): Promise<string> => {
+  const addTransaction = useCallback(async (data: Omit<Transaction, 'id' | 'createdAt'>): Promise<string> => {
     const id = 'tx-' + Math.random().toString(36).substring(2, 9);
     const newTx: Transaction = {
       ...data,
@@ -469,17 +533,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await db.transactions.add(newTx);
     feedback.playClick();
     return id;
-  };
+  }, []);
 
-  const deleteTransaction = async (id: string) => {
+  const deleteTransaction = useCallback(async (id: string) => {
     await db.transactions.delete(id);
     feedback.playClick();
-  };
+  }, []);
 
-  const updateTransaction = async (id: string, updates: Partial<Transaction>) => {
+  const updateTransaction = useCallback(async (id: string, updates: Partial<Transaction>) => {
     await db.transactions.update(id, updates);
     feedback.playClick();
-  };
+  }, []);
 
   // Finance statistics
   const financeStats = useMemo<FinanceStats>(() => {
@@ -526,14 +590,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [transactions, settings.monthlyBudget]);
 
   // Settings & Storage actions
-  const updateSettings = async (updates: Partial<UserSettings>) => {
+  const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
     for (const [k, v] of Object.entries(updates)) {
       await db.settings.put({ key: k, value: v });
     }
     feedback.playClick();
-  };
+  }, []);
 
-  const exportDataAsJson = async (): Promise<string> => {
+  const exportDataAsJson = useCallback(async (): Promise<string> => {
     const allTasks = await db.tasks.toArray();
     const allHabits = await db.habits.toArray();
     const allLogs = await db.habitLogs.toArray();
@@ -551,9 +615,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     return JSON.stringify(data, null, 2);
-  };
+  }, []);
 
-  const importDataFromJson = async (jsonString: string): Promise<boolean> => {
+  const importDataFromJson = useCallback(async (jsonString: string): Promise<boolean> => {
     try {
       const data = JSON.parse(jsonString);
       if (!data.tasks || !data.habits || !data.transactions) {
@@ -580,9 +644,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Import failed', err);
       return false;
     }
-  };
+  }, []);
 
-  const resetToDefaults = async () => {
+  const resetToDefaults = useCallback(async () => {
     await db.tasks.clear();
     await db.habits.clear();
     await db.habitLogs.clear();
@@ -590,18 +654,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await db.settings.clear();
     await seedInitialDataIfNeeded();
     feedback.playClick();
-  };
+  }, []);
 
-  const completeReminderAlert = async (alert: ReminderAlert) => {
+  const completeReminderAlert = useCallback(async (alert: ReminderAlert) => {
     if (alert.type === 'task') {
       await toggleTask(alert.entityId);
     } else if (alert.type === 'habit') {
       await incrementHabit(alert.entityId);
-    } else if (alert.type === 'poke') {
+    } else if (alert.type === 'poke' || alert.type === 'daypart') {
       feedback.playSuccessChime();
     }
     setActiveReminderAlert(null);
-  };
+  }, [toggleTask, incrementHabit]);
 
   // Background / Foreground scheduled reminder checker
   useEffect(() => {
@@ -706,6 +770,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         }
       }
+
+      // Check contextual Daypart Motivational Notifications (08:30, 13:30, 20:30)
+      const daypartMatch = DAYPART_SCHEDULE.find((s) => s.timeStr === currentHHMM);
+      if (daypartMatch) {
+        const daypartKey = `daypart-${daypartMatch.slotId}-${todayStr}`;
+        if (!firedReminderKeysRef.current.has(daypartKey)) {
+          firedReminderKeysRef.current.add(daypartKey);
+
+          const pendingTasksCount = tasks.filter(
+            (t) => t.status !== 'completed' && t.dueDate === todayStr
+          ).length;
+
+          const pendingHabitsCount = habits.filter((h) => {
+            const todayLog = habitLogs.find((l) => l.habitId === h.id && l.date === todayStr);
+            return !todayLog?.completed;
+          }).length;
+
+          const greeting = generateDaypartGreeting(
+            daypartMatch.slotId,
+            settings.userName || 'Alex',
+            pendingTasksCount,
+            pendingHabitsCount
+          );
+
+          if (typeof document !== 'undefined' && !document.hidden) {
+            setActiveReminderAlert({
+              id: daypartKey,
+              type: 'daypart',
+              entityId: daypartMatch.slotId,
+              title: `${greeting.emoji} ${greeting.title}`,
+              subtitle: greeting.body,
+              time: currentHHMM,
+            });
+            feedback.playSuccessChime();
+          } else {
+            sendNativeNotification(`${greeting.emoji} ${greeting.title}`, {
+              body: greeting.body,
+              tag: daypartKey,
+            });
+          }
+        }
+      }
     };
 
     checkReminders();
@@ -724,94 +830,189 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, [isDbReady, tasks, habits, habitLogs, settings.userName]);
 
-  // Synchronize system-level native background alarms with Android AlarmManager
-  // Ensures notifications fire on schedule even when the app is killed or suspended
+  // Synchronize system-level native background alarms and Home-Screen WidgetKit
+  // Ensures notifications fire on schedule and home-screen widgets remain fresh
   useEffect(() => {
     if (!isDbReady) return;
-    syncNativeScheduledReminders(tasks, habits, settings.userName);
-  }, [isDbReady, tasks, habits, settings.userName]);
+    const timer = setTimeout(() => {
+      syncNativeScheduledReminders(tasks, habits, settings.userName);
+      syncWidgetData({ tasks, habits, habitLogs, userName: settings.userName });
+    }, 500);
 
-  if (!isDbReady) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-zinc-950 text-zinc-400">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-          <span className="text-sm font-medium tracking-wide">Starting Taskify...</span>
-        </div>
-      </div>
-    );
-  }
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isDbReady, tasks, habits, habitLogs, settings.userName]);
+
+  // Synchronize incoming widget actions (e.g. check-off task or habit from home screen)
+  useEffect(() => {
+    if (!isDbReady) return;
+
+    const checkWidgetActions = () => {
+      pollWidgetEvents({
+        onToggleTask: async (taskId) => {
+          await toggleTask(taskId);
+        },
+        onIncrementHabit: async (habitId) => {
+          await incrementHabit(habitId);
+        },
+      });
+    };
+
+    checkWidgetActions();
+    const handleVis = () => {
+      if (!document.hidden) {
+        checkWidgetActions();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVis);
+    return () => document.removeEventListener('visibilitychange', handleVis);
+  }, [isDbReady, toggleTask, incrementHabit]);
+
+  const contextValue = useMemo<AppContextType>(
+    () => ({
+      isDbReady,
+      activeTab,
+      setActiveTab,
+      slideProgress,
+      isQuickCaptureOpen,
+      setIsQuickCaptureOpen,
+      tasks,
+      addTask,
+      toggleTask,
+      updateTask,
+      deleteTask,
+      duplicateTask,
+      createTaskFromTemplate,
+      updateTaskSubtasks,
+      habits,
+      habitLogs,
+      addHabit,
+      incrementHabit,
+      decrementHabit,
+      toggleHabit,
+      deleteHabit,
+      updateHabit,
+      getHabitTodayLog,
+      getHabitStreak,
+      transactions,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      financeStats,
+      settings,
+      updateSettings,
+      exportDataAsJson,
+      importDataFromJson,
+      resetToDefaults,
+      isDeleteConfirmOpen,
+      deleteConfirmOptions,
+      requestDelete,
+      closeDeleteConfirm,
+      isTaskModalOpen,
+      editingTask,
+      openTaskModal,
+      openEditTaskModal,
+      closeTaskModal,
+      isHabitModalOpen,
+      editingHabit,
+      openHabitModal,
+      openEditHabitModal,
+      closeHabitModal,
+      isFinanceModalOpen,
+      editingTransaction,
+      openFinanceModal,
+      openEditFinanceModal,
+      closeFinanceModal,
+      isSearchModalOpen,
+      openSearchModal,
+      closeSearchModal,
+      isStreaksOpen,
+      openStreaks,
+      closeStreaks,
+      isInspectorOpen,
+      openInspector,
+      closeInspector,
+      isExecutiveDashboardOpen,
+      openExecutiveDashboard,
+      closeExecutiveDashboard,
+      activeReminderAlert,
+      dismissReminderAlert,
+      completeReminderAlert,
+      requestNotificationPermission,
+    }),
+    [
+      isDbReady,
+      activeTab,
+      slideProgress,
+      isQuickCaptureOpen,
+      tasks,
+      addTask,
+      toggleTask,
+      updateTask,
+      deleteTask,
+      duplicateTask,
+      createTaskFromTemplate,
+      updateTaskSubtasks,
+      habits,
+      habitLogs,
+      addHabit,
+      incrementHabit,
+      decrementHabit,
+      toggleHabit,
+      deleteHabit,
+      updateHabit,
+      getHabitTodayLog,
+      getHabitStreak,
+      transactions,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      financeStats,
+      settings,
+      updateSettings,
+      exportDataAsJson,
+      importDataFromJson,
+      resetToDefaults,
+      isDeleteConfirmOpen,
+      deleteConfirmOptions,
+      requestDelete,
+      closeDeleteConfirm,
+      isTaskModalOpen,
+      editingTask,
+      openTaskModal,
+      openEditTaskModal,
+      closeTaskModal,
+      isHabitModalOpen,
+      editingHabit,
+      openHabitModal,
+      openEditHabitModal,
+      closeHabitModal,
+      isFinanceModalOpen,
+      editingTransaction,
+      openFinanceModal,
+      openEditFinanceModal,
+      closeFinanceModal,
+      isSearchModalOpen,
+      openSearchModal,
+      closeSearchModal,
+      isStreaksOpen,
+      openStreaks,
+      closeStreaks,
+      isInspectorOpen,
+      openInspector,
+      closeInspector,
+      isExecutiveDashboardOpen,
+      openExecutiveDashboard,
+      closeExecutiveDashboard,
+      activeReminderAlert,
+      dismissReminderAlert,
+      completeReminderAlert,
+    ]
+  );
 
   return (
-    <AppContext.Provider
-      value={{
-        activeTab,
-        setActiveTab,
-        slideProgress,
-        isQuickCaptureOpen,
-        setIsQuickCaptureOpen,
-        tasks,
-        addTask,
-        toggleTask,
-        updateTask,
-        deleteTask,
-        habits,
-        habitLogs,
-        addHabit,
-        incrementHabit,
-        decrementHabit,
-        toggleHabit,
-        deleteHabit,
-        updateHabit,
-        getHabitTodayLog,
-        getHabitStreak,
-        transactions,
-        addTransaction,
-        updateTransaction,
-        deleteTransaction,
-        financeStats,
-        settings,
-        updateSettings,
-        exportDataAsJson,
-        importDataFromJson,
-        resetToDefaults,
-        isDeleteConfirmOpen,
-        deleteConfirmOptions,
-        requestDelete,
-        closeDeleteConfirm,
-        isTaskModalOpen,
-        editingTask,
-        openTaskModal,
-        openEditTaskModal,
-        closeTaskModal,
-        isHabitModalOpen,
-        editingHabit,
-        openHabitModal,
-        openEditHabitModal,
-        closeHabitModal,
-        isFinanceModalOpen,
-        editingTransaction,
-        openFinanceModal,
-        openEditFinanceModal,
-        closeFinanceModal,
-        isSearchModalOpen,
-        openSearchModal,
-        closeSearchModal,
-        isStreaksOpen,
-        openStreaks,
-        closeStreaks,
-        isInspectorOpen,
-        openInspector,
-        closeInspector,
-        isExecutiveDashboardOpen,
-        openExecutiveDashboard,
-        closeExecutiveDashboard,
-        activeReminderAlert,
-        dismissReminderAlert,
-        completeReminderAlert,
-        requestNotificationPermission,
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

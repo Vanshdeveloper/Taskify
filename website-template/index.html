@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Taskify — Simple, Private Daily Planner</title>
+  
+  <!-- Typography Stacks: Outfit, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Scroll Progress Bar -->
+  <div id="scroll-progress" class="scroll-progress-bar" aria-hidden="true"></div>
+
+  <!-- Floating Minimalist Glass Pill Navigation -->
+  <header class="nav-wrapper">
+    <nav class="nav-pill">
+      <div class="nav-brand">
+        <span class="brand-dot"></span>
+        <span class="brand-title">TASKIFY</span>
+      </div>
+
+      <div class="nav-links">
+        <a href="#promise" class="nav-link">Our Promise</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#install" class="nav-link">Download</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary-small">Install</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Strict Overflow-X Wrapped Main Container -->
+  <main class="page-container">
+
+    <!-- Ambient Radial Lighting Glow -->
+    <div class="ambient-glow" aria-hidden="true"></div>
+
+    <!-- 1. HERO SECTION -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <!-- 2-Line Iron Rule: Ultra-wide breathe, clean natural English -->
+        <h1 class="hero-headline">
+          Your daily life, organized. 
+          <span class="inline-capsule">100% PRIVATE</span> 
+          and calm.
+        </h1>
+
+        <p class="hero-subtext">
+          Tasks, habits, and everyday spending in one beautifully simple app. You don't just download it, you own it—zero subscriptions, zero tracking, and 100% private on your device.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary">
+            <span>Install Taskify</span>
+            <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </a>
+
+          <a href="#promise" class="btn-secondary">
+            <span>See How It Works</span>
+            <svg class="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Live App Preview Card (Gorgeous on Mobile & Desktop) -->
+      <div class="hero-frame-wrapper">
+        <div class="hero-frame-outer">
+          <div class="hero-frame-inner">
+            
+            <!-- App Card Header -->
+            <div class="app-card-header">
+              <div class="app-user-block">
+                <div class="app-avatar">A</div>
+                <div>
+                  <div class="app-greeting">Good morning, Alex</div>
+                  <div class="app-subdate">Today's Focus • 3 items pending</div>
+                </div>
+              </div>
+              <div class="app-status-badge">
+                <span class="status-dot"></span>
+                <span>SAVED OFFLINE</span>
+              </div>
+            </div>
+
+            <!-- Interactive Daily Tasks Sample -->
+            <div class="app-tasks-list">
+              <div class="app-task-item completed">
+                <div class="task-check-circle checked">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="task-info">
+                  <span class="task-title">Morning 20-minute walk & coffee</span>
+                  <span class="task-meta">Completed at 08:15 AM</span>
+                </div>
+                <span class="task-tag tag-green">Done</span>
+              </div>
+
+              <div class="app-task-item">
+                <div class="task-check-circle"></div>
+                <div class="task-info">
+                  <span class="task-title">Review project milestone with team</span>
+                  <span class="task-meta">Due today at 02:00 PM</span>
+                </div>
+                <span class="task-tag tag-orange">Priority</span>
+              </div>
+
+              <div class="app-task-item">
+                <div class="task-check-circle"></div>
+                <div class="task-info">
+                  <span class="task-title">Read 15 pages of book before bed</span>
+                  <span class="task-meta">Daily evening routine</span>
+                </div>
+                <span class="task-tag tag-neutral">Habit</span>
+              </div>
+            </div>
+
+            <!-- Mini Summary Widgets (Habit Streak & Safe to Spend) -->
+            <div class="app-widgets-grid">
+              <div class="widget-card">
+                <div class="widget-icon icon-amber">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </div>
+                <div class="widget-data">
+                  <span class="widget-label">CONSISTENCY STREAK</span>
+                  <span class="widget-value counter-item" data-target="14">14</span>
+                  <span class="widget-unit">days unbroken</span>
+                </div>
+              </div>
+
+              <div class="widget-card">
+                <div class="widget-icon icon-emerald">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </div>
+                <div class="widget-data">
+                  <span class="widget-label">SAFE TO SPEND TODAY</span>
+                  <span class="widget-value">$45.00</span>
+                  <span class="widget-unit">comfortable daily limit</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. INFINITE MARQUEE -->
+    <section class="marquee-section">
+      <div class="marquee-track">
+        <div class="marquee-content">
+          <div class="marquee-item"><span class="bullet"></span><span>You Don't Rent It — You Own It</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Works 100% Offline</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Zero Accounts or Passwords</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Zero Monthly Fees</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Your Data Stays on Your Device</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Opens Instantly With No Lag</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Gentle Daily Reminders</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>For iPhone, Android & Desktop</span></div>
+        </div>
+        <div class="marquee-content" aria-hidden="true">
+          <div class="marquee-item"><span class="bullet"></span><span>You Don't Rent It — You Own It</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Works 100% Offline</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Zero Accounts or Passwords</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Zero Monthly Fees</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Your Data Stays on Your Device</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Opens Instantly With No Lag</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Gentle Daily Reminders</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>For iPhone, Android & Desktop</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. OUR PROMISE (GSAP Scrubbing Word Reveal) -->
+    <section id="promise" class="manifesto-section">
+      <div class="section-tag">
+        <span class="tag-dot"></span>
+        <span class="tag-title">OUR PROMISE</span>
+      </div>
+
+      <div class="manifesto-text" id="manifesto-text">
+        You don't just download Taskify. You own it. No subscriptions, no user accounts, and no remote servers deciding if you can access your day. It lives on your hardware, completely private and permanent. Software you actually own.
+      </div>
+    </section>
+
+    <!-- 4. CORE FEATURES (Gapless Bento Grid) -->
+    <section id="features" class="bento-section">
+      <div class="section-header-left">
+        <div class="section-tag">
+          <span class="tag-dot"></span>
+          <span class="tag-title">EVERYDAY FEATURES</span>
+        </div>
+        <h2 class="section-title">Everything you need to stay on track.</h2>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Card 1: Software You Actually Own (8 cols) -->
+        <div class="bento-card bento-card-8">
+          <div class="bento-card-top">
+            <div class="card-icon-box icon-box-orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <span class="bento-badge">ZERO SUBSCRIPTIONS</span>
+          </div>
+
+          <div class="bento-card-body">
+            <h3 class="bento-title">You don't rent it. You own it.</h3>
+            <p class="bento-desc">
+              Most productivity apps are rented services tied to monthly charges and remote servers that can change or shut down. Taskify lives directly on your hardware. Zero subscriptions, zero logins, and zero cloud lock-in. Once installed, it is yours.
+            </p>
+          </div>
+
+          <div class="bento-metrics-row">
+            <div class="metric-block">
+              <span class="metric-caption">OWNERSHIP</span>
+              <span class="metric-stat stat-emerald">Yours forever</span>
+            </div>
+            <div class="metric-block">
+              <span class="metric-caption">STORAGE</span>
+              <span class="metric-stat">100% on your device</span>
+            </div>
+            <div class="metric-block">
+              <span class="metric-caption">INTERNET</span>
+              <span class="metric-stat">Works without Wi-Fi</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Butter-Smooth Feel (4 cols) -->
+        <div class="bento-card bento-card-4">
+          <div class="bento-card-top">
+            <div class="card-icon-box icon-box-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bento-card-body">
+            <h3 class="bento-title">Butter-Smooth Feel</h3>
+            <p class="bento-desc">
+              Designed with fluid, natural animations that make checking off tasks and building routines feel genuinely satisfying.
+            </p>
+          </div>
+
+          <div class="bento-metrics-row">
+            <div class="metric-block">
+              <span class="metric-caption">SPEED</span>
+              <span class="metric-stat stat-emerald">Zero lag or delays</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Safe-to-Spend Daily (5 cols) -->
+        <div class="bento-card bento-card-5">
+          <div class="bento-card-top">
+            <div class="card-icon-box icon-box-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bento-card-body">
+            <h3 class="bento-title">Guilt-Free Daily Budget</h3>
+            <p class="bento-desc">
+              Know exactly how much you can comfortably spend today without worrying about going over budget at the end of the month.
+            </p>
+          </div>
+
+          <div class="bento-metrics-row">
+            <div class="metric-block">
+              <span class="metric-caption">CALCULATION</span>
+              <span class="metric-stat stat-emerald">Auto-adjusts every day</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Habits That Stick (7 cols) -->
+        <div class="bento-card bento-card-7">
+          <div class="bento-card-top">
+            <div class="card-icon-box icon-box-indigo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </div>
+            <span class="bento-badge">DAILY ROUTINES</span>
+          </div>
+
+          <div class="bento-card-body">
+            <h3 class="bento-title">Habits That Actually Stick</h3>
+            <p class="bento-desc">
+              Build better routines step-by-step. See your consistency grow day by day with visual streak charts and friendly, non-annoying reminders.
+            </p>
+          </div>
+
+          <div class="bento-metrics-row">
+            <div class="metric-block">
+              <span class="metric-caption">REMINDERS</span>
+              <span class="metric-stat">Timed to your schedule</span>
+            </div>
+            <div class="metric-block">
+              <span class="metric-caption">STREAKS</span>
+              <span class="metric-stat stat-amber">Forgiving & encouraging</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. HOW IT WORKS (Three Simple Pillars) -->
+    <section id="how-it-works" class="pillars-section">
+      <div class="pillars-layout">
+        <!-- Pinned Left Column -->
+        <div class="pillars-pinned-col" id="pinned-headline">
+          <div class="section-tag">
+            <span class="tag-dot"></span>
+            <span class="tag-title">HOW IT WORKS</span>
+          </div>
+          <h2 class="section-title">Three simple tools in one clean screen.</h2>
+          <p class="pillars-lead">
+            No more jumping between separate to-do apps, habit trackers, and budgeting spreadsheets. Taskify brings everything together into one calm workspace.
+          </p>
+          <div class="pinned-cta">
+            <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary-outline">Install Now</a>
+          </div>
+        </div>
+
+        <!-- Interactive Pillar Cards on Right -->
+        <div class="pillars-cards-col">
+          <div class="pillar-card active" data-index="0">
+            <div class="pillar-card-header">
+              <div class="pillar-card-left">
+                <div class="pillar-icon-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="pillar-title">Smart Daily Checklists</h3>
+                  <span class="pillar-tagline">Focus on what matters most today</span>
+                </div>
+              </div>
+              <span class="pillar-badge">Clear to-do lists</span>
+            </div>
+            <p class="pillar-desc">
+              Organize what you need to do with simple priority tags and flexible reminders. Swipe to complete when you are finished.
+            </p>
+          </div>
+
+          <div class="pillar-card" data-index="1">
+            <div class="pillar-card-header">
+              <div class="pillar-card-left">
+                <div class="pillar-icon-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="pillar-title">Visual Habit Tracker</h3>
+                  <span class="pillar-tagline">Celebrate progress, not perfection</span>
+                </div>
+              </div>
+              <span class="pillar-badge">Yearly streak map</span>
+            </div>
+            <p class="pillar-desc">
+              Track reading, workouts, meditation, or drinking water. Build a chain of successful days with gentle nudges that encourage you without pressure.
+            </p>
+          </div>
+
+          <div class="pillar-card" data-index="2">
+            <div class="pillar-card-header">
+              <div class="pillar-card-left">
+                <div class="pillar-icon-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                    <path d="M12 18V6"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="pillar-title">Stress-Free Budgeting</h3>
+                  <span class="pillar-tagline">Peace of mind with your money</span>
+                </div>
+              </div>
+              <span class="pillar-badge">No bank sync needed</span>
+            </div>
+            <p class="pillar-desc">
+              Set a simple monthly spending goal. The app shows you what is safe to spend each day so you stay on track without complex accounting.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. ACTION & FOOTER -->
+    <section id="install" class="footer-section">
+      <div class="footer-container">
+        <h2 class="footer-headline">Take back control of your day.</h2>
+        <p class="footer-subtext">
+          No subscriptions, no accounts to remember, and no cloud servers holding your life hostage. Install Taskify once and own it forever.
+        </p>
+
+        <div class="footer-cta-box">
+          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary-large">
+            <span>Install Taskify</span>
+            <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Specifications Matrix in Plain English -->
+        <div class="specs-grid">
+          <div class="spec-cell">
+            <span class="spec-label">PLATFORMS</span>
+            <span class="spec-value">Android, iPhone, Windows, Mac</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-label">OWNERSHIP</span>
+            <span class="spec-value">You own it, forever</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-label">PRIVACY</span>
+            <span class="spec-value">Saved only on your device</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-label">INTERNET</span>
+            <span class="spec-value">Works 100% offline</span>
+          </div>
+        </div>
+
+        <div class="footer-bottom-strip">
+          <span>Taskify Open Source Project &copy; 2026. Private and clutter-free.</span>
+          <div class="footer-bottom-links">
+            <a href="#promise">Our Promise</a>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- GreenSock GSAP & ScrollTrigger via Verified Fast CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -7,22 +7,45 @@ import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileTabBar } from './components/layout/MobileTabBar';
-import { SlideOverInspector } from './components/layout/SlideOverInspector';
 import { LiquidTabViewport } from './components/layout/LiquidTabViewport';
+import { ReminderBanner } from './components/ui/ReminderBanner';
+import { SplashScreen } from './components/ui/SplashScreen';
+import { APPLE_SPRINGS } from './utils/motion';
+
 import { StreaksView } from './components/streaks/StreaksView';
-import { ExecutiveDashboardView } from './components/analytics/ExecutiveDashboardView';
-import { SettingsView } from './components/settings/SettingsView';
 import { QuickCaptureModal } from './components/modals/QuickCaptureModal';
-import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
 import { UniversalSearchModal } from './components/modals/UniversalSearchModal';
 import { TaskModal } from './components/modals/TaskModal';
 import { HabitModal } from './components/modals/HabitModal';
 import { FinanceModal } from './components/modals/FinanceModal';
-import { AmbientLighting } from './components/effects/AmbientLighting';
-import { ReminderBanner } from './components/ui/ReminderBanner';
+import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
+import { SlideOverInspector } from './components/layout/SlideOverInspector';
+import { SettingsView } from './components/settings/SettingsView';
+import { syncAppFavicon } from './utils/favicon';
+import { useTheme } from './context/ThemeContext';
+
+// Lazy-loaded secondary heavy screens (Executive Dashboard only)
+const ExecutiveDashboardView = React.lazy(() =>
+  import('./components/analytics/ExecutiveDashboardView').then((m) => ({ default: m.ExecutiveDashboardView }))
+);
+
+// Standalone Favicon Manager: isolates theme changes so MainLayout NEVER re-renders on theme switch
+const FaviconManager: React.FC = () => {
+  const { theme, themes } = useTheme();
+  const { settings } = useApp();
+  const currentThemeObj = useMemo(() => themes.find((t) => t.id === theme), [themes, theme]);
+  const currentAccent = currentThemeObj ? currentThemeObj.colors[1] : '#f26a36';
+
+  useEffect(() => {
+    syncAppFavicon(settings.appAesthetic || 'dynamic-theme', currentAccent);
+  }, [settings.appAesthetic, currentAccent]);
+
+  return null;
+};
 
 const MainLayout: React.FC = () => {
   const {
+    isDbReady,
     activeTab,
     setActiveTab,
     habits,
@@ -57,6 +80,9 @@ const MainLayout: React.FC = () => {
     if (!habits.length) return 0;
     return habits.reduce((max, h) => Math.max(max, getHabitStreak(h.id)), 0);
   }, [habits, getHabitStreak]);
+
+  // Brand Choreographed Splash Screen visibility state
+  const [showSplash, setShowSplash] = useState(true);
 
   // Native mobile status bar setup
   useEffect(() => {
@@ -132,9 +158,6 @@ const MainLayout: React.FC = () => {
       className="flex flex-col h-screen w-screen overflow-hidden text-[var(--text-primary)] relative select-none"
       style={{ backgroundColor: 'var(--bg-canvas)' }}
     >
-      {/* Interactive Cursor Spotlight & Tab-Reactive Ambient Lighting */}
-      <AmbientLighting />
-
       {/* Floating In-App Apple-Grade Reminder Alert Banner */}
       <ReminderBanner />
 
@@ -143,6 +166,7 @@ const MainLayout: React.FC = () => {
         streakCount={streakCount}
         onOpenStreaks={openStreaks}
         onOpenInspector={openInspector}
+        hideBrand={showSplash}
       />
 
       <div className="flex flex-1 overflow-hidden relative z-10">
@@ -170,11 +194,13 @@ const MainLayout: React.FC = () => {
             initial={{ opacity: 0, y: '100%' }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            transition={APPLE_SPRINGS.sheet}
             className="fixed inset-0 z-50 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-5 sm:pb-6"
             style={{
               backgroundColor: 'var(--bg-canvas)',
               paddingTop: 'calc(max(var(--sat, 0px), 0.75rem) + 0.5rem)',
+              willChange: 'transform',
+              transform: 'translateZ(0)',
             }}
           >
             <StreaksView onClose={closeStreaks} />
@@ -189,19 +215,21 @@ const MainLayout: React.FC = () => {
             initial={{ opacity: 0, y: '100%' }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            transition={APPLE_SPRINGS.sheet}
             className="fixed inset-0 z-50 overflow-y-auto px-3.5 sm:px-6 lg:px-8 pb-20 sm:pb-12 no-scrollbar"
             style={{
               backgroundColor: 'var(--bg-canvas)',
               paddingTop: 'calc(max(var(--sat, 0px), 0.75rem) + 0.5rem)',
+              willChange: 'transform',
+              transform: 'translateZ(0)',
             }}
           >
-            <ExecutiveDashboardView onClose={closeExecutiveDashboard} />
+            <Suspense fallback={null}>
+              <ExecutiveDashboardView onClose={closeExecutiveDashboard} />
+            </Suspense>
           </motion.div>
         )}
       </AnimatePresence>
-
-
 
       <MobileTabBar />
       <QuickCaptureModal />
@@ -234,6 +262,17 @@ const MainLayout: React.FC = () => {
         isOpen={isInspectorOpen}
         onClose={closeInspector}
       />
+
+      {/* Brand Splash Screen with fluid Apple-grade hardware-accelerated choreography */}
+      <AnimatePresence>
+        {showSplash && (
+          <SplashScreen
+            key="taskify-splash-screen"
+            isReady={isDbReady}
+            onFinished={() => setShowSplash(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -242,6 +281,7 @@ export function App() {
   return (
     <ThemeProvider>
       <AppProvider>
+        <FaviconManager />
         <MainLayout />
       </AppProvider>
     </ThemeProvider>

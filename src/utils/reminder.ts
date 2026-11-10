@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { LocalNotifications, type LocalNotificationSchema } from '@capacitor/local-notifications';
 import type { ReminderPreset, Task, Habit } from '../types';
 import { getDailyPoke, DAILY_POKE_SCHEDULE } from './pokeMessages';
+import { DAYPART_SCHEDULE, generateDaypartGreeting } from './daypartGreetings';
 
 /**
  * Standard preset reminder time distributions for daily habits based on frequency count (1x - 5x max)
@@ -259,6 +260,25 @@ export async function syncNativeScheduledReminders(
         },
         autoCancel: true,
         extra: { type: 'poke', slot: slot.slotId },
+      });
+    });
+
+    // 4. Schedule daily recurring contextual daypart notifications (Morning, Afternoon, Night)
+    const pendingHabitsCount = habits.length;
+    DAYPART_SCHEDULE.forEach((slot) => {
+      const greeting = generateDaypartGreeting(slot.slotId, userName, pendingCount, pendingHabitsCount);
+      notifications.push({
+        id: stringToIntegerId(`daypart-greeting-${slot.slotId}`),
+        title: `${greeting.emoji} ${greeting.title}`,
+        body: greeting.body,
+        channelId: 'taskify_reminders',
+        schedule: {
+          on: { hour: slot.hour, minute: slot.minute },
+          every: 'day',
+          allowWhileIdle: true,
+        },
+        autoCancel: true,
+        extra: { type: 'daypart', slot: slot.slotId },
       });
     });
 

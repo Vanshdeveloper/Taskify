@@ -47,7 +47,8 @@ export const ThemeStudio: React.FC = () => {
     <div className="flex flex-col gap-4">
       {/* Category Segmented Filter Tabs */}
       <div
-        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth"
+        data-no-swipe="true"
+        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth no-tab-swipe"
         style={{ touchAction: 'pan-x' }}
         onWheel={(e) => {
           if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
@@ -67,6 +68,7 @@ export const ThemeStudio: React.FC = () => {
             <button
               key={tab.id}
               type="button"
+              data-no-swipe="true"
               onClick={() => {
                 feedback.playClick();
                 setActiveCategory(tab.id);
@@ -129,15 +131,15 @@ export const ThemeStudio: React.FC = () => {
                   </div>
 
                   {isActive && (
-                    <motion.div
-                      initial={{ scale: 0.4, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: 'spring', damping: 24, stiffness: 400 }}
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-white shadow-md shrink-0"
-                      style={{ backgroundColor: 'var(--accent-primary)' }}
+                    <div
+                      key={`theme-check-${t.id}`}
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-white shadow-md shrink-0 animate-check-pop"
+                      style={{
+                        backgroundColor: 'var(--accent-primary)',
+                      }}
                     >
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
-                    </motion.div>
+                    </div>
                   )}
                 </div>
 

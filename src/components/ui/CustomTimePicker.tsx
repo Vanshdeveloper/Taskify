@@ -135,7 +135,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full h-10 px-3.5 rounded-xl solid-input flex items-center justify-between text-xs font-medium text-white pressable gap-2 transition-colors cursor-pointer"
+        className="w-full h-9 px-3 rounded-xl solid-input flex items-center justify-between text-xs font-medium text-white pressable gap-1.5 transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2 truncate">
           <Clock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />

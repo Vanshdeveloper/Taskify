@@ -31,13 +31,15 @@ export const MobileTabBar: React.FC = () => {
   };
 
   return (
-    <div className="md:hidden fixed bottom-3 left-0 right-0 z-40 px-3 pb-[calc(4px+var(--sab))] pointer-events-none select-none">
+    <div className="sm:hidden fixed bottom-3 left-0 right-0 z-40 px-3 pb-[calc(4px+var(--sab))] pointer-events-none select-none">
       <div className="max-w-md mx-auto flex flex-col items-center pointer-events-auto">
         {/* Dynamic Floating Island Dock */}
         <nav
-          className="w-full rounded-2xl p-1.5 flex items-center justify-between border shadow-2xl relative overflow-hidden"
+          className="w-full rounded-2xl p-1.5 flex items-center justify-between border shadow-2xl relative overflow-hidden backdrop-blur-xl"
           style={{
-            backgroundColor: 'var(--dock-bg)',
+            backgroundColor: 'color-mix(in srgb, var(--dock-bg) 85%, transparent)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             borderColor: 'var(--dock-border)',
             boxShadow: '0 20px 48px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)',
           }}
@@ -52,7 +54,7 @@ export const MobileTabBar: React.FC = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => handleTabClick(tab.id)}
-                  className={`relative flex flex-col items-center justify-center py-2 px-3.5 rounded-xl pressable transition-colors flex-1 ${
+                  className={`relative flex flex-col items-center justify-center min-h-[44px] py-1.5 px-3.5 rounded-xl pressable transition-all flex-1 cursor-pointer touch-manipulation active:scale-95 ${
                     isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
@@ -78,12 +80,10 @@ export const MobileTabBar: React.FC = () => {
           </div>
 
           {/* Center Tactile (+) Quick Capture Trigger Button */}
-          <motion.button
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.92 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 450 }}
+          <button
+            type="button"
             onClick={handleFabClick}
-            className="w-11 h-11 mx-1.5 rounded-xl flex items-center justify-center shadow-lg pressable border border-white/20 shrink-0 cursor-pointer"
+            className="w-11 h-11 mx-1.5 rounded-xl flex items-center justify-center shadow-lg pressable border border-white/20 shrink-0 cursor-pointer touch-manipulation active:scale-95 transition-transform"
             style={{
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
@@ -91,7 +91,7 @@ export const MobileTabBar: React.FC = () => {
             aria-label="Quick capture"
           >
             <Plus className="w-5 h-5 stroke-[2.75]" />
-          </motion.button>
+          </button>
 
           {/* Right Wing Tabs */}
           <div className="flex items-center gap-1 flex-1 justify-around">
@@ -103,7 +103,7 @@ export const MobileTabBar: React.FC = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => handleTabClick(tab.id)}
-                  className={`relative flex flex-col items-center justify-center py-2 px-3.5 rounded-xl pressable transition-colors flex-1 ${
+                  className={`relative flex flex-col items-center justify-center min-h-[44px] py-1.5 px-3.5 rounded-xl pressable transition-all flex-1 cursor-pointer touch-manipulation active:scale-95 ${
                     isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >

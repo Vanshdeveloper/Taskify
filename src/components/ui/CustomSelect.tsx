@@ -58,7 +58,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full h-10 px-3.5 rounded-xl solid-input flex items-center justify-between text-xs font-medium text-white pressable gap-2 transition-colors"
+        className="w-full h-9 px-3 rounded-xl solid-input flex items-center justify-between text-xs font-medium text-white pressable gap-1.5 transition-colors"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <ChevronDown

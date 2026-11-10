@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   ShieldCheck,
   Download,
@@ -12,12 +13,14 @@ import {
   PanelTop,
   TrendingUp,
   ArrowUpRight,
+  Vibrate,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
 import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from './ThemeStudio';
+import { AestheticSelector } from './AestheticSelector';
 import type { NavbarHeight, NavbarGlass } from '../../types';
 
 export const SettingsView: React.FC = () => {
@@ -115,7 +118,7 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-4xl mx-auto w-full pb-64 sm:pb-56 select-none relative z-10">
+    <div className="flex flex-col gap-5 max-w-4xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10">
       {/* 1. Header */}
       <div className="pt-1">
         <div className="flex items-center gap-2 mb-1">
@@ -256,10 +259,13 @@ export const SettingsView: React.FC = () => {
         </button>
       </div>
 
-      {/* 4. Atmosphere & Theme System (Shown NEXT) */}
+      {/* 4. Choose Your Aesthetic & App Logo (First Thing Under Visuals) */}
+      <AestheticSelector />
+
+      {/* 5. Atmosphere & Theme System */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col gap-3.5"
-        style={{ backgroundColor: 'var(--bg-card)' }}
+        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col gap-3.5 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
         <div className="flex items-center gap-2">
           <Palette className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
@@ -268,12 +274,81 @@ export const SettingsView: React.FC = () => {
               Atmosphere & Theme System
             </h2>
             <p className="text-[11px] text-zinc-400 mt-0.5">
-              Select categorized palettes from soft organic linen to pure OLED dark, or generate precision harmonic themes.
+              Select categorized palettes from soft organic linen to pure OLED dark.
             </p>
           </div>
         </div>
 
         <ThemeStudio />
+      </div>
+
+      {/* 6. Physical Interaction & Haptic Vibration */}
+      <div
+        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex items-center justify-between gap-4 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+      >
+        <div className="flex items-center gap-3.5">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-md border shrink-0"
+            style={{
+              backgroundColor: 'color-mix(in srgb, var(--accent-primary) 15%, transparent)',
+              borderColor: 'color-mix(in srgb, var(--accent-primary) 30%, transparent)',
+              color: 'var(--accent-primary)',
+            }}
+          >
+            <Vibrate className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-2">
+              <span>Haptic Vibration</span>
+              <span
+                className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md border"
+                style={{
+                  backgroundColor: settings.hapticFeedback !== false ? 'rgba(102, 124, 62, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  borderColor: settings.hapticFeedback !== false ? 'rgba(102, 124, 62, 0.4)' : 'rgba(255, 255, 255, 0.1)',
+                  color: settings.hapticFeedback !== false ? 'var(--accent-success, #7da04a)' : 'var(--text-muted)',
+                }}
+              >
+                {settings.hapticFeedback !== false ? 'Active' : 'Muted'}
+              </span>
+            </h3>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Tactile physical vibrations on button taps, routine increments, and objective completions.
+            </p>
+          </div>
+        </div>
+
+        {/* Apple Spring Switch */}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={settings.hapticFeedback !== false}
+          onClick={async () => {
+            const nextVal = !(settings.hapticFeedback !== false);
+            feedback.setHapticsEnabled(nextVal);
+            if (nextVal) {
+              feedback.playClick();
+            }
+            await updateSettings({ hapticFeedback: nextVal });
+          }}
+          className={`w-12 h-7 rounded-full p-1 transition-colors duration-200 cursor-pointer shrink-0 border ${
+            settings.hapticFeedback !== false
+              ? 'border-transparent'
+              : 'bg-white/10 border-white/10'
+          }`}
+          style={{
+            backgroundColor: settings.hapticFeedback !== false ? 'var(--accent-primary)' : undefined,
+          }}
+          title={settings.hapticFeedback !== false ? 'Disable Haptic Vibration' : 'Enable Haptic Vibration'}
+        >
+          <motion.div
+            layout
+            transition={{ type: 'spring', damping: 25, stiffness: 450 }}
+            className={`w-5 h-5 rounded-full bg-white shadow-md ${
+              settings.hapticFeedback !== false ? 'ml-auto' : 'ml-0'
+            }`}
+          />
+        </button>
       </div>
 
       {/* 4. Navigation Bar Customization (Navbar Height & Glass) */}

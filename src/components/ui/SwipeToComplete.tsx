@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Check, ChevronRight } from 'lucide-react';
 import { feedback } from '../../utils/feedback';
+import { APPLE_SPRINGS } from '../../utils/motion';
 
 interface SwipeToCompleteProps {
   onComplete: () => void;
@@ -26,13 +27,17 @@ export const SwipeToComplete: React.FC<SwipeToCompleteProps> = ({
     }
   }, [isCompleted, x]);
 
-  const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
+  const handleDragEnd = (_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
     if (info.offset.x > 130 && !hasCompleted) {
       setHasCompleted(true);
       feedback.playSuccessChime();
       onComplete();
     } else {
-      x.set(0);
+      // Natural Apple spring rebound returning handle with release velocity
+      animate(x, 0, {
+        ...APPLE_SPRINGS.snappy,
+        velocity: info.velocity?.x,
+      });
     }
   };
 
@@ -75,8 +80,8 @@ export const SwipeToComplete: React.FC<SwipeToCompleteProps> = ({
         onDragEnd={handleDragEnd}
         style={{ x }}
         whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="relative z-10 w-9 h-9 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-lg cursor-grab active:cursor-grabbing pressable font-bold"
+        whileTap={{ scale: 0.97 }}
+        className="relative z-10 w-9 h-9 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-lg cursor-grab active:cursor-grabbing font-bold select-none"
       >
         <Check className="w-4 h-4 stroke-[2.5]" />
       </motion.div>

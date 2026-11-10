@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
+import { APPLE_SPRINGS } from '../../utils/motion';
 
 interface UniversalSearchModalProps {
   isOpen: boolean;
@@ -250,9 +251,10 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: 0.16 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 bg-black/80"
+            style={{ willChange: 'opacity' }}
           />
 
           {/* Spotlight Dialog */}
@@ -260,11 +262,12 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -6 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 420 }}
+            transition={APPLE_SPRINGS.snappy}
             className="relative w-full max-w-xl rounded-2xl shadow-2xl flex flex-col border z-10 overflow-hidden"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
+              willChange: 'transform, opacity',
             }}
           >
             {/* Search Input Bar */}

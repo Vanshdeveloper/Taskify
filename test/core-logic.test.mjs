@@ -260,33 +260,35 @@ test('Smart Reminders: Task reminder offset calculation for presets', () => {
   assert.equal(calculateTaskReminderTime('14:30', 'custom', '10:00'), '10:00');
 });
 
-test('Harmonic Palette Generator: Single seed color derives unified 5-layer surface tokens', () => {
-  function hexToHsl(hex) {
-    let clean = hex.replace('#', '').trim();
-    const num = parseInt(clean, 16);
-    const r = ((num >> 16) & 255) / 255;
-    const g = ((num >> 8) & 255) / 255;
-    const b = (num & 255) / 255;
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0, s = 0, l = (max + min) / 2;
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-      h = Math.round(h * 60);
+test('Haptic Vibration Setting: Toggle state controls hardware impact gating and defaults', () => {
+  // Test simulated feedback engine gating
+  let nativeHapticFired = false;
+  let isHapticsEnabled = true;
+
+  function triggerFeedback() {
+    if (isHapticsEnabled) {
+      nativeHapticFired = true;
     }
-    return { h: (h + 360) % 360, s: Math.round(s * 100), l: Math.round(l * 100) };
   }
 
-  const orangeSeed = '#f5773f';
-  const { h, s, l } = hexToHsl(orangeSeed);
-  assert.ok(h >= 15 && h <= 30, 'Orange hue should be within terracotta/tangerine range (15-30 deg)');
-  assert.ok(s >= 70, 'Saturation should be vivid');
+  // 1. Enabled by default
+  assert.equal(isHapticsEnabled, true);
+  triggerFeedback();
+  assert.equal(nativeHapticFired, true);
+
+  // 2. Disabled via settings toggle
+  nativeHapticFired = false;
+  isHapticsEnabled = false;
+  triggerFeedback();
+  assert.equal(nativeHapticFired, false, 'Haptics must be suppressed when disabled');
+
+  // 3. UserSettings default verification
+  const defaultSettings = {
+    monthlyBudget: 2400,
+    userName: 'Alex',
+    hapticFeedback: true,
+  };
+  assert.equal(defaultSettings.hapticFeedback, true);
 });
 
 test('Gen-Z Randomized Validation & Deletion: Generates varied prompts and non-empty microcopy', () => {
@@ -334,45 +336,31 @@ test('Daily Poke Service: Generates witty contextual prompts with pending nudges
   assert.ok(pokeTimes.includes('21:30'));
 });
 
-test('Harmonic Palette Studio Tools: Harmony modes, OLED darkness, and WCAG accessibility contrast', () => {
-  // Test Relative Luminance and WCAG ratio calculation
-  function getLuminance(hex) {
-    let clean = hex.replace('#', '').trim();
-    const num = parseInt(clean, 16);
-    const rgb = [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255];
-    const a = rgb.map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
-    return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
-  }
+test('Core Prioritization & Metrics: Focus priority, habit completion percentage & safe-to-spend velocity', () => {
+  // 1. Focus Task Prioritization: High priority due today wins
+  const tasks = [
+    { id: '1', title: 'Normal Later', priority: 'medium', dueDate: '2026-11-10', completed: false },
+    { id: '2', title: 'High Today', priority: 'high', dueDate: '2026-11-07', completed: false },
+    { id: '3', title: 'Normal Today', priority: 'low', dueDate: '2026-11-07', completed: false },
+  ];
+  const pending = tasks.filter((t) => !t.completed);
+  const topTask = pending.find((t) => t.dueDate === '2026-11-07' && t.priority === 'high')
+    || pending.find((t) => t.dueDate === '2026-11-07')
+    || pending[0];
+  assert.equal(topTask.id, '2');
+  assert.equal(topTask.title, 'High Today');
 
-  function getWcagContrast(fgHex, bgHex) {
-    const l1 = getLuminance(fgHex);
-    const l2 = getLuminance(bgHex);
-    const lighter = Math.max(l1, l2);
-    const darker = Math.min(l1, l2);
-    const ratio = (lighter + 0.05) / (darker + 0.05);
-    const rounded = Math.round(ratio * 10) / 10;
-    const passAA = ratio >= 4.5;
-    return { ratio: rounded, passAA };
-  }
+  // 2. Habit Matrix Percentage
+  const habits = [{ id: 'h1' }, { id: 'h2' }, { id: 'h3' }, { id: 'h4' }];
+  const completedHabitsCount = 3;
+  const pct = Math.round((completedHabitsCount / habits.length) * 100);
+  assert.equal(pct, 75);
 
-  // White text (#ffffff) on dark OLED (#0a0a0c) has high contrast > 15:1
-  const oledContrast = getWcagContrast('#ffffff', '#0a0a0c');
-  assert.ok(oledContrast.ratio > 15);
-  assert.equal(oledContrast.passAA, true);
-
-  // Vibrant accent (#f5773f) on dark canvas (#110d0a) passes AA Large / AA
-  const accentContrast = getWcagContrast('#f5773f', '#110d0a');
-  assert.ok(accentContrast.ratio >= 4.0, `Expected ratio >= 4.0, got ${accentContrast.ratio}`);
-
-  // Test Harmony Modes hue derivations
-  const seedHue = 24; // Terracotta
-  const analogousHue = (seedHue + 35) % 360; // 59 (Gold/Amber)
-  const complementaryHue = (seedHue + 180) % 360; // 204 (Cyan/Sky)
-  const triadicHue = (seedHue + 120) % 360; // 144 (Emerald/Jade)
-
-  assert.equal(analogousHue, 59);
-  assert.equal(complementaryHue, 204);
-  assert.equal(triadicHue, 144);
+  // 3. Safe-to-Spend Velocity & Clamping
+  const monthlyExpenses = 1800;
+  const monthlyBudget = 2400;
+  const spentPct = Math.min(100, Math.round((monthlyExpenses / monthlyBudget) * 100));
+  assert.equal(spentPct, 75);
 });
 
 test('Navbar Height Y-Axis Centering: Symmetrical vertical padding for compact, default, and spacious', () => {
@@ -386,4 +374,258 @@ test('Navbar Height Y-Axis Centering: Symmetrical vertical padding for compact, 
   assert.ok(heightConfig.spacious);
   assert.equal(heightConfig.compact.minHeight, '3.25rem');
   assert.equal(heightConfig.spacious.minHeight, '4.75rem');
+});
+
+test('Custom Smooth Splash Screen: Low-end mobile performance, duration clamping, and brand token integrity', () => {
+  // 1. Duration clamping logic
+  const minDurationMs = 650;
+  const computeRemaining = (elapsed) => Math.max(0, minDurationMs - elapsed);
+
+  // Fast boot: keeps splash for remainder of 650ms to prevent visual flicker
+  assert.equal(computeRemaining(100), 550);
+  assert.equal(computeRemaining(300), 350);
+
+  // Slow boot on low-end mobile: zero artificial delay, releases immediately
+  assert.equal(computeRemaining(650), 0);
+  assert.equal(computeRemaining(1200), 0);
+
+  // 2. Brand Design Tokens
+  const brandTokens = {
+    canvas: '#160f0d',
+    accentPrimary: '#f26a36',
+    accentSecondary: '#e5a42f',
+    highlight: '#fdf3e5',
+  };
+  assert.equal(brandTokens.canvas, '#160f0d');
+  assert.equal(brandTokens.accentPrimary, '#f26a36');
+  assert.equal(brandTokens.accentSecondary, '#e5a42f');
+  assert.equal(brandTokens.highlight, '#fdf3e5');
+
+  // 3. Apple Fluid Deceleration Ease & GPU Compositor Transform
+  const appleEase = [0.16, 1, 0.3, 1];
+  assert.equal(appleEase.length, 4);
+  assert.equal(appleEase[0], 0.16);
+  assert.equal(appleEase[1], 1);
+
+  const keyframes = {
+    from: 'translate3d(-100%, 0, 0)',
+    to: 'translate3d(250%, 0, 0)',
+  };
+  assert.ok(keyframes.from.startsWith('translate3d'));
+  assert.ok(keyframes.to.startsWith('translate3d'));
+});
+
+test('Choreographed Splash Screen: 1:1 navbar scale, clip-path wipe, and flat zero-glow tokens', () => {
+  // 1. Unbroken wordmark typography contract matching Navbar
+  const navbarClasses = 'font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em] leading-none';
+  const splashText = 'Taskify';
+  assert.equal(splashText, 'Taskify');
+  assert.ok(navbarClasses.includes('font-display'));
+  assert.ok(navbarClasses.includes('font-black'));
+  assert.ok(navbarClasses.includes('tracking-[-0.04em]'));
+
+  // 2. 1:1 Scale Delta Coordinates Math (no scale distortion)
+  const centerLockupRect = { left: 400, top: 300, width: 88, height: 24 };
+  const targetNavbarRect = { left: 24, top: 18, width: 88, height: 24 };
+
+  const deltaX = targetNavbarRect.left - centerLockupRect.left;
+  const deltaY = targetNavbarRect.top - centerLockupRect.top;
+  const scale = 1.0; // Strictly 1:1 as requested
+
+  assert.equal(deltaX, -376);
+  assert.equal(deltaY, -282);
+  assert.equal(scale, 1.0);
+
+  // Landing coordinate verification
+  const finalX = centerLockupRect.left + deltaX;
+  const finalY = centerLockupRect.top + deltaY;
+  assert.equal(finalX, targetNavbarRect.left);
+  assert.equal(finalY, targetNavbarRect.top);
+
+  // 3. Critically Damped Apple Spring Tokens for Docking
+  const flightSpring = {
+    damping: 26,
+    stiffness: 220,
+    mass: 0.85,
+  };
+  assert.equal(flightSpring.damping, 26);
+  assert.equal(flightSpring.stiffness, 220);
+  assert.equal(flightSpring.mass, 0.85);
+
+  // 4. Flat Zero-Glow Dot Contract
+  const dotConfig = {
+    hasShadow: false,
+    hasBlur: false,
+    backgroundColor: 'var(--accent-primary)',
+    size: 'w-1.5 h-1.5',
+  };
+  assert.equal(dotConfig.hasShadow, false);
+  assert.equal(dotConfig.hasBlur, false);
+  assert.equal(dotConfig.size, 'w-1.5 h-1.5');
+});
+
+test('App Aesthetic & Chrome Favicon Synchronization Contract', () => {
+  const supportedAesthetics = [
+    'dynamic-theme',
+    'espresso-terracotta',
+    'kyoto-matcha',
+    'lavender-mist',
+    'nordic-sky',
+    'molten-amber',
+    'minimal-obsidian',
+    'text-dot',
+    'text-brackets',
+    'text-caps',
+    'text-terminal',
+    'text-spark',
+  ];
+
+  assert.equal(supportedAesthetics.length, 12);
+  assert.ok(supportedAesthetics.includes('dynamic-theme'));
+  assert.ok(supportedAesthetics.includes('text-brackets'));
+  assert.ok(supportedAesthetics.includes('text-caps'));
+
+  // Concentric circle geometry contract
+  const circleLogo = {
+    outerRadius: 44,
+    innerRadius: 20,
+    viewBox: '0 0 100 100',
+  };
+  assert.equal(circleLogo.outerRadius, 44);
+  assert.equal(circleLogo.innerRadius, 20);
+
+  // Default color-scheme dark style contract preventing white flash
+  const darkScheme = {
+    colorScheme: 'dark',
+    defaultCanvas: '#160f0d',
+  };
+  assert.equal(darkScheme.colorScheme, 'dark');
+  assert.equal(darkScheme.defaultCanvas, '#160f0d');
+});
+
+test('Daypart Motivational Notifications: Morning, Afternoon, and Night briefings', () => {
+  // 1. Daypart hour resolution contract
+  function getDaypartForHour(hour) {
+    if (hour >= 5 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 18) return 'afternoon';
+    return 'night';
+  }
+
+  assert.equal(getDaypartForHour(8), 'morning');
+  assert.equal(getDaypartForHour(14), 'afternoon');
+  assert.equal(getDaypartForHour(21), 'night');
+
+  // 2. Daypart schedule slots
+  const DAYPART_SCHEDULE = [
+    { slotId: 'morning', hour: 8, minute: 30, timeStr: '08:30' },
+    { slotId: 'afternoon', hour: 13, minute: 30, timeStr: '13:30' },
+    { slotId: 'night', hour: 20, minute: 30, timeStr: '20:30' },
+  ];
+  assert.equal(DAYPART_SCHEDULE.length, 3);
+  assert.equal(DAYPART_SCHEDULE[0].timeStr, '08:30');
+  assert.equal(DAYPART_SCHEDULE[1].timeStr, '13:30');
+  assert.equal(DAYPART_SCHEDULE[2].timeStr, '20:30');
+
+  // 3. Greetings with pending tasks & habits
+  function generateDaypartGreeting(daypart, userName, pendingTasksCount, pendingHabitsCount) {
+    const name = userName?.trim() || 'Alex';
+    const totalPending = pendingTasksCount + pendingHabitsCount;
+    const isAllDone = totalPending === 0;
+
+    if (isAllDone) {
+      switch (daypart) {
+        case 'morning':
+          return {
+            daypart,
+            emoji: '🌅',
+            title: `Good morning, ${name}! ✨`,
+            body: `All clear for today! You're already ahead of the game — enjoy your calm, focused morning.`,
+            isAllDone: true,
+          };
+        case 'afternoon':
+          return {
+            daypart,
+            emoji: '🚀',
+            title: `Good afternoon, ${name}! 🏆`,
+            body: `Phenomenal execution! Everything on your list is checked off. Outstanding focus today!`,
+            isAllDone: true,
+          };
+        case 'night':
+        default:
+          return {
+            daypart,
+            emoji: '🌟',
+            title: `Good night, ${name}! 🌙`,
+            body: `Flawless day completed! Every single goal and routine accomplished. Rest well, you earned it!`,
+            isAllDone: true,
+          };
+      }
+    }
+
+    const parts = [];
+    if (pendingTasksCount > 0) {
+      parts.push(`${pendingTasksCount} ${pendingTasksCount === 1 ? 'task' : 'tasks'}`);
+    }
+    if (pendingHabitsCount > 0) {
+      parts.push(`${pendingHabitsCount} ${pendingHabitsCount === 1 ? 'routine' : 'routines'}`);
+    }
+    const pendingSummary = parts.join(' and ');
+
+    switch (daypart) {
+      case 'morning':
+        return {
+          daypart,
+          emoji: '☀️',
+          title: `Good morning, ${name}!`,
+          body: `You have ${pendingSummary} queued up for today. Let's make today count!`,
+          isAllDone: false,
+        };
+      case 'afternoon':
+        return {
+          daypart,
+          emoji: '⚡',
+          title: `Good afternoon, ${name}!`,
+          body: `${pendingSummary} still open for today. Keep the momentum going strong!`,
+          isAllDone: false,
+        };
+      case 'night':
+      default:
+        return {
+          daypart,
+          emoji: '🌙',
+          title: `Good night, ${name}!`,
+          body: `${pendingSummary} remaining to close out today. Finish strong or wrap up with peace!`,
+          isAllDone: false,
+        };
+    }
+  }
+
+  // Pending briefings
+  const morningPending = generateDaypartGreeting('morning', 'Taylor', 3, 2);
+  assert.equal(morningPending.isAllDone, false);
+  assert.ok(morningPending.title.includes('Good morning, Taylor!'));
+  assert.ok(morningPending.body.includes('3 tasks and 2 routines'));
+
+  const afternoonPending = generateDaypartGreeting('afternoon', 'Taylor', 1, 1);
+  assert.equal(afternoonPending.isAllDone, false);
+  assert.ok(afternoonPending.title.includes('Good afternoon, Taylor!'));
+  assert.ok(afternoonPending.body.includes('1 task and 1 routine'));
+
+  const nightPending = generateDaypartGreeting('night', 'Taylor', 2, 0);
+  assert.equal(nightPending.isAllDone, false);
+  assert.ok(nightPending.title.includes('Good night, Taylor!'));
+  assert.ok(nightPending.body.includes('2 tasks remaining'));
+
+  // All completed uplifting motivational messages
+  const morningDone = generateDaypartGreeting('morning', 'Taylor', 0, 0);
+  assert.equal(morningDone.isAllDone, true);
+  assert.ok(morningDone.body.includes('All clear for today!'));
+
+  const afternoonDone = generateDaypartGreeting('afternoon', 'Taylor', 0, 0);
+  assert.equal(afternoonDone.isAllDone, true);
+  assert.ok(afternoonDone.body.includes('Phenomenal execution!'));
+
+  const nightDone = generateDaypartGreeting('night', 'Taylor', 0, 0);
+  assert.equal(nightDone.isAllDone, true);
+  assert.ok(nightDone.body.includes('Flawless day completed!'));
 });

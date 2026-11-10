@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, startTransition } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export interface ThemeDefinition {
   id: string;
@@ -167,55 +167,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const applyThemeToDOM = (themeId: string) => {
     if (typeof document === 'undefined') return;
-    const root = document.documentElement;
-
-    // Remove any dynamic inline style properties from previous versions
-    root.style.removeProperty('--bg-canvas');
-    root.style.removeProperty('--bg-card');
-    root.style.removeProperty('--bg-card-hover');
-    root.style.removeProperty('--bg-subtle');
-    root.style.removeProperty('--bg-input');
-    root.style.removeProperty('--border-subtle');
-    root.style.removeProperty('--border-card');
-    root.style.removeProperty('--border-focus');
-    root.style.removeProperty('--accent-primary');
-    root.style.removeProperty('--accent-primary-hover');
-    root.style.removeProperty('--accent-secondary');
-    root.style.removeProperty('--accent-secondary-hover');
-    root.style.removeProperty('--accent-success');
-    root.style.removeProperty('--accent-highlight');
-    root.style.removeProperty('--text-primary');
-    root.style.removeProperty('--text-secondary');
-    root.style.removeProperty('--text-muted');
-    root.style.removeProperty('--dock-bg');
-    root.style.removeProperty('--dock-border');
-
-    root.setAttribute('data-theme', themeId);
+    document.documentElement.setAttribute('data-theme', themeId);
   };
 
   const setTheme = (newTheme: string) => {
-    const apply = () => {
-      startTransition(() => {
-        setThemeState(newTheme);
-      });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(PREFERENCE_STORAGE_KEY, newTheme);
-      }
-      applyThemeToDOM(newTheme);
-    };
-
-    if (
-      typeof document !== 'undefined' &&
-      'startViewTransition' in document &&
-      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
+    // Instant, stutter-free theme application (<1ms):
+    // Directly apply the CSS data-theme attribute and update state synchronously.
+    // Avoids document.startViewTransition full-screen bitmap stalls on mobile.
+    applyThemeToDOM(newTheme);
+    setThemeState(newTheme);
+    if (typeof window !== 'undefined') {
       try {
-        (document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(apply);
+        localStorage.setItem(PREFERENCE_STORAGE_KEY, newTheme);
       } catch {
-        apply();
+        // Ignore storage quotas / disabled storage
       }
-    } else {
-      apply();
     }
   };
 

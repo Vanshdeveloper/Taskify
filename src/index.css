@@ -423,7 +423,6 @@
     text-rendering: optimizeLegibility;
     user-select: none;
     -webkit-user-select: none;
-    transition: background-color 250ms ease, color 250ms ease;
   }
 
   input, textarea, select, [contenteditable="true"] {
@@ -439,6 +438,16 @@
   letter-spacing: -0.035em;
 }
 
+.font-outfit {
+  font-family: "Outfit", -apple-system, sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.font-cabinet {
+  font-family: "Outfit", "Space Grotesk", -apple-system, sans-serif;
+  letter-spacing: -0.045em;
+}
+
 .font-body {
   font-family: "Inter", -apple-system, sans-serif;
 }
@@ -449,11 +458,13 @@
 
 /* Apple direct manipulation tactile press */
 .pressable {
-  transition: transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 120ms ease;
-  will-change: transform;
+  transition: opacity 120ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 .pressable:active {
-  transform: scale(0.975);
+  transform: scale(0.97);
 }
 
 /* Solid Concept Card Styling */
@@ -461,11 +472,31 @@
   background-color: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: 1.5rem;
-  transition: background-color 200ms ease, border-color 200ms ease, transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .solid-card:hover {
   background-color: var(--bg-card-hover);
   border-color: rgba(255, 255, 255, 0.16);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-check-pop {
+  animation: check-pop 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
 .solid-input {
@@ -557,3 +588,18 @@
   content-visibility: auto;
   contain-intrinsic-size: 0 76px;
 }
+
+/* GPU-Accelerated Hardware Composited Splash Shimmer */
+@keyframes splashShimmer {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(250%, 0, 0);
+  }
+}
+
+.splash-shimmer-bar {
+  animation: splashShimmer 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+

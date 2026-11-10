@@ -8,8 +8,6 @@ import {
   Download,
   Upload,
   RotateCcw,
-  Volume2,
-  VolumeX,
   Command,
   Sliders,
   User,
@@ -19,12 +17,14 @@ import {
   CheckCircle2,
   TrendingUp,
   ArrowUpRight,
+  Vibrate,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
 import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from '../settings/ThemeStudio';
+import { AestheticSelector } from '../settings/AestheticSelector';
 import type { NavbarHeight, NavbarGlass } from '../../types';
 
 interface SlideOverInspectorProps {
@@ -48,11 +48,20 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   const [userNameInput, setUserNameInput] = useState(settings.userName);
   const [currencyInput, setCurrencyInput] = useState(settings.currency);
   const [budgetInput, setBudgetInput] = useState(settings.monthlyBudget.toString());
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [savedNotice, setSavedNotice] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => setIsReady(true), 260);
+      return () => clearTimeout(timer);
+    } else {
+      setIsReady(false);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     setCurrencyInput(settings.currency);
@@ -139,7 +148,8 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/75"
+            style={{ willChange: 'opacity' }}
           />
 
           {/* Slide-Over Drawer: Fully Responsive (Full on mobile, wide & spacious on desktop) */}
@@ -147,9 +157,13 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 340, mass: 0.55 }}
             className="relative w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl h-full z-10 flex flex-col shadow-2xl border-l border-white/10"
-            style={{ backgroundColor: 'var(--bg-canvas)' }}
+            style={{
+              backgroundColor: 'var(--bg-canvas)',
+              willChange: 'transform',
+              transform: 'translateZ(0)',
+            }}
           >
             {/* Drawer Header: Exactly matches Main Navbar Height, Safe Area, and Styling */}
             <div
@@ -186,8 +200,8 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 380 }}
                 onClick={onClose}
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable transition-colors border border-white/8 hover:border-white/16 cursor-pointer shrink-0"
                 style={{ backgroundColor: 'var(--bg-card)' }}
@@ -317,7 +331,14 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                 </button>
               </div>
 
-              {/* Section 3: Themes & Palettes Studio */}
+              {/* Section 3: App Logo Aesthetic Selector (deferred for 60fps opening slide) */}
+              {isReady ? (
+                <AestheticSelector />
+              ) : (
+                <div className="h-28 rounded-2xl bg-white/[0.02] border border-white/6 animate-pulse" />
+              )}
+
+              {/* Section 4: Themes & Palettes Studio (deferred for 60fps opening slide) */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Palette className="w-4 h-4 text-zinc-400" />
@@ -326,7 +347,11 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   </span>
                 </div>
 
-                <ThemeStudio />
+                {isReady ? (
+                  <ThemeStudio />
+                ) : (
+                  <div className="h-44 rounded-2xl bg-white/[0.02] border border-white/6 animate-pulse" />
+                )}
               </div>
 
               {/* Section 3: Navigation Bar Customization */}
@@ -390,7 +415,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                             { id: 'vibrant', label: 'Vibrant', desc: 'Glow glass' },
                           ] as const
                         ).map((g) => {
-                          const isSel = (settings.navbarGlass || 'solid') === g.id;
+                          const isSel = (settings.navbarGlass || 'glass') === g.id;
                           return (
                             <button
                               key={g.id}
@@ -417,35 +442,52 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                 </div>
               </div>
 
-              {/* Section 4: Audio & Tactile Haptics */}
+              {/* Section 4: Haptic Vibration Setting */}
               <div>
                 <div className="flex items-center justify-between solid-card p-4">
                   <div className="flex items-center gap-3">
-                    {soundEnabled ? (
-                      <Volume2 className="w-4 h-4 text-zinc-300" />
-                    ) : (
-                      <VolumeX className="w-4 h-4 text-zinc-500" />
-                    )}
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm border shrink-0"
+                      style={{
+                        backgroundColor: 'color-mix(in srgb, var(--accent-primary) 15%, transparent)',
+                        borderColor: 'color-mix(in srgb, var(--accent-primary) 30%, transparent)',
+                        color: 'var(--accent-primary)',
+                      }}
+                    >
+                      <Vibrate className="w-4 h-4" />
+                    </div>
                     <div>
                       <span className="text-xs font-bold text-white block">
-                        Tactile Sounds & Feedback
+                        Haptic Vibration
                       </span>
                       <span className="text-[10px] text-zinc-400">
-                        Synthetic mechanical clicks & completion chimes
+                        Tactile vibration pulses on buttons, routines & completion
                       </span>
                     </div>
                   </div>
 
                   <button
                     type="button"
-                    onClick={() => setSoundEnabled((prev) => !prev)}
+                    role="switch"
+                    aria-checked={settings.hapticFeedback !== false}
+                    onClick={async () => {
+                      const nextVal = !(settings.hapticFeedback !== false);
+                      feedback.setHapticsEnabled(nextVal);
+                      if (nextVal) {
+                        feedback.playClick();
+                      }
+                      await updateSettings({ hapticFeedback: nextVal });
+                    }}
                     className={`w-11 h-6 rounded-full transition-colors relative pressable cursor-pointer ${
-                      soundEnabled ? 'bg-emerald-500' : 'bg-zinc-700'
+                      settings.hapticFeedback !== false ? 'bg-emerald-500' : 'bg-zinc-700'
                     }`}
+                    style={{
+                      backgroundColor: settings.hapticFeedback !== false ? 'var(--accent-primary)' : undefined,
+                    }}
                   >
                     <div
                       className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
-                        soundEnabled ? 'right-1' : 'left-1'
+                        settings.hapticFeedback !== false ? 'right-1' : 'left-1'
                       }`}
                     />
                   </button>

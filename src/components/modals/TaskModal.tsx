@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Check, Bell } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
-import type { Priority, ReminderPreset } from '../../types';
+import type { Priority, ReminderPreset, Subtask } from '../../types';
 import { CustomSelect } from '../ui/CustomSelect';
 import { CustomDatePicker } from '../ui/CustomDatePicker';
 import { CustomTimePicker } from '../ui/CustomTimePicker';
+import { SubtaskList } from '../tasks/SubtaskList';
 import { feedback } from '../../utils/feedback';
 import { calculateTaskReminderTime, requestNotificationPermission } from '../../utils/reminder';
 import { getEmptyFieldError } from '../../utils/genz';
+import { APPLE_SPRINGS } from '../../utils/motion';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -27,6 +29,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
   const [dueTime, setDueTime] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [category, setCategory] = useState('Work');
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
 
   // Reminder states
   const [reminderEnabled, setReminderEnabled] = useState(false);
@@ -46,6 +49,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
       setReminderEnabled(!!editingTask.reminderEnabled);
       setReminderPreset(editingTask.reminderPreset || 'at_due');
       setReminderTime(editingTask.reminderTime || '');
+      setSubtasks(editingTask.subtasks ? [...editingTask.subtasks] : []);
       setValidationError(null);
     } else if (isOpen && !editingTask) {
       setTitle('');
@@ -57,13 +61,18 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
       setReminderEnabled(false);
       setReminderPreset('at_due');
       setReminderTime('');
+      setSubtasks([]);
       setValidationError(null);
     }
   }, [isOpen, editingTask, today]);
 
-  const categories = Array.from(
-    new Set(['Work', 'Personal', 'Study', 'Fitness', ...tasks.map((t) => t.category)])
-  ).filter(Boolean);
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(['Work', 'Personal', 'Study', 'Fitness', ...tasks.map((t) => t.category)])
+      ).filter(Boolean),
+    [tasks]
+  );
 
   const handleToggleReminder = async () => {
     feedback.playClick();
@@ -107,6 +116,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
         reminderEnabled,
         reminderPreset: reminderEnabled ? reminderPreset : undefined,
         reminderTime: computedReminderTime,
+        subtasks: subtasks.length > 0 ? subtasks : undefined,
       });
     } else {
       await addTask({
@@ -120,6 +130,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
         reminderEnabled,
         reminderPreset: reminderEnabled ? reminderPreset : undefined,
         reminderTime: computedReminderTime,
+        subtasks: subtasks.length > 0 ? subtasks : undefined,
       });
     }
 
@@ -129,6 +140,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
     setDueTime('');
     setReminderEnabled(false);
     setReminderTime('');
+    setSubtasks([]);
     setValidationError(null);
     onClose();
   };
@@ -138,27 +150,29 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 select-none">
+          {/* Hardware-accelerated backdrop with zero GPU blur-thrashing */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md"
+            className="fixed inset-0 bg-black/80"
+            style={{ willChange: 'opacity' }}
           />
 
           {/* Modal Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 14 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: 'spring', damping: 27, stiffness: 380 }}
-            className="relative w-full max-w-lg solid-card p-6 shadow-2xl flex flex-col gap-4 border z-10 max-h-[90vh] overflow-y-auto no-scrollbar"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={APPLE_SPRINGS.snappy}
+            className="relative w-full max-w-lg solid-card p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col gap-4 border z-10 max-h-[88vh] overflow-y-auto no-scrollbar"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
+              willChange: 'transform, opacity',
             }}
           >
             {/* Header */}
@@ -275,6 +289,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
+              {/* Subtasks / Checklist Section (Feature F13) */}
+              <SubtaskList subtasks={subtasks} onChange={setSubtasks} />
+
               {/* Reminder Section */}
               <div className="p-3.5 rounded-2xl bg-black/25 border border-white/8 flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
@@ -355,28 +372,28 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 hairline-t mt-1">
+              <div className="flex items-center justify-end gap-2 pt-3 hairline-t mt-1">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white pressable cursor-pointer"
+                  className="h-9 px-3.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white pressable cursor-pointer"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg flex items-center gap-1.5 cursor-pointer"
+                  className="h-9 px-4 rounded-xl text-white font-semibold text-xs pressable shadow-md flex items-center gap-1.5 cursor-pointer"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
                   {editingTask ? (
                     <>
-                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>Save Changes</span>
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>Create Objective</span>
                     </>
                   )}

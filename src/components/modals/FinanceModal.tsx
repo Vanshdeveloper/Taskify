@@ -9,6 +9,7 @@ import { CustomSelect } from '../ui/CustomSelect';
 import { CustomDatePicker } from '../ui/CustomDatePicker';
 import { feedback } from '../../utils/feedback';
 import { getEmptyFieldError } from '../../utils/genz';
+import { APPLE_SPRINGS } from '../../utils/motion';
 
 interface FinanceModalProps {
   isOpen: boolean;
@@ -111,25 +112,27 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 select-none">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md"
+            className="fixed inset-0 bg-black/80"
+            style={{ willChange: 'opacity' }}
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 14 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: 'spring', damping: 27, stiffness: 380 }}
-            className="relative w-full max-w-lg solid-card p-6 shadow-2xl flex flex-col gap-4 border z-10"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={APPLE_SPRINGS.snappy}
+            className="relative w-full max-w-lg solid-card p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col gap-4 border z-10 max-h-[88vh] overflow-y-auto no-scrollbar"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
+              willChange: 'transform, opacity',
             }}
           >
             {/* Header */}
@@ -268,28 +271,28 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 hairline-t mt-1">
+              <div className="flex items-center justify-end gap-2 pt-3 hairline-t mt-1">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white pressable"
+                  className="h-9 px-3.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white pressable"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg flex items-center gap-1.5 cursor-pointer"
+                  className="h-9 px-4 rounded-xl text-white font-semibold text-xs pressable shadow-md flex items-center gap-1.5 cursor-pointer"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
                   {editingTransaction ? (
                     <>
-                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>Save Changes</span>
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>Log Cashflow</span>
                     </>
                   )}

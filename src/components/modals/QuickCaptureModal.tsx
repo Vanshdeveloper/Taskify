@@ -17,10 +17,11 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
-import type { Priority, HabitTimeOfDay, ReminderPreset, TransactionType, PaymentMethod } from '../../types';
+import type { Priority, HabitTimeOfDay, ReminderPreset, TransactionType, PaymentMethod, Subtask } from '../../types';
 import { CustomDatePicker } from '../ui/CustomDatePicker';
 import { CustomTimePicker } from '../ui/CustomTimePicker';
 import { CustomSelect } from '../ui/CustomSelect';
+import { SubtaskList } from '../tasks/SubtaskList';
 import { feedback } from '../../utils/feedback';
 import {
   calculateTaskReminderTime,
@@ -29,6 +30,7 @@ import {
 } from '../../utils/reminder';
 import { HABIT_ICON_OPTIONS } from '../habits/HabitIconRenderer';
 import { getEmptyFieldError } from '../../utils/genz';
+import { APPLE_SPRINGS } from '../../utils/motion';
 
 export const QuickCaptureModal: React.FC = () => {
   const { isQuickCaptureOpen, setIsQuickCaptureOpen, addTask, addHabit, addTransaction, tasks, settings } = useApp();
@@ -47,6 +49,7 @@ export const QuickCaptureModal: React.FC = () => {
   const [taskReminderEnabled, setTaskReminderEnabled] = useState(false);
   const [taskReminderPreset, setTaskReminderPreset] = useState<ReminderPreset>('at_due');
   const [taskReminderTime, setTaskReminderTime] = useState('');
+  const [taskSubtasks, setTaskSubtasks] = useState<Subtask[]>([]);
 
   // Habit form state
   const [habitName, setHabitName] = useState('');
@@ -113,6 +116,7 @@ export const QuickCaptureModal: React.FC = () => {
       setTaskDueTime('');
       setTaskReminderEnabled(false);
       setTaskReminderTime('');
+      setTaskSubtasks([]);
       setHabitName('');
       setHabitReminderEnabled(false);
       setHabitReminderFreq(1);
@@ -210,7 +214,9 @@ export const QuickCaptureModal: React.FC = () => {
         reminderEnabled: taskReminderEnabled,
         reminderPreset: taskReminderEnabled ? taskReminderPreset : undefined,
         reminderTime: computedReminderTime,
+        subtasks: taskSubtasks.length > 0 ? taskSubtasks : undefined,
       });
+      setTaskSubtasks([]);
       feedback.playSuccessChime();
     } else if (activeType === 'habit') {
       if (!habitName.trim()) {
@@ -269,27 +275,29 @@ export const QuickCaptureModal: React.FC = () => {
   return createPortal(
     <AnimatePresence>
       {isQuickCaptureOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 select-none">
-          {/* Dimmed backdrop */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 select-none">
+          {/* Hardware-accelerated Dimmed Backdrop (zero blur thrashing for 60fps on mobile) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md"
+            className="fixed inset-0 bg-black/80"
+            style={{ willChange: 'opacity' }}
             onClick={() => setIsQuickCaptureOpen(false)}
           />
 
           {/* Unified Quick Capture Modal Window */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 12 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 380 }}
-            className="relative w-full max-w-lg solid-card shadow-2xl overflow-hidden z-10 border max-h-[90vh] flex flex-col"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={APPLE_SPRINGS.snappy}
+            className="relative w-full max-w-lg solid-card rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 border max-h-[88vh] flex flex-col"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
+              willChange: 'transform, opacity',
             }}
           >
             {/* Header: Segmented Type Switcher & Close */}
@@ -370,183 +378,183 @@ export const QuickCaptureModal: React.FC = () => {
               {/* ============================================================ */}
               {/* 1. OBJECTIVE (TASK) COMPLETE FORM                           */}
               {/* ============================================================ */}
-              {activeType === 'task' && (
-                <>
+              <div className={activeType === 'task' ? 'flex flex-col gap-4' : 'hidden'}>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                    Objective Title
+                  </label>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder="e.g., Deliver Quarterly Roadmap Brief"
+                    value={taskTitle}
+                    onChange={(e) => {
+                      setTaskTitle(e.target.value);
+                      if (validationError) setValidationError(null);
+                    }}
+                    className={`w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none transition-all ${
+                      validationError && activeType === 'task' ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
+                    }`}
+                  />
+                  <AnimatePresence>
+                    {validationError && activeType === 'task' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                        className="mt-1 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                      >
+                        <span className="shrink-0 text-sm">💀</span>
+                        <span>{validationError}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                    Description / Notes (Optional)
+                  </label>
+                  <textarea
+                    placeholder="Add key deliverables, links, or context..."
+                    rows={2}
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                    className="w-full p-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
-                      Objective Title
+                      Target Date
                     </label>
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      placeholder="e.g., Deliver Quarterly Roadmap Brief"
-                      value={taskTitle}
-                      onChange={(e) => {
-                        setTaskTitle(e.target.value);
-                        if (validationError) setValidationError(null);
-                      }}
-                      className={`w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none transition-all ${
-                        validationError && activeType === 'task' ? 'border-rose-500 ring-1 ring-rose-500/50' : ''
-                      }`}
+                    <CustomDatePicker value={taskDueDate} onChange={setTaskDueDate} />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Deadline Time
+                    </label>
+                    <CustomTimePicker
+                      value={taskDueTime}
+                      onChange={setTaskDueTime}
+                      placeholder="Add deadline time"
+                      align="right"
                     />
-                    <AnimatePresence>
-                      {validationError && activeType === 'task' && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                          className="mt-1 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                      Priority Level
+                    </label>
+                    <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/6">
+                      {(['low', 'medium', 'high', 'urgent'] as Priority[]).map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => {
+                            feedback.playClick();
+                            setTaskPriority(p);
+                          }}
+                          className={`py-1.5 rounded-lg capitalize text-[11px] font-bold transition-all ${
+                            taskPriority === p
+                              ? 'bg-white/10 text-white shadow-sm'
+                              : 'text-zinc-500 hover:text-zinc-300'
+                          }`}
                         >
-                          <span className="shrink-0 text-sm">💀</span>
-                          <span>{validationError}</span>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                          {p}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
-                      Description / Notes (Optional)
+                      Category
                     </label>
-                    <textarea
-                      placeholder="Add key deliverables, links, or context..."
-                      rows={2}
-                      value={taskDescription}
-                      onChange={(e) => setTaskDescription(e.target.value)}
-                      className="w-full p-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
+                    <CustomSelect
+                      options={taskCategories}
+                      value={taskCategory}
+                      onChange={setTaskCategory}
                     />
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
-                        Target Date
-                      </label>
-                      <CustomDatePicker value={taskDueDate} onChange={setTaskDueDate} />
-                    </div>
+                {/* Task Subtasks / Checklist Section */}
+                <SubtaskList subtasks={taskSubtasks} onChange={setTaskSubtasks} />
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
-                        Deadline Time
-                      </label>
-                      <CustomTimePicker
-                        value={taskDueTime}
-                        onChange={setTaskDueTime}
-                        placeholder="Add deadline time"
-                        align="right"
-                      />
+                {/* Task Reminder Configuration */}
+                <div className="solid-card p-3 rounded-xl flex flex-col gap-2.5 border bg-white/[0.01]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Bell className={`w-4 h-4 ${taskReminderEnabled ? 'text-amber-400' : 'text-zinc-500'}`} />
+                      <span className="text-xs font-bold text-zinc-200">Task Reminder Alert</span>
                     </div>
+                    <button
+                      type="button"
+                      onClick={handleToggleTaskReminder}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        taskReminderEnabled
+                          ? 'text-white shadow-md'
+                          : 'bg-white/[0.05] text-zinc-400 hover:text-zinc-200'
+                      }`}
+                      style={{
+                        backgroundColor: taskReminderEnabled ? 'var(--accent-primary)' : undefined,
+                      }}
+                    >
+                      {taskReminderEnabled ? 'Enabled' : 'Off'}
+                    </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
-                        Priority Level
-                      </label>
-                      <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/6">
-                        {(['low', 'medium', 'high', 'urgent'] as Priority[]).map((p) => (
+                  {taskReminderEnabled && (
+                    <div className="pt-2 hairline-t flex flex-col gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
+                        {(
+                          [
+                            { id: 'at_due', label: 'At Due' },
+                            { id: '15m_before', label: '15m Prior' },
+                            { id: '1h_before', label: '1h Prior' },
+                            { id: '1d_before', label: '1d Prior' },
+                            { id: 'custom', label: 'Custom' },
+                          ] as const
+                        ).map((preset) => (
                           <button
-                            key={p}
+                            key={preset.id}
                             type="button"
-                            onClick={() => {
-                              feedback.playClick();
-                              setTaskPriority(p);
-                            }}
-                            className={`py-1.5 rounded-lg capitalize text-[11px] font-bold transition-all ${
-                              taskPriority === p
-                                ? 'bg-white/10 text-white shadow-sm'
+                            onClick={() => handleTaskPresetSelect(preset.id)}
+                            className={`py-1 rounded-md text-[10px] font-bold transition-colors ${
+                              taskReminderPreset === preset.id
+                                ? 'bg-white/10 text-white border border-white/20'
                                 : 'text-zinc-500 hover:text-zinc-300'
                             }`}
                           >
-                            {p}
+                            {preset.label}
                           </button>
                         ))}
                       </div>
-                    </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
-                        Category
-                      </label>
-                      <CustomSelect
-                        options={taskCategories}
-                        value={taskCategory}
-                        onChange={setTaskCategory}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Task Reminder Configuration */}
-                  <div className="solid-card p-3 rounded-xl flex flex-col gap-2.5 border bg-white/[0.01]">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Bell className={`w-4 h-4 ${taskReminderEnabled ? 'text-amber-400' : 'text-zinc-500'}`} />
-                        <span className="text-xs font-bold text-zinc-200">Task Reminder Alert</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleToggleTaskReminder}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          taskReminderEnabled
-                            ? 'text-white shadow-md'
-                            : 'bg-white/[0.05] text-zinc-400 hover:text-zinc-200'
-                        }`}
-                        style={{
-                          backgroundColor: taskReminderEnabled ? 'var(--accent-primary)' : undefined,
-                        }}
-                      >
-                        {taskReminderEnabled ? 'Enabled' : 'Off'}
-                      </button>
-                    </div>
-
-                    {taskReminderEnabled && (
-                      <div className="pt-2 hairline-t flex flex-col gap-2">
-                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
-                          {(
-                            [
-                              { id: 'at_due', label: 'At Due' },
-                              { id: '15m_before', label: '15m Prior' },
-                              { id: '1h_before', label: '1h Prior' },
-                              { id: '1d_before', label: '1d Prior' },
-                              { id: 'custom', label: 'Custom' },
-                            ] as const
-                          ).map((preset) => (
-                            <button
-                              key={preset.id}
-                              type="button"
-                              onClick={() => handleTaskPresetSelect(preset.id)}
-                              className={`py-1 rounded-md text-[10px] font-bold transition-colors ${
-                                taskReminderPreset === preset.id
-                                  ? 'bg-white/10 text-white border border-white/20'
-                                  : 'text-zinc-500 hover:text-zinc-300'
-                              }`}
-                            >
-                              {preset.label}
-                            </button>
-                          ))}
+                      {taskReminderPreset === 'custom' && (
+                        <div className="pt-1">
+                          <CustomTimePicker
+                            value={taskReminderTime}
+                            onChange={setTaskReminderTime}
+                            placeholder="Set specific reminder time"
+                            align="right"
+                          />
                         </div>
-
-                        {taskReminderPreset === 'custom' && (
-                          <div className="pt-1">
-                            <CustomTimePicker
-                              value={taskReminderTime}
-                              onChange={setTaskReminderTime}
-                              placeholder="Set specific reminder time"
-                              align="right"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* ============================================================ */}
               {/* 2. ROUTINE (HABIT) COMPLETE FORM                             */}
               {/* ============================================================ */}
-              {activeType === 'habit' && (
-                <>
+              <div className={activeType === 'habit' ? 'flex flex-col gap-4' : 'hidden'}>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
                       Routine Name
@@ -823,14 +831,12 @@ export const QuickCaptureModal: React.FC = () => {
                       </div>
                     )}
                   </div>
-                </>
-              )}
+              </div>
 
               {/* ============================================================ */}
               {/* 3. CASHFLOW (FINANCE) COMPLETE FORM                          */}
               {/* ============================================================ */}
-              {activeType === 'finance' && (
-                <>
+              <div className={activeType === 'finance' ? 'flex flex-col gap-4' : 'hidden'}>
                   {/* Expense vs Income Switch */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
@@ -956,8 +962,7 @@ export const QuickCaptureModal: React.FC = () => {
                     </label>
                     <CustomDatePicker value={txDate} onChange={setTxDate} />
                   </div>
-                </>
-              )}
+              </div>
 
               {/* Bottom Footer Actions */}
               <div className="flex items-center justify-between pt-3 hairline-t shrink-0">

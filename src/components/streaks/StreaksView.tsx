@@ -69,7 +69,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-64 sm:pb-56 select-none relative z-10 min-h-[calc(100vh-100px)]">
+    <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10 min-h-[calc(100vh-100px)]">
       {/* Top Bar: Back Action & Section Tabs */}
       <div className="flex items-center justify-between pt-1">
         <button
@@ -83,9 +83,10 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
         </button>
 
         {/* Horizontal Section Switcher */}
-        <div className="segmented-track flex items-center gap-1 p-1">
+        <div data-no-swipe="true" className="segmented-track flex items-center gap-1 p-1 no-tab-swipe">
           <button
             type="button"
+            data-no-swipe="true"
             onClick={() => {
               feedback.playClick();
               setActiveSection('pure');
@@ -128,17 +129,17 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
 
       {/* Main Horizontally Switchable / Swipeable Sections */}
       <div className="relative overflow-hidden w-full flex-1">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {activeSection === 'pure' ? (
             /* ========================================================
                SECTION 1: UNREAL GRAPHICS PURE STREAK
                ======================================================== */
             <motion.div
               key="pure-section"
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
               className="solid-card p-6 sm:p-12 min-h-[480px] flex flex-col items-center justify-between text-center relative overflow-hidden shadow-2xl border"
               style={{
                 backgroundColor: 'var(--bg-card)',
@@ -155,8 +156,8 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
               />
 
               {/* Status Pill */}
-              <div className="relative z-10 flex items-center gap-2 px-3 py-1 rounded-full border bg-black/40 backdrop-blur-md">
-                <Flame className="w-4 h-4 text-amber-500 fill-current animate-pulse" />
+              <div className="relative z-10 flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-black/50">
+                <Flame className="w-3.5 h-3.5 text-amber-500 fill-current animate-pulse" />
                 <span className="text-xs font-mono font-bold tracking-widest uppercase text-white">
                   ACTIVE MOMENTUM
                 </span>
@@ -167,37 +168,27 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
               </div>
 
               {/* Monumental Streak Numeral & Radiant Core */}
-              <div className="relative z-10 flex flex-col items-center my-auto py-8">
+              <div className="relative z-10 flex flex-col items-center my-auto py-6">
                 {/* 3D Crest Badge */}
                 <motion.div
-                  animate={{ y: [0, -6, 0] }}
+                  animate={{ y: [0, -4, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center text-4xl sm:text-5xl shadow-2xl border border-white/20 mb-4"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xl border border-white/15 mb-3 bg-white/[0.08]"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(20px)',
+                    willChange: 'transform',
                   }}
                 >
                   {currentRank.icon}
                 </motion.div>
 
                 {/* Monumental Number */}
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                  className="relative flex items-center justify-center"
-                >
+                <div className="relative flex items-center justify-center">
                   <span
-                    className="font-display text-8xl sm:text-9xl font-black tracking-tight select-none"
-                    style={{
-                      color: '#ffffff',
-                      textShadow: '0 0 60px rgba(242, 106, 54, 0.5), 0 0 100px rgba(229, 164, 47, 0.3)',
-                    }}
+                    className="font-display text-8xl sm:text-9xl font-black tracking-tight select-none text-white drop-shadow-[0_8px_30px_rgba(242,106,54,0.4)]"
                   >
                     {maxStreak}
                   </span>
-                </motion.div>
+                </div>
 
                 <span className="font-display text-lg sm:text-xl font-bold tracking-wider text-zinc-300 uppercase mt-2">
                   Days Unbroken Run
@@ -220,7 +211,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
                     feedback.playClick();
                     setActiveSection('lab');
                   }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white pressable shadow-lg"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white pressable shadow-lg cursor-pointer"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
                   <span>Lab & Heatmap</span>
@@ -234,10 +225,10 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
                ======================================================== */
             <motion.div
               key="lab-section"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 30 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
               className="flex flex-col gap-5 w-full"
             >
               {/* Notice Banner */}
@@ -262,7 +253,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Flame className="w-5 h-5 text-amber-500 animate-pulse" />
+                      <Flame className="w-4 h-4 text-amber-500 animate-pulse" />
                       <span className="font-display text-sm font-bold text-white">
                         Tier Momentum Progress
                       </span>
@@ -293,7 +284,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${rankProgress}%` }}
-                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
                         className="h-full rounded-full"
                         style={{ backgroundColor: 'var(--accent-primary)' }}
                       />

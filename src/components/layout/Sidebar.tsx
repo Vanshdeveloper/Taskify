@@ -76,7 +76,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className="hidden md:flex flex-col w-60 lg:w-64 shrink-0 hairline-r p-4 justify-between h-full overflow-hidden select-none relative z-10 transition-colors"
+      className="hidden sm:flex flex-col w-60 lg:w-64 shrink-0 hairline-r p-4 justify-between h-full overflow-hidden select-none relative z-10 transition-colors"
       style={{ backgroundColor: 'var(--bg-canvas)' }}
     >
       <div className="flex flex-col gap-6">

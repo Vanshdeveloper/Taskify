@@ -75,7 +75,7 @@ export const HabitsView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-64 sm:pb-56 select-none relative z-10">
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10">
       {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
@@ -89,13 +89,13 @@ export const HabitsView: React.FC = () => {
 
         <motion.button
           type="button"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.97 }}
           onClick={openHabitModal}
-          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs pressable shadow-lg transition-all cursor-pointer"
+          className="self-start sm:self-auto flex items-center gap-1.5 h-9 px-3.5 rounded-xl font-semibold text-xs pressable shadow-sm transition-all cursor-pointer"
           style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
         >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>New Routine</span>
         </motion.button>
       </div>
@@ -143,7 +143,8 @@ export const HabitsView: React.FC = () => {
       {/* 3. Segmented Time-of-Day Filter Bar & View Switcher */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div
-          className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth"
+          className="segmented-track flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth no-tab-swipe"
+          data-no-swipe="true"
           style={{ touchAction: 'pan-x' }}
           onWheel={(e) => {
             if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
@@ -163,6 +164,7 @@ export const HabitsView: React.FC = () => {
               <button
                 key={tab.id}
                 type="button"
+                data-no-swipe="true"
                 onClick={() => setTimeFilter(tab.id)}
                 className={`relative px-3.5 py-1.5 text-xs font-bold rounded-xl pressable whitespace-nowrap transition-colors ${
                   isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
@@ -189,7 +191,7 @@ export const HabitsView: React.FC = () => {
 
           {/* View Mode Switcher (Cards vs Compact) */}
           <div
-            className="h-10 px-1 rounded-xl flex items-center gap-0.5 shrink-0 border"
+            className="h-9 px-1 rounded-xl flex items-center gap-1 shrink-0 border"
             style={{
               backgroundColor: 'var(--bg-subtle)',
               borderColor: 'var(--border-subtle)',
@@ -198,7 +200,7 @@ export const HabitsView: React.FC = () => {
             <button
               type="button"
               onClick={() => setViewMode('cards')}
-              className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
+              className={`relative w-7 h-7 rounded-lg flex items-center justify-center pressable transition-colors ${
                 viewMode === 'cards' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
               title="Card View"
@@ -211,12 +213,12 @@ export const HabitsView: React.FC = () => {
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 />
               )}
-              <LayoutGrid className="w-4 h-4 relative z-10" />
+              <LayoutGrid className="w-3.5 h-3.5 relative z-10" />
             </button>
             <button
               type="button"
               onClick={() => setViewMode('compact')}
-              className={`relative w-8 h-8 rounded-lg flex items-center justify-center pressable transition-colors ${
+              className={`relative w-7 h-7 rounded-lg flex items-center justify-center pressable transition-colors ${
                 viewMode === 'compact' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
               title="Compact List View"
@@ -229,7 +231,7 @@ export const HabitsView: React.FC = () => {
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 />
               )}
-              <List className="w-4 h-4 relative z-10" />
+              <List className="w-3.5 h-3.5 relative z-10" />
             </button>
           </div>
         </div>
@@ -255,7 +257,7 @@ export const HabitsView: React.FC = () => {
               transition={{ duration: 0.18, ease: 'easeOut' }}
               className="grid grid-cols-1 md:grid-cols-2 gap-3.5"
             >
-              <AnimatePresence>
+              <AnimatePresence mode="popLayout">
                 {filteredHabits.map((habit) => {
                   const todayLog = habitLogs.find(
                     (l) => l.habitId === habit.id && l.date === today
@@ -270,10 +272,10 @@ export const HabitsView: React.FC = () => {
                     <motion.div
                       key={habit.id}
                       layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ type: 'spring', damping: 28, stiffness: 380 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
+                      transition={{ type: 'spring', damping: 26, stiffness: 350 }}
                       onClick={() => openEditHabitModal(habit)}
                       className={`solid-card p-4 sm:p-5 flex flex-col justify-between gap-3.5 rounded-2xl sm:rounded-3xl border transition-all duration-200 relative overflow-hidden cursor-pointer ${
                         isCompleted ? 'border-emerald-500/35 ring-1 ring-emerald-500/20' : 'hover:border-white/20'
@@ -290,14 +292,14 @@ export const HabitsView: React.FC = () => {
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                           {/* Colored Habit Icon Token */}
                           <div
-                            className="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm shrink-0 shadow-md border"
+                            className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 shadow-md border"
                             style={{
                               backgroundColor: `color-mix(in srgb, ${accentColor} 18%, transparent)`,
                               borderColor: `color-mix(in srgb, ${accentColor} 32%, transparent)`,
                               color: accentColor,
                             }}
                           >
-                            <HabitIconRenderer icon={habit.icon} className="w-5 h-5 stroke-[2.2]" />
+                            <HabitIconRenderer icon={habit.icon} className="w-4 h-4 stroke-[2.2]" />
                           </div>
 
                           {/* Title & Metadata Badges */}
@@ -329,7 +331,7 @@ export const HabitsView: React.FC = () => {
                         {/* Right: Live Flame Streak Pill & Delete Button */}
                         <div className="flex items-center gap-1.5 shrink-0">
                           <div
-                            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold border shadow-sm"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold border shadow-sm"
                             style={{
                               backgroundColor: 'rgba(242, 106, 54, 0.12)',
                               color: 'var(--accent-primary)',
@@ -389,7 +391,7 @@ export const HabitsView: React.FC = () => {
                       </div>
 
                       {/* Bottom: Discreet Stepper Buttons & Primary Quick Tap Action */}
-                      <div className="flex items-center justify-between pt-2 hairline-t">
+                      <div className="flex items-center justify-between pt-2.5 hairline-t">
                         {/* Discreet Micro-Stepper Controls */}
                         <div className="flex items-center gap-1.5">
                           <button
@@ -399,7 +401,7 @@ export const HabitsView: React.FC = () => {
                               decrementHabit(habit.id);
                             }}
                             disabled={count <= 0}
-                            className="w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-400 hover:text-white flex items-center justify-center pressable border border-white/6 cursor-pointer transition-colors"
+                            className="w-7.5 h-7.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-400 hover:text-white flex items-center justify-center pressable border border-white/6 cursor-pointer transition-colors"
                             title="Decrement counter"
                           >
                             <Minus className="w-3 h-3 stroke-[2.5]" />
@@ -411,7 +413,7 @@ export const HabitsView: React.FC = () => {
                               e.stopPropagation();
                               incrementHabit(habit.id, e);
                             }}
-                            className="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-white flex items-center justify-center pressable border border-white/8 cursor-pointer transition-colors"
+                            className="w-7.5 h-7.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-white flex items-center justify-center pressable border border-white/8 cursor-pointer transition-colors"
                             title="Increment counter"
                           >
                             <Plus className="w-3 h-3 stroke-[2.5]" />
@@ -421,7 +423,7 @@ export const HabitsView: React.FC = () => {
                         {/* Primary Tactile Check-In / Done Pill */}
                         <motion.button
                           whileHover={{ scale: 1.04 }}
-                          whileTap={{ scale: 0.96 }}
+                          whileTap={{ scale: 0.97 }}
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -431,7 +433,7 @@ export const HabitsView: React.FC = () => {
                               incrementHabit(habit.id, e);
                             }
                           }}
-                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold pressable transition-all border cursor-pointer shadow-sm ${
+                          className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold pressable transition-colors border cursor-pointer shadow-sm ${
                             isCompleted
                               ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400 shadow-emerald-500/10'
                               : 'text-white border-white/15'
@@ -441,7 +443,7 @@ export const HabitsView: React.FC = () => {
                           }}
                           title={isCompleted ? 'Completed! Tap to reset' : 'Tap to log +1 check-in'}
                         >
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          <Check className="w-3 h-3 stroke-[3]" />
                           <span>{isCompleted ? 'Conquered' : '+1 Check-In'}</span>
                         </motion.button>
                       </div>
@@ -463,31 +465,33 @@ export const HabitsView: React.FC = () => {
               transition={{ duration: 0.18, ease: 'easeOut' }}
               className="flex flex-col gap-3"
             >
-              {filteredHabits.map((habit) => {
-                const todayLog = habitLogs.find(
-                  (l) => l.habitId === habit.id && l.date === today
-                );
-                const count = todayLog?.currentCount ?? 0;
-                const isCompleted = todayLog?.completed ?? false;
-                const streak = getHabitStreak(habit.id);
-                const habitPct = Math.min(100, Math.round((count / Math.max(1, habit.targetCount)) * 100));
+              <AnimatePresence mode="popLayout">
+                {filteredHabits.map((habit) => {
+                  const todayLog = habitLogs.find(
+                    (l) => l.habitId === habit.id && l.date === today
+                  );
+                  const count = todayLog?.currentCount ?? 0;
+                  const isCompleted = todayLog?.completed ?? false;
+                  const streak = getHabitStreak(habit.id);
+                  const habitPct = Math.min(100, Math.round((count / Math.max(1, habit.targetCount)) * 100));
 
-                return (
-                  <motion.div
-                    key={habit.id}
-                    layout
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    onClick={() => openEditHabitModal(habit)}
-                    className={`solid-card p-4 sm:p-4.5 rounded-2xl border transition-all flex flex-col gap-3 cursor-pointer hover:border-white/20 ${
-                      isCompleted ? 'border-emerald-500/30' : ''
-                    }`}
-                    style={{
-                      backgroundColor: 'var(--bg-card)',
-                      borderColor: isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-card)',
-                    }}
-                  >
+                  return (
+                    <motion.div
+                      key={habit.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
+                      transition={{ type: 'spring', damping: 26, stiffness: 350 }}
+                      onClick={() => openEditHabitModal(habit)}
+                      className={`solid-card p-4 sm:p-4.5 rounded-2xl border transition-all flex flex-col gap-3 cursor-pointer hover:border-white/20 ${
+                        isCompleted ? 'border-emerald-500/30' : ''
+                      }`}
+                      style={{
+                        backgroundColor: 'var(--bg-card)',
+                        borderColor: isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-card)',
+                      }}
+                    >
                     {/* Top Row: Circular Progress Ring, Title & Badges, Streak & Delete */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -623,9 +627,9 @@ export const HabitsView: React.FC = () => {
                             decrementHabit(habit.id);
                           }}
                           disabled={count <= 0}
-                          className="w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable cursor-pointer transition-colors"
+                          className="w-7.5 h-7.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-20 text-zinc-300 flex items-center justify-center pressable cursor-pointer transition-colors"
                         >
-                          <Minus className="w-3.5 h-3.5" />
+                          <Minus className="w-3 h-3 stroke-[2.5]" />
                         </button>
 
                         <div className="px-2 min-w-16 text-center">
@@ -644,9 +648,9 @@ export const HabitsView: React.FC = () => {
                             e.stopPropagation();
                             incrementHabit(habit.id, e);
                           }}
-                          className="w-7 h-7 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] text-white flex items-center justify-center pressable cursor-pointer transition-colors"
+                          className="w-7.5 h-7.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] text-white flex items-center justify-center pressable cursor-pointer transition-colors"
                         >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-3 h-3 stroke-[2.5]" />
                         </button>
                       </div>
 
@@ -659,7 +663,7 @@ export const HabitsView: React.FC = () => {
                           e.stopPropagation();
                           toggleHabit(habit.id, e);
                         }}
-                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold pressable transition-all border cursor-pointer ${
+                        className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold pressable transition-colors border cursor-pointer ${
                           isCompleted
                             ? 'shadow-md border-emerald-500/50 bg-emerald-500/20 text-emerald-300'
                             : 'hover:border-white/20 text-white'
@@ -669,13 +673,14 @@ export const HabitsView: React.FC = () => {
                           borderColor: isCompleted ? undefined : 'var(--border-card)',
                         }}
                       >
-                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <Check className="w-3 h-3 stroke-[2.5]" />
                         <span>{isCompleted ? 'Completed' : 'Check In'}</span>
                       </motion.button>
                     </div>
                   </motion.div>
                 );
               })}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>

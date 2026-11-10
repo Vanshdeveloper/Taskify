@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, X } from 'lucide-react';
 import { feedback } from '../../utils/feedback';
+import { APPLE_SPRINGS } from '../../utils/motion';
 
 export interface DeleteConfirmOptions {
   title?: string;
@@ -97,27 +98,29 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 select-none">
           {/* Dimmed backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: 0.16 }}
             onClick={handleCancel}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md"
+            className="fixed inset-0 bg-black/80"
+            style={{ willChange: 'opacity' }}
           />
 
           {/* Modal Card */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 8 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 380 }}
-            className="relative w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col gap-4 border z-10"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={APPLE_SPRINGS.snappy}
+            className="relative w-full max-w-sm rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col gap-4 border z-10"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
+              willChange: 'transform, opacity',
             }}
           >
             {/* Top icon and close button */}
@@ -156,10 +159,10 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
             <div className="flex items-center gap-2.5 pt-2">
               <motion.button
                 whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.97 }}
                 type="button"
                 onClick={handleCancel}
-                className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white border pressable transition-colors"
+                className="flex-1 h-9 px-3.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white border pressable transition-colors flex items-center justify-center cursor-pointer"
                 style={{
                   backgroundColor: 'var(--bg-subtle)',
                   borderColor: 'var(--border-card)',
@@ -170,10 +173,10 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.97 }}
                 type="button"
                 onClick={handleConfirm}
-                className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-white shadow-lg pressable transition-opacity bg-rose-600 hover:bg-rose-500"
+                className="flex-1 h-9 px-3.5 rounded-xl text-xs font-semibold text-white shadow-md pressable transition-opacity bg-rose-600 hover:bg-rose-500 flex items-center justify-center cursor-pointer"
               >
                 {confirmText}
               </motion.button>

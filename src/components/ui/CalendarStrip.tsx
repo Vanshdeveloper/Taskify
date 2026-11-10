@@ -121,7 +121,8 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
       {/* Horizontal Scrollable Day Strip with Auto-centering */}
       <div
         ref={scrollContainerRef}
-        className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-0.5 scroll-smooth"
+        data-no-swipe="true"
+        className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-0.5 scroll-smooth no-tab-swipe"
         style={{ touchAction: 'pan-x' }}
         onWheel={(e) => {
           if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
@@ -134,6 +135,7 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
               key={item.dateStr}
               ref={isSelected ? activeButtonRef : undefined}
               type="button"
+              data-no-swipe="true"
               whileTap={{ scale: 0.94 }}
               onClick={() => onSelectDate(item.dateStr)}
               className={`flex flex-col items-center justify-center min-w-[3.35rem] h-[4.5rem] px-2 rounded-2xl pressable transition-all relative shrink-0 ${

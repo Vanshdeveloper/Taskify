@@ -54,9 +54,13 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
     // Only primary button (mouse left-click or touch)
     if (e.button !== 0) return;
 
-    // Do not capture drag if user is typing in form inputs or using dedicated slider thumbs
+    // Do not capture drag if user is interacting with chips, buttons, inputs, tabs, or dedicated scroll areas
     const target = e.target as HTMLElement;
-    if (target.closest('input:not([type="button"]):not([type="submit"]):not([type="reset"]), textarea, select, [data-no-swipe], .no-tab-swipe')) {
+    if (
+      target.closest(
+        'button, input, textarea, select, a, [role="button"], [role="tab"], .pressable, [data-no-swipe], .no-tab-swipe, .segmented-track, [data-chip]'
+      )
+    ) {
       return;
     }
 

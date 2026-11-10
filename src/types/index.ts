@@ -2,6 +2,12 @@ export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskStatus = 'todo' | 'in_progress' | 'completed';
 export type ReminderPreset = 'at_due' | '15m_before' | '1h_before' | '1d_before' | 'custom';
 
+export interface Subtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -18,7 +24,25 @@ export interface Task {
   tags?: string[];
   createdAt: number;
   completedAt?: number;
+  subtasks?: Subtask[];
+  isTemplate?: boolean;
 }
+
+export interface TaskTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  priority: Priority;
+  icon?: string;
+  estimatedMinutes?: number;
+  tags?: string[];
+  subtasks?: { title: string }[];
+}
+
+export type TaskSortBy = 'dueDate' | 'priority' | 'title' | 'createdAt';
+export type TaskSortOrder = 'asc' | 'desc';
+
 
 export type HabitTimeOfDay = 'anytime' | 'morning' | 'afternoon' | 'evening';
 export type HabitFrequency = 'daily' | 'weekdays' | 'weekends';
@@ -41,7 +65,7 @@ export interface Habit {
 
 export interface ReminderAlert {
   id: string;
-  type: 'task' | 'habit' | 'poke';
+  type: 'task' | 'habit' | 'poke' | 'daypart';
   entityId: string;
   title: string;
   subtitle: string;
@@ -72,7 +96,21 @@ export interface Transaction {
 }
 
 export type NavbarHeight = 'compact' | 'default' | 'spacious';
-export type NavbarGlass = 'solid' | 'glass' | 'vibrant';
+export type NavbarGlass = 'solid' | 'glass' | 'frosted' | 'vibrant';
+
+export type AppAesthetic =
+  | 'dynamic-theme'
+  | 'espresso-terracotta'
+  | 'kyoto-matcha'
+  | 'lavender-mist'
+  | 'nordic-sky'
+  | 'minimal-obsidian'
+  | 'molten-amber'
+  | 'text-dot'
+  | 'text-brackets'
+  | 'text-caps'
+  | 'text-terminal'
+  | 'text-spark';
 
 export interface UserSettings {
   monthlyBudget: number;
@@ -81,8 +119,10 @@ export interface UserSettings {
   userName: string;
   darkMode: boolean;
   theme?: AppTheme;
+  appAesthetic?: AppAesthetic;
   navbarHeight?: NavbarHeight;
   navbarGlass?: NavbarGlass;
+  hapticFeedback?: boolean;
 }
 
 export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'settings';
