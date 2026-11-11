@@ -55,9 +55,10 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
   } = useApp();
 
   const [rangeDays, setRangeDays] = useState<7 | 14 | 30>(14);
+  const [chartMetric, setChartMetric] = useState<'activity' | 'finance'>('activity');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  // Daily activity points (completed tasks + habit check-ins)
+  // Daily timeline points (productivity activity + cashflow records)
   const dailyData = useMemo(() => {
     const points: {
       dateStr: string;
@@ -66,6 +67,9 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
       tasksDone: number;
       habitsDone: number;
       totalDone: number;
+      dayExpense: number;
+      dayIncome: number;
+      netCashflow: number;
     }[] = [];
 
     const now = new Date();
@@ -91,6 +95,15 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         (l) => l.date === dateStr && l.completed
       ).length;
 
+      const dayTransactions = transactions.filter((t) => t.date === dateStr);
+      const dayExpense = dayTransactions
+        .filter((t) => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const dayIncome = dayTransactions
+        .filter((t) => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const netCashflow = dayIncome - dayExpense;
+
       points.push({
         dateStr,
         label: dayName,
@@ -98,11 +111,14 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         tasksDone,
         habitsDone,
         totalDone: tasksDone + habitsDone,
+        dayExpense,
+        dayIncome,
+        netCashflow,
       });
     }
 
     return points;
-  }, [rangeDays, tasks, habitLogs]);
+  }, [rangeDays, tasks, habitLogs, transactions]);
 
   // Key performance numbers
   const totalTasksCompleted = useMemo(
@@ -224,9 +240,13 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
   const paddingBottom = 32;
 
   const maxVal = useMemo(() => {
+    if (chartMetric === 'finance') {
+      const peak = Math.max(...dailyData.map((p) => Math.max(p.dayExpense, p.dayIncome)), 10);
+      return Math.ceil(peak / 10) * 10;
+    }
     const peak = Math.max(...dailyData.map((p) => p.totalDone), 4);
     return Math.ceil(peak / 2) * 2;
-  }, [dailyData]);
+  }, [dailyData, chartMetric]);
 
   const coords = useMemo(() => {
     const stepX = (width - paddingX * 2) / Math.max(1, dailyData.length - 1);
@@ -234,11 +254,12 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
 
     return dailyData.map((p, idx) => {
       const x = paddingX + idx * stepX;
-      const ratio = p.totalDone / maxVal;
+      const value = chartMetric === 'finance' ? p.dayExpense : p.totalDone;
+      const ratio = maxVal > 0 ? value / maxVal : 0;
       const y = paddingTop + (1 - ratio) * usableHeight;
       return { x, y, point: p };
     });
-  }, [dailyData, maxVal, width, height, paddingX, paddingTop, paddingBottom]);
+  }, [dailyData, maxVal, width, height, paddingX, paddingTop, paddingBottom, chartMetric]);
 
   // SVG Bézier curve
   const { linePath, areaPath } = useMemo(() => {
@@ -406,21 +427,65 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         </div>
       </div>
 
-      {/* 3. Fully Responsive Vector Activity Chart */}
+      {/* 3. Fully Responsive Vector Activity & Cashflow Chart */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl border flex flex-col gap-3 shadow-lg relative overflow-hidden w-full"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <div className="flex items-center justify-between gap-2 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
           <div className="flex items-center gap-2 min-w-0">
-            <BarChart2 className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
+            <BarChart2 className="w-4 h-4 shrink-0" style={{ color: chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)' }} />
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300 truncate">
-              Daily Activity
+              {chartMetric === 'activity' ? 'Daily Productivity' : 'Daily Cashflow & Expenses'}
             </h3>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-zinc-400 shrink-0">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--accent-primary)' }} />
-            <span>Completed Items</span>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Metric Mode Switcher */}
+            <div className="segmented-track flex items-center gap-1 p-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  feedback.playClick();
+                  setChartMetric('activity');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold pressable transition-all cursor-pointer ${
+                  chartMetric === 'activity'
+                    ? 'text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+                style={{
+                  backgroundColor: chartMetric === 'activity' ? 'var(--accent-primary)' : 'transparent',
+                }}
+              >
+                🎯 Activity
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  feedback.playClick();
+                  setChartMetric('finance');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold pressable transition-all cursor-pointer ${
+                  chartMetric === 'finance'
+                    ? 'text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+                style={{
+                  backgroundColor: chartMetric === 'finance' ? '#f43f5e' : 'transparent',
+                }}
+              >
+                💳 Cashflow
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-zinc-400 shrink-0">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)' }}
+              />
+              <span>{chartMetric === 'finance' ? 'Daily Spend' : 'Completed Items'}</span>
+            </div>
           </div>
         </div>
 
@@ -434,6 +499,10 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.28" />
                 <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
+              </linearGradient>
+              <linearGradient id="financeGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.32" />
+                <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
@@ -455,13 +524,16 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             })}
 
             {/* Gradient Area Fill */}
-            <path d={areaPath} fill="url(#activityGradient)" />
+            <path
+              d={areaPath}
+              fill={chartMetric === 'finance' ? 'url(#financeGradient)' : 'url(#activityGradient)'}
+            />
 
             {/* Line Curve */}
             <path
               d={linePath}
               fill="none"
-              stroke="var(--accent-primary)"
+              stroke={chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)'}
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -479,6 +551,8 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                   ? idx % 2 === 0 || idx === coords.length - 1
                   : idx % 4 === 0 || idx === coords.length - 1;
 
+              const strokeColor = chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)';
+
               return (
                 <g
                   key={idx}
@@ -493,7 +567,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                       y1={paddingTop}
                       x2={c.x}
                       y2={height - paddingBottom}
-                      stroke="var(--accent-primary)"
+                      stroke={strokeColor}
                       strokeOpacity="0.4"
                       strokeWidth="1"
                       strokeDasharray="3 3"
@@ -505,7 +579,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                     cy={c.y}
                     r={isHovered ? 5 : 3.5}
                     fill="var(--bg-card)"
-                    stroke="var(--accent-primary)"
+                    stroke={strokeColor}
                     strokeWidth="2.5"
                     className="transition-all duration-150"
                   />
@@ -529,7 +603,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             })}
           </svg>
 
-          {/* Simple Clean Tooltip */}
+          {/* Context-Aware Dynamic Tooltip */}
           {hoveredIndex !== null && coords[hoveredIndex] && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 2 }}
@@ -544,12 +618,30 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                 {coords[hoveredIndex].point.fullDate}
               </span>
               <span className="h-3 w-px bg-white/10 shrink-0" />
-              <span className="font-bold text-white shrink-0">
-                {coords[hoveredIndex].point.totalDone} completed
-              </span>
-              <span className="text-[10px] font-mono text-zinc-400 truncate">
-                ({coords[hoveredIndex].point.tasksDone} tasks, {coords[hoveredIndex].point.habitsDone} habits)
-              </span>
+              {chartMetric === 'activity' ? (
+                <>
+                  <span className="font-bold text-white shrink-0">
+                    {coords[hoveredIndex].point.totalDone} completed
+                  </span>
+                  <span className="text-[10px] font-mono text-zinc-400 truncate">
+                    ({coords[hoveredIndex].point.tasksDone} tasks, {coords[hoveredIndex].point.habitsDone} habits)
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="font-bold text-rose-400 shrink-0 font-mono">
+                    Spent: {settings.currency}{coords[hoveredIndex].point.dayExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  {coords[hoveredIndex].point.dayIncome > 0 && (
+                    <span className="text-emerald-400 font-mono shrink-0">
+                      (+{settings.currency}{coords[hoveredIndex].point.dayIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                    </span>
+                  )}
+                  <span className="text-[10px] font-mono text-zinc-400 truncate">
+                    (Net: {coords[hoveredIndex].point.netCashflow >= 0 ? '+' : '-'}{settings.currency}{Math.abs(coords[hoveredIndex].point.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                  </span>
+                </>
+              )}
             </motion.div>
           )}
         </div>

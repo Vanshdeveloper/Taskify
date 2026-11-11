@@ -54,6 +54,7 @@ export const MobileTabBar: React.FC = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => handleTabClick(tab.id)}
+                  onPointerDown={(e) => e.stopPropagation()}
                   className={`relative flex flex-col items-center justify-center min-h-[44px] py-1.5 px-3.5 rounded-xl pressable transition-all flex-1 cursor-pointer touch-manipulation active:scale-95 ${
                     isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                   }`}
@@ -83,14 +84,15 @@ export const MobileTabBar: React.FC = () => {
           <button
             type="button"
             onClick={handleFabClick}
-            className="w-11 h-11 mx-1.5 rounded-xl flex items-center justify-center shadow-lg pressable border border-white/20 shrink-0 cursor-pointer touch-manipulation active:scale-95 transition-transform"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="relative before:absolute before:-inset-2.5 before:content-[''] w-11 h-11 mx-1.5 rounded-xl flex items-center justify-center shadow-lg pressable border border-white/20 shrink-0 cursor-pointer touch-manipulation active:scale-95 transition-transform"
             style={{
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
             }}
             aria-label="Quick capture"
           >
-            <Plus className="w-5 h-5 stroke-[2.75]" />
+            <Plus className="w-5 h-5 stroke-[2.75] relative z-10" />
           </button>
 
           {/* Right Wing Tabs */}
@@ -103,6 +105,7 @@ export const MobileTabBar: React.FC = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => handleTabClick(tab.id)}
+                  onPointerDown={(e) => e.stopPropagation()}
                   className={`relative flex flex-col items-center justify-center min-h-[44px] py-1.5 px-3.5 rounded-xl pressable transition-all flex-1 cursor-pointer touch-manipulation active:scale-95 ${
                     isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                   }`}

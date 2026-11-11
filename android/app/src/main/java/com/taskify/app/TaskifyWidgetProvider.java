@@ -56,10 +56,14 @@ public class TaskifyWidgetProvider extends AppWidgetProvider {
         String habitProgress = prefs.getString("habit_0_progress", "0/1 times");
         int pendingTasksCount = prefs.getInt("pendingTasksCount", 0);
         int pendingHabitsCount = prefs.getInt("pendingHabitsCount", 0);
+        boolean taskDone1 = prefs.getBoolean("task_0_done", false);
+        boolean taskDone2 = prefs.getBoolean("task_1_done", false);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.taskify_widget);
         views.setTextViewText(R.id.widget_task_title_1, taskTitle1);
         views.setTextViewText(R.id.widget_task_title_2, taskTitle2);
+        views.setImageViewResource(R.id.widget_check_task_1, taskDone1 ? R.drawable.taskify_widget_checkbox_checked : R.drawable.taskify_widget_checkbox_unchecked);
+        views.setImageViewResource(R.id.widget_check_task_2, taskDone2 ? R.drawable.taskify_widget_checkbox_checked : R.drawable.taskify_widget_checkbox_unchecked);
         views.setTextViewText(R.id.widget_habit_name, habitName);
         views.setTextViewText(R.id.widget_habit_progress, habitProgress);
         views.setTextViewText(R.id.widget_status_pill, pendingTasksCount + " tasks • " + pendingHabitsCount + " rut");

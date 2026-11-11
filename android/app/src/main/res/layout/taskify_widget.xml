@@ -21,10 +21,9 @@
             android:text="Taskify"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:letterSpacing="-0.03" />
+            android:textStyle="bold" />
 
-        <View
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1" />
@@ -37,13 +36,15 @@
             android:textColor="#CCCCCC"
             android:textSize="10sp"
             android:textStyle="bold"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
             android:background="@drawable/taskify_widget_pill" />
     </LinearLayout>
 
     <!-- Divider Line -->
-    <View
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="8dp"
@@ -69,8 +70,7 @@
                 android:text="TODAY'S FOCUS"
                 android:textColor="#888888"
                 android:textSize="9sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.05" />
+                android:textStyle="bold" />
 
             <!-- Task 1 -->
             <LinearLayout
@@ -85,7 +85,7 @@
                     android:id="@+id/widget_check_task_1"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:src="@android:drawable/checkbox_off_background" />
+                    android:src="@drawable/taskify_widget_checkbox_unchecked" />
 
                 <TextView
                     android:id="@+id/widget_task_title_1"
@@ -112,7 +112,7 @@
                     android:id="@+id/widget_check_task_2"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:src="@android:drawable/checkbox_off_background" />
+                    android:src="@drawable/taskify_widget_checkbox_unchecked" />
 
                 <TextView
                     android:id="@+id/widget_task_title_2"
@@ -143,8 +143,7 @@
                 android:text="ROUTINE"
                 android:textColor="#888888"
                 android:textSize="9sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.05" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/widget_habit_name"

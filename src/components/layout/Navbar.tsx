@@ -91,7 +91,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenStreaks}
-            className="h-9 px-2.5 rounded-xl flex items-center gap-1.5 pressable transition-all border shadow-sm cursor-pointer touch-manipulation active:scale-95"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="relative before:absolute before:-inset-2 before:content-[''] h-9 px-2.5 rounded-xl flex items-center gap-1.5 pressable transition-all border shadow-sm cursor-pointer touch-manipulation active:scale-95"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'rgba(242, 106, 54, 0.35)',
@@ -99,8 +100,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             title="Open Consistency Hall of Fame"
           >
-            <Flame className="w-3.5 h-3.5 fill-current text-amber-500" />
-            <span className="font-mono text-xs font-bold tabular-nums text-white">
+            <Flame className="w-3.5 h-3.5 fill-current text-amber-500 relative z-10" />
+            <span className="font-mono text-xs font-bold tabular-nums text-white relative z-10">
               {streakCount}
             </span>
           </button>
@@ -109,12 +110,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenInspector}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable transition-all border border-white/8 hover:border-white/16 cursor-pointer touch-manipulation active:scale-95"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="relative before:absolute before:-inset-3 before:content-[''] w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable transition-all border border-white/8 hover:border-white/16 cursor-pointer touch-manipulation active:scale-95"
             style={{ backgroundColor: 'var(--bg-card)' }}
             aria-label="Open System Inspector"
             title="Inspector & Preferences"
           >
-            <Menu className="w-4 h-4 stroke-[2]" />
+            <Menu className="w-4 h-4 stroke-[2] relative z-10" />
           </button>
         </div>
       </div>

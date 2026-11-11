@@ -5,7 +5,6 @@ import {
   Plus,
   Search,
   Trash2,
-  Clock,
   LayoutGrid,
   List,
   Check,
@@ -18,7 +17,6 @@ import {
 import { useApp } from '../../context/AppContext';
 import { getTodayString, formatDateRelative } from '../../db';
 import { calculateSubtaskProgress } from '../../utils/subtaskUtils';
-import { SwipeToComplete } from '../ui/SwipeToComplete';
 import { CustomSelect } from '../ui/CustomSelect';
 import { SPRING_PILL } from '../../utils/motion';
 import { getCategoryTheme } from '../../utils/category';
@@ -120,10 +118,6 @@ export const TasksView: React.FC = () => {
   const sortedTasks = useMemo(() => {
     return sortTasks(filteredTasks, sortBy, sortOrder);
   }, [filteredTasks, sortBy, sortOrder]);
-
-  const featuredTask =
-    sortedTasks.find((t) => t.status !== 'completed' && (t.priority === 'urgent' || t.priority === 'high')) ||
-    sortedTasks.find((t) => t.status !== 'completed');
 
   const handleDeleteTask = (taskId: string, title: string) => {
     const prompt = getRandomDeletePrompt('task', title);
@@ -262,72 +256,7 @@ export const TasksView: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Featured Focus Hero Card */}
-      {featuredTask && (
-        <div
-          className="solid-card p-5 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[220px] border"
-          style={{
-            backgroundColor: 'var(--bg-card)',
-            borderColor: 'var(--border-card)',
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span
-                className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider"
-                style={{
-                  backgroundColor: 'var(--accent-primary)',
-                  color: '#ffffff',
-                }}
-              >
-                ^ {featuredTask.priority}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-black/30 text-zinc-300 text-[11px] font-mono border border-white/6">
-                {featuredTask.category}
-              </span>
-            </div>
-
-            <div
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border shrink-0 whitespace-nowrap"
-              style={{
-                backgroundColor: 'var(--bg-subtle)',
-                borderColor: 'var(--border-subtle)',
-                color: 'var(--text-secondary)',
-              }}
-            >
-              <Clock className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--accent-primary)' }} />
-              <span className="whitespace-nowrap">
-                {formatDateRelative(featuredTask.dueDate)}
-                {featuredTask.dueTime ? ` • ${featuredTask.dueTime}` : ''}
-              </span>
-            </div>
-          </div>
-
-          <div
-            className="my-4 cursor-pointer group/hero"
-            onClick={() => openEditTaskModal(featuredTask)}
-            title="Click to edit objective"
-          >
-            <h3 className="font-display text-xl sm:text-2xl font-black tracking-tight leading-snug text-white group-hover/hero:text-[var(--accent-primary)] transition-colors">
-              {featuredTask.title}
-            </h3>
-            {featuredTask.description && (
-              <p className="text-xs text-zinc-400 mt-1 line-clamp-1 font-body">
-                {featuredTask.description}
-              </p>
-            )}
-          </div>
-
-          <div className="w-full max-w-md">
-            <SwipeToComplete
-              isCompleted={featuredTask.status === 'completed'}
-              onComplete={() => toggleTask(featuredTask.id)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* 4. Filter Pills Bar, Search, Category, Multi-Criteria Sort & Export Toolbar */}
+      {/* 3. Filter Pills Bar, Search, Category, Multi-Criteria Sort & Export Toolbar */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           {/* Filter Pills */}
@@ -492,42 +421,33 @@ export const TasksView: React.FC = () => {
                CREATIVE VIEW 1: INTERACTIVE BENTO MILESTONE CARDS
                ======================================================== */
             <motion.div
-              key="cards-view"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              key={`cards-${filterTab}-${selectedCategory}-${sortBy}-${sortOrder}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
-              <AnimatePresence mode="popLayout">
-                {sortedTasks.map((task) => {
-                  const isDone = task.status === 'completed';
-                  const isFocused = focusedTaskId === task.id;
-                  const catTheme = getCategoryTheme(task.category);
+              {sortedTasks.map((task) => {
+                const isDone = task.status === 'completed';
+                const isFocused = focusedTaskId === task.id;
+                const catTheme = getCategoryTheme(task.category);
 
-                  return (
-                    <motion.div
-                      key={task.id}
-                      layout="position"
-                      id={`task-item-${task.id}`}
-                      tabIndex={0}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{
-                        opacity: 1,
-                        scale: isFocused ? 1.005 : 1,
-                      }}
-                      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
-                      transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-                      onClick={() => openEditTaskModal(task)}
-                      className={`solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-between shadow-xl border relative transition-all group cursor-pointer ${
-                        isDone ? 'opacity-65' : ''
-                      } ${
-                        isFocused
-                          ? 'ring-2 ring-white/30 border-white/35 bg-white/[0.04] shadow-2xl z-20'
-                          : 'hover:border-white/20'
-                      }`}
-                      style={{ backgroundColor: 'var(--bg-card)' }}
-                    >
+                return (
+                  <div
+                    key={task.id}
+                    id={`task-item-${task.id}`}
+                    tabIndex={0}
+                    onClick={() => openEditTaskModal(task)}
+                    className={`solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-between shadow-xl border relative transition-all group cursor-pointer ${
+                      isDone ? 'opacity-65' : ''
+                    } ${
+                      isFocused
+                        ? 'ring-2 ring-white/30 border-white/35 bg-white/[0.04] shadow-2xl z-20'
+                        : 'hover:border-white/20'
+                    }`}
+                    style={{ backgroundColor: 'var(--bg-card)' }}
+                  >
                       {/* Top Row: Category Tag, Deadline Pill, Duplicate Action & Delete Action */}
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
@@ -673,46 +593,39 @@ export const TasksView: React.FC = () => {
                           <span>{isDone ? 'Done' : 'Mark Done'}</span>
                         </motion.button>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
-              </AnimatePresence>
             </motion.div>
           ) : (
             /* ========================================================
                CREATIVE VIEW 2: ULTRA-REFINED SWISS COMPACT ROWS
                ======================================================== */
             <motion.div
-              key="compact-view"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              key={`compact-${filterTab}-${selectedCategory}-${sortBy}-${sortOrder}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
               className="solid-card divide-y divide-white/[0.06] shadow-xl overflow-hidden border"
               style={{ backgroundColor: 'var(--bg-card)' }}
             >
-              <AnimatePresence mode="popLayout">
-                {sortedTasks.map((task) => {
-                  const isDone = task.status === 'completed';
-                  const isFocused = focusedTaskId === task.id;
+              {sortedTasks.map((task) => {
+                const isDone = task.status === 'completed';
+                const isFocused = focusedTaskId === task.id;
 
-                  return (
-                    <motion.div
-                      layout="position"
-                      key={task.id}
-                      id={`task-item-${task.id}`}
-                      tabIndex={0}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                      transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-                      onClick={() => openEditTaskModal(task)}
-                      className={`p-3.5 sm:p-4 flex items-center justify-between gap-3.5 transition-all cursor-pointer ${
-                        isFocused
-                          ? 'bg-white/[0.06] ring-1 ring-white/25 scale-[1.005] rounded-xl relative z-10 shadow-lg'
-                          : 'hover:bg-white/[0.04]'
-                      }`}
-                    >
+                return (
+                  <div
+                    key={task.id}
+                    id={`task-item-${task.id}`}
+                    tabIndex={0}
+                    onClick={() => openEditTaskModal(task)}
+                    className={`p-3.5 sm:p-4 flex items-center justify-between gap-3.5 transition-all cursor-pointer ${
+                      isFocused
+                        ? 'bg-white/[0.06] ring-1 ring-white/25 scale-[1.005] rounded-xl relative z-10 shadow-lg'
+                        : 'hover:bg-white/[0.04]'
+                    }`}
+                  >
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         {/* Quick Check Trigger */}
                         <button
@@ -824,10 +737,9 @@ export const TasksView: React.FC = () => {
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
-              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>

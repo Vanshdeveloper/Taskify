@@ -250,43 +250,37 @@ export const HabitsView: React.FC = () => {
         <AnimatePresence mode="wait">
           {viewMode === 'cards' ? (
             <motion.div
-              key="habits-cards"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              key={`habits-cards-${timeFilter}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
               className="grid grid-cols-1 md:grid-cols-2 gap-3.5"
             >
-              <AnimatePresence mode="popLayout">
-                {filteredHabits.map((habit) => {
-                  const todayLog = habitLogs.find(
-                    (l) => l.habitId === habit.id && l.date === today
-                  );
-                  const count = todayLog?.currentCount ?? 0;
-                  const isCompleted = todayLog?.completed ?? false;
-                  const streak = getHabitStreak(habit.id);
-                  const progressPct = Math.min(100, Math.round((count / Math.max(1, habit.targetCount)) * 100));
-                  const accentColor = habit.color || 'var(--accent-primary)';
+              {filteredHabits.map((habit) => {
+                const todayLog = habitLogs.find(
+                  (l) => l.habitId === habit.id && l.date === today
+                );
+                const count = todayLog?.currentCount ?? 0;
+                const isCompleted = todayLog?.completed ?? false;
+                const streak = getHabitStreak(habit.id);
+                const progressPct = Math.min(100, Math.round((count / Math.max(1, habit.targetCount)) * 100));
+                const accentColor = habit.color || 'var(--accent-primary)';
 
-                  return (
-                    <motion.div
-                      key={habit.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
-                      transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-                      onClick={() => openEditHabitModal(habit)}
-                      className={`solid-card p-4 sm:p-5 flex flex-col justify-between gap-3.5 rounded-2xl sm:rounded-3xl border transition-all duration-200 relative overflow-hidden cursor-pointer ${
-                        isCompleted ? 'border-emerald-500/35 ring-1 ring-emerald-500/20' : 'hover:border-white/20'
-                      }`}
-                      style={{
-                        backgroundColor: 'var(--bg-card)',
-                        boxShadow: isCompleted
-                          ? '0 12px 32px -10px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)'
-                          : '0 8px 24px -8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
-                      }}
-                    >
+                return (
+                  <div
+                    key={habit.id}
+                    onClick={() => openEditHabitModal(habit)}
+                    className={`solid-card p-4 sm:p-5 flex flex-col justify-between gap-3.5 rounded-2xl sm:rounded-3xl border transition-all duration-200 relative overflow-hidden cursor-pointer ${
+                      isCompleted ? 'border-emerald-500/35 ring-1 ring-emerald-500/20' : 'hover:border-white/20'
+                    }`}
+                    style={{
+                      backgroundColor: 'var(--bg-card)',
+                      boxShadow: isCompleted
+                        ? '0 12px 32px -10px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+                        : '0 8px 24px -8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+                    }}
+                  >
                       {/* Top Row: Habit Icon Badge, Title, Badges & Discreet Delete */}
                       <div className="flex items-start justify-between gap-3 min-w-0">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -447,10 +441,9 @@ export const HabitsView: React.FC = () => {
                           <span>{isCompleted ? 'Conquered' : '+1 Check-In'}</span>
                         </motion.button>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
-              </AnimatePresence>
             </motion.div>
           ) : (
             /* ========================================================
@@ -458,40 +451,34 @@ export const HabitsView: React.FC = () => {
                (Rich Apple Health / Fitness style progressive cards)
                ======================================================== */
             <motion.div
-              key="habits-compact"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              key={`habits-compact-${timeFilter}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
               className="flex flex-col gap-3"
             >
-              <AnimatePresence mode="popLayout">
-                {filteredHabits.map((habit) => {
-                  const todayLog = habitLogs.find(
-                    (l) => l.habitId === habit.id && l.date === today
-                  );
-                  const count = todayLog?.currentCount ?? 0;
-                  const isCompleted = todayLog?.completed ?? false;
-                  const streak = getHabitStreak(habit.id);
-                  const habitPct = Math.min(100, Math.round((count / Math.max(1, habit.targetCount)) * 100));
+              {filteredHabits.map((habit) => {
+                const todayLog = habitLogs.find(
+                  (l) => l.habitId === habit.id && l.date === today
+                );
+                const count = todayLog?.currentCount ?? 0;
+                const isCompleted = todayLog?.completed ?? false;
+                const streak = getHabitStreak(habit.id);
+                const habitPct = Math.min(100, Math.round((count / Math.max(1, habit.targetCount)) * 100));
 
-                  return (
-                    <motion.div
-                      key={habit.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
-                      transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-                      onClick={() => openEditHabitModal(habit)}
-                      className={`solid-card p-4 sm:p-4.5 rounded-2xl border transition-all flex flex-col gap-3 cursor-pointer hover:border-white/20 ${
-                        isCompleted ? 'border-emerald-500/30' : ''
-                      }`}
-                      style={{
-                        backgroundColor: 'var(--bg-card)',
-                        borderColor: isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-card)',
-                      }}
-                    >
+                return (
+                  <div
+                    key={habit.id}
+                    onClick={() => openEditHabitModal(habit)}
+                    className={`solid-card p-4 sm:p-4.5 rounded-2xl border transition-all flex flex-col gap-3 cursor-pointer hover:border-white/20 ${
+                      isCompleted ? 'border-emerald-500/30' : ''
+                    }`}
+                    style={{
+                      backgroundColor: 'var(--bg-card)',
+                      borderColor: isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-card)',
+                    }}
+                  >
                     {/* Top Row: Circular Progress Ring, Title & Badges, Streak & Delete */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -677,10 +664,9 @@ export const HabitsView: React.FC = () => {
                         <span>{isCompleted ? 'Completed' : 'Check In'}</span>
                       </motion.button>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
-              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>

@@ -50,18 +50,8 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   const [budgetInput, setBudgetInput] = useState(settings.monthlyBudget.toString());
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [savedNotice, setSavedNotice] = useState(false);
-  const [isReady, setIsReady] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => setIsReady(true), 260);
-      return () => clearTimeout(timer);
-    } else {
-      setIsReady(false);
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     setCurrencyInput(settings.currency);
@@ -331,14 +321,10 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                 </button>
               </div>
 
-              {/* Section 3: App Logo Aesthetic Selector (deferred for 60fps opening slide) */}
-              {isReady ? (
-                <AestheticSelector />
-              ) : (
-                <div className="h-28 rounded-2xl bg-white/[0.02] border border-white/6 animate-pulse" />
-              )}
+              {/* Section 3: App Logo Aesthetic Selector */}
+              <AestheticSelector />
 
-              {/* Section 4: Themes & Palettes Studio (deferred for 60fps opening slide) */}
+              {/* Section 4: Themes & Palettes Studio */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Palette className="w-4 h-4 text-zinc-400" />
@@ -347,11 +333,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   </span>
                 </div>
 
-                {isReady ? (
-                  <ThemeStudio />
-                ) : (
-                  <div className="h-44 rounded-2xl bg-white/[0.02] border border-white/6 animate-pulse" />
-                )}
+                <ThemeStudio />
               </div>
 
               {/* Section 3: Navigation Bar Customization */}

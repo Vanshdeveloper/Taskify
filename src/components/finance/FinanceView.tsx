@@ -453,29 +453,23 @@ export const FinanceView: React.FC = () => {
         <AnimatePresence mode="wait">
           {viewMode === 'cards' ? (
             <motion.div
-              key="finance-cards"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              key={`finance-cards-${filterType}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"
             >
-          <AnimatePresence mode="popLayout">
-            {filteredTransactions.map((tx) => {
-              const isIncome = tx.type === 'income';
+              {filteredTransactions.map((tx) => {
+                const isIncome = tx.type === 'income';
 
-              return (
-                <motion.div
-                  layout
-                  key={tx.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-                  onClick={() => openEditFinanceModal(tx)}
-                  className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-lg border transition-all cursor-pointer hover:border-white/20"
-                  style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
-                >
+                return (
+                  <div
+                    key={tx.id}
+                    onClick={() => openEditFinanceModal(tx)}
+                    className="solid-card p-4 sm:p-5 flex flex-col justify-between shadow-lg border transition-all cursor-pointer hover:border-white/20"
+                    style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+                  >
                   <div>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
@@ -535,37 +529,30 @@ export const FinanceView: React.FC = () => {
                     <span>{tx.date}</span>
                     <span className="capitalize">{tx.paymentMethod.replace('_', ' ')}</span>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
-          </AnimatePresence>
         </motion.div>
       ) : (
         /* CREATIVE VIEW 2: ULTRA-REFINED APPLE LEDGER COMPACT ROWS */
         <motion.div
-          key="finance-compact"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.18, ease: 'easeOut' }}
+          key={`finance-compact-${filterType}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
           className="solid-card divide-y divide-white/[0.06] rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
         >
-          <AnimatePresence mode="popLayout">
-            {filteredTransactions.map((tx) => {
-              const isIncome = tx.type === 'income';
+          {filteredTransactions.map((tx) => {
+            const isIncome = tx.type === 'income';
 
-              return (
-                <motion.div
-                  layout
-                  key={tx.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-                  onClick={() => openEditFinanceModal(tx)}
-                  className="group flex items-center justify-between p-3.5 sm:p-4 text-zinc-200 hover:bg-white/[0.03] transition-colors cursor-pointer gap-3 sm:gap-4"
-                >
+            return (
+              <div
+                key={tx.id}
+                onClick={() => openEditFinanceModal(tx)}
+                className="group flex items-center justify-between p-3.5 sm:p-4 text-zinc-200 hover:bg-white/[0.03] transition-colors cursor-pointer gap-3 sm:gap-4"
+              >
                   {/* Left Column: Direction Indicator Icon + 2-Line Clear Descriptor */}
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
@@ -629,12 +616,11 @@ export const FinanceView: React.FC = () => {
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
-          </AnimatePresence>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
     </AnimatePresence>
   )}
     </div>
