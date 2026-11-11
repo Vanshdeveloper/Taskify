@@ -24,5 +24,8 @@
         <item name="android:background">@drawable/splash_dark</item>
         <item name="android:windowBackground">@drawable/splash_dark</item>
         <item name="windowSplashScreenBackground">#160f0d</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_taskify</item>
+        <item name="windowSplashScreenIconBackgroundColor">#160f0d</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

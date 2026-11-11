@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "android/app/capacitor.build.gradle": {
-    "mtime": 1794416474.0532138,
-    "seen": 1794416758.604093,
+    "mtime": 1794419214.1825101,
+    "seen": 1794419298.4747934,
     "ast_hash": "06796b9d95b34bdd34d57405c42f101d",
     "semantic_hash": ""
   },
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "android/capacitor.settings.gradle": {
-    "mtime": 1794416474.0522134,
-    "seen": 1794416758.6041114,
+    "mtime": 1794419214.181511,
+    "seen": 1794419298.4748068,
     "ast_hash": "8087b83c314c84daec05cc78bec69ec5",
     "semantic_hash": ""
   },
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "ios/App/CapApp-SPM/Package.swift": {
-    "mtime": 1794416474.2254076,
-    "seen": 1794416758.6041408,
+    "mtime": 1794419214.3943317,
+    "seen": 1794419298.4748313,
     "ast_hash": "e653513245e72fd597b2d8d7f0d7c0d8",
     "semantic_hash": ""
   },
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "src/components/analytics/ExecutiveDashboardView.tsx": {
-    "mtime": 1794416407.4501514,
-    "seen": 1794416758.6041577,
-    "ast_hash": "0f7e6292ffe9cc49f36390b77121d939",
+    "mtime": 1794419090.1834123,
+    "seen": 1794419298.474845,
+    "ast_hash": "ae6615fb341bda22bec6f42235ca88fc",
     "semantic_hash": ""
   },
   "src/components/finance/FinanceView.tsx": {
@@ -648,15 +648,15 @@
     "semantic_hash": ""
   },
   "src/components/settings/AestheticSelector.tsx": {
-    "mtime": 1794281255.5863361,
-    "seen": 1794412837.3264408,
-    "ast_hash": "095f5c2ad925c8e44c0397cfaf3a61d8",
+    "mtime": 1794418854.5248928,
+    "seen": 1794419298.4748878,
+    "ast_hash": "2838fc4c5e5af5aa9c3b49ab54a72782",
     "semantic_hash": ""
   },
   "src/components/settings/SettingsView.tsx": {
-    "mtime": 1794415591.6821527,
-    "seen": 1794416758.60421,
-    "ast_hash": "6e54cfbbba19995065aab5c547ab144c",
+    "mtime": 1794419123.6391318,
+    "seen": 1794419298.4748905,
+    "ast_hash": "50b7d2d553d0b062ada7cf92d3d03823",
     "semantic_hash": ""
   },
   "src/components/settings/ThemeStudio.tsx": {
@@ -2316,69 +2316,69 @@
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-hdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271122,
-    "ast_hash": "f7a80786dd355bd39014e58027aa6e19",
+    "mtime": 1794418755.5303218,
+    "seen": 1794419298.4758878,
+    "ast_hash": "caf3887beb6d8e06e51ec422c4380f1c",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-mdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271146,
-    "ast_hash": "acc976d4a36479233371a53021525c0c",
+    "mtime": 1794418755.5413249,
+    "seen": 1794419298.4758954,
+    "ast_hash": "fe3e9d3ccfe866b0876d5305d77b971c",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-xhdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271167,
-    "ast_hash": "b8c72969bc1f78aab71a76035360d4af",
+    "mtime": 1794418755.5621672,
+    "seen": 1794419298.4759052,
+    "ast_hash": "33059f27aecff01749e3b5d76badd6a0",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-xxhdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271189,
-    "ast_hash": "f87e988387b07d843905f38b084929fb",
+    "mtime": 1794418755.5937655,
+    "seen": 1794419298.4759114,
+    "ast_hash": "b8a7d69bd9eda7c1c5e4bb8b7d76d853",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-xxxhdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271208,
-    "ast_hash": "055a69553b16b0bf5f72094a2e459fc7",
+    "mtime": 1794418755.63578,
+    "seen": 1794419298.4759173,
+    "ast_hash": "5e63fa77016324142ad163e59b8d55fd",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-port-hdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.327123,
-    "ast_hash": "5eb10d16c81338abe8bbc033d49638a8",
+    "mtime": 1794418755.407303,
+    "seen": 1794419298.475923,
+    "ast_hash": "908a653dbe53e85923b8ed992adfad11",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-port-mdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271255,
-    "ast_hash": "d855a76a5070c8e6fcfd83a27549bdce",
+    "mtime": 1794418755.418306,
+    "seen": 1794419298.4759285,
+    "ast_hash": "b61f6048fc32834b5a07449ef471ec28",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-port-xhdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271277,
-    "ast_hash": "df100b2a36bdb98b711cca58941728de",
+    "mtime": 1794418755.4398494,
+    "seen": 1794419298.475934,
+    "ast_hash": "6307ff5ec767f9dbf5abd22f3a172308",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-port-xxhdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271303,
-    "ast_hash": "2c1b668364e815256f67b71dcdfa4d6e",
+    "mtime": 1794418755.4708836,
+    "seen": 1794419298.475939,
+    "ast_hash": "1c11acd9db53db5eaf105f62777e8fcd",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-port-xxxhdpi/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.3271325,
-    "ast_hash": "b5b1b22b59abe686c1df0d74a423d034",
+    "mtime": 1794418755.5153186,
+    "seen": 1794419298.4759452,
+    "ast_hash": "7bfcde9f067c6dac11f8f255a51fcb5a",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable/splash.png": {
-    "mtime": 1791382562.0,
-    "seen": 1794412837.327135,
-    "ast_hash": "acc976d4a36479233371a53021525c0c",
+    "mtime": 1794418755.3612912,
+    "seen": 1794419298.4759521,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
     "semantic_hash": ""
   },
   "android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
@@ -2493,6 +2493,72 @@
     "mtime": 1791382562.0,
     "seen": 1794412837.3271859,
     "ast_hash": "958532b95c3e7d4997327dc977b80600",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-hdpi/splash_taskify.png": {
+    "mtime": 1794418755.5363233,
+    "seen": 1794419298.4758918,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-mdpi/splash_taskify.png": {
+    "mtime": 1794418755.5481641,
+    "seen": 1794419298.4758976,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-xhdpi/splash_taskify.png": {
+    "mtime": 1794418755.5704625,
+    "seen": 1794419298.4759076,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-xxhdpi/splash_taskify.png": {
+    "mtime": 1794418755.599767,
+    "seen": 1794419298.475914,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-xxxhdpi/splash_taskify.png": {
+    "mtime": 1794418755.6427834,
+    "seen": 1794419298.475919,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-hdpi/splash_taskify.png": {
+    "mtime": 1794418755.4143052,
+    "seen": 1794419298.475925,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-mdpi/splash_taskify.png": {
+    "mtime": 1794418755.4253085,
+    "seen": 1794419298.4759307,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-xhdpi/splash_taskify.png": {
+    "mtime": 1794418755.4468517,
+    "seen": 1794419298.475936,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-xxhdpi/splash_taskify.png": {
+    "mtime": 1794418755.4773135,
+    "seen": 1794419298.475942,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-xxxhdpi/splash_taskify.png": {
+    "mtime": 1794418755.52132,
+    "seen": 1794419298.4759479,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable/splash_taskify.png": {
+    "mtime": 1794418755.3532898,
+    "seen": 1794419298.4759543,
+    "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
     "semantic_hash": ""
   },
   "package-lock.json": {

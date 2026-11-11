@@ -15,6 +15,7 @@ import {
   ArrowUpRight,
   Vibrate,
   Volume2,
+  DollarSign,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -42,7 +43,6 @@ export const SettingsView: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync inputs with live settings query
   useEffect(() => {
     setUserNameInput(settings.userName);
     setCurrencyInput(settings.currency);
@@ -64,8 +64,9 @@ export const SettingsView: React.FC = () => {
       monthlyBudget: budgetVal,
       currencyExplicit: true,
     });
+    feedback.playClick();
     setSavedNotice(true);
-    setTimeout(() => setSavedNotice(false), 2500);
+    setTimeout(() => setSavedNotice(false), 2200);
   };
 
   const handleNavbarHeightChange = async (height: NavbarHeight) => {
@@ -79,6 +80,7 @@ export const SettingsView: React.FC = () => {
   };
 
   const handleDownloadBackup = async () => {
+    feedback.playClick();
     const jsonStr = await exportDataAsJson();
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -100,6 +102,7 @@ export const SettingsView: React.FC = () => {
       const text = await file.text();
       const ok = await importDataFromJson(text);
       if (ok) {
+        feedback.playClick();
         setImportStatus('Backup restored successfully.');
       } else {
         setImportStatus('Failed to restore: invalid backup schema.');
@@ -113,18 +116,19 @@ export const SettingsView: React.FC = () => {
   };
 
   const handleReset = async () => {
+    feedback.playClick();
     if (window.confirm('Reset database to clean starter data? This will overwrite your current entries.')) {
       await resetToDefaults();
     }
   };
 
   return (
-    <div className="flex flex-col gap-5 max-w-4xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10">
-      {/* 1. Header */}
-      <div className="pt-1">
-        <div className="flex items-center gap-2 mb-1">
+    <div className="flex flex-col gap-5 sm:gap-6 max-w-4xl mx-auto w-full pb-28 sm:pb-24 select-none relative z-10">
+      {/* 1. Apple Navigation Header */}
+      <div className="flex flex-col gap-1.5 pt-1">
+        <div className="flex items-center gap-2">
           <span
-            className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+            className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
             style={{ backgroundColor: 'rgba(242, 106, 54, 0.15)', color: 'var(--accent-primary)' }}
           >
             SYSTEM
@@ -132,37 +136,57 @@ export const SettingsView: React.FC = () => {
           <span className="text-xs text-zinc-400 font-mono">Preferences & Sovereignty</span>
         </div>
         <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
-          Settings & Sovereignty
+          Settings
         </h1>
-        <p className="text-xs text-zinc-400 mt-1">
-          Workspace profile, atmospheric theme studio, and offline-first data control.
+        <p className="text-xs text-zinc-400">
+          Personalize workspace defaults, atmospheric themes, and local-first data controls.
         </p>
       </div>
 
-      {/* 2. Workspace Profile (Shown FIRST) */}
+      {/* 2. Workspace Profile & Financial Defaults */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl"
-        style={{ backgroundColor: 'var(--bg-card)' }}
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl border flex flex-col gap-4"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <form onSubmit={handleSavePreferences} className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
-              <h2 className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
-                Workspace Profile & Defaults
-              </h2>
+        <div className="flex items-center justify-between pb-3 border-b border-white/6">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-sm"
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--accent-primary) 16%, transparent)',
+                borderColor: 'color-mix(in srgb, var(--accent-primary) 32%, transparent)',
+                color: 'var(--accent-primary)',
+              }}
+            >
+              <User className="w-4 h-4" />
             </div>
-            {savedNotice && (
-              <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: 'var(--accent-primary)' }}>
-                <CheckCircle2 className="w-3 h-3" />
-                Saved
-              </span>
-            )}
+            <div>
+              <h2 className="font-display text-sm font-bold text-white tracking-tight">
+                Profile & Workspace Defaults
+              </h2>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Customize your display identity, regional currency, and monthly budget.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {savedNotice && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Saved</span>
+            </motion.span>
+          )}
+        </div>
+
+        <form onSubmit={handleSavePreferences} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {/* Display Name */}
             <div>
-              <label className="block text-[11px] text-zinc-400 mb-1">
+              <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1.5">
                 Display Name
               </label>
               <div className="relative">
@@ -171,14 +195,16 @@ export const SettingsView: React.FC = () => {
                   type="text"
                   value={userNameInput}
                   onChange={(e) => setUserNameInput(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 rounded-xl solid-input text-xs text-white focus:outline-none"
+                  placeholder="Your Name"
+                  className="w-full pl-8 pr-3 py-2 rounded-xl solid-input text-xs text-white focus:outline-none transition-all"
                 />
               </div>
             </div>
 
+            {/* Currency Format */}
             <div>
-              <label className="block text-[11px] text-zinc-400 mb-1">
-                Currency Format
+              <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1.5">
+                Currency Symbol
               </label>
               <CustomSelect
                 value={currencyInput}
@@ -190,41 +216,46 @@ export const SettingsView: React.FC = () => {
               />
             </div>
 
+            {/* Monthly Budget */}
             <div>
-              <label className="block text-[11px] text-zinc-400 mb-1">
+              <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1.5">
                 Monthly Budget Target
               </label>
-              <input
-                type="number"
-                value={budgetInput}
-                onChange={(e) => setBudgetInput(e.target.value)}
-                className="w-full px-3 py-1.5 rounded-xl solid-input text-xs text-white focus:outline-none font-mono font-semibold"
-              />
+              <div className="relative">
+                <DollarSign className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input
+                  type="number"
+                  value={budgetInput}
+                  onChange={(e) => setBudgetInput(e.target.value)}
+                  placeholder="2400"
+                  className="w-full pl-8 pr-3 py-2 rounded-xl solid-input text-xs text-white focus:outline-none font-mono font-semibold"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end pt-2 hairline-t">
+          <div className="flex items-center justify-end pt-1">
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg"
+              className="px-4 py-2 rounded-xl text-white font-bold text-xs pressable shadow-md transition-all cursor-pointer"
               style={{ backgroundColor: 'var(--accent-primary)' }}
             >
-              Save Configuration
+              Save Profile Changes
             </button>
           </div>
         </form>
       </div>
 
-      {/* 3. Analytics Launch Card */}
+      {/* 3. Analytics Quick Launch Card */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border cursor-pointer hover:border-white/20 transition-all group"
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex items-center justify-between gap-4 border cursor-pointer hover:border-white/20 transition-all group"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
         onClick={() => {
           feedback.playClick();
           openExecutiveDashboard();
         }}
       >
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3.5 min-w-0">
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-md border shrink-0 transition-transform group-hover:scale-105"
             style={{
@@ -235,19 +266,22 @@ export const SettingsView: React.FC = () => {
           >
             <TrendingUp className="w-4 h-4" />
           </div>
-          <div>
-            <h3 className="font-display text-sm font-bold text-white tracking-tight">
-              Analytics
+          <div className="min-w-0">
+            <h3 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-2">
+              <span>Executive Analytics</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/6 text-zinc-400">
+                Trends & Velocity
+              </span>
             </h3>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Activity trends, task completion by category, and routine consistency.
+            <p className="text-xs text-zinc-400 mt-0.5 truncate">
+              Detailed productivity curves, task categories, and cashflow charts.
             </p>
           </div>
         </div>
 
         <button
           type="button"
-          className="px-4 py-2 rounded-xl text-xs font-bold text-white pressable shadow-lg flex items-center gap-2 shrink-0 self-start sm:self-auto cursor-pointer"
+          className="px-3.5 py-2 rounded-xl text-xs font-bold text-white pressable shadow-md flex items-center gap-1.5 shrink-0 cursor-pointer"
           style={{ backgroundColor: 'var(--accent-primary)' }}
           onClick={(e) => {
             e.stopPropagation();
@@ -255,27 +289,36 @@ export const SettingsView: React.FC = () => {
             openExecutiveDashboard();
           }}
         >
-          <span>Open Analytics</span>
+          <span>Open</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* 4. Choose Your Aesthetic & App Logo (First Thing Under Visuals) */}
+      {/* 4. App Icon & Brand Aesthetic Gallery (Unslop Redesign) */}
       <AestheticSelector />
 
-      {/* 5. Atmosphere & Theme System */}
+      {/* 5. Atmosphere & Theme Studio */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col gap-3.5 border"
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <div className="flex items-center gap-2">
-          <Palette className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+        <div className="flex items-center gap-3 pb-3 border-b border-white/6">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-sm"
+            style={{
+              backgroundColor: 'color-mix(in srgb, #a855f7 16%, transparent)',
+              borderColor: 'color-mix(in srgb, #a855f7 32%, transparent)',
+              color: '#c084fc',
+            }}
+          >
+            <Palette className="w-4 h-4" />
+          </div>
           <div>
-            <h2 className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
-              Atmosphere & Theme System
+            <h2 className="font-display text-sm font-bold text-white tracking-tight">
+              Atmosphere & Palettes
             </h2>
-            <p className="text-[11px] text-zinc-400 mt-0.5">
-              Select categorized palettes from soft organic linen to pure OLED dark.
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Select categorized themes from organic linen to high-contrast OLED black.
             </p>
           </div>
         </div>
@@ -283,76 +326,84 @@ export const SettingsView: React.FC = () => {
         <ThemeStudio />
       </div>
 
-      {/* 6. Physical Interaction & Haptic Vibration */}
+      {/* 6. Physical Haptics & Tactile Sound Profiles */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex items-center justify-between gap-4 border"
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <div className="flex items-center gap-3.5">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-md border shrink-0"
+        <div className="flex items-center justify-between gap-4 pb-3 border-b border-white/6">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-sm"
+              style={{
+                backgroundColor: 'color-mix(in srgb, #f59e0b 16%, transparent)',
+                borderColor: 'color-mix(in srgb, #f59e0b 32%, transparent)',
+                color: '#fbbf24',
+              }}
+            >
+              <Vibrate className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                <span>Haptic Vibration</span>
+                <span
+                  className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md border"
+                  style={{
+                    backgroundColor:
+                      settings.hapticFeedback !== false
+                        ? 'rgba(102, 124, 62, 0.2)'
+                        : 'rgba(255, 255, 255, 0.05)',
+                    borderColor:
+                      settings.hapticFeedback !== false
+                        ? 'rgba(102, 124, 62, 0.4)'
+                        : 'rgba(255, 255, 255, 0.1)',
+                    color:
+                      settings.hapticFeedback !== false
+                        ? 'var(--accent-success, #7da04a)'
+                        : 'var(--text-muted)',
+                  }}
+                >
+                  {settings.hapticFeedback !== false ? 'Active' : 'Muted'}
+                </span>
+              </h2>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Physical hardware vibration feedback on button presses and completions.
+              </p>
+            </div>
+          </div>
+
+          {/* Authentic Apple Spring Switch */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.hapticFeedback !== false}
+            onClick={async () => {
+              const nextVal = !(settings.hapticFeedback !== false);
+              feedback.setHapticsEnabled(nextVal);
+              if (nextVal) {
+                feedback.playClick();
+              }
+              await updateSettings({ hapticFeedback: nextVal });
+            }}
+            className={`w-12 h-7 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 border flex items-center ${
+              settings.hapticFeedback !== false
+                ? 'justify-end border-transparent'
+                : 'justify-start bg-white/10 border-white/10'
+            }`}
             style={{
-              backgroundColor: 'color-mix(in srgb, var(--accent-primary) 15%, transparent)',
-              borderColor: 'color-mix(in srgb, var(--accent-primary) 30%, transparent)',
-              color: 'var(--accent-primary)',
+              backgroundColor: settings.hapticFeedback !== false ? 'var(--accent-primary)' : undefined,
             }}
           >
-            <Vibrate className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-2">
-              <span>Haptic Vibration</span>
-              <span
-                className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md border"
-                style={{
-                  backgroundColor: settings.hapticFeedback !== false ? 'rgba(102, 124, 62, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                  borderColor: settings.hapticFeedback !== false ? 'rgba(102, 124, 62, 0.4)' : 'rgba(255, 255, 255, 0.1)',
-                  color: settings.hapticFeedback !== false ? 'var(--accent-success, #7da04a)' : 'var(--text-muted)',
-                }}
-              >
-                {settings.hapticFeedback !== false ? 'Active' : 'Muted'}
-              </span>
-            </h3>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Tactile physical vibrations on button taps, routine increments, and objective completions.
-            </p>
-          </div>
+            <motion.div
+              layout
+              transition={{ type: 'spring', damping: 25, stiffness: 450 }}
+              className="w-5 h-5 rounded-full bg-white shadow-md"
+            />
+          </button>
         </div>
 
-        {/* Apple Spring Switch */}
-        <button
-          type="button"
-          role="switch"
-          aria-checked={settings.hapticFeedback !== false}
-          onClick={async () => {
-            const nextVal = !(settings.hapticFeedback !== false);
-            feedback.setHapticsEnabled(nextVal);
-            if (nextVal) {
-              feedback.playClick();
-            }
-            await updateSettings({ hapticFeedback: nextVal });
-          }}
-          className={`w-12 h-7 rounded-full p-1 transition-colors duration-200 cursor-pointer shrink-0 border ${
-            settings.hapticFeedback !== false
-              ? 'border-transparent'
-              : 'bg-white/10 border-white/10'
-          }`}
-          style={{
-            backgroundColor: settings.hapticFeedback !== false ? 'var(--accent-primary)' : undefined,
-          }}
-          title={settings.hapticFeedback !== false ? 'Disable Haptic Vibration' : 'Enable Haptic Vibration'}
-        >
-          <motion.div
-            layout
-            transition={{ type: 'spring', damping: 25, stiffness: 450 }}
-            className={`w-5 h-5 rounded-full bg-white shadow-md ${
-              settings.hapticFeedback !== false ? 'ml-auto' : 'ml-0'
-            }`}
-          />
-        </button>
-
-        {/* Tactile Sound Style Options */}
-        <div className="w-full flex flex-col gap-2 pt-3 hairline-t col-span-full">
+        {/* Tactile Audio Profile Selector */}
+        <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Volume2 className="w-3.5 h-3.5 text-zinc-400" />
@@ -371,7 +422,7 @@ export const SettingsView: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {(
               [
                 { id: 'apple', label: 'Apple Taptic' },
@@ -391,7 +442,7 @@ export const SettingsView: React.FC = () => {
                     feedback.playClick();
                     await updateSettings({ hapticSound: sound.id });
                   }}
-                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-medium border text-center transition-all pressable cursor-pointer truncate ${
+                  className={`px-3 py-2 rounded-xl text-xs font-medium border text-center transition-all pressable cursor-pointer truncate ${
                     isSelected
                       ? 'text-white shadow-sm font-bold'
                       : 'text-zinc-400 hover:text-white border-white/6 hover:bg-white/[0.04]'
@@ -411,27 +462,36 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Navigation Bar Customization (Navbar Height & Glass) */}
+      {/* 7. Navigation Bar Customization */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col gap-4"
-        style={{ backgroundColor: 'var(--bg-card)' }}
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <div className="flex items-center gap-2">
-          <PanelTop className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+        <div className="flex items-center gap-3 pb-3 border-b border-white/6">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-sm"
+            style={{
+              backgroundColor: 'color-mix(in srgb, #38bdf8 16%, transparent)',
+              borderColor: 'color-mix(in srgb, #38bdf8 32%, transparent)',
+              color: '#38bdf8',
+            }}
+          >
+            <PanelTop className="w-4 h-4" />
+          </div>
           <div>
-            <h2 className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
+            <h2 className="font-display text-sm font-bold text-white tracking-tight">
               Navigation Bar Customization
             </h2>
-            <p className="text-[11px] text-zinc-400 mt-0.5">
-              Personalize header height and Apple translucent glass material to match your aesthetic preference.
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Personalize header height and translucent glass intensity.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-          {/* Height Selector */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Header Height */}
           <div>
-            <label className="block text-[11px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-2">
+            <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-2">
               Header Height
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -454,22 +514,18 @@ export const SettingsView: React.FC = () => {
                         : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
                     }`}
                   >
-                    <span className="text-xs font-bold text-white block">
-                      {h.label}
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block">
-                      {h.desc}
-                    </span>
+                    <span className="text-xs font-bold text-white block">{h.label}</span>
+                    <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block">{h.desc}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Glass Material Selector */}
+          {/* Glass Material */}
           <div>
-            <label className="block text-[11px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-2">
-              Material & Translucency
+            <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-2">
+              Material Translucency
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(
@@ -491,12 +547,8 @@ export const SettingsView: React.FC = () => {
                         : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
                     }`}
                   >
-                    <span className="text-xs font-bold text-white block">
-                      {g.label}
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block">
-                      {g.desc}
-                    </span>
+                    <span className="text-xs font-bold text-white block">{g.label}</span>
+                    <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block">{g.desc}</span>
                   </button>
                 );
               })}
@@ -505,22 +557,34 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 5. Data Portability & Recovery */}
+      {/* 8. Data Sovereignty & Portability */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl flex flex-col gap-3.5 shadow-xl"
-        style={{ backgroundColor: 'var(--bg-card)' }}
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <div>
-          <h2 className="font-display text-xs font-bold uppercase tracking-wider text-zinc-400">
-            Data Portability & Recovery
-          </h2>
-          <p className="text-[11px] text-zinc-500 mt-0.5">
-            Export or restore complete snapshots across desktop, tablet, and mobile devices.
-          </p>
+        <div className="flex items-center gap-3 pb-3 border-b border-white/6">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-sm"
+            style={{
+              backgroundColor: 'color-mix(in srgb, #10b981 16%, transparent)',
+              borderColor: 'color-mix(in srgb, #10b981 32%, transparent)',
+              color: '#34d399',
+            }}
+          >
+            <ShieldCheck className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="font-display text-sm font-bold text-white tracking-tight">
+              Data Portability & Sovereignty
+            </h2>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              100% offline-first architecture with instant JSON snapshots and zero tracking.
+            </p>
+          </div>
         </div>
 
         {importStatus && (
-          <div className="p-2.5 rounded-lg bg-white/[0.04] border border-white/8 text-xs text-zinc-300 font-medium">
+          <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/8 text-xs text-zinc-300 font-medium">
             {importStatus}
           </div>
         )}
@@ -558,54 +622,29 @@ export const SettingsView: React.FC = () => {
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/15 border border-rose-500/20 text-xs font-medium text-rose-300 pressable ml-auto cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5 text-rose-400" />
-            <span>Reset Demo Records</span>
+            <span>Reset Starter Data</span>
           </button>
         </div>
       </div>
 
-      {/* 6. Local-First Data Sovereignty Card */}
+      {/* 9. Target Platforms & System Spec */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl flex items-start gap-3.5 shadow-xl"
-        style={{ backgroundColor: 'var(--bg-card)' }}
-      >
-        <div
-          className="p-2 rounded-xl border shrink-0"
-          style={{
-            backgroundColor: 'rgba(102, 124, 62, 0.2)',
-            color: 'var(--accent-primary)',
-            borderColor: 'rgba(102, 124, 62, 0.3)',
-          }}
-        >
-          <ShieldCheck className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="font-display text-xs font-bold text-white tracking-tight">
-            100% Offline-First Architecture
-          </h2>
-          <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
-            Taskify persists all objectives, atomic routines, and financial cashflow records exclusively within your browser's local offline IndexedDB storage via Dexie. Zero cloud telemetry, zero account walls, and complete data ownership.
-          </p>
-        </div>
-      </div>
-
-      {/* 7. Target Platforms & System Spec */}
-      <div
-        className="solid-card p-4 sm:p-5 rounded-2xl flex flex-col gap-3 shadow-xl"
-        style={{ backgroundColor: 'var(--bg-card)' }}
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-3.5 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
         <h2 className="font-display text-xs font-bold uppercase tracking-wider text-zinc-400">
           Target Packaging & Specs
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-zinc-400">
-          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/30 border border-white/5">
+          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-black/30 border border-white/5">
             <Smartphone className="w-4 h-4 text-zinc-400" />
             <div>
               <span className="font-medium text-zinc-200 block">Mobile Targets</span>
-              <span className="text-[10px] text-zinc-500 font-mono">Capacitor 6/7 • Android & iOS</span>
+              <span className="text-[10px] text-zinc-500 font-mono">Capacitor • Android & iOS</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/30 border border-white/5">
+          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-black/30 border border-white/5">
             <Laptop className="w-4 h-4 text-zinc-400" />
             <div>
               <span className="font-medium text-zinc-200 block">Desktop Targets</span>
@@ -614,7 +653,7 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono pt-2 hairline-t">
+        <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono pt-2 border-t border-white/6">
           <span>Taskify OS v1.0.0 • React 19 + TypeScript + Dexie</span>
           <span>Open Source (MIT)</span>
         </div>

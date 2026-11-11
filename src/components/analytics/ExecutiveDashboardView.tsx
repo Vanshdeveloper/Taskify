@@ -1,5 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -58,6 +57,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
   const [rangeDays, setRangeDays] = useState<7 | 14 | 30>(14);
   const [chartMetric, setChartMetric] = useState<'activity' | 'finance'>('activity');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   // Daily timeline points (productivity activity + cashflow records)
   const dailyData = useMemo(() => {
@@ -153,6 +153,25 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     return Math.round((activeDays / dailyData.length) * 100);
   }, [activeDays, dailyData.length]);
 
+  // Aggregated totals for the selected period
+  const totalPeriodDone = useMemo(
+    () => dailyData.reduce((sum, p) => sum + p.totalDone, 0),
+    [dailyData]
+  );
+
+  const totalPeriodExpense = useMemo(
+    () => dailyData.reduce((sum, p) => sum + p.dayExpense, 0),
+    [dailyData]
+  );
+
+  // Active or hovered data point for Apple-style header inspection
+  const inspectedPoint = useMemo(() => {
+    if (hoveredIndex !== null && dailyData[hoveredIndex]) {
+      return dailyData[hoveredIndex];
+    }
+    return dailyData[dailyData.length - 1] || null;
+  }, [hoveredIndex, dailyData]);
+
   // Task category breakdown
   const categoryStats = useMemo(() => {
     const map: Record<string, { total: number; completed: number }> = {};
@@ -246,10 +265,10 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
 
   // Responsive Chart Coordinates & Dimensions
   const width = 800;
-  const height = 180;
-  const paddingX = 28;
-  const paddingTop = 20;
-  const paddingBottom = 16;
+  const height = 190;
+  const paddingX = 32;
+  const paddingTop = 24;
+  const paddingBottom = 20;
 
   // Fix: For finance metric, scale purely against daily expense values so the curve is dynamic and never flatlined by salary
   const maxVal = useMemo(() => {
@@ -310,6 +329,26 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
       setHoveredIndex(idx);
     }
   }, [hoveredIndex]);
+
+  // Direct 1:1 manipulation pointer scrub tracking
+  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const idx = Math.min(dailyData.length - 1, Math.max(0, Math.round(pct * (dailyData.length - 1))));
+    handleScrub(idx);
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    handlePointerMove(e);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 sm:gap-5 max-w-4xl mx-auto w-full pb-24 select-none relative z-10">
@@ -449,13 +488,13 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         </div>
       </div>
 
-      {/* 3. Performance Trends Chart (Activity / Cashflow) */}
+      {/* 3. Performance Trends Chart (Activity / Cashflow) - Apple Health & Stocks Grade */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl border flex flex-col gap-3 shadow-lg relative overflow-hidden w-full"
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col gap-4 shadow-xl relative overflow-hidden w-full"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        {/* Header: Title on Left, Sleek Toggle on Right (ZERO emojis, ZERO "Daily task" or "Daily Spend" or dot) */}
-        <div className="flex items-center justify-between gap-2.5 min-w-0">
+        {/* Tier 1 Header: Title & Mode Toggle (ZERO emojis, ZERO "Daily task" or "Daily Spend" or dot) */}
+        <div className="flex items-center justify-between gap-3 min-w-0">
           <div className="flex items-center gap-2 min-w-0">
             {chartMetric === 'activity' ? (
               <Activity className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
@@ -468,7 +507,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </div>
 
           {/* Apple Segmented Control - Strictly Zero Emojis */}
-          <div className="segmented-track flex items-center gap-1 p-0.5">
+          <div className="segmented-track flex items-center gap-1 p-0.5 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -510,11 +549,60 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </div>
         </div>
 
-        {/* Vector SVG Canvas with Apple Capsule Bars + Bézier Spline */}
+        {/* Tier 2: Apple Live Metric Inspector Display (Changes on scrub, zero awkward floating box) */}
+        <div className="flex items-baseline justify-between pt-1 border-b border-white/6 pb-3">
+          <div className="flex flex-col min-w-0">
+            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+              {hoveredIndex !== null ? (inspectedPoint?.fullDate || 'Inspected Day') : `${rangeDays}-Day Total`}
+            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="font-display text-2xl sm:text-3xl font-black text-white font-mono tabular-nums">
+                {chartMetric === 'activity'
+                  ? (hoveredIndex !== null ? inspectedPoint?.totalDone : totalPeriodDone)
+                  : (hoveredIndex !== null
+                      ? `${settings.currency}${inspectedPoint?.dayExpense.toFixed(2)}`
+                      : formatFullCurrency(totalPeriodExpense, settings.currency))}
+              </span>
+              <span className="text-xs font-medium text-zinc-400">
+                {chartMetric === 'activity' ? 'items completed' : 'spent'}
+              </span>
+            </div>
+          </div>
+
+          {/* Context Subtext Pill */}
+          <div className="text-right shrink-0">
+            {chartMetric === 'activity' ? (
+              <span className="text-[11px] font-mono text-zinc-400">
+                {hoveredIndex !== null
+                  ? `${inspectedPoint?.tasksDone} tasks • ${inspectedPoint?.habitsDone} habits`
+                  : `Avg ${(totalPeriodDone / rangeDays).toFixed(1)} / day`}
+              </span>
+            ) : (
+              <div className="flex flex-col items-end">
+                <span className="text-[11px] font-mono text-zinc-400">
+                  {hoveredIndex !== null
+                    ? `Net: ${inspectedPoint && inspectedPoint.netCashflow >= 0 ? '+' : '-'}${settings.currency}${Math.abs(inspectedPoint?.netCashflow || 0).toFixed(2)}`
+                    : `Avg ${settings.currency}${(totalPeriodExpense / rangeDays).toFixed(2)} / day`}
+                </span>
+                {hoveredIndex !== null && inspectedPoint && inspectedPoint.dayIncome > 0 && (
+                  <span className="text-[10px] font-mono text-emerald-400">
+                    +{settings.currency}{inspectedPoint.dayIncome.toFixed(2)} earned
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Vector SVG Canvas with Direct Manipulation Pointer Events */}
         <div className="relative pt-1 w-full overflow-hidden">
           <svg
+            ref={svgRef}
             viewBox={`0 0 ${width} ${height}`}
-            className="w-full h-auto max-h-48 sm:max-h-56 select-none overflow-visible"
+            className="w-full h-auto max-h-52 select-none overflow-visible touch-none cursor-crosshair"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
           >
             <defs>
               <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
@@ -562,19 +650,13 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
 
             {/* Capsule Bar Backgrounds & Interactive Point Nodes */}
             {coords.map((c, idx) => {
-              const isHovered = hoveredIndex === idx;
+              const isHovered = (hoveredIndex === idx) || (hoveredIndex === null && idx === coords.length - 1);
               const strokeColor = chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)';
               const barWidth = Math.max(6, Math.min(22, (width - paddingX * 2) / (dailyData.length * 2.2)));
               const barHeight = Math.max(4, (height - paddingBottom) - c.y);
 
               return (
-                <g
-                  key={idx}
-                  onMouseEnter={() => handleScrub(idx)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                  onTouchStart={() => handleScrub(idx)}
-                  className="cursor-pointer"
-                >
+                <g key={idx}>
                   {/* Vertical Apple Capsule Bar */}
                   <rect
                     x={c.x - barWidth / 2}
@@ -583,11 +665,11 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                     height={barHeight}
                     rx={barWidth / 2}
                     fill={strokeColor}
-                    fillOpacity={isHovered ? 0.35 : 0.12}
+                    fillOpacity={isHovered ? 0.38 : 0.12}
                     className="transition-all duration-150"
                   />
 
-                  {/* Scrub Guideline */}
+                  {/* Active Scrub Hairline Guideline */}
                   {isHovered && (
                     <line
                       x1={c.x}
@@ -595,7 +677,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                       x2={c.x}
                       y2={height - paddingBottom}
                       stroke={strokeColor}
-                      strokeOpacity="0.5"
+                      strokeOpacity="0.45"
                       strokeWidth="1.5"
                       strokeDasharray="3 3"
                     />
@@ -611,70 +693,33 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                     strokeWidth="2.5"
                     className="transition-all duration-150"
                   />
+
+                  {/* Income indicator pill in finance mode */}
+                  {chartMetric === 'finance' && c.point.dayIncome > 0 && (
+                    <circle
+                      cx={c.x}
+                      cy={paddingTop + 6}
+                      r={2.5}
+                      fill="#10b981"
+                    />
+                  )}
                 </g>
               );
             })}
           </svg>
-
-          {/* Context-Aware Dynamic Tooltip (Frosted Glass, Zero Emojis) */}
-          <AnimatePresence>
-            {hoveredIndex !== null && coords[hoveredIndex] && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 4 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 4 }}
-                transition={{ duration: 0.15 }}
-                className="absolute top-2 left-1/2 -translate-x-1/2 px-3.5 py-1.5 rounded-xl border shadow-2xl flex items-center gap-2.5 text-xs pointer-events-none z-20 max-w-[92%] truncate"
-                style={{
-                  backgroundColor: 'rgba(22, 15, 13, 0.92)',
-                  borderColor: 'rgba(255, 255, 255, 0.15)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                }}
-              >
-                <span className="font-mono text-xs font-semibold text-zinc-400 shrink-0">
-                  {coords[hoveredIndex].point.fullDate}
-                </span>
-                <span className="h-3 w-px bg-white/15 shrink-0" />
-                {chartMetric === 'activity' ? (
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="font-bold text-white font-mono">
-                      {coords[hoveredIndex].point.totalDone} completed
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-400">
-                      ({coords[hoveredIndex].point.tasksDone} tasks, {coords[hoveredIndex].point.habitsDone} habits)
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 shrink-0 font-mono">
-                    <span className="font-bold text-rose-400">
-                      Spent: {settings.currency}{coords[hoveredIndex].point.dayExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                    {coords[hoveredIndex].point.dayIncome > 0 && (
-                      <span className="text-emerald-400">
-                        (+{settings.currency}{coords[hoveredIndex].point.dayIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
-                      </span>
-                    )}
-                    <span className="text-[11px] text-zinc-400">
-                      (Net: {coords[hoveredIndex].point.netCashflow >= 0 ? '+' : '-'}{settings.currency}{Math.abs(coords[hoveredIndex].point.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* High-DPI Legible Native HTML X-Axis Day Labels (Crystal clear to naked eyes) */}
-        <div className="w-full flex items-center justify-between px-1 sm:px-2 pt-1 pb-0.5 border-t border-white/6 overflow-hidden">
+        <div className="w-full flex items-center justify-between px-1 sm:px-2 pt-1 border-t border-white/6 overflow-hidden">
           {dailyData.map((p, idx) => {
-            const isHovered = hoveredIndex === idx;
+            const isHovered = (hoveredIndex === idx) || (hoveredIndex === null && idx === dailyData.length - 1);
             // Clutter-free responsive filter for 14D and 30D
             const isVisible =
               rangeDays === 7
                 ? true
                 : rangeDays === 14
                 ? idx % 2 === 0 || idx === dailyData.length - 1 || isHovered
-                : idx % 4 === 0 || idx === dailyData.length - 1 || isHovered;
+                : idx % 6 === 0 || idx === dailyData.length - 1 || isHovered;
 
             return (
               <button
@@ -705,7 +750,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
         {/* Tasks by Category */}
         <div
-          className="solid-card p-4 sm:p-5 rounded-2xl border flex flex-col justify-between min-w-0"
+          className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col justify-between min-w-0"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
         >
           <div>
@@ -767,7 +812,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
 
         {/* Habit Streaks */}
         <div
-          className="solid-card p-4 sm:p-5 rounded-2xl border flex flex-col justify-between min-w-0"
+          className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col justify-between min-w-0"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
         >
           <div>
@@ -833,7 +878,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
 
       {/* 5. Monthly Finances: Apple Wallet Style */}
       <div
-        className="solid-card p-4 sm:p-5 rounded-2xl border flex flex-col gap-4 min-w-0 overflow-hidden"
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col gap-4 min-w-0 overflow-hidden"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 hairline-b gap-1 min-w-0">
