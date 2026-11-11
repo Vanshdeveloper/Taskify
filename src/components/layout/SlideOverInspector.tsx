@@ -18,6 +18,7 @@ import {
   TrendingUp,
   ArrowUpRight,
   Vibrate,
+  Volume2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -460,19 +461,74 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                       }
                       await updateSettings({ hapticFeedback: nextVal });
                     }}
-                    className={`w-11 h-6 rounded-full transition-colors relative pressable cursor-pointer ${
-                      settings.hapticFeedback !== false ? 'bg-emerald-500' : 'bg-zinc-700'
+                    className={`w-12 h-6.5 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center ${
+                      settings.hapticFeedback !== false ? 'bg-emerald-500 justify-end' : 'bg-zinc-700 justify-start'
                     }`}
                     style={{
                       backgroundColor: settings.hapticFeedback !== false ? 'var(--accent-primary)' : undefined,
                     }}
                   >
-                    <div
-                      className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
-                        settings.hapticFeedback !== false ? 'right-1' : 'left-1'
-                      }`}
-                    />
+                    <div className="w-5 h-5 rounded-full bg-white shadow-md transition-all" />
                   </button>
+                </div>
+
+                {/* Haptic Sound Style Customization */}
+                <div className="flex flex-col gap-2 pt-3 hairline-t">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="w-3.5 h-3.5 text-zinc-400" />
+                      <span className="text-xs font-semibold text-white">Tactile Click Sound</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-zinc-400">
+                      {settings.hapticSound === 'apple'
+                        ? 'Apple Taptic'
+                        : settings.hapticSound === 'mechanical'
+                        ? 'Mechanical'
+                        : settings.hapticSound === 'pop'
+                        ? 'Bubble Pop'
+                        : settings.hapticSound === 'subtle'
+                        ? 'Subtle Tick'
+                        : 'Muted'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
+                    {(
+                      [
+                        { id: 'apple', label: 'Apple Taptic' },
+                        { id: 'mechanical', label: 'Mechanical' },
+                        { id: 'pop', label: 'Bubble Pop' },
+                        { id: 'subtle', label: 'Subtle Tick' },
+                        { id: 'mute', label: 'Muted' },
+                      ] as const
+                    ).map((sound) => {
+                      const isSelected = (settings.hapticSound || 'apple') === sound.id;
+                      return (
+                        <button
+                          key={sound.id}
+                          type="button"
+                          onClick={async () => {
+                            feedback.setHapticSound(sound.id);
+                            feedback.playClick();
+                            await updateSettings({ hapticSound: sound.id });
+                          }}
+                          className={`px-2.5 py-1.5 rounded-xl text-[11px] font-medium border text-center transition-all pressable cursor-pointer truncate ${
+                            isSelected
+                              ? 'text-white shadow-sm font-bold'
+                              : 'text-zinc-400 hover:text-white border-white/6 hover:bg-white/[0.04]'
+                          }`}
+                          style={{
+                            backgroundColor: isSelected
+                              ? 'var(--accent-primary)'
+                              : 'color-mix(in srgb, var(--bg-card) 60%, transparent)',
+                            borderColor: isSelected ? 'var(--accent-primary)' : 'var(--border-card)',
+                          }}
+                        >
+                          {sound.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 

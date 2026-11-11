@@ -14,6 +14,7 @@ import {
   TrendingUp,
   ArrowUpRight,
   Vibrate,
+  Volume2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -349,6 +350,65 @@ export const SettingsView: React.FC = () => {
             }`}
           />
         </button>
+
+        {/* Tactile Sound Style Options */}
+        <div className="w-full flex flex-col gap-2 pt-3 hairline-t col-span-full">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Volume2 className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="text-xs font-semibold text-white">Tactile Click Sound</span>
+            </div>
+            <span className="text-[10px] font-mono text-zinc-400">
+              {settings.hapticSound === 'apple'
+                ? 'Apple Taptic'
+                : settings.hapticSound === 'mechanical'
+                ? 'Mechanical'
+                : settings.hapticSound === 'pop'
+                ? 'Bubble Pop'
+                : settings.hapticSound === 'subtle'
+                ? 'Subtle Tick'
+                : 'Muted'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-1">
+            {(
+              [
+                { id: 'apple', label: 'Apple Taptic' },
+                { id: 'mechanical', label: 'Mechanical' },
+                { id: 'pop', label: 'Bubble Pop' },
+                { id: 'subtle', label: 'Subtle Tick' },
+                { id: 'mute', label: 'Muted' },
+              ] as const
+            ).map((sound) => {
+              const isSelected = (settings.hapticSound || 'apple') === sound.id;
+              return (
+                <button
+                  key={sound.id}
+                  type="button"
+                  onClick={async () => {
+                    feedback.setHapticSound(sound.id);
+                    feedback.playClick();
+                    await updateSettings({ hapticSound: sound.id });
+                  }}
+                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-medium border text-center transition-all pressable cursor-pointer truncate ${
+                    isSelected
+                      ? 'text-white shadow-sm font-bold'
+                      : 'text-zinc-400 hover:text-white border-white/6 hover:bg-white/[0.04]'
+                  }`}
+                  style={{
+                    backgroundColor: isSelected
+                      ? 'var(--accent-primary)'
+                      : 'color-mix(in srgb, var(--bg-card) 60%, transparent)',
+                    borderColor: isSelected ? 'var(--accent-primary)' : 'var(--border-card)',
+                  }}
+                >
+                  {sound.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* 4. Navigation Bar Customization (Navbar Height & Glass) */}

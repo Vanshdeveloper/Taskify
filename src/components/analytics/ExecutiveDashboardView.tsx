@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   CheckCircle2,
+  Calendar,
   Flame,
+  Wallet,
+  Activity,
+  DollarSign,
   Target,
   Award,
-  Wallet,
-  BarChart2,
-  Calendar,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
@@ -20,7 +21,7 @@ interface ExecutiveDashboardViewProps {
 }
 
 /**
- * Strict currency formatter with full comma separation and zero slop
+ * Strict currency formatter with comma separation and zero slop
  */
 function formatFullCurrency(amount: number, currency: string): string {
   if (isNaN(amount) || !isFinite(amount)) return `${currency}0`;
@@ -63,6 +64,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     const points: {
       dateStr: string;
       label: string;
+      dayNum: string;
       fullDate: string;
       tasksDone: number;
       habitsDone: number;
@@ -82,20 +84,29 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
       const dateStr = `${y}-${m}-${day}`;
 
       const dayName = d.toLocaleDateString(undefined, { weekday: 'short' });
+      const dayNum = String(d.getDate());
       const fullDate = d.toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',
       });
 
-      const tasksDone = tasks.filter(
-        (t) => t.status === 'completed' && t.dueDate === dateStr
-      ).length;
+      // Match completed tasks either by completed date or due date
+      const tasksDone = tasks.filter((t) => {
+        if (t.status !== 'completed') return false;
+        if (t.completedAt) {
+          const cDate = new Date(t.completedAt).toISOString().split('T')[0];
+          if (cDate === dateStr) return true;
+        }
+        return t.dueDate === dateStr;
+      }).length;
 
       const habitsDone = habitLogs.filter(
         (l) => l.date === dateStr && l.completed
       ).length;
 
-      const dayTransactions = transactions.filter((t) => t.date === dateStr);
+      const dayTransactions = transactions.filter(
+        (t) => t.date === dateStr || (t.date && t.date.startsWith(dateStr))
+      );
       const dayExpense = dayTransactions
         .filter((t) => t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
@@ -107,6 +118,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
       points.push({
         dateStr,
         label: dayName,
+        dayNum,
         fullDate,
         tasksDone,
         habitsDone,
@@ -232,16 +244,17 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     [financeStats.monthlyIncome, settings.currency]
   );
 
-  // Responsive Chart Coordinates
+  // Responsive Chart Coordinates & Dimensions
   const width = 800;
-  const height = 200;
-  const paddingX = 32;
+  const height = 180;
+  const paddingX = 28;
   const paddingTop = 20;
-  const paddingBottom = 32;
+  const paddingBottom = 16;
 
+  // Fix: For finance metric, scale purely against daily expense values so the curve is dynamic and never flatlined by salary
   const maxVal = useMemo(() => {
     if (chartMetric === 'finance') {
-      const peak = Math.max(...dailyData.map((p) => Math.max(p.dayExpense, p.dayIncome)), 10);
+      const peak = Math.max(...dailyData.map((p) => p.dayExpense), 10);
       return Math.ceil(peak / 10) * 10;
     }
     const peak = Math.max(...dailyData.map((p) => p.totalDone), 4);
@@ -255,13 +268,13 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     return dailyData.map((p, idx) => {
       const x = paddingX + idx * stepX;
       const value = chartMetric === 'finance' ? p.dayExpense : p.totalDone;
-      const ratio = maxVal > 0 ? value / maxVal : 0;
+      const ratio = maxVal > 0 ? Math.min(1, value / maxVal) : 0;
       const y = paddingTop + (1 - ratio) * usableHeight;
-      return { x, y, point: p };
+      return { x, y, point: p, ratio };
     });
   }, [dailyData, maxVal, width, height, paddingX, paddingTop, paddingBottom, chartMetric]);
 
-  // SVG Bézier curve
+  // SVG Bézier curve and gradient area
   const { linePath, areaPath } = useMemo(() => {
     if (coords.length === 0) return { linePath: '', areaPath: '' };
     if (coords.length === 1) {
@@ -290,11 +303,19 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     return { linePath: d, areaPath: a };
   }, [coords, height, paddingBottom]);
 
+  // Tactile day scrub handler
+  const handleScrub = useCallback((idx: number) => {
+    if (hoveredIndex !== idx) {
+      feedback.playClick();
+      setHoveredIndex(idx);
+    }
+  }, [hoveredIndex]);
+
   return (
     <div className="flex flex-col gap-4 sm:gap-5 max-w-4xl mx-auto w-full pb-24 select-none relative z-10">
-      {/* 1. Apple Navigation Header: Clean 2-Tier Stack */}
+      {/* 1. Apple Navigation Header */}
       <div className="flex flex-col gap-3 pt-1">
-        {/* Tier 1: Action Bar (Always Space-Between on Mobile & Desktop) */}
+        {/* Tier 1: Action Bar */}
         <div className="flex items-center justify-between w-full">
           <button
             type="button"
@@ -302,7 +323,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               feedback.playClick();
               onClose();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white pressable transition-colors border border-white/8 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white pressable transition-colors border border-white/8 cursor-pointer"
             style={{ backgroundColor: 'var(--bg-card)' }}
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -320,8 +341,9 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                   onClick={() => {
                     feedback.playClick();
                     setRangeDays(days);
+                    setHoveredIndex(null);
                   }}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg pressable transition-all cursor-pointer ${
+                  className={`px-3.5 py-1.5 text-xs font-bold rounded-lg pressable transition-all cursor-pointer ${
                     isSel ? 'text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                   style={{
@@ -341,12 +363,12 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             Analytics
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Activity trends, task progress, and routine consistency.
+            Performance trends, routine adherence, and cashflow velocity.
           </p>
         </div>
       </div>
 
-      {/* 2. Key Metrics Summary: Responsive Grid with Anti-Overflow Containers */}
+      {/* 2. Key Metrics Summary: Responsive 2x2 Grid with Anti-Overflow */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         {/* Completed Tasks */}
         <div
@@ -354,7 +376,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
         >
           <div className="flex items-center justify-between text-zinc-400 gap-1 min-w-0">
-            <span className="text-[11px] font-medium text-zinc-400 truncate">Completed Tasks</span>
+            <span className="text-[11px] font-medium text-zinc-400 truncate">Tasks Finished</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           </div>
           <div className="mt-2 min-w-0">
@@ -363,7 +385,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             </span>
           </div>
           <span className="text-[10px] text-zinc-500 mt-0.5 font-mono truncate block">
-            {tasks.length - totalTasksCompleted} in backlog
+            {tasks.length - totalTasksCompleted} remaining
           </span>
         </div>
 
@@ -386,7 +408,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </span>
         </div>
 
-        {/* Habit Streaks */}
+        {/* Habit Check-Ins */}
         <div
           className="solid-card p-3.5 sm:p-4 rounded-2xl border flex flex-col justify-between min-w-0 overflow-hidden"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
@@ -405,7 +427,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </span>
         </div>
 
-        {/* Safe Daily Spend: Full Commas & Dynamic Font Shrink */}
+        {/* Safe Daily Spend */}
         <div
           className="solid-card p-3.5 sm:p-4 rounded-2xl border flex flex-col justify-between min-w-0 overflow-hidden"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
@@ -427,69 +449,68 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         </div>
       </div>
 
-      {/* 3. Fully Responsive Vector Activity & Cashflow Chart */}
+      {/* 3. Performance Trends Chart (Activity / Cashflow) */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl border flex flex-col gap-3 shadow-lg relative overflow-hidden w-full"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
+        {/* Header: Title on Left, Sleek Toggle on Right (ZERO emojis, ZERO "Daily task" or "Daily Spend" or dot) */}
+        <div className="flex items-center justify-between gap-2.5 min-w-0">
           <div className="flex items-center gap-2 min-w-0">
-            <BarChart2 className="w-4 h-4 shrink-0" style={{ color: chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)' }} />
+            {chartMetric === 'activity' ? (
+              <Activity className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
+            ) : (
+              <DollarSign className="w-4 h-4 shrink-0 text-rose-400" />
+            )}
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300 truncate">
-              {chartMetric === 'activity' ? 'Daily Productivity' : 'Daily Cashflow & Expenses'}
+              {chartMetric === 'activity' ? 'Activity Velocity' : 'Cashflow Velocity'}
             </h3>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            {/* Metric Mode Switcher */}
-            <div className="segmented-track flex items-center gap-1 p-0.5">
-              <button
-                type="button"
-                onClick={() => {
-                  feedback.playClick();
-                  setChartMetric('activity');
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold pressable transition-all cursor-pointer ${
-                  chartMetric === 'activity'
-                    ? 'text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
-                style={{
-                  backgroundColor: chartMetric === 'activity' ? 'var(--accent-primary)' : 'transparent',
-                }}
-              >
-                🎯 Activity
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  feedback.playClick();
-                  setChartMetric('finance');
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold pressable transition-all cursor-pointer ${
-                  chartMetric === 'finance'
-                    ? 'text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
-                style={{
-                  backgroundColor: chartMetric === 'finance' ? '#f43f5e' : 'transparent',
-                }}
-              >
-                💳 Cashflow
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-zinc-400 shrink-0">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)' }}
-              />
-              <span>{chartMetric === 'finance' ? 'Daily Spend' : 'Completed Items'}</span>
-            </div>
+          {/* Apple Segmented Control - Strictly Zero Emojis */}
+          <div className="segmented-track flex items-center gap-1 p-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                feedback.playClick();
+                setChartMetric('activity');
+                setHoveredIndex(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all cursor-pointer ${
+                chartMetric === 'activity'
+                  ? 'text-white shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              style={{
+                backgroundColor: chartMetric === 'activity' ? 'var(--accent-primary)' : 'transparent',
+              }}
+            >
+              <Activity className="w-3 h-3 shrink-0" />
+              <span>Activity</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                feedback.playClick();
+                setChartMetric('finance');
+                setHoveredIndex(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all cursor-pointer ${
+                chartMetric === 'finance'
+                  ? 'text-white shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              style={{
+                backgroundColor: chartMetric === 'finance' ? '#f43f5e' : 'transparent',
+              }}
+            >
+              <DollarSign className="w-3 h-3 shrink-0" />
+              <span>Cashflow</span>
+            </button>
           </div>
         </div>
 
-        {/* SVG Viewport: Vector Scaling Without Horizontal Scroll Lockout */}
+        {/* Vector SVG Canvas with Apple Capsule Bars + Bézier Spline */}
         <div className="relative pt-1 w-full overflow-hidden">
           <svg
             viewBox={`0 0 ${width} ${height}`}
@@ -497,11 +518,11 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           >
             <defs>
               <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.28" />
+                <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.25" />
                 <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
               </linearGradient>
               <linearGradient id="financeGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.32" />
+                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.28" />
                 <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
               </linearGradient>
             </defs>
@@ -539,28 +560,34 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               strokeLinejoin="round"
             />
 
-            {/* Point Nodes */}
+            {/* Capsule Bar Backgrounds & Interactive Point Nodes */}
             {coords.map((c, idx) => {
               const isHovered = hoveredIndex === idx;
-
-              // Responsive label skipping for clutter-free axis
-              const showLabel =
-                rangeDays === 7
-                  ? true
-                  : rangeDays === 14
-                  ? idx % 2 === 0 || idx === coords.length - 1
-                  : idx % 4 === 0 || idx === coords.length - 1;
-
               const strokeColor = chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)';
+              const barWidth = Math.max(6, Math.min(22, (width - paddingX * 2) / (dailyData.length * 2.2)));
+              const barHeight = Math.max(4, (height - paddingBottom) - c.y);
 
               return (
                 <g
                   key={idx}
-                  onMouseEnter={() => setHoveredIndex(idx)}
+                  onMouseEnter={() => handleScrub(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
-                  onTouchStart={() => setHoveredIndex(idx)}
+                  onTouchStart={() => handleScrub(idx)}
                   className="cursor-pointer"
                 >
+                  {/* Vertical Apple Capsule Bar */}
+                  <rect
+                    x={c.x - barWidth / 2}
+                    y={c.y}
+                    width={barWidth}
+                    height={barHeight}
+                    rx={barWidth / 2}
+                    fill={strokeColor}
+                    fillOpacity={isHovered ? 0.35 : 0.12}
+                    className="transition-all duration-150"
+                  />
+
+                  {/* Scrub Guideline */}
                   {isHovered && (
                     <line
                       x1={c.x}
@@ -568,82 +595,109 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                       x2={c.x}
                       y2={height - paddingBottom}
                       stroke={strokeColor}
-                      strokeOpacity="0.4"
-                      strokeWidth="1"
+                      strokeOpacity="0.5"
+                      strokeWidth="1.5"
                       strokeDasharray="3 3"
                     />
                   )}
 
+                  {/* Point Top Node */}
                   <circle
                     cx={c.x}
                     cy={c.y}
-                    r={isHovered ? 5 : 3.5}
+                    r={isHovered ? 5.5 : 3.5}
                     fill="var(--bg-card)"
                     stroke={strokeColor}
                     strokeWidth="2.5"
                     className="transition-all duration-150"
                   />
-
-                  {/* X-axis date labels */}
-                  {showLabel && (
-                    <text
-                      x={c.x}
-                      y={height - 10}
-                      textAnchor="middle"
-                      fill={isHovered ? '#ffffff' : 'rgba(255, 255, 255, 0.4)'}
-                      fontSize="10"
-                      fontFamily="monospace"
-                      fontWeight={isHovered ? 'bold' : 'normal'}
-                    >
-                      {c.point.label}
-                    </text>
-                  )}
                 </g>
               );
             })}
           </svg>
 
-          {/* Context-Aware Dynamic Tooltip */}
-          {hoveredIndex !== null && coords[hoveredIndex] && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 2 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="absolute top-1 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-xl border shadow-xl flex items-center gap-2 text-xs pointer-events-none z-20 max-w-[90%] truncate"
-              style={{
-                backgroundColor: 'var(--bg-canvas)',
-                borderColor: 'var(--border-card)',
-              }}
-            >
-              <span className="font-mono text-[10px] text-zinc-400 shrink-0">
-                {coords[hoveredIndex].point.fullDate}
-              </span>
-              <span className="h-3 w-px bg-white/10 shrink-0" />
-              {chartMetric === 'activity' ? (
-                <>
-                  <span className="font-bold text-white shrink-0">
-                    {coords[hoveredIndex].point.totalDone} completed
-                  </span>
-                  <span className="text-[10px] font-mono text-zinc-400 truncate">
-                    ({coords[hoveredIndex].point.tasksDone} tasks, {coords[hoveredIndex].point.habitsDone} habits)
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="font-bold text-rose-400 shrink-0 font-mono">
-                    Spent: {settings.currency}{coords[hoveredIndex].point.dayExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  {coords[hoveredIndex].point.dayIncome > 0 && (
-                    <span className="text-emerald-400 font-mono shrink-0">
-                      (+{settings.currency}{coords[hoveredIndex].point.dayIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+          {/* Context-Aware Dynamic Tooltip (Frosted Glass, Zero Emojis) */}
+          <AnimatePresence>
+            {hoveredIndex !== null && coords[hoveredIndex] && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 4 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-2 left-1/2 -translate-x-1/2 px-3.5 py-1.5 rounded-xl border shadow-2xl flex items-center gap-2.5 text-xs pointer-events-none z-20 max-w-[92%] truncate"
+                style={{
+                  backgroundColor: 'rgba(22, 15, 13, 0.92)',
+                  borderColor: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                }}
+              >
+                <span className="font-mono text-xs font-semibold text-zinc-400 shrink-0">
+                  {coords[hoveredIndex].point.fullDate}
+                </span>
+                <span className="h-3 w-px bg-white/15 shrink-0" />
+                {chartMetric === 'activity' ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="font-bold text-white font-mono">
+                      {coords[hoveredIndex].point.totalDone} completed
                     </span>
-                  )}
-                  <span className="text-[10px] font-mono text-zinc-400 truncate">
-                    (Net: {coords[hoveredIndex].point.netCashflow >= 0 ? '+' : '-'}{settings.currency}{Math.abs(coords[hoveredIndex].point.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
-                  </span>
-                </>
-              )}
-            </motion.div>
-          )}
+                    <span className="text-[11px] font-mono text-zinc-400">
+                      ({coords[hoveredIndex].point.tasksDone} tasks, {coords[hoveredIndex].point.habitsDone} habits)
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 shrink-0 font-mono">
+                    <span className="font-bold text-rose-400">
+                      Spent: {settings.currency}{coords[hoveredIndex].point.dayExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    {coords[hoveredIndex].point.dayIncome > 0 && (
+                      <span className="text-emerald-400">
+                        (+{settings.currency}{coords[hoveredIndex].point.dayIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                      </span>
+                    )}
+                    <span className="text-[11px] text-zinc-400">
+                      (Net: {coords[hoveredIndex].point.netCashflow >= 0 ? '+' : '-'}{settings.currency}{Math.abs(coords[hoveredIndex].point.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                    </span>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* High-DPI Legible Native HTML X-Axis Day Labels (Crystal clear to naked eyes) */}
+        <div className="w-full flex items-center justify-between px-1 sm:px-2 pt-1 pb-0.5 border-t border-white/6 overflow-hidden">
+          {dailyData.map((p, idx) => {
+            const isHovered = hoveredIndex === idx;
+            // Clutter-free responsive filter for 14D and 30D
+            const isVisible =
+              rangeDays === 7
+                ? true
+                : rangeDays === 14
+                ? idx % 2 === 0 || idx === dailyData.length - 1 || isHovered
+                : idx % 4 === 0 || idx === dailyData.length - 1 || isHovered;
+
+            return (
+              <button
+                key={p.dateStr}
+                type="button"
+                onClick={() => handleScrub(idx)}
+                className={`flex flex-col items-center justify-center transition-all cursor-pointer rounded-lg px-1.5 py-1 ${
+                  !isVisible ? 'opacity-0 pointer-events-none' : ''
+                } ${
+                  isHovered
+                    ? 'bg-white/10 text-white font-bold scale-105'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <span className="text-[11px] sm:text-xs font-mono font-semibold tracking-tight uppercase">
+                  {p.label}
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-mono text-zinc-500">
+                  {p.dayNum}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -721,7 +775,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               <div className="flex items-center gap-2 min-w-0">
                 <Award className="w-4 h-4 text-amber-400 shrink-0" />
                 <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-300 truncate">
-                  Habit Streaks
+                  Habit Streaks & Adherence
                 </h4>
               </div>
               <span className="text-[11px] font-mono text-zinc-400 shrink-0">
@@ -758,14 +812,14 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                       </div>
 
                       <div
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold border shrink-0"
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold border shrink-0"
                         style={{
                           backgroundColor: 'rgba(242, 106, 54, 0.12)',
                           color: 'var(--accent-primary)',
                           borderColor: 'rgba(242, 106, 54, 0.25)',
                         }}
                       >
-                        <Flame className="w-3 h-3 fill-current text-amber-500" />
+                        <Flame className="w-3.5 h-3.5 fill-current text-amber-500" />
                         <span>{h.streak}d streak</span>
                       </div>
                     </div>
@@ -777,7 +831,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         </div>
       </div>
 
-      {/* 5. Monthly Finances: Complete Anti-Overflow Protection */}
+      {/* 5. Monthly Finances: Apple Wallet Style */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl border flex flex-col gap-4 min-w-0 overflow-hidden"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}

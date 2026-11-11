@@ -44,6 +44,48 @@ export async function seedInitialDataIfNeeded() {
       }
       await db.habitLogs.bulkPut(backfillLogs);
     }
+
+    // Backfill historical transactions if only today's transactions exist
+    const txCount = await db.transactions.count();
+    if (txCount <= 4) {
+      const backfillTx: Transaction[] = [];
+      const pastExpenses = [
+        { daysAgo: 1, amount: 18.5, category: 'Food & Dining', desc: 'Lunch Bistro', type: 'expense' as const },
+        { daysAgo: 1, amount: 4.2, category: 'Food & Dining', desc: 'Cold Brew Coffee', type: 'expense' as const },
+        { daysAgo: 2, amount: 64.3, category: 'Groceries', desc: 'Weekly Organic Market', type: 'expense' as const },
+        { daysAgo: 3, amount: 12.0, category: 'Transport', desc: 'Metro Transit Card', type: 'expense' as const },
+        { daysAgo: 4, amount: 28.0, category: 'Food & Dining', desc: 'Dinner with Colleagues', type: 'expense' as const },
+        { daysAgo: 5, amount: 45.0, category: 'Utilities', desc: 'Cloud Storage & Workspace', type: 'expense' as const },
+        { daysAgo: 6, amount: 82.5, category: 'Shopping', desc: 'Ergonomic Desk Accessories', type: 'expense' as const },
+        { daysAgo: 8, amount: 15.0, category: 'Transport', desc: 'Rideshare to Airport', type: 'expense' as const },
+        { daysAgo: 9, amount: 38.4, category: 'Food & Dining', desc: 'Weekend Brunch', type: 'expense' as const },
+        { daysAgo: 10, amount: 72.0, category: 'Groceries', desc: 'Pantry Restock', type: 'expense' as const },
+        { daysAgo: 12, amount: 22.0, category: 'Entertainment', desc: 'Cinema Tickets', type: 'expense' as const },
+        { daysAgo: 13, amount: 14.5, category: 'Food & Dining', desc: 'Artisan Bakery', type: 'expense' as const },
+      ];
+
+      for (const item of pastExpenses) {
+        const d = new Date();
+        d.setDate(d.getDate() - item.daysAgo);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+        const ts = d.getTime();
+
+        backfillTx.push({
+          id: `tx-hist-${item.daysAgo}-${item.category.toLowerCase().replace(/\s+/g, '-')}`,
+          type: item.type,
+          amount: item.amount,
+          category: item.category,
+          description: item.desc,
+          date: dateStr,
+          paymentMethod: 'card',
+          createdAt: ts,
+        });
+      }
+      await db.transactions.bulkPut(backfillTx);
+    }
     return;
   }
 
@@ -275,6 +317,66 @@ export async function seedInitialDataIfNeeded() {
       date: today,
       paymentMethod: 'card',
       createdAt: now - 3600000 * 2,
+    },
+    {
+      id: 'tx-5',
+      type: 'expense',
+      amount: 18.5,
+      category: 'Food & Dining',
+      description: 'Lunch Bistro',
+      date: (() => { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().split('T')[0]; })(),
+      paymentMethod: 'card',
+      createdAt: now - 86400000 * 1,
+    },
+    {
+      id: 'tx-6',
+      type: 'expense',
+      amount: 64.3,
+      category: 'Groceries',
+      description: 'Weekly Organic Market',
+      date: (() => { const d = new Date(); d.setDate(d.getDate() - 2); return d.toISOString().split('T')[0]; })(),
+      paymentMethod: 'card',
+      createdAt: now - 86400000 * 2,
+    },
+    {
+      id: 'tx-7',
+      type: 'expense',
+      amount: 28.0,
+      category: 'Food & Dining',
+      description: 'Dinner with Colleagues',
+      date: (() => { const d = new Date(); d.setDate(d.getDate() - 4); return d.toISOString().split('T')[0]; })(),
+      paymentMethod: 'card',
+      createdAt: now - 86400000 * 4,
+    },
+    {
+      id: 'tx-8',
+      type: 'expense',
+      amount: 45.0,
+      category: 'Utilities',
+      description: 'Cloud Storage & Workspace',
+      date: (() => { const d = new Date(); d.setDate(d.getDate() - 5); return d.toISOString().split('T')[0]; })(),
+      paymentMethod: 'card',
+      createdAt: now - 86400000 * 5,
+    },
+    {
+      id: 'tx-9',
+      type: 'expense',
+      amount: 82.5,
+      category: 'Shopping',
+      description: 'Ergonomic Desk Accessories',
+      date: (() => { const d = new Date(); d.setDate(d.getDate() - 6); return d.toISOString().split('T')[0]; })(),
+      paymentMethod: 'card',
+      createdAt: now - 86400000 * 6,
+    },
+    {
+      id: 'tx-10',
+      type: 'expense',
+      amount: 72.0,
+      category: 'Groceries',
+      description: 'Pantry Restock',
+      date: (() => { const d = new Date(); d.setDate(d.getDate() - 10); return d.toISOString().split('T')[0]; })(),
+      paymentMethod: 'card',
+      createdAt: now - 86400000 * 10,
     },
   ];
 

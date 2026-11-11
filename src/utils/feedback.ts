@@ -1,9 +1,11 @@
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
+import type { HapticSoundStyle } from '../types';
 
 // Synthetic Web Audio haptic click & chime
 class AudioFeedbackEngine {
   private ctx: AudioContext | null = null;
   private isHapticsEnabled: boolean = true;
+  private hapticSound: HapticSoundStyle = 'apple';
 
   setHapticsEnabled(enabled: boolean) {
     this.isHapticsEnabled = enabled;
@@ -11,6 +13,34 @@ class AudioFeedbackEngine {
 
   getHapticsEnabled(): boolean {
     return this.isHapticsEnabled;
+  }
+
+  setHapticSound(sound: HapticSoundStyle) {
+    this.hapticSound = sound;
+  }
+
+  getHapticSound(): HapticSoundStyle {
+    return this.hapticSound;
+  }
+
+  private triggerVibration(type: 'click' | 'success') {
+    if (!this.isHapticsEnabled) return;
+
+    // 1. Native mobile hardware impact via Capacitor
+    try {
+      if (type === 'click') {
+        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+      } else {
+        Haptics.notification({ type: NotificationType.Success }).catch(() => {});
+      }
+    } catch {}
+
+    // 2. Direct physical vibration motor fallback across Android WebViews & browsers
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      try {
+        navigator.vibrate(type === 'click' ? 18 : [20, 40, 25]);
+      } catch {}
+    }
   }
 
   private getContext(): AudioContext | null {
@@ -27,36 +57,93 @@ class AudioFeedbackEngine {
     return this.ctx;
   }
 
-  // Apple-like crisp mechanical click on button press + native mobile haptic
+  // Apple-grade physical tactile feedback on button press + native vibration
   playClick() {
-    // 1. Native mobile hardware haptic impact (gated by user setting)
-    if (this.isHapticsEnabled) {
-      try {
-        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-      } catch {
-        // Graceful fallback on web
-      }
-    }
+    this.triggerVibration('click');
 
-    // 2. Synthetic Web Audio click
+    if (this.hapticSound === 'mute') return;
+
     try {
       const ctx = this.getContext();
       if (!ctx) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(180, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.035);
+      const now = ctx.currentTime;
 
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035);
+      if (this.hapticSound === 'apple') {
+        // Genuine Apple iOS Taptic Engine Click (Double-impulse micro-transient)
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(2200, now);
+        osc1.frequency.exponentialRampToValueAtTime(1400, now + 0.012);
 
-      osc.start();
-      osc.stop(ctx.currentTime + 0.04);
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(950, now);
+        osc2.frequency.exponentialRampToValueAtTime(300, now + 0.012);
+
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.014);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.016);
+        osc2.stop(now + 0.016);
+      } else if (this.hapticSound === 'pop') {
+        // Buoyant bubble pop sound
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(620, now + 0.035);
+
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.04);
+      } else if (this.hapticSound === 'subtle') {
+        // Minimalist micro-tick
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.009);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.011);
+      } else {
+        // Mechanical switch click
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.035);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.04);
+      }
     } catch {
       // Audio autoplay policy catch
     }
@@ -64,14 +151,7 @@ class AudioFeedbackEngine {
 
   // Delicate joyful bell chime on task/habit completion + native success vibration
   playSuccessChime() {
-    // 1. Native mobile hardware success notification (gated by user setting)
-    if (this.isHapticsEnabled) {
-      try {
-        Haptics.notification({ type: NotificationType.Success }).catch(() => {});
-      } catch {
-        // Graceful fallback on web
-      }
-    }
+    this.triggerVibration('success');
 
     // 2. Synthetic Web Audio chime
     try {

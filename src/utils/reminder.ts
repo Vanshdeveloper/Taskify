@@ -206,6 +206,8 @@ export async function syncNativeScheduledReminders(
                 ? `Due at ${formatTime12Hour(t.dueTime)} • ${t.category}`
                 : `Scheduled for today • ${t.category}`,
               channelId: 'taskify_reminders',
+              smallIcon: 'ic_stat_taskify',
+              iconColor: '#f26a36',
               schedule: {
                 at: scheduledDate,
                 allowWhileIdle: true,
@@ -232,9 +234,10 @@ export async function syncNativeScheduledReminders(
             title: `Daily Routine: ${h.name}`,
             body: `Time for your daily routine: ${h.targetCount} ${h.unit} • ${h.timeOfDay}`,
             channelId: 'taskify_reminders',
+            smallIcon: 'ic_stat_taskify',
+            iconColor: '#f26a36',
             schedule: {
               on: { hour, minute },
-              every: 'day',
               allowWhileIdle: true,
             },
             autoCancel: true,
@@ -250,12 +253,13 @@ export async function syncNativeScheduledReminders(
       const poke = getDailyPoke(userName, pendingCount, idx + 1);
       notifications.push({
         id: stringToIntegerId(`daily-poke-${slot.slotId}`),
-        title: `${poke.emoji} ${poke.title}`,
+        title: poke.title,
         body: poke.body,
         channelId: 'taskify_reminders',
+        smallIcon: 'ic_stat_taskify',
+        iconColor: '#f26a36',
         schedule: {
           on: { hour: slot.hour, minute: slot.minute },
-          every: 'day',
           allowWhileIdle: true,
         },
         autoCancel: true,
@@ -269,12 +273,13 @@ export async function syncNativeScheduledReminders(
       const greeting = generateDaypartGreeting(slot.slotId, userName, pendingCount, pendingHabitsCount);
       notifications.push({
         id: stringToIntegerId(`daypart-greeting-${slot.slotId}`),
-        title: `${greeting.emoji} ${greeting.title}`,
+        title: greeting.title,
         body: greeting.body,
         channelId: 'taskify_reminders',
+        smallIcon: 'ic_stat_taskify',
+        iconColor: '#f26a36',
         schedule: {
           on: { hour: slot.hour, minute: slot.minute },
-          every: 'day',
           allowWhileIdle: true,
         },
         autoCancel: true,
@@ -306,6 +311,8 @@ export function sendNativeNotification(
             title,
             body: options?.body || 'Taskify Reminder',
             channelId: 'taskify_reminders',
+            smallIcon: 'ic_stat_taskify',
+            iconColor: '#f26a36',
             autoCancel: true,
           },
         ],

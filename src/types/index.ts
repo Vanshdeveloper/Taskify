@@ -112,6 +112,8 @@ export type AppAesthetic =
   | 'text-terminal'
   | 'text-spark';
 
+export type HapticSoundStyle = 'apple' | 'mechanical' | 'pop' | 'subtle' | 'mute';
+
 export interface UserSettings {
   monthlyBudget: number;
   currency: string;
@@ -123,6 +125,7 @@ export interface UserSettings {
   navbarHeight?: NavbarHeight;
   navbarGlass?: NavbarGlass;
   hapticFeedback?: boolean;
+  hapticSound?: HapticSoundStyle;
 }
 
 export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'settings';

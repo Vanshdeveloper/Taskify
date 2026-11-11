@@ -120,6 +120,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   navbarHeight: 'default',
   navbarGlass: 'solid',
   hapticFeedback: true,
+  hapticSound: 'apple',
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -282,13 +283,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       navbarHeight: map.navbarHeight ?? DEFAULT_SETTINGS.navbarHeight,
       navbarGlass: map.navbarGlass ?? DEFAULT_SETTINGS.navbarGlass,
       hapticFeedback: map.hapticFeedback ?? DEFAULT_SETTINGS.hapticFeedback,
+      hapticSound: map.hapticSound ?? DEFAULT_SETTINGS.hapticSound,
     };
   }, [settingsEntries]);
 
   // Synchronize haptics user preference with the feedback engine
   useEffect(() => {
     feedback.setHapticsEnabled(settings.hapticFeedback ?? true);
-  }, [settings.hapticFeedback]);
+    feedback.setHapticSound(settings.hapticSound ?? 'apple');
+  }, [settings.hapticFeedback, settings.hapticSound]);
 
   // Tasks actions
   const addTask = useCallback(async (data: Omit<Task, 'id' | 'createdAt'>): Promise<string> => {

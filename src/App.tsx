@@ -2,6 +2,7 @@ import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { AppProvider, useApp } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
@@ -92,6 +93,49 @@ const MainLayout: React.FC = () => {
       StatusBar.setBackgroundColor({ color: '#00000000' }).catch(() => {});
     }
   }, []);
+
+  // Native notification action listener (Deep linking directly into Tasks, Habits, or Today)
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    let handle: any = null;
+    const registerListener = async () => {
+      try {
+        handle = await LocalNotifications.addListener(
+          'localNotificationActionPerformed',
+          (action) => {
+            const extra = action.notification.extra;
+            if (extra?.type === 'task') {
+              closeStreaks();
+              closeInspector();
+              closeExecutiveDashboard();
+              setActiveTab('tasks');
+            } else if (extra?.type === 'habit') {
+              closeStreaks();
+              closeInspector();
+              closeExecutiveDashboard();
+              setActiveTab('habits');
+            } else if (extra?.type === 'daypart') {
+              closeStreaks();
+              closeInspector();
+              closeExecutiveDashboard();
+              setActiveTab('today');
+            }
+          }
+        );
+      } catch (err) {
+        console.warn('[Notification] Error registering action listener:', err);
+      }
+    };
+
+    registerListener();
+
+    return () => {
+      if (handle?.remove) {
+        handle.remove();
+      }
+    };
+  }, [setActiveTab, closeStreaks, closeInspector, closeExecutiveDashboard]);
 
   // Global Keyboard Shortcuts (Cmd+K / Ctrl+K, /, 1-5, Esc)
   useEffect(() => {

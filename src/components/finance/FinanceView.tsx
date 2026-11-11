@@ -19,6 +19,10 @@ import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import { SPRING_PILL } from '../../utils/motion';
 import { getRandomDeletePrompt } from '../../utils/genz';
+import { feedback } from '../../utils/feedback';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 function getAmountTypographyClass(amountStr: string): string {
   const len = amountStr.length;
@@ -61,7 +65,8 @@ export const FinanceView: React.FC = () => {
     setIsEditingBudget(false);
   };
 
-  const exportCsv = () => {
+  const exportCsv = async () => {
+    feedback.playClick();
     const headers = ['Date', 'Type', 'Category', 'Description', 'Amount', 'PaymentMethod'];
     const rows = transactions.map((t) => [
       t.date,
@@ -71,14 +76,41 @@ export const FinanceView: React.FC = () => {
       t.amount.toFixed(2),
       t.paymentMethod,
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const rawCsv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const filename = `taskify-finance-${today}.csv`;
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const fileResult = await Filesystem.writeFile({
+          path: filename,
+          data: rawCsv,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        });
+        await Share.share({
+          title: 'Taskify Financial Records',
+          text: `Taskify financial transactions export as of ${today}`,
+          url: fileResult.uri,
+          dialogTitle: 'Export Financial Records (CSV)',
+        });
+        feedback.playSuccessChime();
+        return;
+      } catch (err) {
+        console.warn('[Finance] Native file export fallback:', err);
+      }
+    }
+
+    // Web / Desktop blob download
+    const blob = new Blob([rawCsv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `taskify-finance-${today}.csv`);
+    link.href = url;
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    feedback.playSuccessChime();
   };
 
   const filteredTransactions = useMemo(() => {

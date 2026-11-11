@@ -13,6 +13,10 @@ const config: CapacitorConfig = {
       style: 'DARK',
       backgroundColor: '#160f0d',
     },
+    LocalNotifications: {
+      smallIcon: 'ic_stat_taskify',
+      iconColor: '#f26a36',
+    },
   },
 };
 
