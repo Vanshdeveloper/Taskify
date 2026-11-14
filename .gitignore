@@ -26,6 +26,7 @@ dist-ssr/
 PROJECT_LEDGER.md
 .agents/
 skills-lock.json
+graphify-out/cache/
 
 # Design assets & inspirations (Heavy design drafts)
 Palette/
