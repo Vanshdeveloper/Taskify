@@ -33,7 +33,7 @@ interface AppContextType {
   // Tasks
   tasks: Task[];
   addTask: (data: Omit<Task, 'id' | 'createdAt'>) => Promise<string>;
-  toggleTask: (id: string, event?: React.MouseEvent) => Promise<void>;
+  toggleTask: (id: string, event?: React.MouseEvent, options?: { silent?: boolean }) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   duplicateTask: (id: string) => Promise<string>;
@@ -46,7 +46,7 @@ interface AppContextType {
   habitLogs: HabitLog[];
   addHabit: (data: Omit<Habit, 'id' | 'createdAt'>) => Promise<string>;
   updateHabit: (id: string, updates: Partial<Habit>) => Promise<void>;
-  incrementHabit: (id: string, event?: React.MouseEvent) => Promise<void>;
+  incrementHabit: (id: string, event?: React.MouseEvent, options?: { silent?: boolean }) => Promise<void>;
   decrementHabit: (id: string) => Promise<void>;
   toggleHabit: (id: string, event?: React.MouseEvent) => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
@@ -306,33 +306,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return id;
   }, []);
 
-  const toggleTask = useCallback(async (id: string, event?: React.MouseEvent) => {
-    const task = await db.tasks.get(id);
-    if (!task) return;
+  const toggleTask = useCallback(
+    async (id: string, event?: React.MouseEvent, options?: { silent?: boolean }) => {
+      const task = await db.tasks.get(id);
+      if (!task) return;
 
-    const nextStatus = task.status === 'completed' ? 'todo' : 'completed';
-    const completedAt = nextStatus === 'completed' ? Date.now() : undefined;
+      const nextStatus = task.status === 'completed' ? 'todo' : 'completed';
+      const completedAt = nextStatus === 'completed' ? Date.now() : undefined;
 
-    // Auto-mark all subtasks complete when parent task is completed
-    let updatedSubtasks = task.subtasks;
-    if (nextStatus === 'completed' && task.subtasks && task.subtasks.length > 0) {
-      updatedSubtasks = task.subtasks.map((st) => ({ ...st, completed: true }));
-    }
+      // Auto-mark all subtasks complete when parent task is completed
+      let updatedSubtasks = task.subtasks;
+      if (nextStatus === 'completed' && task.subtasks && task.subtasks.length > 0) {
+        updatedSubtasks = task.subtasks.map((st) => ({ ...st, completed: true }));
+      }
 
-    await db.tasks.update(id, {
-      status: nextStatus,
-      completedAt,
-      ...(updatedSubtasks ? { subtasks: updatedSubtasks } : {}),
-    });
+      await db.tasks.update(id, {
+        status: nextStatus,
+        completedAt,
+        ...(updatedSubtasks ? { subtasks: updatedSubtasks } : {}),
+      });
 
-    if (nextStatus === 'completed') {
-      const x = event ? event.clientX / window.innerWidth : 0.5;
-      const y = event ? event.clientY / window.innerHeight : 0.5;
-      triggerCompletionConfetti(x, y);
-    } else {
-      feedback.playClick();
-    }
-  }, []);
+      if (nextStatus === 'completed') {
+        if (!options?.silent) {
+          const x = event ? event.clientX / window.innerWidth : 0.5;
+          const y = event ? event.clientY / window.innerHeight : 0.5;
+          triggerCompletionConfetti(x, y);
+        }
+      } else {
+        if (!options?.silent) {
+          feedback.playClick();
+        }
+      }
+    },
+    []
+  );
 
   const updateTask = useCallback(async (id: string, updates: Partial<Task>) => {
     await db.tasks.update(id, updates);
@@ -392,34 +399,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return habitLogs.find((l) => l.habitId === habitId && l.date === today);
   }, [habitLogs]);
 
-  const incrementHabit = useCallback(async (habitId: string, event?: React.MouseEvent) => {
-    const today = getTodayString();
-    const habit = await db.habits.get(habitId);
-    if (!habit) return;
+  const incrementHabit = useCallback(
+    async (habitId: string, event?: React.MouseEvent, options?: { silent?: boolean }) => {
+      const today = getTodayString();
+      const habit = await db.habits.get(habitId);
+      if (!habit) return;
 
-    const logId = `hl-${habitId}-${today}`;
-    const existing = await db.habitLogs.get(logId);
-    const current = existing ? existing.currentCount : 0;
-    const nextCount = current + 1;
-    const isCompleted = nextCount >= habit.targetCount;
+      const logId = `hl-${habitId}-${today}`;
+      const existing = await db.habitLogs.get(logId);
+      const current = existing ? existing.currentCount : 0;
+      const nextCount = current + 1;
+      const isCompleted = nextCount >= habit.targetCount;
 
-    await db.habitLogs.put({
-      id: logId,
-      habitId,
-      date: today,
-      currentCount: nextCount,
-      completed: isCompleted,
-      timestamp: Date.now(),
-    });
+      await db.habitLogs.put({
+        id: logId,
+        habitId,
+        date: today,
+        currentCount: nextCount,
+        completed: isCompleted,
+        timestamp: Date.now(),
+      });
 
-    if (isCompleted && (!existing || !existing.completed)) {
-      const x = event ? event.clientX / window.innerWidth : 0.5;
-      const y = event ? event.clientY / window.innerHeight : 0.5;
-      triggerCompletionConfetti(x, y);
-    } else {
-      feedback.playClick();
-    }
-  }, []);
+      if (isCompleted && (!existing || !existing.completed)) {
+        if (!options?.silent) {
+          const x = event ? event.clientX / window.innerWidth : 0.5;
+          const y = event ? event.clientY / window.innerHeight : 0.5;
+          triggerCompletionConfetti(x, y);
+        }
+      } else {
+        if (!options?.silent) {
+          feedback.playClick();
+        }
+      }
+    },
+    []
+  );
 
   const decrementHabit = useCallback(async (habitId: string) => {
     const today = getTodayString();
@@ -442,39 +456,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     feedback.playClick();
   }, []);
 
-  const toggleHabit = useCallback(async (habitId: string, event?: React.MouseEvent) => {
-    const today = getTodayString();
-    const habit = await db.habits.get(habitId);
-    if (!habit) return;
+  const toggleHabit = useCallback(
+    async (habitId: string, event?: React.MouseEvent, options?: { silent?: boolean }) => {
+      const today = getTodayString();
+      const habit = await db.habits.get(habitId);
+      if (!habit) return;
 
-    const logId = `hl-${habitId}-${today}`;
-    const existing = await db.habitLogs.get(logId);
-    const isCurrentlyDone = existing?.completed ?? false;
+      const logId = `hl-${habitId}-${today}`;
+      const existing = await db.habitLogs.get(logId);
+      const isCurrentlyDone = existing?.completed ?? false;
 
-    if (isCurrentlyDone) {
-      await db.habitLogs.put({
-        id: logId,
-        habitId,
-        date: today,
-        currentCount: 0,
-        completed: false,
-        timestamp: Date.now(),
-      });
-      feedback.playClick();
-    } else {
-      await db.habitLogs.put({
-        id: logId,
-        habitId,
-        date: today,
-        currentCount: habit.targetCount,
-        completed: true,
-        timestamp: Date.now(),
-      });
-      const x = event ? event.clientX / window.innerWidth : 0.5;
-      const y = event ? event.clientY / window.innerHeight : 0.5;
-      triggerCompletionConfetti(x, y);
-    }
-  }, []);
+      if (isCurrentlyDone) {
+        await db.habitLogs.put({
+          id: logId,
+          habitId,
+          date: today,
+          currentCount: 0,
+          completed: false,
+          timestamp: Date.now(),
+        });
+        if (!options?.silent) {
+          feedback.playClick();
+        }
+      } else {
+        await db.habitLogs.put({
+          id: logId,
+          habitId,
+          date: today,
+          currentCount: habit.targetCount,
+          completed: true,
+          timestamp: Date.now(),
+        });
+        if (!options?.silent) {
+          const x = event ? event.clientX / window.innerWidth : 0.5;
+          const y = event ? event.clientY / window.innerHeight : 0.5;
+          triggerCompletionConfetti(x, y);
+        }
+      }
+    },
+    []
+  );
 
   const deleteHabit = useCallback(async (habitId: string) => {
     await db.habits.delete(habitId);
@@ -839,13 +860,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!isDbReady) return;
     const timer = setTimeout(() => {
       syncNativeScheduledReminders(tasks, habits, settings.userName);
-      syncWidgetData({ tasks, habits, habitLogs, userName: settings.userName });
+      syncWidgetData({
+        tasks,
+        habits,
+        habitLogs,
+        transactions,
+        currency: settings.currency,
+        monthlyBudget: settings.monthlyBudget,
+        userName: settings.userName,
+      });
     }, 500);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [isDbReady, tasks, habits, habitLogs, settings.userName]);
+  }, [isDbReady, tasks, habits, habitLogs, transactions, settings.currency, settings.monthlyBudget, settings.userName]);
 
   // Synchronize incoming widget actions (e.g. check-off task or habit from home screen)
   useEffect(() => {
@@ -854,10 +883,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const checkWidgetActions = () => {
       pollWidgetEvents({
         onToggleTask: async (taskId) => {
-          await toggleTask(taskId);
+          await toggleTask(taskId, undefined, { silent: true });
         },
         onIncrementHabit: async (habitId) => {
-          await incrementHabit(habitId);
+          await incrementHabit(habitId, undefined, { silent: true });
+        },
+        onQuickAction: (action) => {
+          if (action === 'task') {
+            setIsQuickCaptureOpen(true);
+            setActiveTab('tasks');
+          } else if (action === 'habit') {
+            setActiveTab('habits');
+          } else if (action === 'expense') {
+            setActiveTab('finance');
+          } else if (action === 'focus') {
+            setActiveTab('today');
+          } else if (action === 'finance') {
+            setActiveTab('finance');
+          }
         },
       });
     };
@@ -870,7 +913,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     document.addEventListener('visibilitychange', handleVis);
     return () => document.removeEventListener('visibilitychange', handleVis);
-  }, [isDbReady, toggleTask, incrementHabit]);
+  }, [isDbReady, toggleTask, incrementHabit, setIsQuickCaptureOpen, setActiveTab]);
 
   const contextValue = useMemo<AppContextType>(
     () => ({

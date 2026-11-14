@@ -36,16 +36,79 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <!-- 1. Today's Tasks Widget -->
         <receiver
             android:name=".TaskifyWidgetProvider"
+            android:label="@string/widget_tasks_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.taskify.app.ACTION_TOGGLE_ITEM" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskify_widget_info" />
+        </receiver>
+
+        <!-- 2. Daily Routines Widget -->
+        <receiver
+            android:name=".TaskifyHabitsWidgetProvider"
+            android:label="@string/widget_habits_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.taskify.app.ACTION_TOGGLE_ITEM" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskify_habits_widget_info" />
+        </receiver>
+
+        <!-- 3. Scrollable Day Feed Widget -->
+        <receiver
+            android:name=".TaskifySmallWidgetProvider"
+            android:label="@string/widget_feed_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.taskify.app.ACTION_TOGGLE_ITEM" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskify_small_widget_info" />
+        </receiver>
+
+        <!-- 4. Quick Actions Widget -->
+        <receiver
+            android:name=".TaskifyQuickActionsWidgetProvider"
+            android:label="@string/widget_quick_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/taskify_widget_info" />
+                android:resource="@xml/taskify_quick_widget_info" />
         </receiver>
+
+        <!-- 5. Finance & Budget Widget -->
+        <receiver
+            android:name=".TaskifyFinanceWidgetProvider"
+            android:label="@string/widget_finance_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskify_finance_widget_info" />
+        </receiver>
+
+        <!-- RemoteViewsService for Y-Axis Scrollable ListView in Widgets -->
+        <service
+            android:name=".TaskifyWidgetListService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
     </application>
 
     <!-- Permissions for Network, Wireless Debugging & Reminders -->

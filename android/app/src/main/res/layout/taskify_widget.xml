@@ -7,165 +7,105 @@
     android:padding="16dp"
     android:background="@drawable/taskify_widget_background">
 
-    <!-- Header Row -->
+    <!-- Header Section (Tap opens app) -->
     <LinearLayout
+        android:id="@+id/widget_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Today&apos;s Tasks"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/taskify_ic_dot_orange" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/widget_progress_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0/0"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:background="@drawable/taskify_widget_progress_badge" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/widget_brand"
+            android:id="@+id/widget_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Taskify"
+            android:layout_marginTop="2dp"
+            android:text="Focus on what matters"
+            android:textColor="#8E8E93"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- Y-Axis Scrollable List of All Tasks -->
+    <ListView
+        android:id="@+id/widget_scroll_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:scrollbars="vertical" />
+
+    <!-- Designed Empty State -->
+    <LinearLayout
+        android:id="@+id/widget_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All Clear ✓"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
         <TextView
-            android:id="@+id/widget_status_pill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Today's Active Focus"
-            android:textColor="#CCCCCC"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp"
-            android:background="@drawable/taskify_widget_pill" />
-    </LinearLayout>
-
-    <!-- Divider Line -->
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="10dp"
-        android:background="#1AFFFFFF" />
-
-    <!-- Content Split Row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-
-        <!-- Left: Today's Tasks -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TODAY'S FOCUS"
-                android:textColor="#888888"
-                android:textSize="9sp"
-                android:textStyle="bold" />
-
-            <!-- Task 1 -->
-            <LinearLayout
-                android:id="@+id/widget_btn_task_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="6dp">
-
-                <ImageView
-                    android:id="@+id/widget_check_task_1"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/taskify_widget_checkbox_unchecked" />
-
-                <TextView
-                    android:id="@+id/widget_task_title_1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="No pending objectives"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
-            </LinearLayout>
-
-            <!-- Task 2 -->
-            <LinearLayout
-                android:id="@+id/widget_btn_task_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="8dp">
-
-                <ImageView
-                    android:id="@+id/widget_check_task_2"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/taskify_widget_checkbox_unchecked" />
-
-                <TextView
-                    android:id="@+id/widget_task_title_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="All clear"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Right: Active Routine Habit -->
-        <LinearLayout
-            android:id="@+id/widget_btn_habit_1"
-            android:layout_width="130dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="8dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/taskify_widget_card">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ROUTINE"
-                android:textColor="#888888"
-                android:textSize="9sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/widget_habit_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Daily Habit"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <TextView
-                android:id="@+id/widget_habit_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="0/1 times"
-                android:textColor="#AAAAAA"
-                android:textSize="10sp"
-                android:fontFamily="monospace" />
-        </LinearLayout>
+            android:layout_marginTop="3dp"
+            android:text="No pending tasks for today"
+            android:textColor="#8E8E93"
+            android:textSize="11sp" />
     </LinearLayout>
 </LinearLayout>

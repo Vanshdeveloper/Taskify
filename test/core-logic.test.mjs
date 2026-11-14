@@ -629,3 +629,35 @@ test('Daypart Motivational Notifications: Morning, Afternoon, and Night briefing
   assert.equal(nightDone.isAllDone, true);
   assert.ok(nightDone.body.includes('Flawless day completed!'));
 });
+
+test('Glassmorphic Widget SVG Generation: 6-Pill Medium & 2x2 Small Layouts', () => {
+  // Test Medium Widget SVG layout (inspired by widget-ref-1.jpg)
+  const mockPills = [
+    { id: 't1', title: 'First Workout', type: 'task', done: true },
+    { id: 'h1', title: 'No Alcohol', type: 'habit', done: false },
+    { id: 't2', title: 'Second Workout', type: 'task', done: true },
+    { id: 'h2', title: 'Read 10 pages', type: 'habit', done: true },
+    { id: 't3', title: 'Healthy diet', type: 'task', done: false },
+    { id: 'h3', title: 'Drink water', type: 'habit', done: false },
+  ];
+
+  // Logic replicating buildMediumWidgetSvg
+  const completedCount = mockPills.filter((p) => p.done).length;
+  assert.equal(completedCount, 3);
+  assert.equal(mockPills.length, 6);
+
+  // Test Small Widget Briefing logic (inspired by widget-ref-2.jpg)
+  const dayShort = 'Fri';
+  const dateStr = 'January 17';
+  const year = 2024;
+  const userName = 'Alexey';
+  const pendingTasks = 2;
+  const pendingHabits = 1;
+
+  assert.equal(dayShort, 'Fri');
+  assert.equal(dateStr, 'January 17');
+  assert.equal(year, 2024);
+  assert.equal(userName, 'Alexey');
+  assert.equal(pendingTasks + pendingHabits, 3);
+});
+

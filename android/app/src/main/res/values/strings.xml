@@ -4,4 +4,30 @@
     <string name="title_activity_main">Taskify</string>
     <string name="package_name">com.taskify.app</string>
     <string name="custom_url_scheme">com.taskify.app</string>
+
+    <!-- 1. Today's Tasks -->
+    <string name="widget_tasks_name">"Today\'s Tasks"</string>
+    <string name="widget_tasks_desc">"Interactive scrollable list of today\'s tasks with instant Apple Glass check-offs."</string>
+
+    <!-- 2. Scrollable Day Feed -->
+    <string name="widget_feed_name">"Scrollable Day Feed"</string>
+    <string name="widget_feed_desc">"Date briefing with scrollable Y-axis feed of all your tasks and routines."</string>
+
+    <!-- 3. Daily Routines -->
+    <string name="widget_habits_name">"Daily Routines"</string>
+    <string name="widget_habits_desc">"Interactive scrollable list of daily habits and streaks."</string>
+
+    <!-- 4. Quick Actions -->
+    <string name="widget_quick_name">"Quick Actions"</string>
+    <string name="widget_quick_desc">"Instant 1-tap launchers for tasks, routines, expenses, and focus timer."</string>
+
+    <!-- 5. Finance & Budget -->
+    <string name="widget_finance_name">"Finance &amp; Budget"</string>
+    <string name="widget_finance_desc">"Live daily allowance pace and monthly budget progress meter."</string>
+
+    <!-- Aliases for backwards compatibility -->
+    <string name="widget_medium_name">"Today\'s Tasks"</string>
+    <string name="widget_medium_desc">"Interactive scrollable list of today\'s tasks with instant Apple Glass check-offs."</string>
+    <string name="widget_small_name">"Scrollable Day Feed"</string>
+    <string name="widget_small_desc">"Date briefing with scrollable Y-axis feed of all your tasks and routines."</string>
 </resources>

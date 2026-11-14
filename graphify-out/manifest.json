@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "android/app/capacitor.build.gradle": {
-    "mtime": 1794419214.1825101,
-    "seen": 1794419298.4747934,
+    "mtime": 1794553672.414621,
+    "seen": 1794554033.619292,
     "ast_hash": "06796b9d95b34bdd34d57405c42f101d",
     "semantic_hash": ""
   },
@@ -426,15 +426,15 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/MainActivity.java": {
-    "mtime": 1793684486.6219707,
-    "seen": 1794412837.32635,
-    "ast_hash": "dcbf1e1ca75d01f4105221db6b477786",
+    "mtime": 1794553439.9008236,
+    "seen": 1794554033.619297,
+    "ast_hash": "c7549172497211ad7ff7e32c126698e4",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyWidgetProvider.java": {
-    "mtime": 1794411350.2793126,
-    "seen": 1794412837.3263524,
-    "ast_hash": "1dd7cdba1f9b4a95e21ae163d4faec3a",
+    "mtime": 1794552956.1658595,
+    "seen": 1794554033.619314,
+    "ast_hash": "3b887d90959c4f1004593263ef5d9a1e",
     "semantic_hash": ""
   },
   "android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "android/capacitor.settings.gradle": {
-    "mtime": 1794419214.181511,
-    "seen": 1794419298.4748068,
+    "mtime": 1794553672.414621,
+    "seen": 1794554033.6193206,
     "ast_hash": "8087b83c314c84daec05cc78bec69ec5",
     "semantic_hash": ""
   },
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "ios/App/CapApp-SPM/Package.swift": {
-    "mtime": 1794419214.3943317,
-    "seen": 1794419298.4748313,
+    "mtime": 1794550428.0658078,
+    "seen": 1794554033.6193428,
     "ast_hash": "e653513245e72fd597b2d8d7f0d7c0d8",
     "semantic_hash": ""
   },
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1794415830.7516854,
-    "seen": 1794416758.604155,
-    "ast_hash": "d17795a424f8b3478975835a6f871164",
+    "mtime": 1794461495.5772612,
+    "seen": 1794461534.9680996,
+    "ast_hash": "54028ca0248fdd29d8b313442b9eb3ca",
     "semantic_hash": ""
   },
   "src/components/analytics/ExecutiveDashboardView.tsx": {
@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "src/components/layout/LiquidTabViewport.tsx": {
-    "mtime": 1794199669.8685367,
-    "seen": 1794412837.3264153,
-    "ast_hash": "00355e9f77d51cd17c1e90db73b231c5",
+    "mtime": 1794461495.5787942,
+    "seen": 1794461534.9681134,
+    "ast_hash": "744b248e7ca9bd6338565eec9c9b7b08",
     "semantic_hash": ""
   },
   "src/components/layout/MobileTabBar.tsx": {
@@ -594,15 +594,15 @@
     "semantic_hash": ""
   },
   "src/components/layout/Navbar.tsx": {
-    "mtime": 1794412294.8226306,
-    "seen": 1794412837.32642,
-    "ast_hash": "0ca0e066fdb26f3158e833f6a8427c5f",
+    "mtime": 1794461495.5793061,
+    "seen": 1794461534.9681175,
+    "ast_hash": "50fab9715b3abb39ab85c1cabeeadafc",
     "semantic_hash": ""
   },
   "src/components/layout/Sidebar.tsx": {
-    "mtime": 1794050236.402445,
-    "seen": 1794412837.3264222,
-    "ast_hash": "d34fc0b222e9397210f02ea6b4bbce93",
+    "mtime": 1794461495.580328,
+    "seen": 1794461534.9681194,
+    "ast_hash": "35e1592b60e35b657c0c0120f8e4564e",
     "semantic_hash": ""
   },
   "src/components/layout/SlideOverInspector.tsx": {
@@ -654,8 +654,8 @@
     "semantic_hash": ""
   },
   "src/components/settings/SettingsView.tsx": {
-    "mtime": 1794419123.6391318,
-    "seen": 1794419298.4748905,
+    "mtime": 1794463991.3993225,
+    "seen": 1794464112.988652,
     "ast_hash": "50b7d2d553d0b062ada7cf92d3d03823",
     "semantic_hash": ""
   },
@@ -690,9 +690,9 @@
     "semantic_hash": ""
   },
   "src/components/today/TodayView.tsx": {
-    "mtime": 1794283745.1304836,
-    "seen": 1794412837.3264573,
-    "ast_hash": "b7b67ab86d4b44acbda3e2d1d89a6657",
+    "mtime": 1794463959.8181343,
+    "seen": 1794464112.9886668,
+    "ast_hash": "65a9ec2e523a24462a01deaaeefafd7a",
     "semantic_hash": ""
   },
   "src/components/ui/BrandLogo.tsx": {
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "src/context/AppContext.tsx": {
-    "mtime": 1794415459.210993,
-    "seen": 1794416758.6042573,
-    "ast_hash": "518cb19fd0463cf8a737d24c10176c2b",
+    "mtime": 1794553584.679073,
+    "seen": 1794554033.6194177,
+    "ast_hash": "913b7d33f527d5d11d090a6cd581391f",
     "semantic_hash": ""
   },
   "src/context/ThemeContext.tsx": {
@@ -882,15 +882,15 @@
     "semantic_hash": ""
   },
   "src/utils/widgetSync.ts": {
-    "mtime": 1794327980.93863,
-    "seen": 1794412837.326536,
-    "ast_hash": "92536bf6e098b594e43cc035134f10ec",
+    "mtime": 1794553624.071375,
+    "seen": 1794554033.6194572,
+    "ast_hash": "c770f4e54cfa30dc6d101550984cf006",
     "semantic_hash": ""
   },
   "test/core-logic.test.mjs": {
-    "mtime": 1794327719.0486345,
-    "seen": 1794412837.3265386,
-    "ast_hash": "76a33172bd0039953c0274bcc781d06a",
+    "mtime": 1794463412.0253472,
+    "seen": 1794463498.113766,
+    "ast_hash": "4280482f5fbb2a375d385510e17851c7",
     "semantic_hash": ""
   },
   "test/e2e-tier1-features.test.mjs": {
@@ -2559,6 +2559,42 @@
     "mtime": 1794418755.3532898,
     "seen": 1794419298.4759543,
     "ast_hash": "9b23676d76df871e1ec78b3b4bd472db",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyNativeWidgetPlugin.java": {
+    "mtime": 1794553488.570346,
+    "seen": 1794554033.6193047,
+    "ast_hash": "e1442d051b0c5290b670441853bb8fbe",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifySmallWidgetProvider.java": {
+    "mtime": 1794548047.9428205,
+    "seen": 1794548259.7402122,
+    "ast_hash": "d6bf97d4b88b206fc39d62a184dab1a7",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyHabitsWidgetProvider.java": {
+    "mtime": 1794548026.540134,
+    "seen": 1794548259.7402074,
+    "ast_hash": "8055d3844e61a3165db97280469d4d12",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyWidgetListService.java": {
+    "mtime": 1794550303.5161695,
+    "seen": 1794554033.6193116,
+    "ast_hash": "e95dc4feddabbee378367cdb8551fc83",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyFinanceWidgetProvider.java": {
+    "mtime": 1794553184.8902042,
+    "seen": 1794554033.6192997,
+    "ast_hash": "dca774b6c210b0c2aa3e3cf5588a4701",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyQuickActionsWidgetProvider.java": {
+    "mtime": 1794553029.1796691,
+    "seen": 1794554033.619307,
+    "ast_hash": "13a08a546458b47ca30f0df1d1cbf847",
     "semantic_hash": ""
   },
   "package-lock.json": {

@@ -1,0 +1,170 @@
+package com.taskify.app;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/**
+ * Capacitor Plugin: TaskifyNativeWidget
+ * Bridges TypeScript/Web state (tasks, habits, metrics, finance) with native Android AppWidgets.
+ */
+@CapacitorPlugin(name = "TaskifyNativeWidget")
+public class TaskifyNativeWidgetPlugin extends Plugin {
+
+    @PluginMethod
+    public void syncWidgetState(PluginCall call) {
+        try {
+            JSObject state = call.getObject("state");
+            if (state == null) {
+                call.reject("Missing state object");
+                return;
+            }
+
+            Context context = getContext();
+            SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+
+            // 1. Tasks 4x2 Widget Data
+            editor.putString("header_title", state.optString("headerTitle", "Today's Tasks"));
+            editor.putString("header_subtitle", state.optString("headerSubtitle", "Focus on what matters"));
+            editor.putInt("completed_count", state.optInt("completedCount", 0));
+            editor.putInt("total_count", state.optInt("totalCount", 0));
+
+            JSONArray taskPills = state.optJSONArray("taskPills");
+            if (taskPills != null) {
+                for (int i = 0; i < 6; i++) {
+                    if (i < taskPills.length()) {
+                        JSONObject p = taskPills.getJSONObject(i);
+                        editor.putString("task_pill_" + i + "_id", p.optString("id", ""));
+                        editor.putString("task_pill_" + i + "_title", p.optString("title", "Objective"));
+                        editor.putString("task_pill_" + i + "_type", "task");
+                        editor.putBoolean("task_pill_" + i + "_done", p.optBoolean("done", false));
+                    } else {
+                        editor.putString("task_pill_" + i + "_id", "");
+                        editor.putString("task_pill_" + i + "_title", "Plan Ahead");
+                        editor.putString("task_pill_" + i + "_type", "task");
+                        editor.putBoolean("task_pill_" + i + "_done", false);
+                    }
+                }
+            }
+
+            // 2. Routines 4x2 Widget Data
+            editor.putString("habits_title", state.optString("habitsTitle", "Daily Routines"));
+            editor.putString("habits_subtitle", state.optString("habitsSubtitle", "Build steady consistency"));
+            editor.putInt("habits_completed_count", state.optInt("completedHabitsCount", 0));
+            editor.putInt("habits_total_count", state.optInt("totalHabitsCount", 0));
+
+            JSONArray habitPills = state.optJSONArray("habitPills");
+            if (habitPills != null) {
+                for (int i = 0; i < 6; i++) {
+                    if (i < habitPills.length()) {
+                        JSONObject p = habitPills.getJSONObject(i);
+                        editor.putString("habit_pill_" + i + "_id", p.optString("id", ""));
+                        editor.putString("habit_pill_" + i + "_title", p.optString("title", "Daily Routine"));
+                        editor.putString("habit_pill_" + i + "_type", "habit");
+                        editor.putBoolean("habit_pill_" + i + "_done", p.optBoolean("done", false));
+                    } else {
+                        editor.putString("habit_pill_" + i + "_id", "");
+                        editor.putString("habit_pill_" + i + "_title", "Daily Routine");
+                        editor.putString("habit_pill_" + i + "_type", "habit");
+                        editor.putBoolean("habit_pill_" + i + "_done", false);
+                    }
+                }
+            }
+
+            // 3. Scrollable List Feeds (Full arrays for ListView)
+            JSONArray allTasks = state.optJSONArray("allTasks");
+            editor.putString("all_tasks_json", allTasks != null ? allTasks.toString() : "[]");
+
+            JSONArray allHabits = state.optJSONArray("allHabits");
+            editor.putString("all_habits_json", allHabits != null ? allHabits.toString() : "[]");
+
+            // 4. Date Header & Live Briefing
+            editor.putString("day_short", state.optString("dayShort", "Today"));
+            editor.putString("date_str", state.optString("dateStr", ""));
+            editor.putString("user_name", state.optString("userName", "Alex"));
+            editor.putString("small_greeting", state.optString("smallGreeting", "Good day, Alex."));
+            editor.putString("small_summary", state.optString("smallSummary", "All clear for today."));
+
+            editor.putInt("habit_streak", state.optInt("habitStreak", 1));
+            editor.putString("currency", state.optString("currency", "$"));
+
+            // 5. Finance Metrics
+            editor.putString("safe_to_spend", state.optString("safeToSpend", "$45"));
+            editor.putString("remaining_budget_str", state.optString("remainingBudgetStr", "$840 remaining"));
+            editor.putString("monthly_budget_str", state.optString("monthlyBudgetStr", "$1,200"));
+            editor.putString("spent_this_month_str", state.optString("spentThisMonthStr", "$360"));
+            editor.putInt("budget_burn_percent", state.optInt("budgetBurnPercent", 25));
+
+            editor.apply();
+
+            // Broadcast immediate widget updates across all 5 widget providers
+            TaskifyWidgetProvider.updateAllWidgets(context);
+            TaskifyHabitsWidgetProvider.updateAllWidgets(context);
+            TaskifySmallWidgetProvider.updateAllWidgets(context);
+            TaskifyQuickActionsWidgetProvider.updateAllWidgets(context);
+            TaskifyFinanceWidgetProvider.updateAllWidgets(context);
+
+            JSObject res = new JSObject();
+            res.put("success", true);
+            call.resolve(res);
+        } catch (Exception e) {
+            call.reject("Failed to sync widget state", e);
+        }
+    }
+
+    @PluginMethod
+    public void getPendingWidgetActions(PluginCall call) {
+        try {
+            Context context = getContext();
+            SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
+            String actionsJson = prefs.getString("pending_actions", "[]");
+            JSONArray actions = new JSONArray(actionsJson);
+
+            JSObject res = new JSObject();
+            res.put("actions", actions);
+            call.resolve(res);
+        } catch (Exception e) {
+            call.reject("Failed to get pending widget actions", e);
+        }
+    }
+
+    @PluginMethod
+    public void clearPendingWidgetActions(PluginCall call) {
+        try {
+            Context context = getContext();
+            SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putString("pending_actions", "[]").apply();
+
+            JSObject res = new JSObject();
+            res.put("success", true);
+            call.resolve(res);
+        } catch (Exception e) {
+            call.reject("Failed to clear pending actions", e);
+        }
+    }
+
+    @PluginMethod
+    public void getLaunchQuickAction(PluginCall call) {
+        try {
+            Context context = getContext();
+            SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
+            String action = prefs.getString("last_quick_action", null);
+            if (action != null) {
+                prefs.edit().remove("last_quick_action").apply();
+            }
+
+            JSObject res = new JSObject();
+            res.put("action", action);
+            call.resolve(res);
+        } catch (Exception e) {
+            call.reject("Failed to get launch quick action", e);
+        }
+    }
+}
