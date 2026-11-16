@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+    <!-- Circular container with soft frosted glass tint -->
+    <path
+        android:fillColor="#22FFFFFF"
+        android:pathData="M14,0A14,14 0 1,1 13.9,0" />
+    <!-- Warm orange star / sparkle icon in center -->
+    <path
+        android:fillColor="#F26A36"
+        android:pathData="M14,6l2.1,5.4 5.9,0.9 -4.2,4.1 1,5.8 -4.8,-2.5 -4.8,2.5 1,-5.8 -4.2,-4.1 5.9,-0.9z" />
+</vector>

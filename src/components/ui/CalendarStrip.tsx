@@ -138,14 +138,11 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
               data-no-swipe="true"
               whileTap={{ scale: 0.94 }}
               onClick={() => onSelectDate(item.dateStr)}
-              className={`flex flex-col items-center justify-center min-w-[3.35rem] h-[4.5rem] px-2 rounded-2xl pressable transition-all relative shrink-0 ${
+              className={`flex flex-col items-center justify-center min-w-[3.35rem] h-[4.5rem] px-2 rounded-2xl pressable transition-all relative shrink-0 overflow-hidden ${
                 isSelected
-                  ? 'text-white font-bold shadow-md'
-                  : 'bg-white/[0.03] hover:bg-white/[0.07] text-zinc-400 border border-white/6'
+                  ? 'glass-expo-accent text-white font-bold'
+                  : 'bg-white/[0.03] hover:bg-white/[0.07] text-zinc-400 border border-white/6 hover:border-white/12'
               }`}
-              style={{
-                backgroundColor: isSelected ? 'var(--accent-primary)' : undefined,
-              }}
             >
               <div className="flex flex-col items-center justify-center -translate-y-0.5">
                 <span

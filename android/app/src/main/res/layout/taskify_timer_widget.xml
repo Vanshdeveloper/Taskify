@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_timer_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/taskify_widget_background">
+
+    <!-- Top Preset Duration Chips (5 mins, 25 mins, 50 mins) -->
+    <LinearLayout
+        android:id="@+id/timer_preset_row"
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:layout_marginBottom="12dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/btn_preset_25"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
+            android:gravity="center"
+            android:text="25 mins"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:background="@drawable/taskify_timer_chip_active_bg" />
+
+        <TextView
+            android:id="@+id/btn_preset_50"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
+            android:gravity="center"
+            android:text="50 mins"
+            android:textColor="#E4E4E7"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:background="@drawable/taskify_timer_chip_bg" />
+
+        <TextView
+            android:id="@+id/btn_preset_5"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:gravity="center"
+            android:text="5 mins"
+            android:textColor="#E4E4E7"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:background="@drawable/taskify_timer_chip_bg" />
+    </LinearLayout>
+
+    <!-- Main Card Body: Digital Countdown & Play/Pause Ring -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Left Column: Timer Label + Hero Numbers + Stop Button -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Focus Session"
+                android:textColor="#A1A1AA"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <!-- Native Live Chronometer Display -->
+            <Chronometer
+                android:id="@+id/timer_chronometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium" />
+
+            <!-- Tactile Stop / Reset Button -->
+            <TextView
+                android:id="@+id/btn_timer_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:gravity="center"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Reset"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:background="@drawable/taskify_timer_stop_btn" />
+        </LinearLayout>
+
+        <!-- Right Column: Ocean Square Accent Card (76dp x 76dp) with Responsive Time Ring -->
+        <FrameLayout
+            android:id="@+id/btn_timer_toggle"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/taskify_timer_accent_card">
+
+            <ProgressBar
+                android:id="@+id/timer_progress_ring"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="100"
+                android:progressDrawable="@drawable/taskify_timer_circular_progress" />
+
+            <ImageView
+                android:id="@+id/btn_timer_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/taskify_ic_timer_play" />
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

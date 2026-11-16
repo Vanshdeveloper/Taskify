@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { SurfaceMaterial } from '../types';
 
 export interface ThemeDefinition {
   id: string;
   name: string;
-  category: 'soft' | 'aesthetic' | 'minimalist' | 'dark';
+  category: 'soft' | 'aesthetic' | 'minimalist' | 'dark' | 'shader-aurora' | 'shader-amber' | 'shader-botanical' | 'shader-cyber' | 'shader-iconic';
   description: string;
   colors: string[]; // [canvas, primary, secondary, highlight/accent]
+  isShaderGradient?: boolean;
 }
 
 export const PRESET_THEMES: ThemeDefinition[] = [
@@ -102,7 +104,7 @@ export const PRESET_THEMES: ThemeDefinition[] = [
     id: 'monochrome-pure',
     name: 'Monochrome Pure & Titanium',
     category: 'minimalist',
-    description: 'Apple executive minimalism: Deep titanium obsidian, pure titanium white, zinc mist, and crisp ivory typography.',
+    description: 'Pure executive minimalism: Deep titanium obsidian, pure titanium white, zinc mist, and crisp ivory typography.',
     colors: ['#09090b', '#f4f4f5', '#a1a1aa', '#ffffff'],
   },
   {
@@ -144,21 +146,119 @@ export const PRESET_THEMES: ThemeDefinition[] = [
   },
 ];
 
+export const SHADER_GRADIENT_THEMES: ThemeDefinition[] = [
+  {
+    id: 'shader-pure-blue',
+    name: 'Iconic Blue & Crystal White',
+    category: 'shader-iconic',
+    description: 'Iconic precision: Deep midnight canvas, vibrant royal blue action buttons, luminous crystal white specular nodes, and sky cyan highlights.',
+    colors: ['#060911', '#007aff', '#ffffff', '#0a84ff'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-frosted-white',
+    name: 'Frosted White & Classic Blue',
+    category: 'shader-iconic',
+    description: 'Frosted crystal elegance: Translucent high-luminance white glass surfaces, iconic blue action buttons, and iceberg platinum contrast.',
+    colors: ['#090e17', '#007aff', '#f8fafc', '#ffffff'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-silk-aurora',
+    name: 'Silk Aurora & Cosmic Rose',
+    category: 'shader-aurora',
+    description: 'Astral luminescence: Deep violet noir, liquid magenta glow, electric cyan ambient node, and starlight ivory.',
+    colors: ['#0f0a14', '#f472b6', '#38bdf8', '#faf5ff'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-obsidian-amber',
+    name: 'Obsidian Noir & Molten Amber',
+    category: 'shader-amber',
+    description: 'Molten luxury: Midnight obsidian base, fiery tangerine orbs, liquid sahara gold, and sunlit linen.',
+    colors: ['#100b08', '#f26a36', '#f59e0b', '#fdf3e5'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-emerald-mist',
+    name: 'Emerald Mist & Matcha Quartz',
+    category: 'shader-botanical',
+    description: 'Abyssal botanical garden: Forest slate void, vibrant matcha emerald, chartreuse glow, and jade mist.',
+    colors: ['#08100c', '#10b981', '#84cc16', '#f0fdf4'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-sakura-crystal',
+    name: 'Sakura Crystal & Twilight Plum',
+    category: 'shader-aurora',
+    description: 'Tokyo spring night: Royal plum noir, ethereal sakura blush, peony rose caustics, and pearl frost.',
+    colors: ['#12090e', '#fb7185', '#f43f5e', '#fff1f2'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-arctic-glacier',
+    name: 'Arctic Glacier & Cyan Borealis',
+    category: 'shader-cyber',
+    description: 'Sub-zero titanium: Glacier slate, deep arctic azure, radiant polar cyan, and iceberg platinum.',
+    colors: ['#080d14', '#38bdf8', '#818cf8', '#f1f5f9'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-velvet-twilight',
+    name: 'Velvet Twilight & Royal Amethyst',
+    category: 'shader-aurora',
+    description: 'Mahogany evening wine: Velvet wine noir, royal amethyst glow, dusty rose, and radiant silver.',
+    colors: ['#100910', '#c17685', '#a855f7', '#fffff6'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-sunset-horizon',
+    name: 'Sunset Horizon & Terracotta Wave',
+    category: 'shader-amber',
+    description: 'Twilight horizon: Warm espresso base, burning terracotta wave, sunset peach, and golden honey.',
+    colors: ['#120a06', '#f97316', '#ec4899', '#fef3c7'],
+    isShaderGradient: true,
+  },
+  {
+    id: 'shader-cyber-matrix',
+    name: 'Cyber Matrix & Electric Lime',
+    category: 'shader-cyber',
+    description: 'High-voltage matrix: Dark titanium slate, neon volt lime, cyber turquoise, and electric mint.',
+    colors: ['#070a0e', '#84cc16', '#06b6d4', '#f8fafc'],
+    isShaderGradient: true,
+  },
+];
+
+export const ALL_THEMES: ThemeDefinition[] = [...PRESET_THEMES, ...SHADER_GRADIENT_THEMES];
+
 interface ThemeContextType {
   theme: string;
   setTheme: (themeId: string) => void;
+  surfaceMaterial: SurfaceMaterial;
+  setSurfaceMaterial: (mat: SurfaceMaterial) => void;
   themes: ThemeDefinition[];
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const PREFERENCE_STORAGE_KEY = 'taskify_theme_preference';
+const SURFACE_STORAGE_KEY = 'taskify_surface_material';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [surfaceMaterial, setSurfaceMaterialState] = useState<SurfaceMaterial>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(SURFACE_STORAGE_KEY);
+      if (saved === 'classic-solid' || saved === 'liquid-glass' || saved === 'fluted-glass') {
+        return saved;
+      }
+    }
+    return 'classic-solid';
+  });
+
   const [theme, setThemeState] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(PREFERENCE_STORAGE_KEY);
-      if (saved && PRESET_THEMES.some((t) => t.id === saved)) {
+      if (saved && ALL_THEMES.some((t) => t.id === saved)) {
         return saved;
       }
     }
@@ -170,10 +270,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     document.documentElement.setAttribute('data-theme', themeId);
   };
 
+  const applySurfaceToDOM = (mat: SurfaceMaterial) => {
+    if (typeof document === 'undefined') return;
+    document.documentElement.setAttribute('data-surface', mat);
+  };
+
   const setTheme = (newTheme: string) => {
-    // Instant, stutter-free theme application (<1ms):
-    // Directly apply the CSS data-theme attribute and update state synchronously.
-    // Avoids document.startViewTransition full-screen bitmap stalls on mobile.
     applyThemeToDOM(newTheme);
     setThemeState(newTheme);
     if (typeof window !== 'undefined') {
@@ -185,16 +287,43 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const setSurfaceMaterial = (newMat: SurfaceMaterial) => {
+    applySurfaceToDOM(newMat);
+    setSurfaceMaterialState(newMat);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(SURFACE_STORAGE_KEY, newMat);
+      } catch {
+        // Ignore storage quotas / disabled storage
+      }
+    }
+    // Auto-align active theme when switching material mode
+    if (newMat === 'classic-solid') {
+      if (theme.startsWith('shader-')) {
+        setTheme('espresso-terracotta');
+      }
+    } else {
+      if (!theme.startsWith('shader-')) {
+        setTheme('shader-obsidian-amber');
+      }
+    }
+  };
+
   useEffect(() => {
     applyThemeToDOM(theme);
-  }, [theme]);
+    applySurfaceToDOM(surfaceMaterial);
+  }, [theme, surfaceMaterial]);
+
+  const activeThemes = surfaceMaterial === 'classic-solid' ? PRESET_THEMES : SHADER_GRADIENT_THEMES;
 
   return (
     <ThemeContext.Provider
       value={{
         theme,
         setTheme,
-        themes: PRESET_THEMES,
+        surfaceMaterial,
+        setSurfaceMaterial,
+        themes: activeThemes,
       }}
     >
       {children}

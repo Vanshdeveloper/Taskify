@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "android/app/capacitor.build.gradle": {
-    "mtime": 1794553672.414621,
-    "seen": 1794554033.619292,
+    "mtime": 1794799606.157023,
+    "seen": 1794799737.302626,
     "ast_hash": "06796b9d95b34bdd34d57405c42f101d",
     "semantic_hash": ""
   },
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyWidgetProvider.java": {
-    "mtime": 1794552956.1658595,
-    "seen": 1794554033.619314,
-    "ast_hash": "3b887d90959c4f1004593263ef5d9a1e",
+    "mtime": 1794664031.432757,
+    "seen": 1794669053.7297263,
+    "ast_hash": "a2f30a039d245f82caf10b9fe474bf1b",
     "semantic_hash": ""
   },
   "android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "android/capacitor.settings.gradle": {
-    "mtime": 1794553672.414621,
-    "seen": 1794554033.6193206,
+    "mtime": 1794799606.157023,
+    "seen": 1794799737.302626,
     "ast_hash": "8087b83c314c84daec05cc78bec69ec5",
     "semantic_hash": ""
   },
@@ -540,27 +540,27 @@
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1794461495.5772612,
-    "seen": 1794461534.9680996,
-    "ast_hash": "54028ca0248fdd29d8b313442b9eb3ca",
+    "mtime": 1794802093.6086879,
+    "seen": 1794803435.474713,
+    "ast_hash": "c69f1e93a3374076a52fe0b47de1f3fa",
     "semantic_hash": ""
   },
   "src/components/analytics/ExecutiveDashboardView.tsx": {
-    "mtime": 1794419090.1834123,
-    "seen": 1794419298.474845,
-    "ast_hash": "ae6615fb341bda22bec6f42235ca88fc",
+    "mtime": 1794802474.0761342,
+    "seen": 1794803435.474713,
+    "ast_hash": "99cb16ce4a0ecdfdc2002e29b0da5b12",
     "semantic_hash": ""
   },
   "src/components/finance/FinanceView.tsx": {
-    "mtime": 1794415645.5554986,
-    "seen": 1794416758.6041603,
-    "ast_hash": "7cabae29366fa32dba2c1156f5c47267",
+    "mtime": 1794802502.2326162,
+    "seen": 1794803435.474713,
+    "ast_hash": "97a71dbd10cfef8785fc9f360dbf7efb",
     "semantic_hash": ""
   },
   "src/components/focus/FocusTimerModal.tsx": {
-    "mtime": 1794203607.2169573,
-    "seen": 1794412837.3264062,
-    "ast_hash": "bff0762c12347ab38d8d86f8034c8b9b",
+    "mtime": 1794802369.954146,
+    "seen": 1794803435.474713,
+    "ast_hash": "f7202641513d6c736343629190b93572",
     "semantic_hash": ""
   },
   "src/components/habits/HabitIconRenderer.tsx": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "src/components/habits/HabitsView.tsx": {
-    "mtime": 1794412156.5862162,
-    "seen": 1794412837.3264108,
-    "ast_hash": "8d936dd7911efda76bdfab4c2c704596",
+    "mtime": 1794802533.0007596,
+    "seen": 1794803435.474713,
+    "ast_hash": "76e7953181cdc8d3a2567c0d9e506b5c",
     "semantic_hash": ""
   },
   "src/components/habits/StreakHeatmap.tsx": {
@@ -582,21 +582,21 @@
     "semantic_hash": ""
   },
   "src/components/layout/LiquidTabViewport.tsx": {
-    "mtime": 1794461495.5787942,
-    "seen": 1794461534.9681134,
-    "ast_hash": "744b248e7ca9bd6338565eec9c9b7b08",
+    "mtime": 1794802551.515274,
+    "seen": 1794803435.474713,
+    "ast_hash": "520ef20f05076359350166bf9c005cb1",
     "semantic_hash": ""
   },
   "src/components/layout/MobileTabBar.tsx": {
-    "mtime": 1794412333.6359127,
-    "seen": 1794412837.326418,
-    "ast_hash": "a6a903f5ba7b46cc82092fdc744cfb2a",
+    "mtime": 1794737224.1704493,
+    "seen": 1794738169.2066462,
+    "ast_hash": "f3fb661dbd4d259639675e3d737953fe",
     "semantic_hash": ""
   },
   "src/components/layout/Navbar.tsx": {
-    "mtime": 1794461495.5793061,
-    "seen": 1794461534.9681175,
-    "ast_hash": "50fab9715b3abb39ab85c1cabeeadafc",
+    "mtime": 1794802567.2709365,
+    "seen": 1794803435.474713,
+    "ast_hash": "47656ee4dd4ffe564ff21ec92b53a0f8",
     "semantic_hash": ""
   },
   "src/components/layout/Sidebar.tsx": {
@@ -606,9 +606,9 @@
     "semantic_hash": ""
   },
   "src/components/layout/SlideOverInspector.tsx": {
-    "mtime": 1794415520.4159803,
-    "seen": 1794416758.6041873,
-    "ast_hash": "c59de9a3bda81313d19a0d01f214c1e4",
+    "mtime": 1794802832.8529024,
+    "seen": 1794803435.474713,
+    "ast_hash": "efc2d746f3f23a89e34c50c8a8e63ff8",
     "semantic_hash": ""
   },
   "src/components/modals/ConfirmDeleteModal.tsx": {
@@ -618,21 +618,21 @@
     "semantic_hash": ""
   },
   "src/components/modals/FinanceModal.tsx": {
-    "mtime": 1794327399.1276863,
-    "seen": 1794412837.326429,
-    "ast_hash": "cb4a643170c164a99b1d137729e1bf5c",
+    "mtime": 1794802301.58561,
+    "seen": 1794803435.474713,
+    "ast_hash": "726290c546da2b6be2993528094ead64",
     "semantic_hash": ""
   },
   "src/components/modals/HabitModal.tsx": {
-    "mtime": 1794327392.370009,
-    "seen": 1794412837.3264315,
-    "ast_hash": "fda369afcaf200e1653af2a969cf4eb7",
+    "mtime": 1794802579.5671072,
+    "seen": 1794803435.474713,
+    "ast_hash": "1be94d6a2ba2dec8fbcce85f12dfc4b2",
     "semantic_hash": ""
   },
   "src/components/modals/QuickCaptureModal.tsx": {
-    "mtime": 1794327239.291157,
-    "seen": 1794412837.326434,
-    "ast_hash": "3b6679d964172cfb684261c85de261a9",
+    "mtime": 1794802309.2454257,
+    "seen": 1794803435.474713,
+    "ast_hash": "487062492cefe6129a0193d2064209fd",
     "semantic_hash": ""
   },
   "src/components/modals/TaskModal.tsx": {
@@ -654,15 +654,15 @@
     "semantic_hash": ""
   },
   "src/components/settings/SettingsView.tsx": {
-    "mtime": 1794463991.3993225,
-    "seen": 1794464112.988652,
-    "ast_hash": "50b7d2d553d0b062ada7cf92d3d03823",
+    "mtime": 1794802821.23973,
+    "seen": 1794803435.474713,
+    "ast_hash": "3f5ba10a097eb5415b096f96649cf5e0",
     "semantic_hash": ""
   },
   "src/components/settings/ThemeStudio.tsx": {
-    "mtime": 1794283915.1621606,
-    "seen": 1794412837.3264453,
-    "ast_hash": "7595e085d8d31bfb7156efc979726ad1",
+    "mtime": 1794802170.0686202,
+    "seen": 1794803435.474713,
+    "ast_hash": "d9bcfc74037264dfa2bacddf94940da1",
     "semantic_hash": ""
   },
   "src/components/streaks/StreaksView.tsx": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "src/components/tasks/TasksView.tsx": {
-    "mtime": 1794412565.479396,
-    "seen": 1794412837.326455,
-    "ast_hash": "76de45d08727f0b5963368bb56e63061",
+    "mtime": 1794802591.449597,
+    "seen": 1794803435.474713,
+    "ast_hash": "70ab14b1fd7da071466c7e480947ab2b",
     "semantic_hash": ""
   },
   "src/components/today/TodayView.tsx": {
@@ -702,9 +702,9 @@
     "semantic_hash": ""
   },
   "src/components/ui/CalendarStrip.tsx": {
-    "mtime": 1794199634.366858,
-    "seen": 1794412837.3264623,
-    "ast_hash": "f0402d3c929cde7c046f1c3da07cca39",
+    "mtime": 1794802146.6186433,
+    "seen": 1794803435.474713,
+    "ast_hash": "48328029519b007b836b36927c28e56b",
     "semantic_hash": ""
   },
   "src/components/ui/CustomDatePicker.tsx": {
@@ -714,15 +714,15 @@
     "semantic_hash": ""
   },
   "src/components/ui/CustomSelect.tsx": {
-    "mtime": 1794205615.1718886,
-    "seen": 1794412837.326467,
-    "ast_hash": "083434a35e55b803438d75871a32672d",
+    "mtime": 1794802122.722289,
+    "seen": 1794803435.474713,
+    "ast_hash": "feb2861e2ab2519a2b3a36b5d9bc26ad",
     "semantic_hash": ""
   },
   "src/components/ui/CustomTimePicker.tsx": {
-    "mtime": 1794205647.4704201,
-    "seen": 1794412837.3264694,
-    "ast_hash": "e252d612fe83ea90b2debbfe7e16f2bd",
+    "mtime": 1794802607.7508278,
+    "seen": 1794803435.474713,
+    "ast_hash": "1d189b366a12132cc33cadf6ac5f3315",
     "semantic_hash": ""
   },
   "src/components/ui/DotProgressMatrix.tsx": {
@@ -732,33 +732,33 @@
     "semantic_hash": ""
   },
   "src/components/ui/ReminderBanner.tsx": {
-    "mtime": 1794327690.9642184,
-    "seen": 1794412837.326474,
-    "ast_hash": "293c6be8b2aabf12fe180bebc18f8d47",
+    "mtime": 1794802648.058563,
+    "seen": 1794803435.474713,
+    "ast_hash": "1df1ed88f020a81f120cfc7966e3d078",
     "semantic_hash": ""
   },
   "src/components/ui/SplashScreen.tsx": {
-    "mtime": 1794214534.7005105,
-    "seen": 1794412837.3264766,
-    "ast_hash": "88a0ab4d3a8f36cd624636497e119907",
+    "mtime": 1794802655.415653,
+    "seen": 1794803435.474713,
+    "ast_hash": "b9a61b5bd154b58fd6d50eb9e6ab6ba6",
     "semantic_hash": ""
   },
   "src/components/ui/SwipeToComplete.tsx": {
-    "mtime": 1794050020.9238389,
-    "seen": 1794412837.3264792,
-    "ast_hash": "08efb2ae4e6ccf409588bde0c9d05df7",
+    "mtime": 1794802669.9174912,
+    "seen": 1794803435.474713,
+    "ast_hash": "24969a82646fd261dcdb2bd7a94be9f0",
     "semantic_hash": ""
   },
   "src/context/AppContext.tsx": {
-    "mtime": 1794553584.679073,
-    "seen": 1794554033.6194177,
-    "ast_hash": "913b7d33f527d5d11d090a6cd581391f",
+    "mtime": 1794802805.3859818,
+    "seen": 1794803435.474713,
+    "ast_hash": "c5dfbc7de86d40ab78febc1b0157d66d",
     "semantic_hash": ""
   },
   "src/context/ThemeContext.tsx": {
-    "mtime": 1794214314.699578,
-    "seen": 1794412837.3264837,
-    "ast_hash": "003cee1f467c04ee80823ab81e07e3b5",
+    "mtime": 1794802066.614351,
+    "seen": 1794803435.474713,
+    "ast_hash": "f56b57c8b9897fb99c2ac5fdcc3c399f",
     "semantic_hash": ""
   },
   "src/db/index.ts": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "src/hooks/useFocusTimer.ts": {
-    "mtime": 1794203607.2190492,
-    "seen": 1794412837.3264909,
-    "ast_hash": "36792d0bc66f2b3388f487e109255363",
+    "mtime": 1794650790.5357983,
+    "seen": 1794651675.5439253,
+    "ast_hash": "9db3c83b2149fe637841cfc8e19de606",
     "semantic_hash": ""
   },
   "src/hooks/useTaskKeyboardNavigation.ts": {
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "src/types/index.ts": {
-    "mtime": 1794415383.4700966,
-    "seen": 1794416758.6042778,
-    "ast_hash": "6040d7c0cc7fd2c70ed28d772d1d44c4",
+    "mtime": 1794802769.054207,
+    "seen": 1794803435.474713,
+    "ast_hash": "dd9235b2c4ad1cb8007ecd9ac2da6e4d",
     "semantic_hash": ""
   },
   "src/utils/category.ts": {
@@ -822,15 +822,15 @@
     "semantic_hash": ""
   },
   "src/utils/feedback.ts": {
-    "mtime": 1794415422.9868686,
-    "seen": 1794416758.6042929,
-    "ast_hash": "ac90166245f9ba22d46a98ae5080b887",
+    "mtime": 1794802787.2246673,
+    "seen": 1794803435.474713,
+    "ast_hash": "f3cc23f6cb442e1f358aaacb77bb830d",
     "semantic_hash": ""
   },
   "src/utils/focusTimer.ts": {
-    "mtime": 1794203607.2612782,
-    "seen": 1794412837.326514,
-    "ast_hash": "4c13fac3c212140def982e0c30c6b9f1",
+    "mtime": 1794802696.772049,
+    "seen": 1794803435.474713,
+    "ast_hash": "712341b963539e1c1aa7871cce2b3d90",
     "semantic_hash": ""
   },
   "src/utils/genz.ts": {
@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "src/utils/motion.ts": {
-    "mtime": 1794049980.3665242,
-    "seen": 1794412837.3265185,
-    "ast_hash": "77382b914a38ef430904b429d533d643",
+    "mtime": 1794802718.8538866,
+    "seen": 1794803435.474713,
+    "ast_hash": "e08b693dea91a46b83295fb2a51d5f07",
     "semantic_hash": ""
   },
   "src/utils/pokeMessages.ts": {
@@ -882,15 +882,15 @@
     "semantic_hash": ""
   },
   "src/utils/widgetSync.ts": {
-    "mtime": 1794553624.071375,
-    "seen": 1794554033.6194572,
-    "ast_hash": "c770f4e54cfa30dc6d101550984cf006",
+    "mtime": 1794802753.7693503,
+    "seen": 1794803435.474713,
+    "ast_hash": "93e8861431cb5f3b62ec72cd02934cd4",
     "semantic_hash": ""
   },
   "test/core-logic.test.mjs": {
-    "mtime": 1794463412.0253472,
-    "seen": 1794463498.113766,
-    "ast_hash": "4280482f5fbb2a375d385510e17851c7",
+    "mtime": 1794802208.6541524,
+    "seen": 1794803435.474713,
+    "ast_hash": "0111f7b2442c12529e0a3b47eeb3ffad",
     "semantic_hash": ""
   },
   "test/e2e-tier1-features.test.mjs": {
@@ -2562,9 +2562,9 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyNativeWidgetPlugin.java": {
-    "mtime": 1794553488.570346,
-    "seen": 1794554033.6193047,
-    "ast_hash": "e1442d051b0c5290b670441853bb8fbe",
+    "mtime": 1794667481.0537598,
+    "seen": 1794669053.7297056,
+    "ast_hash": "534d0ef6118cf18eff373068494da7fc",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifySmallWidgetProvider.java": {
@@ -2580,21 +2580,51 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyWidgetListService.java": {
-    "mtime": 1794550303.5161695,
-    "seen": 1794554033.6193116,
-    "ast_hash": "e95dc4feddabbee378367cdb8551fc83",
+    "mtime": 1794664041.5518427,
+    "seen": 1794669053.7297235,
+    "ast_hash": "daebf5b27ddf63d4866fc01d3ede9ce6",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyFinanceWidgetProvider.java": {
-    "mtime": 1794553184.8902042,
-    "seen": 1794554033.6192997,
-    "ast_hash": "dca774b6c210b0c2aa3e3cf5588a4701",
+    "mtime": 1794664106.7716136,
+    "seen": 1794669053.7296906,
+    "ast_hash": "f65054123ac55c71e9e81220e7944465",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyQuickActionsWidgetProvider.java": {
-    "mtime": 1794553029.1796691,
-    "seen": 1794554033.619307,
-    "ast_hash": "13a08a546458b47ca30f0df1d1cbf847",
+    "mtime": 1794650546.473045,
+    "seen": 1794651675.543797,
+    "ast_hash": "4f549c0f7e3d22b292e3acb1b6e2ee07",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyHabitsCompactWidgetProvider.java": {
+    "mtime": 1794642636.863406,
+    "seen": 1794643579.815295,
+    "ast_hash": "4bf3f3bfac0134f76cbb9fc747e10173",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyMatrixWidgetProvider.java": {
+    "mtime": 1794650362.6056795,
+    "seen": 1794651675.5437925,
+    "ast_hash": "1c1260660ff7e4b5362aa91a9e4c2485",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyTimerWidgetProvider.java": {
+    "mtime": 1794667536.4601612,
+    "seen": 1794669053.7297204,
+    "ast_hash": "c60147788dc2eee55823bf2f78f36570",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/java/com/taskify/app/TaskifyQuickCaptureActivity.java": {
+    "mtime": 1794664094.575107,
+    "seen": 1794669053.7297137,
+    "ast_hash": "639086ddeb92c66b91afca9402110936",
+    "semantic_hash": ""
+  },
+  "src/components/focus/PomodoroFullscreenModal.tsx": {
+    "mtime": 1794802348.0364456,
+    "seen": 1794803435.474713,
+    "ast_hash": "1460056416eb06d4f11d377fec30f509",
     "semantic_hash": ""
   },
   "package-lock.json": {

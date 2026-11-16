@@ -14,9 +14,10 @@ import { useTheme } from '../../context/ThemeContext';
 import { feedback } from '../../utils/feedback';
 
 export const ThemeStudio: React.FC = () => {
-  const { theme, setTheme, themes } = useTheme();
+  const { theme, setTheme, surfaceMaterial, setSurfaceMaterial, themes } = useTheme();
 
-  const [activeCategory, setActiveCategory] = useState<'all' | 'soft' | 'aesthetic' | 'minimalist' | 'dark'>('all');
+  const isGlassMode = surfaceMaterial !== 'classic-solid';
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const filteredThemes = themes.filter((t) => {
@@ -38,14 +39,87 @@ export const ThemeStudio: React.FC = () => {
         return { label: 'Minimalist', color: '#38bdf8', icon: Sliders };
       case 'dark':
         return { label: 'Dark & OLED', color: '#a855f7', icon: Moon };
+      case 'shader-iconic':
+        return { label: 'Crystal & Blue', color: '#007aff', icon: Sparkles };
+      case 'shader-aurora':
+        return { label: 'Cosmic Aurora', color: '#c084fc', icon: Sparkles };
+      case 'shader-amber':
+        return { label: 'Molten Amber', color: '#f59e0b', icon: Feather };
+      case 'shader-botanical':
+        return { label: 'Zen Botanical', color: '#10b981', icon: Layers };
+      case 'shader-cyber':
+        return { label: 'Cyber Glacier', color: '#38bdf8', icon: Sliders };
       default:
         return { label: 'Theme', color: '#ffffff', icon: Layers };
     }
   };
 
+  const categories = isGlassMode
+    ? [
+        { id: 'all', label: 'All Shaders' },
+        { id: 'shader-iconic', label: 'Crystal & Blue' },
+        { id: 'shader-aurora', label: 'Cosmic & Aurora' },
+        { id: 'shader-amber', label: 'Warm & Amber' },
+        { id: 'shader-botanical', label: 'Botanical & Zen' },
+        { id: 'shader-cyber', label: 'Cyber & Glacier' },
+      ]
+    : [
+        { id: 'all', label: 'All Palettes' },
+        { id: 'soft', label: 'Soft & Cozy' },
+        { id: 'aesthetic', label: 'Aesthetic' },
+        { id: 'minimalist', label: 'Minimalist' },
+        { id: 'dark', label: 'Dark & OLED' },
+      ];
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Category Segmented Filter Tabs */}
+      {/* 1. Surface Material Segmented Switch */}
+      <div className="flex flex-col gap-2 pb-3 border-b border-white/6">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-mono font-medium text-zinc-300">
+            Surface Material
+          </label>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/6 text-zinc-400">
+            {surfaceMaterial === 'classic-solid'
+              ? 'OLED Battery Saver'
+              : surfaceMaterial === 'liquid-glass'
+              ? 'Liquid Glass'
+              : 'Architectural Fluted'}
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {(
+            [
+              { id: 'classic-solid', label: 'Classic Solid', desc: 'Minimal OLED' },
+              { id: 'liquid-glass', label: 'Liquid Glass', desc: 'Glass Expo' },
+              { id: 'fluted-glass', label: 'Fluted Glass', desc: 'Reeded Prism' },
+            ] as const
+          ).map((mat) => {
+            const isSel = surfaceMaterial === mat.id;
+            return (
+              <button
+                key={mat.id}
+                type="button"
+                onClick={() => {
+                  feedback.playClick();
+                  setSurfaceMaterial(mat.id);
+                  setActiveCategory('all');
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer pressable ${
+                  isSel
+                    ? 'border-white/35 ring-1.5 ring-white/20 bg-white/[0.08] shadow-md'
+                    : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
+                }`}
+              >
+                <span className="text-xs font-bold text-white block truncate">{mat.label}</span>
+                <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block truncate">{mat.desc}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2. Category Segmented Filter Tabs */}
       <div
         data-no-swipe="true"
         className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth no-tab-swipe"
@@ -54,15 +128,7 @@ export const ThemeStudio: React.FC = () => {
           if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
         }}
       >
-        {(
-          [
-            { id: 'all', label: 'All Palettes' },
-            { id: 'soft', label: 'Soft & Cozy' },
-            { id: 'aesthetic', label: 'Aesthetic' },
-            { id: 'minimalist', label: 'Minimalist' },
-            { id: 'dark', label: 'Dark & OLED' },
-          ] as const
-        ).map((tab) => {
+        {categories.map((tab) => {
           const isSel = activeCategory === tab.id;
           return (
             <button
@@ -88,7 +154,7 @@ export const ThemeStudio: React.FC = () => {
         })}
       </div>
 
-      {/* Theme Cards Grid */}
+      {/* 3. Theme Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {visibleThemes.map((t) => {
           const isActive = theme === t.id;
@@ -148,18 +214,28 @@ export const ThemeStudio: React.FC = () => {
                 </p>
               </div>
 
-              {/* Bottom Row: 4-Color Swatch Strip */}
+              {/* Bottom Row: Swatch Strip / Flowing Gradient */}
               <div className="flex items-center justify-between mt-3.5 pt-2.5 hairline-t">
-                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/40 border border-white/8">
-                  {t.colors.map((c, idx) => (
-                    <span
-                      key={idx}
-                      className="w-4 h-4 rounded-full border border-white/20 shadow-sm shrink-0"
-                      style={{ backgroundColor: c }}
-                      title={c}
-                    />
-                  ))}
-                </div>
+                {t.isShaderGradient ? (
+                  <div
+                    className="w-24 h-4 rounded-full border border-white/20 shadow-sm shrink-0"
+                    style={{
+                      background: `linear-gradient(90deg, ${t.colors.join(', ')})`,
+                    }}
+                    title="Shader Gradient Spectrum"
+                  />
+                ) : (
+                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/40 border border-white/8">
+                    {t.colors.map((c, idx) => (
+                      <span
+                        key={idx}
+                        className="w-4 h-4 rounded-full border border-white/20 shadow-sm shrink-0"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                )}
                 <span className="text-[10px] font-mono text-zinc-500 uppercase">
                   {isActive ? 'Active' : 'Select'}
                 </span>

@@ -168,7 +168,7 @@ export const FinanceView: React.FC = () => {
         </motion.button>
       </div>
 
-      {/* 2. 4 Apple Card Style Metric Cards */}
+      {/* 2. 4 Executive Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Safe-to-Spend Daily */}
         <div
@@ -566,7 +566,7 @@ export const FinanceView: React.FC = () => {
             })}
         </motion.div>
       ) : (
-        /* CREATIVE VIEW 2: ULTRA-REFINED APPLE LEDGER COMPACT ROWS */
+        /* CREATIVE VIEW 2: ULTRA-REFINED LEDGER COMPACT ROWS */
         <motion.div
           key={`finance-compact-${filterType}`}
           initial={{ opacity: 0 }}

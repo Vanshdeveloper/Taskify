@@ -164,7 +164,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     [dailyData]
   );
 
-  // Active or hovered data point for Apple-style header inspection
+  // Active or hovered data point for fluid header inspection
   const inspectedPoint = useMemo(() => {
     if (hoveredIndex !== null && dailyData[hoveredIndex]) {
       return dailyData[hoveredIndex];
@@ -352,7 +352,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
 
   return (
     <div className="flex flex-col gap-4 sm:gap-5 max-w-4xl mx-auto w-full pb-24 select-none relative z-10">
-      {/* 1. Apple Navigation Header */}
+      {/* 1. Navigation Header */}
       <div className="flex flex-col gap-3 pt-1">
         {/* Tier 1: Action Bar */}
         <div className="flex items-center justify-between w-full">
@@ -396,7 +396,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </div>
         </div>
 
-        {/* Tier 2: Apple Large Title & Subtext */}
+        {/* Tier 2: Large Title & Subtext */}
         <div>
           <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
             Analytics
@@ -488,7 +488,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         </div>
       </div>
 
-      {/* 3. Performance Trends Chart (Activity / Cashflow) - Apple Health & Stocks Grade */}
+      {/* 3. Performance Trends Chart (Activity / Cashflow) - Fluid Executive Grade */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col gap-4 shadow-xl relative overflow-hidden w-full"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
@@ -506,7 +506,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             </h3>
           </div>
 
-          {/* Apple Segmented Control - Strictly Zero Emojis */}
+          {/* Fluid Segmented Control - Strictly Zero Emojis */}
           <div className="segmented-track flex items-center gap-1 p-0.5 shrink-0">
             <button
               type="button"
@@ -549,7 +549,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </div>
         </div>
 
-        {/* Tier 2: Apple Live Metric Inspector Display (Changes on scrub, zero awkward floating box) */}
+        {/* Tier 2: Live Metric Inspector Display (Changes on scrub, zero awkward floating box) */}
         <div className="flex items-baseline justify-between pt-1 border-b border-white/6 pb-3">
           <div className="flex flex-col min-w-0">
             <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
@@ -657,7 +657,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
 
               return (
                 <g key={idx}>
-                  {/* Vertical Apple Capsule Bar */}
+                  {/* Vertical Capsule Bar */}
                   <rect
                     x={c.x - barWidth / 2}
                     y={c.y}
@@ -876,7 +876,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         </div>
       </div>
 
-      {/* 5. Monthly Finances: Apple Wallet Style */}
+      {/* 5. Monthly Finances: Executive Wallet Style */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col gap-4 min-w-0 overflow-hidden"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}

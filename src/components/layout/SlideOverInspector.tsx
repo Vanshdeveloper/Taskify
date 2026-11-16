@@ -19,6 +19,7 @@ import {
   ArrowUpRight,
   Vibrate,
   Volume2,
+  Sparkles,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -149,9 +150,10 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 340, mass: 0.55 }}
-            className="relative w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl h-full z-10 flex flex-col shadow-2xl border-l border-white/10"
+            className="relative w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl h-full z-10 flex flex-col shadow-2xl border-l border-white/15 backdrop-blur-2xl"
             style={{
-              backgroundColor: 'var(--bg-canvas)',
+              backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 92%, transparent)',
+              boxShadow: 'inset 1px 0 0 0 rgba(255, 255, 255, 0.12), -16px 0 48px rgba(0, 0, 0, 0.75)',
               willChange: 'transform',
               transform: 'translateZ(0)',
             }}
@@ -480,8 +482,8 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                       <span className="text-xs font-semibold text-white">Tactile Click Sound</span>
                     </div>
                     <span className="text-[10px] font-mono text-zinc-400">
-                      {settings.hapticSound === 'apple'
-                        ? 'Apple Taptic'
+                      {settings.hapticSound === 'precision' || settings.hapticSound === 'apple'
+                        ? 'Precision Taptic'
                         : settings.hapticSound === 'mechanical'
                         ? 'Mechanical'
                         : settings.hapticSound === 'pop'
@@ -495,14 +497,15 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
                     {(
                       [
-                        { id: 'apple', label: 'Apple Taptic' },
+                        { id: 'precision', label: 'Precision Taptic' },
                         { id: 'mechanical', label: 'Mechanical' },
                         { id: 'pop', label: 'Bubble Pop' },
                         { id: 'subtle', label: 'Subtle Tick' },
                         { id: 'mute', label: 'Muted' },
                       ] as const
                     ).map((sound) => {
-                      const isSelected = (settings.hapticSound || 'apple') === sound.id;
+                      const currentSound = settings.hapticSound || 'precision';
+                      const isSelected = currentSound === sound.id || (currentSound === 'apple' && sound.id === 'precision');
                       return (
                         <button
                           key={sound.id}
@@ -529,6 +532,46 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                       );
                     })}
                   </div>
+                </div>
+
+                {/* Focus Timer Screen Edge Progress (PC / Ambient) */}
+                <div className="flex items-center justify-between pt-3 hairline-t">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm border shrink-0"
+                      style={{
+                        backgroundColor: 'rgba(242, 106, 54, 0.15)',
+                        borderColor: 'rgba(242, 106, 54, 0.3)',
+                        color: '#F26A36',
+                      }}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-white block">
+                        Screen Edge Progress Bar
+                      </span>
+                      <span className="text-[10px] text-zinc-400">
+                        Glowing perimeter contour along monitor edges during timer
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={settings.focusEdgeProgress !== false}
+                    onClick={async () => {
+                      const nextVal = !(settings.focusEdgeProgress !== false);
+                      feedback.playClick();
+                      await updateSettings({ focusEdgeProgress: nextVal });
+                    }}
+                    className={`w-12 h-6.5 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center ${
+                      settings.focusEdgeProgress !== false ? 'bg-[#F26A36] justify-end' : 'bg-zinc-700 justify-start'
+                    }`}
+                  >
+                    <div className="w-5 h-5 rounded-full bg-white shadow-md transition-all" />
+                  </button>
                 </div>
               </div>
 

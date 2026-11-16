@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/matrix_item_root"
+    android:layout_width="match_parent"
+    android:layout_height="30dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingLeft="8dp"
+    android:paddingStart="8dp"
+    android:paddingRight="2dp"
+    android:paddingEnd="2dp"
+    android:background="@drawable/taskify_matrix_row_bg">
+
+    <TextView
+        android:id="@+id/matrix_item_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Routine Name"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- 7-Day Consistency Dots -->
+    <ImageView android:id="@+id/matrix_item_dot_0" android:layout_width="20dp" android:layout_height="14dp" android:scaleType="centerInside" android:src="@drawable/taskify_matrix_dot_done" />
+    <ImageView android:id="@+id/matrix_item_dot_1" android:layout_width="20dp" android:layout_height="14dp" android:scaleType="centerInside" android:src="@drawable/taskify_matrix_dot_done" />
+    <ImageView android:id="@+id/matrix_item_dot_2" android:layout_width="20dp" android:layout_height="14dp" android:scaleType="centerInside" android:src="@drawable/taskify_matrix_dot_done" />
+    <ImageView android:id="@+id/matrix_item_dot_3" android:layout_width="20dp" android:layout_height="14dp" android:scaleType="centerInside" android:src="@drawable/taskify_matrix_dot_empty" />
+    <ImageView android:id="@+id/matrix_item_dot_4" android:layout_width="20dp" android:layout_height="14dp" android:scaleType="centerInside" android:src="@drawable/taskify_matrix_dot_done" />
+    <ImageView android:id="@+id/matrix_item_dot_5" android:layout_width="20dp" android:layout_height="14dp" android:scaleType="centerInside" android:src="@drawable/taskify_matrix_dot_done" />
+    <ImageView android:id="@+id/matrix_item_dot_6" android:layout_width="20dp" android:layout_height="14dp" android:scaleType="centerInside" android:src="@drawable/taskify_matrix_dot_today_empty" />
+</LinearLayout>

@@ -40,7 +40,7 @@
             android:id="@+id/small_widget_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nov 13"
+            android:text="Nov 14"
             android:textColor="#A1A1AA"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="8dp"
         android:orientation="vertical">
 
         <TextView
@@ -85,9 +85,11 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:divider="@null"
-        android:dividerHeight="0dp"
-        android:scrollbars="vertical" />
+        android:divider="@android:color/transparent"
+        android:dividerHeight="5dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:scrollbars="none" />
 
     <!-- Designed Empty State -->
     <LinearLayout

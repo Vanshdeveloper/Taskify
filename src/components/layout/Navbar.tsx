@@ -1,6 +1,7 @@
 import React from 'react';
-import { Menu, Flame } from 'lucide-react';
+import { Menu, Flame, Timer } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useFocusTimer } from '../../hooks/useFocusTimer';
 
 interface NavbarProps {
   onOpenInspector: () => void;
@@ -15,7 +16,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   streakCount,
   hideBrand = false,
 }) => {
-  const { settings } = useApp();
+  const { settings, openPomodoro } = useApp();
+  const { status: timerStatus, formattedTime } = useFocusTimer();
+  const isTimerActive = timerStatus === 'running' || timerStatus === 'paused';
 
   const currentHeight = settings.navbarHeight || 'default';
 
@@ -38,16 +41,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   const glassStyle: React.CSSProperties =
     settings.navbarGlass === 'vibrant'
       ? {
-          backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 78%, transparent)',
+          backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 76%, transparent)',
           backdropFilter: 'blur(24px) saturate(200%)',
           WebkitBackdropFilter: 'blur(24px) saturate(200%)',
-          boxShadow: '0 4px 24px -4px rgba(0,0,0,0.5), 0 1px 0 0 var(--border-subtle)',
+          boxShadow: 'inset 0 -1px 0 0 rgba(255, 255, 255, 0.08), 0 4px 24px -4px rgba(0,0,0,0.5)',
         }
       : {
-          // Default Apple frosted glass material with high vibrancy
-          backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 85%, transparent)',
+          // Default frosted glass material with high vibrancy
+          backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 82%, transparent)',
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          boxShadow: 'inset 0 -1px 0 0 rgba(255, 255, 255, 0.05)',
         };
 
   return (
@@ -85,19 +89,39 @@ export const Navbar: React.FC<NavbarProps> = ({
           />
         </div>
 
-        {/* Right Controls: Live Flame Streak Trigger & Minimal Inspector Trigger */}
+        {/* Right Controls: Pomodoro Timer, Live Flame Streak Trigger & Minimal Inspector Trigger */}
         <div className="flex items-center gap-2 ml-auto">
+          {/* Pomodoro Fullscreen Timer Trigger / Live Timer Pill */}
+          <button
+            type="button"
+            onClick={openPomodoro}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`relative before:absolute before:-inset-2 before:content-[''] h-9 rounded-xl flex items-center justify-center pressable cursor-pointer touch-manipulation glass-expo-interactive ${
+              isTimerActive
+                ? 'px-3 gap-2 border-orange-500/50 bg-orange-500/15 text-orange-400 shadow-[0_4px_16px_rgba(242,106,54,0.25)]'
+                : 'w-9 text-zinc-300 hover:text-white'
+            }`}
+            title={isTimerActive ? `Focus Timer: ${formattedTime}` : 'Focus / Pomodoro Timer'}
+            aria-label="Open Focus Timer"
+          >
+            <Timer
+              className={`w-4 h-4 text-orange-400 relative z-10 ${
+                timerStatus === 'running' ? 'animate-pulse' : ''
+              }`}
+            />
+            {isTimerActive && (
+              <span className="font-mono text-xs font-bold tabular-nums text-white relative z-10">
+                {formattedTime}
+              </span>
+            )}
+          </button>
+
           {/* Live Flame Streak Pill */}
           <button
             type="button"
             onClick={onOpenStreaks}
             onPointerDown={(e) => e.stopPropagation()}
-            className="relative before:absolute before:-inset-2 before:content-[''] h-9 px-2.5 rounded-xl flex items-center gap-1.5 pressable transition-all border shadow-sm cursor-pointer touch-manipulation active:scale-95"
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              borderColor: 'rgba(242, 106, 54, 0.35)',
-              color: 'var(--accent-primary)',
-            }}
+            className="relative before:absolute before:-inset-2 before:content-[''] h-9 px-2.5 rounded-xl flex items-center gap-1.5 pressable cursor-pointer touch-manipulation glass-expo-interactive border-amber-500/30 text-amber-500"
             title="Open Consistency Hall of Fame"
           >
             <Flame className="w-3.5 h-3.5 fill-current text-amber-500 relative z-10" />
@@ -111,8 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={onOpenInspector}
             onPointerDown={(e) => e.stopPropagation()}
-            className="relative before:absolute before:-inset-3 before:content-[''] w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable transition-all border border-white/8 hover:border-white/16 cursor-pointer touch-manipulation active:scale-95"
-            style={{ backgroundColor: 'var(--bg-card)' }}
+            className="relative before:absolute before:-inset-3 before:content-[''] w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable cursor-pointer touch-manipulation glass-expo-interactive"
             aria-label="Open System Inspector"
             title="Inspector & Preferences"
           >

@@ -3,6 +3,10 @@
  * Pure drift-free timestamp delta engine, state machine, and observable singleton store.
  */
 
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { syncNativeTimer } from './widgetSync';
+
 export type FocusMode = 'focus' | 'shortBreak' | 'longBreak';
 export type FocusTimerStatus = 'idle' | 'running' | 'paused' | 'completed';
 
@@ -50,7 +54,7 @@ export function formatTimeRemaining(seconds: number | null | undefined): string 
 }
 
 /**
- * Apple Watch progress ring geometry math (SVG stroke-dashoffset)
+ * Progress ring geometry math (SVG stroke-dashoffset)
  */
 export function calculateRingMetrics(progress: number, radius = 54) {
   const clampedProgress = Math.max(0, Math.min(1, progress));
@@ -112,6 +116,41 @@ export function calculateDriftFreeTimer({
   };
 }
 
+const FOCUS_NOTIFICATION_ID = 99901;
+
+async function scheduleTimerNotification(remainingSeconds: number, mode: FocusMode) {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    await LocalNotifications.cancel({ notifications: [{ id: FOCUS_NOTIFICATION_ID }] });
+    if (remainingSeconds <= 0) return;
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id: FOCUS_NOTIFICATION_ID,
+          title: mode === 'focus' ? '🎉 Focus Session Completed!' : '☕ Break Finished!',
+          body:
+            mode === 'focus'
+              ? 'Great focus! Time to take a well-deserved break.'
+              : 'Ready to resume your deep work session?',
+          channelId: 'taskify_reminders',
+          schedule: { at: new Date(Date.now() + remainingSeconds * 1000) },
+          smallIcon: 'ic_stat_taskify',
+          iconColor: '#f26a36',
+        },
+      ],
+    });
+  } catch {
+    // Non-fatal if notifications not permitted
+  }
+}
+
+async function cancelTimerNotification() {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    await LocalNotifications.cancel({ notifications: [{ id: FOCUS_NOTIFICATION_ID }] });
+  } catch {}
+}
+
 /**
  * Observable Store / State Machine for Focus / Pomodoro Sessions
  */
@@ -134,6 +173,12 @@ export class FocusTimerStore {
 
   private listeners = new Set<(snapshot: FocusTimerSnapshot, event?: string, payload?: any) => void>();
   private intervalId: any = null;
+  private cachedSnapshot: FocusTimerSnapshot | null = null;
+  private customDurations: Record<FocusMode, number | null> = {
+    focus: null,
+    shortBreak: null,
+    longBreak: null,
+  };
 
   constructor(config: Partial<FocusTimerConfig> = {}) {
     this.config = { ...DEFAULT_FOCUS_CONFIG, ...config };
@@ -152,8 +197,11 @@ export class FocusTimerStore {
     }
   }
 
-  public getSnapshot = (now = Date.now()): FocusTimerSnapshot => {
-    return this.getState(now);
+  public getSnapshot = (): FocusTimerSnapshot => {
+    if (!this.cachedSnapshot) {
+      this.cachedSnapshot = this.getState();
+    }
+    return this.cachedSnapshot;
   };
 
   public getState = (now = Date.now()): FocusTimerSnapshot => {
@@ -213,8 +261,11 @@ export class FocusTimerStore {
     this.startedAt = now;
     this.status = 'running';
     this.startTicker();
+    const state = this.getState(now);
+    scheduleTimerNotification(state.remainingSeconds, this.mode);
+    syncNativeTimer(true, state.remainingSeconds, this.durationSeconds);
     this.notify();
-    return this.getState(now);
+    return state;
   };
 
   public pause = (now = Date.now()): FocusTimerSnapshot => {
@@ -225,9 +276,12 @@ export class FocusTimerStore {
       this.startedAt = null;
     }
     this.status = 'paused';
+    cancelTimerNotification();
     this.stopTicker();
+    const state = this.getState(now);
+    syncNativeTimer(false, state.remainingSeconds, this.durationSeconds);
     this.notify();
-    return this.getState(now);
+    return state;
   };
 
   public resume = (now = Date.now()): FocusTimerSnapshot => {
@@ -235,23 +289,41 @@ export class FocusTimerStore {
   };
 
   public reset = (now = Date.now()): FocusTimerSnapshot => {
+    cancelTimerNotification();
     this.status = 'idle';
     this.accumulatedMs = 0;
     this.startedAt = null;
-    this.durationSeconds = this.getDurationForMode(this.mode);
+    this.durationSeconds = this.customDurations[this.mode] ?? this.getDurationForMode(this.mode);
     this.stopTicker();
+    syncNativeTimer(false, this.durationSeconds, this.durationSeconds);
     this.notify();
     return this.getState(now);
   };
 
   public switchMode = (newMode: FocusMode, now = Date.now()): FocusTimerSnapshot => {
+    cancelTimerNotification();
     if (this.mode === newMode && this.status === 'idle') return this.getState(now);
     this.mode = newMode;
     this.status = 'idle';
     this.accumulatedMs = 0;
     this.startedAt = null;
-    this.durationSeconds = this.getDurationForMode(newMode);
+    this.durationSeconds = this.customDurations[newMode] ?? this.getDurationForMode(newMode);
     this.stopTicker();
+    syncNativeTimer(false, this.durationSeconds, this.durationSeconds);
+    this.notify();
+    return this.getState(now);
+  };
+
+  public setCustomDuration = (seconds: number, now = Date.now()): FocusTimerSnapshot => {
+    cancelTimerNotification();
+    const validatedSeconds = Math.max(10, seconds);
+    this.customDurations[this.mode] = validatedSeconds;
+    this.status = 'idle';
+    this.accumulatedMs = 0;
+    this.startedAt = null;
+    this.durationSeconds = validatedSeconds;
+    this.stopTicker();
+    syncNativeTimer(false, validatedSeconds, validatedSeconds);
     this.notify();
     return this.getState(now);
   };
@@ -304,7 +376,9 @@ export class FocusTimerStore {
       this.status = 'completed';
       this.startedAt = null;
       this.accumulatedMs = this.durationSeconds * 1000;
+      cancelTimerNotification();
       this.stopTicker();
+      syncNativeTimer(false, 0, this.durationSeconds);
 
       const completedRecord = {
         mode: this.mode,
@@ -337,7 +411,8 @@ export class FocusTimerStore {
   };
 
   private notify(event?: string, payload?: any) {
-    const snapshot = this.getState();
+    this.cachedSnapshot = this.getState();
+    const snapshot = this.cachedSnapshot;
     this.listeners.forEach((listener) => {
       try {
         listener(snapshot, event, payload);

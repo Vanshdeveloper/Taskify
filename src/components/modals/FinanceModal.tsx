@@ -65,7 +65,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
 
   const paymentMethods = [
     { value: 'card', label: 'Credit/Debit Card' },
-    { value: 'apple_pay', label: 'Apple Pay' },
+    { value: 'apple_pay', label: 'Mobile Wallet' },
     { value: 'cash', label: 'Cash' },
     { value: 'transfer', label: 'Bank Transfer' },
     { value: 'other', label: 'Other' },

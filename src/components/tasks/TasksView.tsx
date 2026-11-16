@@ -300,7 +300,7 @@ export const TasksView: React.FC = () => {
             })}
           </div>
 
-          {/* Search, Category, Sorting (F12) & View Switcher - Harmonized H-9 Apple Standard */}
+          {/* Search, Category, Sorting (F12) & View Switcher - Harmonized H-9 Standard */}
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             {/* Search Input */}
             <div className="relative flex-1 sm:w-44 h-9 min-w-[140px]">

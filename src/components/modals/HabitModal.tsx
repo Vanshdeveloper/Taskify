@@ -278,7 +278,7 @@ export const HabitModal: React.FC<HabitModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* Time of Day - Apple Segmented Layout with Visual Icons & Time Ranges */}
+              {/* Time of Day - Segmented Layout with Visual Icons & Time Ranges */}
               <div>
                 <label className="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider mb-1.5">
                   Time of Day

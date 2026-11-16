@@ -2,6 +2,10 @@ package com.taskify.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -102,20 +106,100 @@ public class TaskifyNativeWidgetPlugin extends Plugin {
             editor.putString("spent_this_month_str", state.optString("spentThisMonthStr", "$360"));
             editor.putInt("budget_burn_percent", state.optInt("budgetBurnPercent", 25));
 
+            // 6. Habit Matrix & Streak Metrics
+            JSONArray matrixHabits = state.optJSONArray("matrixHabits");
+            if (matrixHabits != null) {
+                editor.putString("matrix_habits_json", matrixHabits.toString());
+            }
+            int streakCount = state.optInt("streakCount", 6);
+            editor.putInt("habits_streak_count", streakCount);
+
+            // 7. Focus Timer Sync
+            if (state.has("timerRunning")) {
+                boolean timerRunning = state.optBoolean("timerRunning", false);
+                editor.putBoolean("timer_running", timerRunning);
+                long durationMs = state.optLong("timerDurationMs", 25 * 60 * 1000L);
+                editor.putLong("timer_duration_ms", durationMs);
+                if (timerRunning) {
+                    long remainingMs = state.optLong("timerRemainingMs", durationMs);
+                    editor.putLong("timer_end_time", android.os.SystemClock.elapsedRealtime() + remainingMs);
+                    TaskifyTimerWidgetProvider.startLiveProgressTicker(context);
+                } else {
+                    TaskifyTimerWidgetProvider.stopLiveProgressTicker();
+                }
+            }
+
             editor.apply();
 
-            // Broadcast immediate widget updates across all 5 widget providers
+            // Broadcast immediate widget updates across all widget providers
             TaskifyWidgetProvider.updateAllWidgets(context);
             TaskifyHabitsWidgetProvider.updateAllWidgets(context);
             TaskifySmallWidgetProvider.updateAllWidgets(context);
             TaskifyQuickActionsWidgetProvider.updateAllWidgets(context);
             TaskifyFinanceWidgetProvider.updateAllWidgets(context);
+            TaskifyTimerWidgetProvider.updateAllWidgets(context);
+            TaskifyMatrixWidgetProvider.updateAllWidgets(context);
+            TaskifyHabitsCompactWidgetProvider.updateAllWidgets(context);
 
             JSObject res = new JSObject();
             res.put("success", true);
             call.resolve(res);
         } catch (Exception e) {
             call.reject("Failed to sync widget state", e);
+        }
+    }
+
+    @PluginMethod
+    public void syncTimerState(PluginCall call) {
+        try {
+            Context context = getContext();
+            SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+
+            boolean running = call.getBoolean("running", false);
+            long durationMs = call.getLong("durationMs", 25 * 60 * 1000L);
+            long remainingMs = call.getLong("remainingMs", durationMs);
+            int presetMinutes = call.getInt("presetMinutes", (int) (durationMs / 60000L));
+
+            editor.putBoolean("timer_running", running);
+            editor.putLong("timer_duration_ms", durationMs);
+            if (presetMinutes > 0) {
+                editor.putInt("timer_preset_selected", presetMinutes);
+                editor.putInt("timer_total_duration_sec", presetMinutes * 60);
+            }
+            if (running) {
+                editor.putLong("timer_end_time", android.os.SystemClock.elapsedRealtime() + remainingMs);
+                TaskifyTimerWidgetProvider.startLiveProgressTicker(context);
+            } else {
+                TaskifyTimerWidgetProvider.stopLiveProgressTicker();
+            }
+            editor.apply();
+
+            TaskifyTimerWidgetProvider.updateAllWidgets(context);
+
+            JSObject res = new JSObject();
+            res.put("success", true);
+            call.resolve(res);
+        } catch (Exception e) {
+            call.reject("Failed to sync timer state", e);
+        }
+    }
+
+    @PluginMethod
+    public synchronized void consumePendingWidgetActions(PluginCall call) {
+        try {
+            Context context = getContext();
+            SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
+            String actionsJson = prefs.getString("pending_actions", "[]");
+            prefs.edit().putString("pending_actions", "[]").commit();
+
+            JSONArray actions = new JSONArray(actionsJson);
+            JSObject res = new JSObject();
+            res.put("actions", actions);
+
+            call.resolve(res);
+        } catch (Exception e) {
+            call.reject("Failed to consume pending widget actions", e);
         }
     }
 
@@ -166,5 +250,55 @@ public class TaskifyNativeWidgetPlugin extends Plugin {
         } catch (Exception e) {
             call.reject("Failed to get launch quick action", e);
         }
+    }
+
+    @PluginMethod
+    public void setImmersiveMode(final PluginCall call) {
+        final boolean enabled = call.getBoolean("enabled", false);
+        if (getActivity() == null) {
+            call.reject("Activity unavailable");
+            return;
+        }
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        WindowInsetsController controller = getActivity().getWindow().getInsetsController();
+                        if (controller != null) {
+                            if (enabled) {
+                                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                            } else {
+                                controller.show(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                            }
+                        }
+                    } else {
+                        View decorView = getActivity().getWindow().getDecorView();
+                        if (enabled) {
+                            decorView.setSystemUiVisibility(
+                                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            );
+                        } else {
+                            decorView.setSystemUiVisibility(
+                                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            );
+                        }
+                    }
+                    JSObject res = new JSObject();
+                    res.put("success", true);
+                    call.resolve(res);
+                } catch (Exception e) {
+                    call.reject("Failed to set immersive mode", e);
+                }
+            }
+        });
     }
 }

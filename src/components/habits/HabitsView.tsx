@@ -369,7 +369,7 @@ export const HabitsView: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Subtle Apple Hairline Progress Track */}
+                        {/* Subtle Hairline Progress Track */}
                         <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
                           <motion.div
                             initial={false}
@@ -447,8 +447,8 @@ export const HabitsView: React.FC = () => {
             </motion.div>
           ) : (
             /* ========================================================
-               CREATIVE VIEW 2: APPLE ATOMIC ROUTINE LIST CARDS
-               (Rich Apple Health / Fitness style progressive cards)
+               CREATIVE VIEW 2: ATOMIC ROUTINE LIST CARDS
+               (Rich Health & Fitness style progressive cards)
                ======================================================== */
             <motion.div
               key={`habits-compact-${timeFilter}`}

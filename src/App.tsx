@@ -21,6 +21,7 @@ import { HabitModal } from './components/modals/HabitModal';
 import { FinanceModal } from './components/modals/FinanceModal';
 import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
 import { SlideOverInspector } from './components/layout/SlideOverInspector';
+import { PomodoroFullscreenModal } from './components/focus/PomodoroFullscreenModal';
 import { SettingsView } from './components/settings/SettingsView';
 import { syncAppFavicon } from './utils/favicon';
 import { useTheme } from './context/ThemeContext';
@@ -45,6 +46,7 @@ const FaviconManager: React.FC = () => {
 };
 
 const MainLayout: React.FC = () => {
+  const { surfaceMaterial } = useTheme();
   const {
     isDbReady,
     activeTab,
@@ -69,6 +71,8 @@ const MainLayout: React.FC = () => {
     isStreaksOpen,
     openStreaks,
     closeStreaks,
+    isPomodoroOpen,
+    closePomodoro,
     isInspectorOpen,
     openInspector,
     closeInspector,
@@ -176,6 +180,7 @@ const MainLayout: React.FC = () => {
         e.preventDefault();
         openSearchModal();
       } else if (e.key === 'Escape') {
+        if (isPomodoroOpen) closePomodoro();
         if (isStreaksOpen) closeStreaks();
         if (isInspectorOpen) closeInspector();
         if (isExecutiveDashboardOpen) closeExecutiveDashboard();
@@ -202,7 +207,21 @@ const MainLayout: React.FC = () => {
       className="flex flex-col h-screen w-screen overflow-hidden text-[var(--text-primary)] relative select-none"
       style={{ backgroundColor: 'var(--bg-canvas)' }}
     >
-      {/* Floating In-App Apple-Grade Reminder Alert Banner */}
+      {/* Ultra-Premium Shader Gradient Ambient Mesh (Active in Liquid Glass & Fluted Glass modes) */}
+      {surfaceMaterial !== 'classic-solid' && (
+        <div
+          className="fixed inset-0 pointer-events-none overflow-hidden z-0"
+          aria-hidden="true"
+        >
+          <div className="absolute rounded-full shader-orb-primary" />
+          <div className="absolute rounded-full shader-orb-secondary" />
+          <div className="absolute rounded-full shader-orb-specular" />
+          <div className="absolute rounded-full shader-orb-depth" />
+          <div className="absolute inset-0 shader-ambient-vignette" />
+        </div>
+      )}
+
+      {/* Floating In-App Reminder Alert Banner */}
       <ReminderBanner />
 
       {/* Top Navbar with Live Flame Streak Trigger & Inspector */}
@@ -307,7 +326,15 @@ const MainLayout: React.FC = () => {
         onClose={closeInspector}
       />
 
-      {/* Brand Splash Screen with fluid Apple-grade hardware-accelerated choreography */}
+      {/* Fullscreen OLED Edge Pomodoro Timer Modal */}
+      {isPomodoroOpen && (
+        <PomodoroFullscreenModal
+          isOpen={isPomodoroOpen}
+          onClose={closePomodoro}
+        />
+      )}
+
+      {/* Brand Splash Screen with fluid hardware-accelerated choreography */}
       <AnimatePresence>
         {showSplash && (
           <SplashScreen

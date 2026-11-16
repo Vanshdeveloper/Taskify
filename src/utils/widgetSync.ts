@@ -1,5 +1,5 @@
 /**
- * Apple Design Glassmorphic Home-Screen Widget Bridge
+ * Fluid Glassmorphic Home-Screen Widget Bridge
  * 
  * Powered by @capgo/capacitor-widget-kit.
  * Synchronizes tasks, daily routines, and completion metrics with iOS WidgetKit
@@ -18,17 +18,31 @@ import { getTodayString } from '../db';
 
 export interface NativeWidgetAction {
   action: string;
-  id: string;
-  type: string;
-  done: boolean;
-  timestamp: number;
+  id?: string;
+  type?: string;
+  title?: string;
+  name?: string;
+  amount?: number;
+  note?: string;
+  done?: boolean;
+  timestamp?: number;
 }
 
 export interface NativeWidgetBridge {
   syncWidgetState(options: { state: Record<string, unknown> }): Promise<{ success: boolean }>;
+  syncTimerState(options: {
+    running: boolean;
+    durationMs: number;
+    remainingMs: number;
+    presetMinutes?: number;
+  }): Promise<{ success: boolean }>;
+  consumePendingWidgetActions?(): Promise<{
+    actions: NativeWidgetAction[];
+  }>;
   getPendingWidgetActions(): Promise<{ actions: NativeWidgetAction[] }>;
   clearPendingWidgetActions(): Promise<{ success: boolean }>;
   getLaunchQuickAction(): Promise<{ action: string | null }>;
+  setImmersiveMode(options: { enabled: boolean }): Promise<{ success: boolean }>;
 }
 
 export const TaskifyNativeWidget = registerPlugin<NativeWidgetBridge>('TaskifyNativeWidget');
@@ -41,12 +55,21 @@ export interface WidgetSyncPayload {
   currency?: string;
   monthlyBudget?: number;
   userName?: string;
+  timerRunning?: boolean;
+  timerDurationMs?: number;
+  timerRemainingMs?: number;
 }
 
 export interface WidgetEventHandlers {
   onToggleTask?: (taskId: string) => Promise<void>;
   onIncrementHabit?: (habitId: string) => Promise<void>;
+  onToggleHabit?: (habitId: string, done?: boolean) => Promise<void>;
+  onAddTask?: (title: string) => Promise<void>;
+  onAddHabit?: (name: string) => Promise<void>;
+  onAddExpense?: (amount: number, note?: string) => Promise<void>;
   onQuickAction?: (action: string) => Promise<void> | void;
+  onTimerAction?: (action: 'start' | 'pause' | 'reset' | 'preset' | 'complete', minutes?: number) => Promise<void> | void;
+  onSyncTimerState?: (timer: { running: boolean; remainingMs: number; durationMs: number }) => void;
 }
 
 export interface WidgetPillItem {
@@ -60,7 +83,7 @@ export interface WidgetPillItem {
 const WIDGET_SESSION_ID = 'taskify_home_widget';
 
 /**
- * Builds an Apple Design Glassmorphic SVG layout for Medium Widget (360x170 pt)
+ * Builds a Fluid Glassmorphic SVG layout for Medium Widget (360x170 pt)
  * Exactly replicates widget-ref-1.jpg:
  * - Frosted glass canvas with specular 1px top highlight
  * - "Tasks & Routines" title + Daypart status
@@ -115,7 +138,7 @@ export function buildMediumWidgetSvg(
 
   return `
 <svg width="360" height="170" viewBox="0 0 360 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Apple Translucent Frosted Glass Canvas -->
+  <!-- Translucent Frosted Glass Canvas -->
   <rect width="360" height="170" rx="28" fill="#141312" fill-opacity="0.94"/>
   <rect x="0.5" y="0.5" width="359" height="169" rx="27.5" stroke="white" stroke-opacity="0.12"/>
 
@@ -142,7 +165,7 @@ export function buildMediumWidgetSvg(
 }
 
 /**
- * Builds an Apple Design Glassmorphic SVG layout for Small Widget (170x170 pt)
+ * Builds a Fluid Glassmorphic SVG layout for Small Widget (170x170 pt)
  * Replicates widget-ref-2.jpg (Day abbreviation + Date + Natural Language Briefing + Focus Task)
  */
 export function buildSmallWidgetSvg(
@@ -195,6 +218,36 @@ export function buildSmallWidgetSvg(
   </g>
 </svg>
   `.trim();
+}
+
+function computeHabitStreak(habitId: string, habitLogs: HabitLog[]): number {
+  const completedDates = new Set<string>();
+  for (let i = 0; i < habitLogs.length; i++) {
+    const l = habitLogs[i];
+    if (l.habitId === habitId && l.completed) {
+      completedDates.add(l.date);
+    }
+  }
+  if (completedDates.size === 0) return 0;
+  let streak = 0;
+  const d = new Date();
+  const todayStr = getTodayString();
+  if (completedDates.has(todayStr)) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  } else {
+    d.setDate(d.getDate() - 1);
+  }
+  while (true) {
+    const dateStr = d.toISOString().slice(0, 10);
+    if (completedDates.has(dateStr)) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
 }
 
 /**
@@ -275,6 +328,26 @@ export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> 
   const budgetBurnRatio = budget > 0 ? Math.min(1, monthExpenses / budget) : 0;
   const currSymbol = currency || '$';
 
+  // 3b. 7-Day Consistency Matrix for All Habits
+  const matrixHabits = habits.map((h) => {
+    const days: boolean[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      const dStr = d.toISOString().slice(0, 10);
+      const log = habitLogs.find((l) => l.habitId === h.id && l.date === dStr);
+      days.push(Boolean(log && log.completed));
+    }
+    const streak = computeHabitStreak(h.id, habitLogs);
+    return {
+      id: h.id,
+      name: h.name,
+      streak,
+      days,
+    };
+  });
+  const maxStreak = matrixHabits.reduce((max, h) => Math.max(max, h.streak), 0);
+
   // 4. Synchronize to Android Native AppWidgets
   if (Capacitor.isPluginAvailable('TaskifyNativeWidget')) {
     try {
@@ -322,6 +395,15 @@ export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> 
           spentThisMonthStr: `${currSymbol}${Math.round(monthExpenses)}`,
           budgetBurnPercent: Math.round(budgetBurnRatio * 100),
           currency: currSymbol,
+
+          // 5. 7-Day Consistency Matrix & Momentum
+          matrixHabits,
+          streakCount: maxStreak,
+
+          // 6. Focus Timer Synchronization
+          timerRunning: payload.timerRunning ?? false,
+          timerDurationMs: payload.timerDurationMs ?? 25 * 60 * 1000,
+          timerRemainingMs: payload.timerRemainingMs ?? (payload.timerDurationMs ?? 25 * 60 * 1000),
         },
       });
     } catch (err) {
@@ -390,7 +472,7 @@ export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> 
       await CapgoWidgetKit.startTemplateWidget({
         activityId: WIDGET_SESSION_ID,
         definition: {
-          id: 'taskify-apple-glass-widget',
+          id: 'taskify-fluid-glass-widget',
           version: '2.0.0',
           layouts: {
             homeScreen: {
@@ -419,22 +501,74 @@ export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> 
 }
 
 /**
+ * Push immediate lightweight timer updates to native home screen widgets
+ */
+export async function syncNativeTimer(
+  running: boolean,
+  remainingSeconds: number,
+  durationSeconds: number,
+  presetMinutes?: number
+): Promise<void> {
+  if (Capacitor.isPluginAvailable('TaskifyNativeWidget') && typeof TaskifyNativeWidget.syncTimerState === 'function') {
+    try {
+      await TaskifyNativeWidget.syncTimerState({
+        running,
+        durationMs: durationSeconds * 1000,
+        remainingMs: remainingSeconds * 1000,
+        presetMinutes: presetMinutes ?? Math.round(durationSeconds / 60),
+      });
+    } catch (e) {
+      console.warn('[TaskifyNativeWidget] syncTimerState error:', e);
+    }
+  }
+}
+
+/**
  * Poll and acknowledge pending widget interactions (e.g. user checked off a task or habit from home screen)
  */
 export async function pollWidgetEvents(handlers: WidgetEventHandlers): Promise<void> {
   // 1. Poll Android Native Widget interactions
   if (Capacitor.isPluginAvailable('TaskifyNativeWidget')) {
     try {
-      const res = await TaskifyNativeWidget.getPendingWidgetActions();
-      if (res && res.actions && res.actions.length > 0) {
-        for (const act of res.actions) {
+      let actions: NativeWidgetAction[] = [];
+
+      if (typeof TaskifyNativeWidget.consumePendingWidgetActions === 'function') {
+        const drainRes = await TaskifyNativeWidget.consumePendingWidgetActions();
+        actions = drainRes.actions || [];
+      } else {
+        const res = await TaskifyNativeWidget.getPendingWidgetActions();
+        actions = res.actions || [];
+        await TaskifyNativeWidget.clearPendingWidgetActions();
+      }
+
+      if (actions.length > 0) {
+        for (const act of actions) {
           if (act.action === 'toggle-task' && act.id && handlers.onToggleTask) {
             await handlers.onToggleTask(act.id);
-          } else if (act.action === 'log-habit' && act.id && handlers.onIncrementHabit) {
-            await handlers.onIncrementHabit(act.id);
+          } else if (act.action === 'log-habit' && act.id) {
+            if (handlers.onToggleHabit) {
+              await handlers.onToggleHabit(act.id, act.done);
+            } else if (handlers.onIncrementHabit) {
+              await handlers.onIncrementHabit(act.id);
+            }
+          } else if (act.action === 'add-task' && act.title && handlers.onAddTask) {
+            await handlers.onAddTask(act.title);
+          } else if (act.action === 'add-habit' && act.name && handlers.onAddHabit) {
+            await handlers.onAddHabit(act.name);
+          } else if (act.action === 'add-expense' && typeof act.amount === 'number' && handlers.onAddExpense) {
+            await handlers.onAddExpense(act.amount, act.note);
+          } else if (act.action === 'timer-start' && handlers.onTimerAction) {
+            await handlers.onTimerAction('start');
+          } else if (act.action === 'timer-pause' && handlers.onTimerAction) {
+            await handlers.onTimerAction('pause');
+          } else if (act.action === 'timer-reset' && handlers.onTimerAction) {
+            await handlers.onTimerAction('reset');
+          } else if (act.action === 'timer-preset' && handlers.onTimerAction) {
+            await handlers.onTimerAction('preset', (act as any).minutes);
+          } else if (act.action === 'timer-complete' && handlers.onTimerAction) {
+            await handlers.onTimerAction('complete');
           }
         }
-        await TaskifyNativeWidget.clearPendingWidgetActions();
       }
 
       if (handlers.onQuickAction && typeof TaskifyNativeWidget.getLaunchQuickAction === 'function') {

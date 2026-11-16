@@ -26,6 +26,13 @@
 
         </activity>
 
+        <activity
+            android:name=".TaskifyQuickCaptureActivity"
+            android:theme="@style/Theme.Taskify.QuickCapture"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:exported="true" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -102,6 +109,50 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/taskify_finance_widget_info" />
+        </receiver>
+
+        <!-- 6. Focus Pomodoro Timer Widget -->
+        <receiver
+            android:name=".TaskifyTimerWidgetProvider"
+            android:label="@string/widget_timer_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.taskify.app.ACTION_TIMER_TOGGLE" />
+                <action android:name="com.taskify.app.ACTION_TIMER_STOP" />
+                <action android:name="com.taskify.app.ACTION_TIMER_PRESET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskify_timer_widget_info" />
+        </receiver>
+
+        <!-- 7. Habit Consistency Matrix Widget -->
+        <receiver
+            android:name=".TaskifyMatrixWidgetProvider"
+            android:label="@string/widget_matrix_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.taskify.app.ACTION_TOGGLE_ITEM" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskify_matrix_widget_info" />
+        </receiver>
+
+        <!-- 8. Compact Routines Checklist Widget -->
+        <receiver
+            android:name=".TaskifyHabitsCompactWidgetProvider"
+            android:label="@string/widget_compact_habits_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.taskify.app.ACTION_TOGGLE_ITEM" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskify_habits_compact_widget_info" />
         </receiver>
 
         <!-- RemoteViewsService for Y-Axis Scrollable ListView in Widgets -->

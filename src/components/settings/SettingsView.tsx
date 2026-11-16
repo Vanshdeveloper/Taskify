@@ -124,7 +124,7 @@ export const SettingsView: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-5 sm:gap-6 max-w-4xl mx-auto w-full pb-28 sm:pb-24 select-none relative z-10">
-      {/* 1. Apple Navigation Header */}
+      {/* 1. Navigation Header */}
       <div className="flex flex-col gap-1.5 pt-1">
         <div className="flex items-center gap-2">
           <span
@@ -372,7 +372,7 @@ export const SettingsView: React.FC = () => {
             </div>
           </div>
 
-          {/* Authentic Apple Spring Switch */}
+          {/* Authentic Spring Switch */}
           <button
             type="button"
             role="switch"
@@ -410,8 +410,8 @@ export const SettingsView: React.FC = () => {
               <span className="text-xs font-semibold text-white">Tactile Click Sound</span>
             </div>
             <span className="text-[10px] font-mono text-zinc-400">
-              {settings.hapticSound === 'apple'
-                ? 'Apple Taptic'
+              {settings.hapticSound === 'precision' || settings.hapticSound === 'apple'
+                ? 'Precision Taptic'
                 : settings.hapticSound === 'mechanical'
                 ? 'Mechanical'
                 : settings.hapticSound === 'pop'
@@ -425,14 +425,15 @@ export const SettingsView: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {(
               [
-                { id: 'apple', label: 'Apple Taptic' },
+                { id: 'precision', label: 'Precision Taptic' },
                 { id: 'mechanical', label: 'Mechanical' },
                 { id: 'pop', label: 'Bubble Pop' },
                 { id: 'subtle', label: 'Subtle Tick' },
                 { id: 'mute', label: 'Muted' },
               ] as const
             ).map((sound) => {
-              const isSelected = (settings.hapticSound || 'apple') === sound.id;
+              const currentSound = settings.hapticSound || 'precision';
+              const isSelected = currentSound === sound.id || (currentSound === 'apple' && sound.id === 'precision');
               return (
                 <button
                   key={sound.id}
@@ -498,7 +499,7 @@ export const SettingsView: React.FC = () => {
               {(
                 [
                   { id: 'compact', label: 'Compact', desc: '48px slim' },
-                  { id: 'default', label: 'Default', desc: '56px Apple' },
+                  { id: 'default', label: 'Default', desc: '56px Standard' },
                   { id: 'spacious', label: 'Spacious', desc: '66px airy' },
                 ] as const
               ).map((h) => {
@@ -531,7 +532,7 @@ export const SettingsView: React.FC = () => {
               {(
                 [
                   { id: 'solid', label: 'Solid', desc: 'Opaque canvas' },
-                  { id: 'glass', label: 'Frosted', desc: 'Apple 20px blur' },
+                  { id: 'glass', label: 'Frosted', desc: 'Fluid 20px blur' },
                   { id: 'vibrant', label: 'Vibrant', desc: 'Glow glass' },
                 ] as const
               ).map((g) => {

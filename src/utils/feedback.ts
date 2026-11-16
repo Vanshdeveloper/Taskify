@@ -5,7 +5,7 @@ import type { HapticSoundStyle } from '../types';
 class AudioFeedbackEngine {
   private ctx: AudioContext | null = null;
   private isHapticsEnabled: boolean = true;
-  private hapticSound: HapticSoundStyle = 'apple';
+  private hapticSound: HapticSoundStyle = 'precision';
 
   setHapticsEnabled(enabled: boolean) {
     this.isHapticsEnabled = enabled;
@@ -57,7 +57,7 @@ class AudioFeedbackEngine {
     return this.ctx;
   }
 
-  // Apple-grade physical tactile feedback on button press + native vibration
+  // Physical tactile feedback on button press + native vibration
   playClick() {
     this.triggerVibration('click');
 
@@ -68,8 +68,8 @@ class AudioFeedbackEngine {
       if (!ctx) return;
       const now = ctx.currentTime;
 
-      if (this.hapticSound === 'apple') {
-        // Genuine Apple iOS Taptic Engine Click (Double-impulse micro-transient)
+      if (this.hapticSound === 'precision' || this.hapticSound === 'apple') {
+        // Double-impulse micro-transient click
         const osc1 = ctx.createOscillator();
         const osc2 = ctx.createOscillator();
         const gain = ctx.createGain();

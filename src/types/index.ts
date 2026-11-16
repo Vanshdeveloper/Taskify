@@ -112,7 +112,8 @@ export type AppAesthetic =
   | 'text-terminal'
   | 'text-spark';
 
-export type HapticSoundStyle = 'apple' | 'mechanical' | 'pop' | 'subtle' | 'mute';
+export type HapticSoundStyle = 'precision' | 'apple' | 'mechanical' | 'pop' | 'subtle' | 'mute';
+export type SurfaceMaterial = 'classic-solid' | 'liquid-glass' | 'fluted-glass';
 
 export interface UserSettings {
   monthlyBudget: number;
@@ -121,11 +122,13 @@ export interface UserSettings {
   userName: string;
   darkMode: boolean;
   theme?: AppTheme;
+  surfaceMaterial?: SurfaceMaterial;
   appAesthetic?: AppAesthetic;
   navbarHeight?: NavbarHeight;
   navbarGlass?: NavbarGlass;
   hapticFeedback?: boolean;
   hapticSound?: HapticSoundStyle;
+  focusEdgeProgress?: boolean;
 }
 
 export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'settings';

@@ -58,7 +58,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full h-9 px-3 rounded-xl solid-input flex items-center justify-between text-xs font-medium text-white pressable gap-1.5 transition-colors"
+        className="w-full h-9 px-3 rounded-xl solid-input custom-select-trigger flex items-center justify-between text-xs font-medium text-[var(--text-primary)] pressable gap-1.5 transition-colors"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <ChevronDown
@@ -76,7 +76,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -4 }}
             transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-            className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5 max-h-56 overflow-y-auto no-scrollbar border backdrop-blur-xl"
+            className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5 max-h-56 overflow-y-auto no-scrollbar border backdrop-blur-xl custom-select-popover"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',

@@ -36,7 +36,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({ isOpen, onClos
 
   if (typeof document === 'undefined') return null;
 
-  // Circular ring geometry (Apple Watch style)
+  // Circular ring geometry (Precision dial style)
   const radius = 96;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - Math.max(0, Math.min(1, progress)));
@@ -63,7 +63,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({ isOpen, onClos
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          {/* Backdrop Scrim with Apple frosted glass blur */}
+          {/* Backdrop Scrim with frosted glass blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -76,7 +76,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({ isOpen, onClos
             className="fixed inset-0 bg-black/75 backdrop-blur-[20px]"
           />
 
-          {/* Modal Card with Apple Critically Damped Spring */}
+          {/* Modal Card with Critically Damped Spring */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -165,7 +165,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({ isOpen, onClos
               </div>
             )}
 
-            {/* Apple Watch Circular Progress Dial */}
+            {/* Precision Circular Progress Dial */}
             <div className="relative my-4 flex items-center justify-center">
               <svg className="w-60 h-60 -rotate-90" viewBox="0 0 240 240">
                 {/* Background Track */}

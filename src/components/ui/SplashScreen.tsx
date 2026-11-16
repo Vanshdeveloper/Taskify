@@ -133,7 +133,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ isReady, onFinished 
         }}
       />
 
-      {/* Center Stage: "Starting Taskify" with Apple-style fluid loading circle */}
+      {/* Center Stage: "Starting Taskify" with fluid loading circle */}
       <div className="absolute inset-0 flex items-center justify-center">
         <AnimatePresence>
           {showStartingLoader && !isExiting && (

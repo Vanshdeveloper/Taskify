@@ -12,7 +12,7 @@
         android:id="@+id/widget_quick_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -88,9 +88,16 @@
                 android:paddingRight="10dp"
                 android:background="@drawable/taskify_quick_btn_bg">
 
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:src="@drawable/taskify_ic_action_task" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginStart="6dp"
                     android:text="+ Task"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
@@ -110,9 +117,16 @@
                 android:paddingRight="10dp"
                 android:background="@drawable/taskify_quick_btn_bg">
 
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:src="@drawable/taskify_ic_action_routine" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginStart="6dp"
                     android:text="+ Routine"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
@@ -140,9 +154,16 @@
                 android:paddingRight="10dp"
                 android:background="@drawable/taskify_quick_btn_bg">
 
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:src="@drawable/taskify_ic_action_expense" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginStart="6dp"
                     android:text="+ Expense"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
@@ -162,9 +183,16 @@
                 android:paddingRight="10dp"
                 android:background="@drawable/taskify_quick_btn_bg">
 
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:src="@drawable/taskify_ic_action_focus" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginStart="6dp"
                     android:text="Focus"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"

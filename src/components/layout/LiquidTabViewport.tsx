@@ -109,7 +109,7 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
       velocityHistory.current.push({ x: e.clientX, t: now });
       if (velocityHistory.current.length > 5) velocityHistory.current.shift();
 
-      // 1:1 Direct Manipulation with Apple boundary rubber-banding
+      // 1:1 Direct Manipulation with fluid boundary rubber-banding
       const isAtLeftBoundary = activeSlideIndex === 0 && dx > 0;
       const isAtRightBoundary = activeSlideIndex === MAIN_SLIDE_TABS.length - 1 && dx < 0;
       const offset = isAtLeftBoundary || isAtRightBoundary ? dx * 0.28 : dx;
@@ -149,7 +149,7 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
         velocity = ((last.x - first.x) / dt) * 1000;
       }
 
-      // Apple WWDC exponential momentum projection
+      // Fluid exponential momentum projection
       const projectedOffset = offset + projectMomentum(velocity, 0.992);
 
       // Determine target tab: quick flick (>160px/s) or dragged >16% of viewport

@@ -33,7 +33,7 @@ export const ReminderBanner: React.FC = () => {
             top: 'calc(max(var(--sat, 0px), 14px) + 8px)',
           }}
         >
-          {/* Apple iOS Native Notification Banner Card */}
+          {/* Native Notification Banner Card */}
           <motion.div
             drag="y"
             dragConstraints={{ top: -120, bottom: 0 }}
@@ -55,7 +55,7 @@ export const ReminderBanner: React.FC = () => {
               boxShadow: '0 20px 48px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
             }}
           >
-            {/* Top Row: Native Apple App Header (Icon + App Name + Type + Timestamp) */}
+            {/* Top Row: Native App Header (Icon + App Name + Type + Timestamp) */}
             <div className="flex items-center justify-between text-[11px] text-zinc-400">
               <div className="flex items-center gap-1.5">
                 {/* Rounded Taskify App Icon */}
@@ -116,7 +116,7 @@ export const ReminderBanner: React.FC = () => {
                 </p>
               </div>
 
-              {/* Right: Apple Pill Quick Action */}
+              {/* Right: Fluid Pill Quick Action */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

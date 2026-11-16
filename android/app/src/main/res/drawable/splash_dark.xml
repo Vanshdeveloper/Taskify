@@ -3,9 +3,4 @@
     <item>
         <color android:color="#160f0d"/>
     </item>
-    <item android:gravity="center">
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/splash_taskify" />
-    </item>
 </layer-list>

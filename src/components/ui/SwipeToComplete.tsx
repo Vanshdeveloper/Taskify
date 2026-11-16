@@ -33,7 +33,7 @@ export const SwipeToComplete: React.FC<SwipeToCompleteProps> = ({
       feedback.playSuccessChime();
       onComplete();
     } else {
-      // Natural Apple spring rebound returning handle with release velocity
+      // Natural spring rebound returning handle with release velocity
       animate(x, 0, {
         ...APPLE_SPRINGS.snappy,
         velocity: info.velocity?.x,

@@ -6,14 +6,16 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.widget.RemoteViews;
 
 /**
  * Taskify Quick Actions AppWidget Provider (2x2 Resizable)
  * Instant tactile 1-tap launchers for Taskify core capture loops:
- * - New Task
- * - New Routine
- * - Log Expense
+ * - New Task (zero-lag quick capture without opening full app)
+ * - New Routine (zero-lag quick capture without opening full app)
+ * - Log Expense (zero-lag quick capture without opening full app)
  * - Focus Timer
  */
 public class TaskifyQuickActionsWidgetProvider extends AppWidgetProvider {
@@ -44,43 +46,49 @@ public class TaskifyQuickActionsWidgetProvider extends AppWidgetProvider {
         try {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.taskify_quick_widget);
 
+            int pFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                pFlags |= PendingIntent.FLAG_IMMUTABLE;
+            }
+
             // Header opens app default
             Intent openAppIntent = new Intent(context, MainActivity.class);
             openAppIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             views.setOnClickPendingIntent(R.id.widget_quick_header, PendingIntent.getActivity(
-                    context, 400, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    context, 400 + appWidgetId, openAppIntent, pFlags
             ));
 
-            // Button 1: + Task
-            Intent taskIntent = new Intent(context, MainActivity.class);
-            taskIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            taskIntent.putExtra("quick_action", "task");
+            // Button 1: + Task -> Direct Quick Capture Dialog
+            Intent taskIntent = new Intent(context, TaskifyQuickCaptureActivity.class);
+            taskIntent.putExtra(TaskifyQuickCaptureActivity.EXTRA_TYPE, "task");
+            taskIntent.setData(Uri.parse("taskify://capture/task/" + appWidgetId));
             views.setOnClickPendingIntent(R.id.btn_quick_task, PendingIntent.getActivity(
-                    context, 401, taskIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    context, 401 + appWidgetId, taskIntent, pFlags
             ));
 
-            // Button 2: + Routine
-            Intent routineIntent = new Intent(context, MainActivity.class);
-            routineIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            routineIntent.putExtra("quick_action", "habit");
+            // Button 2: + Routine -> Direct Quick Capture Dialog
+            Intent routineIntent = new Intent(context, TaskifyQuickCaptureActivity.class);
+            routineIntent.putExtra(TaskifyQuickCaptureActivity.EXTRA_TYPE, "habit");
+            routineIntent.setData(Uri.parse("taskify://capture/habit/" + appWidgetId));
             views.setOnClickPendingIntent(R.id.btn_quick_routine, PendingIntent.getActivity(
-                    context, 402, routineIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    context, 402 + appWidgetId, routineIntent, pFlags
             ));
 
-            // Button 3: + Expense
-            Intent expenseIntent = new Intent(context, MainActivity.class);
-            expenseIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            expenseIntent.putExtra("quick_action", "expense");
+            // Button 3: + Expense -> Direct Quick Capture Dialog
+            Intent expenseIntent = new Intent(context, TaskifyQuickCaptureActivity.class);
+            expenseIntent.putExtra(TaskifyQuickCaptureActivity.EXTRA_TYPE, "expense");
+            expenseIntent.setData(Uri.parse("taskify://capture/expense/" + appWidgetId));
             views.setOnClickPendingIntent(R.id.btn_quick_expense, PendingIntent.getActivity(
-                    context, 403, expenseIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    context, 403 + appWidgetId, expenseIntent, pFlags
             ));
 
-            // Button 4: Focus Timer
+            // Button 4: Focus Timer -> Open full app focus timer
             Intent focusIntent = new Intent(context, MainActivity.class);
             focusIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             focusIntent.putExtra("quick_action", "focus");
+            focusIntent.setData(Uri.parse("taskify://focus/" + appWidgetId));
             views.setOnClickPendingIntent(R.id.btn_quick_focus, PendingIntent.getActivity(
-                    context, 404, focusIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    context, 404 + appWidgetId, focusIntent, pFlags
             ));
 
             appWidgetManager.updateAppWidget(appWidgetId, views);

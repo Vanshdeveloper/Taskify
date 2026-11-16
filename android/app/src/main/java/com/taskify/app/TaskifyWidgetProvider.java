@@ -94,6 +94,36 @@ public class TaskifyWidgetProvider extends AppWidgetProvider {
                 editor.putString(arrayKey, arr.toString());
             } catch (Exception ignored) {}
 
+            // 2b. Update 7-Day Consistency Matrix JSON if this item is a routine/habit
+            if (isHabit) {
+                try {
+                    String matrixJson = prefs.getString("matrix_habits_json", "[]");
+                    JSONArray mArr = new JSONArray(matrixJson);
+                    for (int i = 0; i < mArr.length(); i++) {
+                        JSONObject mObj = mArr.getJSONObject(i);
+                        if (itemId.equals(mObj.optString("id"))) {
+                            JSONArray daysArr = mObj.optJSONArray("days");
+                            if (daysArr != null && daysArr.length() >= 7) {
+                                daysArr.put(6, newDone);
+                            } else {
+                                daysArr = new JSONArray();
+                                for (int d = 0; d < 6; d++) daysArr.put(false);
+                                daysArr.put(newDone);
+                                mObj.put("days", daysArr);
+                            }
+                            int streak = mObj.optInt("streak", 0);
+                            if (newDone) {
+                                streak++;
+                            } else {
+                                streak = Math.max(0, streak - 1);
+                            }
+                            mObj.put("streak", streak);
+                        }
+                    }
+                    editor.putString("matrix_habits_json", mArr.toString());
+                } catch (Exception ignored) {}
+            }
+
             // 3. Update pill slots for backwards compatibility
             for (int i = 0; i < 6; i++) {
                 String pId = prefs.getString(prefix + i + "_id", "");
@@ -181,6 +211,8 @@ public class TaskifyWidgetProvider extends AppWidgetProvider {
             updateAllWidgets(context);
             TaskifyHabitsWidgetProvider.updateAllWidgets(context);
             TaskifySmallWidgetProvider.updateAllWidgets(context);
+            TaskifyMatrixWidgetProvider.updateAllWidgets(context);
+            TaskifyHabitsCompactWidgetProvider.updateAllWidgets(context);
         } catch (Throwable t) {
             t.printStackTrace();
         }

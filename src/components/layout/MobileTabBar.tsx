@@ -35,13 +35,11 @@ export const MobileTabBar: React.FC = () => {
       <div className="max-w-md mx-auto flex flex-col items-center pointer-events-auto">
         {/* Dynamic Floating Island Dock */}
         <nav
-          className="w-full rounded-2xl p-1.5 flex items-center justify-between border shadow-2xl relative overflow-hidden backdrop-blur-xl"
+          className="w-full rounded-2xl p-1.5 flex items-center justify-between border shadow-2xl relative overflow-hidden glass-expo"
           style={{
-            backgroundColor: 'color-mix(in srgb, var(--dock-bg) 85%, transparent)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            borderColor: 'var(--dock-border)',
-            boxShadow: '0 20px 48px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+            backgroundColor: 'color-mix(in srgb, var(--dock-bg) 75%, transparent)',
+            borderColor: 'rgba(255, 255, 255, 0.16)',
+            boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.28), 0 20px 48px -8px rgba(0, 0, 0, 0.85)',
           }}
         >
           {/* Left Wing Tabs */}
@@ -65,9 +63,11 @@ export const MobileTabBar: React.FC = () => {
                       transition={SPRING_DOCK_LIQUID}
                       className="absolute inset-0 rounded-xl"
                       style={{
-                        backgroundColor: 'var(--bg-card)',
-                        border: '1px solid var(--border-card)',
-                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
+                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 4px 14px rgba(0, 0, 0, 0.45)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
                       }}
                     />
                   )}
@@ -85,14 +85,10 @@ export const MobileTabBar: React.FC = () => {
             type="button"
             onClick={handleFabClick}
             onPointerDown={(e) => e.stopPropagation()}
-            className="relative before:absolute before:-inset-2.5 before:content-[''] w-11 h-11 mx-1.5 rounded-xl flex items-center justify-center shadow-lg pressable border border-white/20 shrink-0 cursor-pointer touch-manipulation active:scale-95 transition-transform"
-            style={{
-              backgroundColor: 'var(--accent-primary)',
-              color: '#ffffff',
-            }}
+            className="relative before:absolute before:-inset-2.5 before:content-[''] w-11 h-11 mx-1.5 rounded-xl flex items-center justify-center shadow-lg pressable shrink-0 cursor-pointer touch-manipulation active:scale-95 transition-transform glass-expo-accent"
             aria-label="Quick capture"
           >
-            <Plus className="w-5 h-5 stroke-[2.75] relative z-10" />
+            <Plus className="w-5 h-5 stroke-[2.75] text-white relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
           </button>
 
           {/* Right Wing Tabs */}
@@ -116,9 +112,11 @@ export const MobileTabBar: React.FC = () => {
                       transition={SPRING_DOCK_LIQUID}
                       className="absolute inset-0 rounded-xl"
                       style={{
-                        backgroundColor: 'var(--bg-card)',
-                        border: '1px solid var(--border-card)',
-                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
+                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 4px 14px rgba(0, 0, 0, 0.45)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
                       }}
                     />
                   )}

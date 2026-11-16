@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_matrix_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/taskify_widget_background">
+
+    <!-- Header Section -->
+    <LinearLayout
+        android:id="@+id/widget_matrix_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Habit Momentum"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/taskify_ic_dot_orange" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Flame Streak Badge -->
+            <TextView
+                android:id="@+id/matrix_streak_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔥 6 Days"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:background="@drawable/taskify_widget_progress_badge" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Past 7 days consistency"
+            android:textColor="#8E8E93"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <!-- Weekday Column Headers: Mon Tue Wed Thu Fri Sat Sun -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ROUTINE"
+            android:textColor="#71717A"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05" />
+
+        <!-- 7 Days Labels -->
+        <TextView android:id="@+id/day_label_0" android:layout_width="20dp" android:layout_height="wrap_content" android:gravity="center" android:text="M" android:textColor="#A1A1AA" android:textSize="9sp" android:textStyle="bold" />
+        <TextView android:id="@+id/day_label_1" android:layout_width="20dp" android:layout_height="wrap_content" android:gravity="center" android:text="T" android:textColor="#A1A1AA" android:textSize="9sp" android:textStyle="bold" />
+        <TextView android:id="@+id/day_label_2" android:layout_width="20dp" android:layout_height="wrap_content" android:gravity="center" android:text="W" android:textColor="#A1A1AA" android:textSize="9sp" android:textStyle="bold" />
+        <TextView android:id="@+id/day_label_3" android:layout_width="20dp" android:layout_height="wrap_content" android:gravity="center" android:text="T" android:textColor="#A1A1AA" android:textSize="9sp" android:textStyle="bold" />
+        <TextView android:id="@+id/day_label_4" android:layout_width="20dp" android:layout_height="wrap_content" android:gravity="center" android:text="F" android:textColor="#A1A1AA" android:textSize="9sp" android:textStyle="bold" />
+        <TextView android:id="@+id/day_label_5" android:layout_width="20dp" android:layout_height="wrap_content" android:gravity="center" android:text="S" android:textColor="#A1A1AA" android:textSize="9sp" android:textStyle="bold" />
+        <TextView android:id="@+id/day_label_6" android:layout_width="20dp" android:layout_height="wrap_content" android:gravity="center" android:text="S" android:textColor="#F26A36" android:textSize="9sp" android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Y-Axis Scrollable List of All Habits in Matrix -->
+    <ListView
+        android:id="@+id/matrix_scroll_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="4dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:scrollbars="none" />
+
+    <!-- Designed Empty State -->
+    <LinearLayout
+        android:id="@+id/widget_matrix_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Routines Set"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Add routines in app"
+            android:textColor="#8E8E93"
+            android:textSize="10sp" />
+    </LinearLayout>
+</LinearLayout>

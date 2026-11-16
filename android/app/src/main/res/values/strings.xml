@@ -25,6 +25,18 @@
     <string name="widget_finance_name">"Finance &amp; Budget"</string>
     <string name="widget_finance_desc">"Live daily allowance pace and monthly budget progress meter."</string>
 
+    <!-- 6. Focus Timer -->
+    <string name="widget_timer_name">"Focus Timer"</string>
+    <string name="widget_timer_desc">"Live home-screen countdown with 1-tap presets and native chronometer."</string>
+
+    <!-- 7. Habit Consistency Matrix -->
+    <string name="widget_matrix_name">"Habit Consistency Matrix"</string>
+    <string name="widget_matrix_desc">"7-day consistency dot grid with live streak flame tracking."</string>
+
+    <!-- 8. Routines Checklist -->
+    <string name="widget_compact_habits_name">"Routines Checklist"</string>
+    <string name="widget_compact_habits_desc">"Line-wise display of daily habits with circle badge and pending count."</string>
+
     <!-- Aliases for backwards compatibility -->
     <string name="widget_medium_name">"Today\'s Tasks"</string>
     <string name="widget_medium_desc">"Interactive scrollable list of today\'s tasks with instant Apple Glass check-offs."</string>

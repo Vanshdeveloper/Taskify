@@ -38,6 +38,7 @@ export function useFocusTimer() {
     reset: focusTimerStore.reset,
     skip: focusTimerStore.skip,
     switchMode: focusTimerStore.switchMode,
+    setCustomDuration: focusTimerStore.setCustomDuration,
     bindTask: focusTimerStore.bindTask,
     unbindTask: focusTimerStore.unbindTask,
     toggleMute: focusTimerStore.toggleMute,

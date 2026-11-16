@@ -1,7 +1,7 @@
-// Apple-grade unified fluid motion tokens for consistent 60-120fps physics
+// Unified fluid motion tokens for consistent 60-120fps physics
 
 /**
- * Standard Apple Design System Spring Tokens (Directive 2 & M2 Contract)
+ * Standard Fluid Design System Spring Tokens
  * - modal: Critically damped (zeta = 1.0, duration = 0.35s) for zero overshoot dialog presentation.
  * - sheet: Critically damped (zeta = 1.0, duration = 0.35s) for slide-over side drawers and bottom sheets.
  * - snappy: Snappy response (duration = 0.30s, damping = 28, stiffness = 380) for slider rebounds and flicks.
@@ -71,7 +71,7 @@ export const SPRING_DOCK_LIQUID = {
 };
 
 /**
- * Apple WWDC 'Designing Fluid Interfaces' exponential momentum projection.
+ * Fluid exponential momentum projection.
  * Projects resting endpoint from gesture release velocity without snapping abruptly.
  * @param velocity Initial gesture velocity in px/s
  * @param decelerationRate Rate of decay (0.992 for viscous oil feel, 0.998 for normal scroll)

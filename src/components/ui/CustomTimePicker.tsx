@@ -161,7 +161,7 @@ export const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
         </div>
       </button>
 
-      {/* Clean Apple Drum Dial Popover (Strictly Contained, Multiples of 5 Only) */}
+      {/* Clean Drum Dial Popover (Strictly Contained, Multiples of 5 Only) */}
       <AnimatePresence>
         {isOpen && (
           <motion.div

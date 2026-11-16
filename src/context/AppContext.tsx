@@ -12,6 +12,7 @@ import { getPokeNotification, DAILY_POKE_TIMES } from '../utils/pokeMessages';
 import { DAYPART_SCHEDULE, generateDaypartGreeting } from '../utils/daypartGreetings';
 import { BUILTIN_TASK_TEMPLATES, duplicateTaskData, createTaskFromTemplateData } from '../utils/taskTemplates';
 import { syncWidgetData, pollWidgetEvents } from '../utils/widgetSync';
+import { focusTimerStore } from '../utils/focusTimer';
 
 interface FinanceStats {
   monthlyIncome: number;
@@ -101,6 +102,9 @@ interface AppContextType {
   isStreaksOpen: boolean;
   openStreaks: () => void;
   closeStreaks: () => void;
+  isPomodoroOpen: boolean;
+  openPomodoro: () => void;
+  closePomodoro: () => void;
   isInspectorOpen: boolean;
   openInspector: () => void;
   closeInspector: () => void;
@@ -120,7 +124,8 @@ const DEFAULT_SETTINGS: UserSettings = {
   navbarHeight: 'default',
   navbarGlass: 'solid',
   hapticFeedback: true,
-  hapticSound: 'apple',
+  hapticSound: 'precision',
+  focusEdgeProgress: typeof window !== 'undefined' ? localStorage.getItem('taskify_pc_edge_progress') !== 'false' : true,
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -153,6 +158,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isStreaksOpen, setIsStreaksOpen] = useState(false);
+  const [isPomodoroOpen, setIsPomodoroOpen] = useState(false);
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const [isExecutiveDashboardOpen, setIsExecutiveDashboardOpen] = useState(false);
 
@@ -203,6 +209,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsStreaksOpen(false);
     setActiveTab((prev) => (prev === 'streaks' ? 'today' : prev));
   }, []);
+
+  const openPomodoro = useCallback(() => setIsPomodoroOpen(true), []);
+  const closePomodoro = useCallback(() => setIsPomodoroOpen(false), []);
 
   const openInspector = useCallback(() => setIsInspectorOpen(true), []);
   const closeInspector = useCallback(() => setIsInspectorOpen(false), []);
@@ -284,13 +293,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       navbarGlass: map.navbarGlass ?? DEFAULT_SETTINGS.navbarGlass,
       hapticFeedback: map.hapticFeedback ?? DEFAULT_SETTINGS.hapticFeedback,
       hapticSound: map.hapticSound ?? DEFAULT_SETTINGS.hapticSound,
+      focusEdgeProgress: map.focusEdgeProgress ?? DEFAULT_SETTINGS.focusEdgeProgress,
     };
   }, [settingsEntries]);
 
   // Synchronize haptics user preference with the feedback engine
   useEffect(() => {
     feedback.setHapticsEnabled(settings.hapticFeedback ?? true);
-    feedback.setHapticSound(settings.hapticSound ?? 'apple');
+    feedback.setHapticSound(settings.hapticSound ?? 'precision');
   }, [settings.hapticFeedback, settings.hapticSound]);
 
   // Tasks actions
@@ -615,6 +625,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Settings & Storage actions
   const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
+    if (updates.focusEdgeProgress !== undefined && typeof window !== 'undefined') {
+      localStorage.setItem('taskify_pc_edge_progress', String(updates.focusEdgeProgress));
+    }
     for (const [k, v] of Object.entries(updates)) {
       await db.settings.put({ key: k, value: v });
     }
@@ -860,6 +873,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!isDbReady) return;
     const timer = setTimeout(() => {
       syncNativeScheduledReminders(tasks, habits, settings.userName);
+      const timerSnap = focusTimerStore.getSnapshot();
       syncWidgetData({
         tasks,
         habits,
@@ -868,6 +882,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currency: settings.currency,
         monthlyBudget: settings.monthlyBudget,
         userName: settings.userName,
+        timerRunning: timerSnap.status === 'running',
+        timerDurationMs: timerSnap.durationSeconds * 1000,
+        timerRemainingMs: timerSnap.remainingMs,
       });
     }, 500);
 
@@ -888,16 +905,96 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         onIncrementHabit: async (habitId) => {
           await incrementHabit(habitId, undefined, { silent: true });
         },
+        onToggleHabit: async (habitId, done) => {
+          const today = getTodayString();
+          const habit = await db.habits.get(habitId);
+          if (!habit) return;
+          const logId = `hl-${habitId}-${today}`;
+
+          if (done === false) {
+            await db.habitLogs.put({
+              id: logId,
+              habitId,
+              date: today,
+              currentCount: 0,
+              completed: false,
+              timestamp: Date.now(),
+            });
+          } else if (done === true) {
+            await db.habitLogs.put({
+              id: logId,
+              habitId,
+              date: today,
+              currentCount: habit.targetCount,
+              completed: true,
+              timestamp: Date.now(),
+            });
+          } else {
+            await toggleHabit(habitId, undefined, { silent: true });
+          }
+        },
+        onAddTask: async (title) => {
+          await addTask({
+            title,
+            priority: 'medium',
+            status: 'todo',
+            category: 'General',
+            dueDate: new Date().toISOString().slice(0, 10),
+          });
+        },
+        onAddHabit: async (name) => {
+          await addHabit({
+            name,
+            category: 'General',
+            targetCount: 1,
+            unit: 'times',
+            frequency: 'daily',
+            timeOfDay: 'anytime',
+            color: '#F26A36',
+            icon: 'target',
+          });
+        },
+        onAddExpense: async (amount, note) => {
+          await addTransaction({
+            type: 'expense',
+            amount,
+            category: 'General',
+            description: note || 'Quick expense',
+            paymentMethod: 'card',
+            date: new Date().toISOString().slice(0, 10),
+          });
+        },
+        onTimerAction: async (action, minutes) => {
+          const snap = focusTimerStore.getSnapshot();
+          if (action === 'start') {
+            if (snap.status !== 'running') {
+              focusTimerStore.start();
+            }
+          } else if (action === 'pause') {
+            if (snap.status === 'running') {
+              focusTimerStore.pause();
+            }
+          } else if (action === 'reset') {
+            focusTimerStore.reset();
+          } else if (action === 'preset' && typeof minutes === 'number' && minutes > 0) {
+            focusTimerStore.setCustomDuration(minutes * 60);
+          } else if (action === 'complete') {
+            if (snap.status === 'running') {
+              focusTimerStore.completeSession();
+            }
+          }
+        },
         onQuickAction: (action) => {
           if (action === 'task') {
             setIsQuickCaptureOpen(true);
             setActiveTab('tasks');
-          } else if (action === 'habit') {
+          } else if (action === 'habit' || action === 'routine') {
             setActiveTab('habits');
           } else if (action === 'expense') {
             setActiveTab('finance');
           } else if (action === 'focus') {
             setActiveTab('today');
+            openPomodoro();
           } else if (action === 'finance') {
             setActiveTab('finance');
           }
@@ -906,14 +1003,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     checkWidgetActions();
+    const pollInterval = setInterval(checkWidgetActions, 2000);
     const handleVis = () => {
       if (!document.hidden) {
         checkWidgetActions();
       }
     };
     document.addEventListener('visibilitychange', handleVis);
-    return () => document.removeEventListener('visibilitychange', handleVis);
-  }, [isDbReady, toggleTask, incrementHabit, setIsQuickCaptureOpen, setActiveTab]);
+    window.addEventListener('focus', handleVis);
+    return () => {
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', handleVis);
+      window.removeEventListener('focus', handleVis);
+    };
+  }, [isDbReady, toggleTask, incrementHabit, toggleHabit, addTask, addHabit, addTransaction, setIsQuickCaptureOpen, setActiveTab, openPomodoro]);
 
   const contextValue = useMemo<AppContextType>(
     () => ({
@@ -976,6 +1079,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isStreaksOpen,
       openStreaks,
       closeStreaks,
+      isPomodoroOpen,
+      openPomodoro,
+      closePomodoro,
       isInspectorOpen,
       openInspector,
       closeInspector,
@@ -1045,6 +1151,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isStreaksOpen,
       openStreaks,
       closeStreaks,
+      isPomodoroOpen,
+      openPomodoro,
+      closePomodoro,
       isInspectorOpen,
       openInspector,
       closeInspector,

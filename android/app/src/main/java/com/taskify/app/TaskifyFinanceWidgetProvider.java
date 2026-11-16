@@ -61,10 +61,10 @@ public class TaskifyFinanceWidgetProvider extends AppWidgetProvider {
                     context, 500, financeIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             ));
 
-            // Log Expense button opens direct modal
-            Intent expenseIntent = new Intent(context, MainActivity.class);
+            // Log Expense button opens instant translucent quick capture dialog (<50ms)
+            Intent expenseIntent = new Intent(context, TaskifyQuickCaptureActivity.class);
+            expenseIntent.putExtra(TaskifyQuickCaptureActivity.EXTRA_TYPE, "expense");
             expenseIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            expenseIntent.putExtra("quick_action", "expense");
             views.setOnClickPendingIntent(R.id.btn_finance_log_expense, PendingIntent.getActivity(
                     context, 501, expenseIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             ));
