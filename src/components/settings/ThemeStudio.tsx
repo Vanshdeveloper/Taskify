@@ -14,7 +14,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { feedback } from '../../utils/feedback';
 
 export const ThemeStudio: React.FC = () => {
-  const { theme, setTheme, surfaceMaterial, setSurfaceMaterial, themes } = useTheme();
+  const { theme, setTheme, themes } = useTheme();
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isExpanded, setIsExpanded] = useState(false);
@@ -53,50 +53,7 @@ export const ThemeStudio: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* 1. Surface Material Segmented Switch */}
-      <div className="flex flex-col gap-2 pb-3 border-b border-white/6">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-mono font-medium text-zinc-300">
-            Surface Atmosphere
-          </label>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/6 text-zinc-400">
-            {surfaceMaterial === 'classic-solid'
-              ? 'OLED Dark'
-              : 'White Liquid Glass'}
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          {(
-            [
-              { id: 'classic-solid', label: 'Classic Solid', desc: 'Minimal Dark' },
-              { id: 'liquid-glass', label: 'White Liquid Glass', desc: 'Pearl Glass' },
-            ] as const
-          ).map((mat) => {
-            const isSel = surfaceMaterial === mat.id;
-            return (
-              <button
-                key={mat.id}
-                type="button"
-                onClick={() => {
-                  feedback.playClick();
-                  setSurfaceMaterial(mat.id);
-                  setActiveCategory('all');
-                }}
-                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer pressable ${
-                  isSel
-                    ? 'border-white/35 ring-1.5 ring-white/20 bg-white/[0.08] shadow-md'
-                    : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
-                }`}
-              >
-                <span className="text-xs font-bold text-white block truncate">{mat.label}</span>
-                <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block truncate">{mat.desc}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 2. Category Segmented Filter Tabs */}
+      {/* 1. Category Segmented Filter Tabs */}
       <div
         data-no-swipe="true"
         className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth no-tab-swipe"

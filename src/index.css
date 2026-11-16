@@ -413,6 +413,167 @@
     --dock-border: rgba(34, 211, 238, 0.25);
   }
 
+  /* Oatmeal & Terracotta Clay (Authentic Cozy) */
+  [data-theme="oat-clay"] {
+    --bg-canvas: #151210;
+    --bg-card: #221c19;
+    --bg-card-hover: #2c2521;
+    --bg-subtle: #1a1614;
+    --bg-input: #110e0c;
+    --border-subtle: rgba(254, 250, 224, 0.08);
+    --border-card: rgba(254, 250, 224, 0.12);
+    --border-focus: rgba(224, 122, 95, 0.5);
+    --accent-primary: #e07a5f;        /* Terracotta Clay */
+    --accent-primary-hover: #e88c73;
+    --accent-secondary: #d4a373;      /* Toasted Sesame */
+    --accent-secondary-hover: #deb185;
+    --accent-success: #708d5b;
+    --accent-highlight: #fefae0;      /* Almond Cream */
+    --text-primary: #fefae0;
+    --text-secondary: #c9bea9;
+    --text-muted: #827869;
+    --dock-bg: #1e1815;
+    --dock-border: rgba(224, 122, 95, 0.22);
+  }
+
+  /* Honey Wood & Bergamot (Authentic Cozy) */
+  [data-theme="honey-bergamot"] {
+    --bg-canvas: #13100b;
+    --bg-card: #1f1a12;
+    --bg-card-hover: #2a2319;
+    --bg-subtle: #17130e;
+    --bg-input: #0f0d08;
+    --border-subtle: rgba(253, 246, 226, 0.08);
+    --border-card: rgba(253, 246, 226, 0.12);
+    --border-focus: rgba(229, 152, 25, 0.5);
+    --accent-primary: #e59819;        /* Golden Amber Honey */
+    --accent-primary-hover: #f0a72b;
+    --accent-secondary: #b07d4b;      /* Cedar Wood */
+    --accent-secondary-hover: #c28e5c;
+    --accent-success: #748c48;
+    --accent-highlight: #fdf6e2;      /* Candlelight Cream */
+    --text-primary: #fdf6e2;
+    --text-secondary: #c4b99e;
+    --text-muted: #7d735a;
+    --dock-bg: #1c1710;
+    --dock-border: rgba(229, 152, 25, 0.22);
+  }
+
+  /* Cinnamon Bark & Roasted Pecan (Authentic Cozy) */
+  [data-theme="cinnamon-pecan"] {
+    --bg-canvas: #140e0c;
+    --bg-card: #211714;
+    --bg-card-hover: #2c1f1b;
+    --bg-subtle: #19120f;
+    --bg-input: #100b09;
+    --border-subtle: rgba(250, 242, 235, 0.08);
+    --border-card: rgba(250, 242, 235, 0.12);
+    --border-focus: rgba(200, 100, 70, 0.5);
+    --accent-primary: #c86446;        /* Ceylon Cinnamon */
+    --accent-primary-hover: #d67457;
+    --accent-secondary: #b58363;      /* Roasted Pecan */
+    --accent-secondary-hover: #c49474;
+    --accent-success: #6e844a;
+    --accent-highlight: #faf2eb;      /* Vanilla Milk */
+    --text-primary: #faf2eb;
+    --text-secondary: #c7b6ab;
+    --text-muted: #827267;
+    --dock-bg: #1d1411;
+    --dock-border: rgba(200, 100, 70, 0.22);
+  }
+
+  /* Smoked Eucalyptus & Sage (Authentic Botanical Cozy) */
+  [data-theme="smoked-eucalyptus"] {
+    --bg-canvas: #0c120f;
+    --bg-card: #151e19;
+    --bg-card-hover: #1c2822;
+    --bg-subtle: #101713;
+    --bg-input: #090e0b;
+    --border-subtle: rgba(243, 247, 244, 0.08);
+    --border-card: rgba(243, 247, 244, 0.12);
+    --border-focus: rgba(115, 158, 130, 0.5);
+    --accent-primary: #739e82;        /* Smoked Eucalyptus */
+    --accent-primary-hover: #86af94;
+    --accent-secondary: #9eb39c;      /* Silver Sage */
+    --accent-secondary-hover: #afc3ad;
+    --accent-success: #528c61;
+    --accent-highlight: #f3f7f4;      /* Fresh Linen */
+    --text-primary: #f3f7f4;
+    --text-secondary: #b2c2b7;
+    --text-muted: #6f8075;
+    --dock-bg: #131a16;
+    --dock-border: rgba(115, 158, 130, 0.22);
+  }
+
+  /* Wabi-Sabi Charcoal & Rice Paper (Authentic Minimalist) */
+  [data-theme="wabi-sabi"] {
+    --bg-canvas: #111112;
+    --bg-card: #1a1a1c;
+    --bg-card-hover: #242426;
+    --bg-subtle: #151517;
+    --bg-input: #0d0d0e;
+    --border-subtle: rgba(248, 246, 242, 0.08);
+    --border-card: rgba(248, 246, 242, 0.12);
+    --border-focus: rgba(232, 228, 220, 0.45);
+    --accent-primary: #e8e4dc;        /* Rice Paper Warm Ivory */
+    --accent-primary-hover: #f3efe7;
+    --accent-secondary: #969087;      /* River Pebble */
+    --accent-secondary-hover: #a8a299;
+    --accent-success: #6e8263;
+    --accent-highlight: #f8f6f2;      /* Porcelain */
+    --text-primary: #f8f6f2;
+    --text-secondary: #beb8ae;
+    --text-muted: #78736a;
+    --dock-bg: #161618;
+    --dock-border: rgba(232, 228, 220, 0.18);
+  }
+
+  /* Copenhagen Slate & Raw Linen (Danish Architectural Minimalist) */
+  [data-theme="copenhagen-slate"] {
+    --bg-canvas: #0f1115;
+    --bg-card: #181b22;
+    --bg-card-hover: #20242e;
+    --bg-subtle: #13151b;
+    --bg-input: #0b0d10;
+    --border-subtle: rgba(248, 250, 252, 0.08);
+    --border-card: rgba(248, 250, 252, 0.12);
+    --border-focus: rgba(148, 163, 184, 0.5);
+    --accent-primary: #94a3b8;        /* Copenhagen Slate */
+    --accent-primary-hover: #a8b7cc;
+    --accent-secondary: #cbd5e1;      /* Flax Linen */
+    --accent-secondary-hover: #e2e8f0;
+    --accent-success: #529471;
+    --accent-highlight: #f8fafc;      /* Pure Winter White */
+    --text-primary: #f8fafc;
+    --text-secondary: #aab8c8;
+    --text-muted: #64748b;
+    --dock-bg: #151820;
+    --dock-border: rgba(148, 163, 184, 0.22);
+  }
+
+  /* Bauhaus Raw Umber & Zinc (Authentic Industrial Minimalist) */
+  [data-theme="bauhaus-umber"] {
+    --bg-canvas: #121110;
+    --bg-card: #1e1c1a;
+    --bg-card-hover: #292624;
+    --bg-subtle: #161413;
+    --bg-input: #0e0d0c;
+    --border-subtle: rgba(245, 245, 244, 0.08);
+    --border-card: rgba(245, 245, 244, 0.12);
+    --border-focus: rgba(181, 132, 99, 0.5);
+    --accent-primary: #b58463;        /* Raw Burnt Umber */
+    --accent-primary-hover: #c49474;
+    --accent-secondary: #9ca3af;      /* Brushed Zinc */
+    --accent-secondary-hover: #b0b7c2;
+    --accent-success: #678452;
+    --accent-highlight: #f5f5f4;      /* Drafting Vellum */
+    --text-primary: #f5f5f4;
+    --text-secondary: #bfb7ae;
+    --text-muted: #756d64;
+    --dock-bg: #191715;
+    --dock-border: rgba(181, 132, 99, 0.22);
+  }
+
   body {
     font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-canvas);
@@ -650,382 +811,4 @@
   -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.35);
   box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 3px 10px rgba(0, 0, 0, 0.35);
-}
-
-
-/* =========================================================================
-   Apple Control Center Optical Liquid Glass System
-   Authentic optical glass refraction, continuous specular perimeter rims,
-   luminous iOS azure liquid action buttons (Image 2), and crystal capsule pills (Image 1).
-   ========================================================================= */
-
-/* Liquid Glass Mode Canvas & Semantic Variables Override */
-[data-surface="liquid-glass"] {
-  --bg-canvas: #f8fafc;
-  --bg-card: rgba(255, 255, 255, 0.84);
-  --bg-card-hover: rgba(255, 255, 255, 0.94);
-  --bg-subtle: #f1f5f9;
-  --bg-input: rgba(255, 255, 255, 0.92);
-  --border-subtle: rgba(226, 232, 240, 0.9);
-  --border-card: rgba(255, 255, 255, 0.95);
-  --border-focus: rgba(0, 122, 255, 0.65);
-  --accent-primary: #007aff;
-  --accent-primary-hover: #0a84ff;
-  --accent-secondary: #007aff;
-  --accent-secondary-hover: #0062cc;
-  --accent-success: #047857;
-  --accent-highlight: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --dock-bg: rgba(255, 255, 255, 0.88);
-  --dock-border: rgba(226, 232, 240, 0.85);
-
-  /* High contrast category variables in liquid glass */
-  --cat-work-bg: rgba(0, 122, 255, 0.10);
-  --cat-work-text: #0062cc;
-  --cat-work-border: rgba(0, 122, 255, 0.25);
-  --cat-fitness-bg: rgba(16, 185, 129, 0.12);
-  --cat-fitness-text: #047857;
-  --cat-fitness-border: rgba(16, 185, 129, 0.25);
-  --cat-finance-bg: rgba(13, 148, 136, 0.12);
-  --cat-finance-text: #0f766e;
-  --cat-finance-border: rgba(13, 148, 136, 0.28);
-  --cat-personal-bg: rgba(79, 70, 229, 0.10);
-  --cat-personal-text: #4338ca;
-  --cat-personal-border: rgba(79, 70, 229, 0.25);
-  --cat-creative-bg: rgba(219, 39, 119, 0.10);
-  --cat-creative-text: #be185d;
-  --cat-creative-border: rgba(219, 39, 119, 0.25);
-  --cat-study-bg: rgba(217, 119, 6, 0.12);
-  --cat-study-text: #b45309;
-  --cat-study-border: rgba(217, 119, 6, 0.25);
-  --cat-default-bg: rgba(15, 23, 42, 0.06);
-  --cat-default-text: #334155;
-  --cat-default-border: rgba(15, 23, 42, 0.15);
-
-  --badge-soft-color: #15803d;
-  --badge-aesthetic-color: #be185d;
-  --badge-minimalist-color: #0369a1;
-  --badge-dark-color: #6b21a8;
-}
-
-/* Pure Frosted White Glass Cards in Liquid Glass Mode */
-[data-surface="liquid-glass"] .solid-card {
-  background: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
-    0 12px 32px -4px rgba(15, 23, 42, 0.06),
-    0 4px 12px -2px rgba(15, 23, 42, 0.02) !important;
-}
-
-[data-surface="liquid-glass"] .solid-card:hover {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-color: rgba(255, 255, 255, 1) !important;
-  box-shadow: 
-    inset 0 1.5px 2.5px 0 rgba(255, 255, 255, 1),
-    0 16px 40px -4px rgba(15, 23, 42, 0.09),
-    0 6px 16px -2px rgba(15, 23, 42, 0.03) !important;
-}
-
-/* =========================================================================
-   Apple Control Center Luminous Liquid Action Button (Image 2 Blue Disc)
-   Pure vibrant iOS azure with optical glass top reflection, glowing perimeter
-   specular rim, pure white typography, and zero muddy black shadows.
-   ========================================================================= */
-.liquid-btn-primary,
-.glass-expo-accent,
-[data-surface="liquid-glass"] .glass-expo-accent,
-[data-surface="liquid-glass"] button[style*="var(--accent-primary)"],
-[data-surface="liquid-glass"] .btn-primary-action {
-  border-radius: 9999px !important;
-  background: 
-    linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.12) 40%, rgba(0, 122, 255, 0) 65%),
-    #007AFF !important;
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.65) !important;
-  box-shadow: 
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.90),
-    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.35),
-    0 8px 24px -2px rgba(0, 122, 255, 0.40),
-    0 2px 6px rgba(0, 122, 255, 0.20) !important;
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  text-shadow: 0 1px 2px rgba(0, 60, 150, 0.35);
-  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease, filter 0.18s ease;
-}
-
-.liquid-btn-primary:hover,
-.glass-expo-accent:hover,
-[data-surface="liquid-glass"] .glass-expo-accent:hover,
-[data-surface="liquid-glass"] button[style*="var(--accent-primary)"]:hover,
-[data-surface="liquid-glass"] .btn-primary-action:hover {
-  filter: brightness(1.06);
-  border-color: rgba(255, 255, 255, 0.75) !important;
-  box-shadow: 
-    inset 0 1.5px 2.5px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.45),
-    0 12px 30px -2px rgba(0, 122, 255, 0.50),
-    0 4px 10px rgba(0, 122, 255, 0.22) !important;
-  transform: translateY(-1px);
-}
-
-.liquid-btn-primary:active,
-.glass-expo-accent:active,
-[data-surface="liquid-glass"] .glass-expo-accent:active,
-[data-surface="liquid-glass"] button[style*="var(--accent-primary)"]:active,
-[data-surface="liquid-glass"] .btn-primary-action:active {
-  transform: scale(0.96) !important;
-  box-shadow: 
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.55),
-    0 4px 12px -1px rgba(0, 122, 255, 0.32) !important;
-}
-
-/* =========================================================================
-   Translucent Crystal Glass Capsule / Pill (Image 1 & Image 2)
-   Optical clear liquid glass with continuous perimeter specular rim
-   ========================================================================= */
-[data-surface="liquid-glass"] .glass-expo,
-[data-surface="liquid-glass"] .glass-expo-interactive {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.40) 50%, rgba(255, 255, 255, 0.68) 100%) !important;
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.90) !important;
-  box-shadow: 
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.45),
-    inset 0 0 12px 0 rgba(255, 255, 255, 0.25),
-    0 6px 20px -2px rgba(15, 23, 42, 0.07),
-    0 2px 6px -1px rgba(15, 23, 42, 0.03) !important;
-  color: #0f172a !important;
-  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease, filter 0.18s ease;
-}
-
-[data-surface="liquid-glass"] .glass-expo-interactive:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0.82) 100%) !important;
-  border-color: rgba(255, 255, 255, 1) !important;
-  box-shadow: 
-    inset 0 1.5px 2.5px 0 rgba(255, 255, 255, 1),
-    inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.55),
-    inset 0 0 16px 0 rgba(255, 255, 255, 0.35),
-    0 10px 28px -3px rgba(15, 23, 42, 0.10) !important;
-  transform: translateY(-1px);
-}
-
-[data-surface="liquid-glass"] .glass-expo-interactive:active {
-  transform: scale(0.96) !important;
-  box-shadow: 
-    inset 0 1px 1.5px 0 rgba(0, 0, 0, 0.06),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.5),
-    0 2px 8px rgba(15, 23, 42, 0.06) !important;
-}
-
-/* Calendar Day Cards in Liquid Glass */
-[data-surface="liquid-glass"] .calendar-day-card:not(.glass-expo-accent) {
-  background: rgba(255, 255, 255, 0.72) !important;
-  border: 1px solid rgba(226, 232, 240, 0.9) !important;
-  color: #0f172a !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-}
-
-[data-surface="liquid-glass"] .calendar-day-card:not(.glass-expo-accent):hover {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-color: rgba(203, 213, 225, 1) !important;
-}
-
-[data-surface="liquid-glass"] .calendar-day-card:not(.glass-expo-accent) span {
-  color: #0f172a;
-}
-
-[data-surface="liquid-glass"] .calendar-day-card:not(.glass-expo-accent) span.text-zinc-500 {
-  color: #64748b;
-}
-
-[data-surface="liquid-glass"] .calendar-day-card:not(.glass-expo-accent) span.text-amber-400 {
-  color: #007aff !important;
-}
-
-/* Custom Select Dropdowns in Liquid Glass Mode */
-[data-surface="liquid-glass"] .custom-select-trigger {
-  background: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(226, 232, 240, 0.95) !important;
-  box-shadow: 
-    0 2px 8px rgba(15, 23, 42, 0.04),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 1) !important;
-  color: #0f172a !important;
-}
-
-[data-surface="liquid-glass"] .custom-select-trigger:hover {
-  background: rgba(255, 255, 255, 0.96) !important;
-  border-color: rgba(203, 213, 225, 1) !important;
-  box-shadow: 
-    0 4px 12px rgba(15, 23, 42, 0.06),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 1) !important;
-}
-
-[data-surface="liquid-glass"] .custom-select-popover {
-  background: rgba(255, 255, 255, 0.94) !important;
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 1) !important;
-  box-shadow: 
-    0 20px 48px -6px rgba(15, 23, 42, 0.12),
-    0 8px 20px -2px rgba(15, 23, 42, 0.06),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 1) !important;
-  color: #0f172a !important;
-}
-
-/* =========================================================================
-   Typography & Universal Color Correction in White Liquid Glass Mode
-   Fixes all areas where light/pastel colored text was unreadable on white.
-   ========================================================================= */
-[data-surface="liquid-glass"] h1,
-[data-surface="liquid-glass"] h2,
-[data-surface="liquid-glass"] h3,
-[data-surface="liquid-glass"] h4 {
-  color: var(--text-primary);
-}
-
-[data-surface="liquid-glass"] .text-white:not(
-  .liquid-btn-primary,
-  .liquid-btn-primary *,
-  .glass-expo-accent,
-  .glass-expo-accent *,
-  button[style*="var(--accent-primary)"],
-  button[style*="var(--accent-primary)"] *,
-  .badge-accent,
-  .badge-accent *
-) {
-  color: #0f172a;
-}
-
-/* High-contrast WCAG AAA mapping for colored text on white cards */
-[data-surface="liquid-glass"] .text-rose-300,
-[data-surface="liquid-glass"] .text-rose-400 {
-  color: #be123c !important;
-}
-
-[data-surface="liquid-glass"] .text-amber-300,
-[data-surface="liquid-glass"] .text-amber-400 {
-  color: #b45309 !important;
-}
-
-[data-surface="liquid-glass"] .text-emerald-300,
-[data-surface="liquid-glass"] .text-emerald-400 {
-  color: #047857 !important;
-}
-
-[data-surface="liquid-glass"] .text-sky-300,
-[data-surface="liquid-glass"] .text-sky-400 {
-  color: #0284c7 !important;
-}
-
-[data-surface="liquid-glass"] .text-indigo-300,
-[data-surface="liquid-glass"] .text-indigo-400 {
-  color: #4338ca !important;
-}
-
-[data-surface="liquid-glass"] .text-zinc-100,
-[data-surface="liquid-glass"] .text-zinc-200,
-[data-surface="liquid-glass"] .text-zinc-300 {
-  color: #1e293b !important;
-}
-
-[data-surface="liquid-glass"] .text-zinc-400 {
-  color: #475569 !important;
-}
-
-[data-surface="liquid-glass"] .text-zinc-500 {
-  color: #64748b !important;
-}
-
-/* Badge backgrounds on white cards in liquid-glass mode */
-[data-surface="liquid-glass"] [class*="bg-rose-500"] {
-  background-color: rgba(225, 29, 72, 0.10) !important;
-  border-color: rgba(225, 29, 72, 0.28) !important;
-}
-
-[data-surface="liquid-glass"] [class*="bg-amber-500"],
-[data-surface="liquid-glass"] [class*="bg-amber-400"] {
-  background-color: rgba(217, 119, 6, 0.10) !important;
-  border-color: rgba(217, 119, 6, 0.28) !important;
-}
-
-[data-surface="liquid-glass"] [class*="bg-emerald-500"] {
-  background-color: rgba(16, 185, 129, 0.10) !important;
-  border-color: rgba(16, 185, 129, 0.28) !important;
-}
-
-[data-surface="liquid-glass"] [class*="bg-sky-500"] {
-  background-color: rgba(2, 132, 199, 0.10) !important;
-  border-color: rgba(2, 132, 199, 0.28) !important;
-}
-
-[data-surface="liquid-glass"] [class*="bg-black/"] {
-  background-color: rgba(15, 23, 42, 0.05) !important;
-  border-color: rgba(15, 23, 42, 0.12) !important;
-  color: #334155 !important;
-}
-
-[data-surface="liquid-glass"] [class*="border-white/"] {
-  border-color: rgba(226, 232, 240, 0.85) !important;
-}
-
-/* Modal and dialog backdrops in liquid-glass mode */
-[data-surface="liquid-glass"] .modal-backdrop {
-  background: rgba(15, 23, 42, 0.35);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-/* Priority Badges in Liquid Glass Mode */
-[data-surface="liquid-glass"] .priority-urgent {
-  background-color: rgba(225, 29, 72, 0.12) !important;
-  color: #9f1239 !important;
-  border-color: rgba(225, 29, 72, 0.32) !important;
-}
-
-[data-surface="liquid-glass"] .priority-high {
-  background-color: rgba(217, 119, 6, 0.12) !important;
-  color: #92400e !important;
-  border-color: rgba(217, 119, 6, 0.32) !important;
-}
-
-[data-surface="liquid-glass"] .priority-medium {
-  background-color: rgba(15, 23, 42, 0.06) !important;
-  color: #334155 !important;
-  border-color: rgba(15, 23, 42, 0.16) !important;
-}
-
-/* Scheduled Date Pills */
-[data-surface="liquid-glass"] .task-date-pill {
-  background-color: rgba(15, 23, 42, 0.05) !important;
-  border-color: rgba(15, 23, 42, 0.14) !important;
-  color: #334155 !important;
-}
-
-[data-surface="liquid-glass"] .task-date-pill span,
-[data-surface="liquid-glass"] .task-date-pill svg {
-  color: #334155 !important;
-}
-
-/* Ensure completed cards do not wash out into illegibility */
-[data-surface="liquid-glass"] .solid-card.opacity-65 {
-  opacity: 0.88 !important;
-}
-
-/* Custom select popover items high contrast */
-[data-surface="liquid-glass"] .custom-select-popover button {
-  color: #0f172a !important;
-}
-
-[data-surface="liquid-glass"] .custom-select-popover button:hover {
-  background-color: rgba(0, 122, 255, 0.08) !important;
-  color: #007aff !important;
 }

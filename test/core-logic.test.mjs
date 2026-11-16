@@ -661,23 +661,22 @@ test('Glassmorphic Widget SVG Generation: 6-Pill Medium & 2x2 Small Layouts', ()
   assert.equal(pendingTasks + pendingHabits, 3);
 });
 
-test('Surface Material & Dedicated White Liquid Glass Contract', () => {
-  const VALID_SURFACES = ['classic-solid', 'liquid-glass'];
+test('Classic Solid Surface & Authentic Cozy Minimalist Themes Contract', () => {
+  const VALID_SURFACES = ['classic-solid'];
   
-  // Test surface validity (strictly classic-solid and dedicated white liquid-glass)
+  // Test surface validity: strictly classic-solid normal theme, liquid-glass completely removed
   assert.ok(VALID_SURFACES.includes('classic-solid'));
-  assert.ok(VALID_SURFACES.includes('liquid-glass'));
+  assert.equal(VALID_SURFACES.includes('liquid-glass'), false, 'Liquid glass must be completely removed');
   assert.equal(VALID_SURFACES.includes('fluted-glass'), false, 'Fluted glass must be completely removed');
   assert.equal(VALID_SURFACES.includes('unknown-theme'), false);
 
   // Test preset themes retain solid presets with zero shader themes
   const mockPresetThemes = [
     { id: 'espresso-terracotta', category: 'soft', colors: ['#160f0d', '#f26a36', '#e5a42f', '#fdf3e5'] },
-    { id: 'forest-rose', category: 'soft', colors: ['#0f1712', '#4ade80', '#fb7185', '#f0fdf4'] },
-    { id: 'obsidian-pure', category: 'dark', colors: ['#070709', '#3b82f6', '#f43f5e', '#f4f4f5'] },
+    { id: 'oat-clay', category: 'soft', colors: ['#151210', '#e07a5f', '#d4a373', '#fefae0'] },
+    { id: 'wabi-sabi', category: 'minimalist', colors: ['#111112', '#e8e4dc', '#969087', '#f8f6f2'] },
   ];
 
-  // In classic-solid and liquid-glass modes, standard preset themes remain stable
   assert.equal(mockPresetThemes.length, 3);
   assert.ok(mockPresetThemes.every((t) => !t.id.startsWith('shader-')));
   assert.ok(mockPresetThemes.every((t) => ['soft', 'aesthetic', 'minimalist', 'dark'].includes(t.category)));

@@ -113,7 +113,7 @@ export type AppAesthetic =
   | 'text-spark';
 
 export type HapticSoundStyle = 'precision' | 'apple' | 'mechanical' | 'pop' | 'subtle' | 'mute';
-export type SurfaceMaterial = 'classic-solid' | 'liquid-glass';
+export type SurfaceMaterial = 'classic-solid';
 
 export interface UserSettings {
   monthlyBudget: number;

@@ -120,7 +120,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setIsQuickCaptureOpen(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center shadow-md pressable cursor-pointer font-bold liquid-btn-primary"
+            className="w-9 h-9 rounded-full flex items-center justify-center shadow-md pressable cursor-pointer font-bold"
             style={{
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',

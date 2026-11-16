@@ -171,7 +171,7 @@ export const TasksView: React.FC = () => {
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
           onClick={openTaskModal}
-          className="self-start sm:self-auto flex items-center gap-1.5 h-9 px-4 rounded-full font-bold text-xs pressable shadow-md transition-all cursor-pointer liquid-btn-primary"
+          className="self-start sm:self-auto flex items-center gap-1.5 h-9 px-4 rounded-full font-bold text-xs pressable shadow-md transition-all cursor-pointer"
           style={{
             backgroundColor: 'var(--accent-primary)',
             color: '#ffffff',

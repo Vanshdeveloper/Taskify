@@ -60,6 +60,34 @@ export const PRESET_THEMES: ThemeDefinition[] = [
     description: 'Sunset desert breeze: Twilight sand dunes, molten liquid gold, terracotta copper, and sunlit linen.',
     colors: ['#120e0a', '#f59e0b', '#ea580c', '#fef3c7'],
   },
+  {
+    id: 'oat-clay',
+    name: 'Oatmeal & Terracotta Clay',
+    category: 'soft',
+    description: 'Cozy hearth & ceramic warmth: Roasted oat canvas, warm terracotta raw clay, toasted sesame, and almond cream.',
+    colors: ['#151210', '#e07a5f', '#d4a373', '#fefae0'],
+  },
+  {
+    id: 'honey-bergamot',
+    name: 'Honey Wood & Bergamot',
+    category: 'soft',
+    description: 'Cabin candlelight warmth: Deep teak timber canvas, golden amber honey, warm cedar wood, and candlelight cream.',
+    colors: ['#13100b', '#e59819', '#b07d4b', '#fdf6e2'],
+  },
+  {
+    id: 'cinnamon-pecan',
+    name: 'Cinnamon Bark & Roasted Pecan',
+    category: 'soft',
+    description: 'Autumn hearthside comfort: Dark cocoa wood canvas, warm Ceylon cinnamon bark, roasted pecan, and vanilla milk.',
+    colors: ['#140e0c', '#c86446', '#b58363', '#faf2eb'],
+  },
+  {
+    id: 'smoked-eucalyptus',
+    name: 'Smoked Eucalyptus & Sage',
+    category: 'soft',
+    description: 'Botanical steam tranquility: Dark evergreen shadow canvas, silvery smoked eucalyptus, soft sage, and fresh linen.',
+    colors: ['#0c120f', '#739e82', '#9eb39c', '#f3f7f4'],
+  },
 
   // 2. Aesthetic & Pastel (Adorable, Sakura, Sweet Mint, Cotton Clouds)
   {
@@ -113,6 +141,27 @@ export const PRESET_THEMES: ThemeDefinition[] = [
     description: 'Natural stone tranquility: Architectural charcoal stone, warm desert sandstone, silt, and alabaster linen.',
     colors: ['#141210', '#d4b996', '#a89078', '#faf7f2'],
   },
+  {
+    id: 'wabi-sabi',
+    name: 'Wabi-Sabi Charcoal & Rice Paper',
+    category: 'minimalist',
+    description: 'Japanese artisan minimalism: Raw sumi charcoal canvas, handmade rice paper ivory, river pebble, and pure porcelain.',
+    colors: ['#111112', '#e8e4dc', '#969087', '#f8f6f2'],
+  },
+  {
+    id: 'copenhagen-slate',
+    name: 'Copenhagen Slate & Raw Linen',
+    category: 'minimalist',
+    description: 'Danish architectural purity: Dark graphite fjord canvas, cool misty slate fog, raw flax linen, and Scandinavian snow.',
+    colors: ['#0f1115', '#94a3b8', '#cbd5e1', '#f8fafc'],
+  },
+  {
+    id: 'bauhaus-umber',
+    name: 'Bauhaus Raw Umber & Zinc',
+    category: 'minimalist',
+    description: 'Weimar studio drafting desk: Basalt iron canvas, raw burnt earth umber, brushed industrial zinc, and studio vellum.',
+    colors: ['#121110', '#b58463', '#9ca3af', '#f5f5f4'],
+  },
 
   // 4. Dark & OLED (True blacks, Deep ocean, Cyber violet, Velvet wine)
   {
@@ -161,15 +210,7 @@ const PREFERENCE_STORAGE_KEY = 'taskify_theme_preference';
 const SURFACE_STORAGE_KEY = 'taskify_surface_material';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [surfaceMaterial, setSurfaceMaterialState] = useState<SurfaceMaterial>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(SURFACE_STORAGE_KEY);
-      if (saved === 'classic-solid' || saved === 'liquid-glass') {
-        return saved;
-      }
-    }
-    return 'classic-solid';
-  });
+  const surfaceMaterial: SurfaceMaterial = 'classic-solid';
 
   const [theme, setThemeState] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -186,9 +227,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     document.documentElement.setAttribute('data-theme', themeId);
   };
 
-  const applySurfaceToDOM = (mat: SurfaceMaterial) => {
+  const applySurfaceToDOM = () => {
     if (typeof document === 'undefined') return;
-    document.documentElement.setAttribute('data-surface', mat);
+    document.documentElement.setAttribute('data-surface', 'classic-solid');
   };
 
   const setTheme = (newTheme: string) => {
@@ -203,12 +244,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const setSurfaceMaterial = (newMat: SurfaceMaterial) => {
-    applySurfaceToDOM(newMat);
-    setSurfaceMaterialState(newMat);
+  const setSurfaceMaterial = (_newMat: SurfaceMaterial) => {
+    applySurfaceToDOM();
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem(SURFACE_STORAGE_KEY, newMat);
+        localStorage.removeItem(SURFACE_STORAGE_KEY);
       } catch {
         // Ignore storage quotas / disabled storage
       }
@@ -217,8 +257,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     applyThemeToDOM(theme);
-    applySurfaceToDOM(surfaceMaterial);
-  }, [theme, surfaceMaterial]);
+    applySurfaceToDOM();
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(SURFACE_STORAGE_KEY);
+      } catch {
+        // Ignore storage quotas / disabled storage
+      }
+    }
+  }, [theme]);
 
   return (
     <ThemeContext.Provider
