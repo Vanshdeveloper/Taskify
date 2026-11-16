@@ -16,7 +16,6 @@ import { feedback } from '../../utils/feedback';
 export const ThemeStudio: React.FC = () => {
   const { theme, setTheme, surfaceMaterial, setSurfaceMaterial, themes } = useTheme();
 
-  const isGlassMode = surfaceMaterial !== 'classic-solid';
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -39,37 +38,18 @@ export const ThemeStudio: React.FC = () => {
         return { label: 'Minimalist', color: '#38bdf8', icon: Sliders };
       case 'dark':
         return { label: 'Dark & OLED', color: '#a855f7', icon: Moon };
-      case 'shader-iconic':
-        return { label: 'Crystal & Blue', color: '#007aff', icon: Sparkles };
-      case 'shader-aurora':
-        return { label: 'Cosmic Aurora', color: '#c084fc', icon: Sparkles };
-      case 'shader-amber':
-        return { label: 'Molten Amber', color: '#f59e0b', icon: Feather };
-      case 'shader-botanical':
-        return { label: 'Zen Botanical', color: '#10b981', icon: Layers };
-      case 'shader-cyber':
-        return { label: 'Cyber Glacier', color: '#38bdf8', icon: Sliders };
       default:
         return { label: 'Theme', color: '#ffffff', icon: Layers };
     }
   };
 
-  const categories = isGlassMode
-    ? [
-        { id: 'all', label: 'All Shaders' },
-        { id: 'shader-iconic', label: 'Crystal & Blue' },
-        { id: 'shader-aurora', label: 'Cosmic & Aurora' },
-        { id: 'shader-amber', label: 'Warm & Amber' },
-        { id: 'shader-botanical', label: 'Botanical & Zen' },
-        { id: 'shader-cyber', label: 'Cyber & Glacier' },
-      ]
-    : [
-        { id: 'all', label: 'All Palettes' },
-        { id: 'soft', label: 'Soft & Cozy' },
-        { id: 'aesthetic', label: 'Aesthetic' },
-        { id: 'minimalist', label: 'Minimalist' },
-        { id: 'dark', label: 'Dark & OLED' },
-      ];
+  const categories = [
+    { id: 'all', label: 'All Palettes' },
+    { id: 'soft', label: 'Soft & Cozy' },
+    { id: 'aesthetic', label: 'Aesthetic' },
+    { id: 'minimalist', label: 'Minimalist' },
+    { id: 'dark', label: 'Dark & OLED' },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -77,22 +57,19 @@ export const ThemeStudio: React.FC = () => {
       <div className="flex flex-col gap-2 pb-3 border-b border-white/6">
         <div className="flex items-center justify-between">
           <label className="text-xs font-mono font-medium text-zinc-300">
-            Surface Material
+            Surface Atmosphere
           </label>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/6 text-zinc-400">
             {surfaceMaterial === 'classic-solid'
-              ? 'OLED Battery Saver'
-              : surfaceMaterial === 'liquid-glass'
-              ? 'Liquid Glass'
-              : 'Architectural Fluted'}
+              ? 'OLED Dark'
+              : 'White Liquid Glass'}
           </span>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {(
             [
-              { id: 'classic-solid', label: 'Classic Solid', desc: 'Minimal OLED' },
-              { id: 'liquid-glass', label: 'Liquid Glass', desc: 'Glass Expo' },
-              { id: 'fluted-glass', label: 'Fluted Glass', desc: 'Reeded Prism' },
+              { id: 'classic-solid', label: 'Classic Solid', desc: 'Minimal Dark' },
+              { id: 'liquid-glass', label: 'White Liquid Glass', desc: 'Pearl Glass' },
             ] as const
           ).map((mat) => {
             const isSel = surfaceMaterial === mat.id;
@@ -214,28 +191,18 @@ export const ThemeStudio: React.FC = () => {
                 </p>
               </div>
 
-              {/* Bottom Row: Swatch Strip / Flowing Gradient */}
+              {/* Bottom Row: Swatch Strip */}
               <div className="flex items-center justify-between mt-3.5 pt-2.5 hairline-t">
-                {t.isShaderGradient ? (
-                  <div
-                    className="w-24 h-4 rounded-full border border-white/20 shadow-sm shrink-0"
-                    style={{
-                      background: `linear-gradient(90deg, ${t.colors.join(', ')})`,
-                    }}
-                    title="Shader Gradient Spectrum"
-                  />
-                ) : (
-                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/40 border border-white/8">
-                    {t.colors.map((c, idx) => (
-                      <span
-                        key={idx}
-                        className="w-4 h-4 rounded-full border border-white/20 shadow-sm shrink-0"
-                        style={{ backgroundColor: c }}
-                        title={c}
-                      />
-                    ))}
-                  </div>
-                )}
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/40 border border-white/8">
+                  {t.colors.map((c, idx) => (
+                    <span
+                      key={idx}
+                      className="w-4 h-4 rounded-full border border-white/20 shadow-sm shrink-0"
+                      style={{ backgroundColor: c }}
+                      title={c}
+                    />
+                  ))}
+                </div>
                 <span className="text-[10px] font-mono text-zinc-500 uppercase">
                   {isActive ? 'Active' : 'Select'}
                 </span>

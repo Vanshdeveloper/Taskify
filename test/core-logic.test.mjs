@@ -661,53 +661,25 @@ test('Glassmorphic Widget SVG Generation: 6-Pill Medium & 2x2 Small Layouts', ()
   assert.equal(pendingTasks + pendingHabits, 3);
 });
 
-test('Surface Material & Shader Gradient Themes Contract', () => {
-  const VALID_SURFACES = ['classic-solid', 'liquid-glass', 'fluted-glass'];
+test('Surface Material & Dedicated White Liquid Glass Contract', () => {
+  const VALID_SURFACES = ['classic-solid', 'liquid-glass'];
   
-  // Test surface validity
+  // Test surface validity (strictly classic-solid and dedicated white liquid-glass)
   assert.ok(VALID_SURFACES.includes('classic-solid'));
   assert.ok(VALID_SURFACES.includes('liquid-glass'));
-  assert.ok(VALID_SURFACES.includes('fluted-glass'));
+  assert.equal(VALID_SURFACES.includes('fluted-glass'), false, 'Fluted glass must be completely removed');
   assert.equal(VALID_SURFACES.includes('unknown-theme'), false);
 
-  // Test theme partitioning logic
-  const mockShaderThemes = [
-    { id: 'shader-pure-blue', category: 'shader-iconic', isShaderGradient: true, colors: ['#060911', '#007aff', '#ffffff', '#0a84ff'] },
-    { id: 'shader-frosted-white', category: 'shader-iconic', isShaderGradient: true, colors: ['#090e17', '#007aff', '#f8fafc', '#ffffff'] },
-    { id: 'shader-silk-aurora', category: 'shader-aurora', isShaderGradient: true, colors: ['#0f0a14', '#f472b6', '#38bdf8', '#faf5ff'] },
-    { id: 'shader-obsidian-amber', category: 'shader-amber', isShaderGradient: true, colors: ['#100b08', '#f26a36', '#f59e0b', '#fdf3e5'] },
-    { id: 'shader-emerald-mist', category: 'shader-botanical', isShaderGradient: true, colors: ['#08100c', '#10b981', '#84cc16', '#f0fdf4'] },
-    { id: 'shader-sakura-crystal', category: 'shader-aurora', isShaderGradient: true, colors: ['#12090e', '#fb7185', '#f43f5e', '#fff1f2'] },
-    { id: 'shader-arctic-glacier', category: 'shader-cyber', isShaderGradient: true, colors: ['#080d14', '#38bdf8', '#818cf8', '#f1f5f9'] },
-    { id: 'shader-velvet-twilight', category: 'shader-aurora', isShaderGradient: true, colors: ['#100910', '#c17685', '#a855f7', '#fffff6'] },
-    { id: 'shader-sunset-horizon', category: 'shader-amber', isShaderGradient: true, colors: ['#120a06', '#f97316', '#ec4899', '#fef3c7'] },
-    { id: 'shader-cyber-matrix', category: 'shader-cyber', isShaderGradient: true, colors: ['#070a0e', '#84cc16', '#06b6d4', '#f8fafc'] },
+  // Test preset themes retain solid presets with zero shader themes
+  const mockPresetThemes = [
+    { id: 'espresso-terracotta', category: 'soft', colors: ['#160f0d', '#f26a36', '#e5a42f', '#fdf3e5'] },
+    { id: 'forest-rose', category: 'soft', colors: ['#0f1712', '#4ade80', '#fb7185', '#f0fdf4'] },
+    { id: 'obsidian-pure', category: 'dark', colors: ['#070709', '#3b82f6', '#f43f5e', '#f4f4f5'] },
   ];
 
-  const mockSolidThemes = [
-    { id: 'espresso-terracotta', category: 'soft' },
-    { id: 'forest-rose', category: 'soft' },
-    { id: 'obsidian-pure', category: 'dark' },
-  ];
-
-  // Function replicating ThemeContext activeThemes partition
-  function getActiveThemes(surfaceMaterial) {
-    return surfaceMaterial === 'classic-solid' ? mockSolidThemes : mockShaderThemes;
-  }
-
-  // In classic-solid mode, only solid themes are shown
-  const solidActive = getActiveThemes('classic-solid');
-  assert.equal(solidActive.length, 3);
-  assert.ok(solidActive.every((t) => !t.isShaderGradient));
-
-  // In liquid-glass or fluted-glass mode, only shader gradient themes are shown
-  const liquidActive = getActiveThemes('liquid-glass');
-  assert.equal(liquidActive.length, 10);
-  assert.ok(liquidActive.every((t) => t.isShaderGradient === true));
-  assert.ok(liquidActive.every((t) => t.colors.length === 4));
-
-  const flutedActive = getActiveThemes('fluted-glass');
-  assert.equal(flutedActive.length, 10);
-  assert.ok(flutedActive.every((t) => t.isShaderGradient === true));
+  // In classic-solid and liquid-glass modes, standard preset themes remain stable
+  assert.equal(mockPresetThemes.length, 3);
+  assert.ok(mockPresetThemes.every((t) => !t.id.startsWith('shader-')));
+  assert.ok(mockPresetThemes.every((t) => ['soft', 'aesthetic', 'minimalist', 'dark'].includes(t.category)));
 });
 
