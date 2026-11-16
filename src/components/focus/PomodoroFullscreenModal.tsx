@@ -492,26 +492,30 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                     <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
                       Corner Curvature (Border Radius)
                     </span>
-                    <div className="grid grid-cols-5 gap-1.5">
+                    <div className="grid grid-cols-6 gap-1.5">
                       {[
+                        { label: 'Auto', val: 'auto', desc: 'Auto Fit' },
                         { label: '0px', val: 0, desc: 'Square' },
                         { label: '24px', val: 24, desc: 'Subtle' },
                         { label: '38px', val: 38, desc: 'Standard' },
                         { label: '48px', val: 48, desc: 'Curved' },
                         { label: '56px', val: 56, desc: 'Extreme' },
                       ].map((item) => {
-                        const isSelected = !isAutoRadius && effectiveRadius === item.val;
+                        const isSelected =
+                          item.val === 'auto'
+                            ? isAutoRadius
+                            : !isAutoRadius && effectiveRadius === item.val;
                         return (
                           <button
                             key={item.label}
                             type="button"
                             onClick={async () => {
                               feedback.playClick();
-                              await updateSettings({ focusEdgeRadius: item.val });
+                              await updateSettings({ focusEdgeRadius: item.val as any });
                             }}
                             className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
                               isSelected
-                                ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
+                                ? 'bg-orange-500 text-white border-orange-400 shadow-sm font-bold'
                                 : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
                             }`}
                           >
@@ -890,26 +894,30 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                   <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
                     Corner Curvature (Border Radius)
                   </span>
-                  <div className="grid grid-cols-5 gap-1.5">
+                  <div className="grid grid-cols-6 gap-1.5">
                     {[
+                      { label: 'Auto', val: 'auto', desc: 'Auto Fit' },
                       { label: '0px', val: 0, desc: 'Square' },
                       { label: '24px', val: 24, desc: 'Subtle' },
                       { label: '38px', val: 38, desc: 'Standard' },
                       { label: '48px', val: 48, desc: 'Curved' },
                       { label: '56px', val: 56, desc: 'Extreme' },
                     ].map((item) => {
-                      const isSelected = !isAutoRadius && effectiveRadius === item.val;
+                      const isSelected =
+                        item.val === 'auto'
+                          ? isAutoRadius
+                          : !isAutoRadius && effectiveRadius === item.val;
                       return (
                         <button
                           key={item.label}
                           type="button"
                           onClick={async () => {
                             feedback.playClick();
-                            await updateSettings({ focusEdgeRadius: item.val });
+                            await updateSettings({ focusEdgeRadius: item.val as any });
                           }}
                           className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
                             isSelected
-                              ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
+                              ? 'bg-orange-500 text-white border-orange-400 shadow-sm font-bold'
                               : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
                           }`}
                         >

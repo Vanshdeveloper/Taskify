@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, startTransition } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { APPLE_SPRINGS } from '../../utils/motion';
@@ -13,8 +13,6 @@ import {
   ChevronRight,
   X,
   Layers,
-  Sparkles,
-  Check,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { ScratchCard } from '../../types';
@@ -225,15 +223,20 @@ export const ScratchpadView: React.FC = () => {
               <button
                 key={cat}
                 type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`relative px-3.5 py-1.5 text-xs font-bold rounded-xl pressable whitespace-nowrap transition-colors capitalize ${
+                onClick={() => {
+                  feedback.playClick();
+                  startTransition(() => {
+                    setSelectedCategory(cat);
+                  });
+                }}
+                className={`relative px-3.5 py-1.5 text-xs font-bold rounded-xl pressable whitespace-nowrap transition-colors capitalize cursor-pointer ${
                   isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="scratchpadCategoryPill"
-                    transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                    transition={{ type: 'spring', damping: 30, stiffness: 450 }}
                     className="absolute inset-0 rounded-xl"
                     style={{ backgroundColor: 'var(--accent-primary)' }}
                   />
@@ -276,20 +279,18 @@ export const ScratchpadView: React.FC = () => {
             <p className="text-xs text-zinc-500 mt-1">Tap "+ New Card" above to jot down a thought or flashcard.</p>
           </motion.div>
         ) : (
-          <motion.div
+          <div
             key={`cards-grid-${selectedCategory}`}
-            layout
             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             {filteredCards.map((card, idx) => {
               return (
                 <motion.div
                   key={card.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.96 }}
+                  initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={APPLE_SPRINGS.snappy}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
                   className="solid-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-lg border relative transition-colors group hover:border-white/20"
                   style={{ backgroundColor: 'var(--bg-card)' }}
                 >
@@ -378,7 +379,7 @@ export const ScratchpadView: React.FC = () => {
                 </motion.div>
               );
             })}
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -585,7 +586,7 @@ export const ScratchpadView: React.FC = () => {
                         className="w-7 h-7 rounded-lg flex items-center justify-center"
                         style={{ backgroundColor: `${color}25`, color }}
                       >
-                        <Sparkles className="w-4 h-4" />
+                        <Layers className="w-4 h-4" />
                       </div>
                       <h3 className="font-display text-base font-bold text-white">
                         {editingCard ? 'Edit Flashcard' : 'New Flashcard'}
@@ -693,20 +694,24 @@ export const ScratchpadView: React.FC = () => {
                       <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
                         Color Accent
                       </label>
-                      <div className="flex items-center gap-1.5 h-9">
+                      <div
+                        className="flex items-center gap-2.5 overflow-x-auto no-scrollbar scroll-smooth py-1"
+                        style={{ touchAction: 'pan-x' }}
+                      >
                         {CARD_COLORS.map((c) => (
                           <button
                             key={c.value}
                             type="button"
-                            onClick={() => setColor(c.value)}
-                            className={`w-5 h-5 rounded-full flex items-center justify-center pressable cursor-pointer border ${
-                              color === c.value ? 'ring-2 ring-white scale-110' : 'border-white/20'
+                            onClick={() => {
+                              feedback.playClick();
+                              setColor(c.value);
+                            }}
+                            className={`w-7 h-7 rounded-full transition-transform pressable cursor-pointer shrink-0 ${
+                              color === c.value ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'
                             }`}
                             style={{ backgroundColor: c.value }}
                             title={c.label}
-                          >
-                            {color === c.value && <Check className="w-3 h-3 text-white stroke-[3]" />}
-                          </button>
+                          />
                         ))}
                       </div>
                     </div>

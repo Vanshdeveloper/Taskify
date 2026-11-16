@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "android/app/capacitor.build.gradle": {
-    "mtime": 1794825506.1677148,
-    "seen": 1794827754.373316,
+    "mtime": 1794829425.6363907,
+    "seen": 1794832504.7417629,
     "ast_hash": "06796b9d95b34bdd34d57405c42f101d",
     "semantic_hash": ""
   },
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "android/capacitor.settings.gradle": {
-    "mtime": 1794825506.1607125,
-    "seen": 1794827754.373316,
+    "mtime": 1794829425.6363907,
+    "seen": 1794832504.7417629,
     "ast_hash": "8087b83c314c84daec05cc78bec69ec5",
     "semantic_hash": ""
   },
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "ios/App/CapApp-SPM/Package.swift": {
-    "mtime": 1794825506.4104195,
-    "seen": 1794827754.373316,
+    "mtime": 1794829425.8619163,
+    "seen": 1794832504.7417629,
     "ast_hash": "e653513245e72fd597b2d8d7f0d7c0d8",
     "semantic_hash": ""
   },
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "src/components/analytics/ExecutiveDashboardView.tsx": {
-    "mtime": 1794802474.0761342,
-    "seen": 1794803435.474713,
-    "ast_hash": "99cb16ce4a0ecdfdc2002e29b0da5b12",
+    "mtime": 1794832096.523851,
+    "seen": 1794832504.7417629,
+    "ast_hash": "c7b99644e7c3af657fafcb7d341d2461",
     "semantic_hash": ""
   },
   "src/components/finance/FinanceView.tsx": {
@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "src/components/modals/QuickCaptureModal.tsx": {
-    "mtime": 1794802309.2454257,
-    "seen": 1794803435.474713,
-    "ast_hash": "487062492cefe6129a0193d2064209fd",
+    "mtime": 1794831502.5052533,
+    "seen": 1794832504.7417629,
+    "ast_hash": "11e45e6356792590100f7c9fe0ceb7b5",
     "semantic_hash": ""
   },
   "src/components/modals/TaskModal.tsx": {
@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "src/components/settings/SettingsView.tsx": {
-    "mtime": 1794827597.8591945,
-    "seen": 1794827754.373316,
-    "ast_hash": "818f933ab0bf72b53b571d1887ebfac6",
+    "mtime": 1794831853.1832488,
+    "seen": 1794832504.7417629,
+    "ast_hash": "ef57aff1f76df4f85c8b1eb67a99d0b5",
     "semantic_hash": ""
   },
   "src/components/settings/ThemeStudio.tsx": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "src/components/ui/BrandLogo.tsx": {
-    "mtime": 1794281201.3967452,
-    "seen": 1794412837.3264596,
-    "ast_hash": "bc1619a96124339ad26798217f73abd2",
+    "mtime": 1794831798.673839,
+    "seen": 1794832504.7417629,
+    "ast_hash": "c2690c30461feac5771d15e8425cc064",
     "semantic_hash": ""
   },
   "src/components/ui/CalendarStrip.tsx": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "src/components/ui/ReminderBanner.tsx": {
-    "mtime": 1794802648.058563,
-    "seen": 1794803435.474713,
-    "ast_hash": "1df1ed88f020a81f120cfc7966e3d078",
+    "mtime": 1794832105.9851937,
+    "seen": 1794832504.7417629,
+    "ast_hash": "4e435b9da799d63d60cd3deb764e2a7f",
     "semantic_hash": ""
   },
   "src/components/ui/SplashScreen.tsx": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "test/core-logic.test.mjs": {
-    "mtime": 1794828286.9737139,
-    "seen": 1794828345.7474632,
-    "ast_hash": "0da58ff7b3e56e3d1e878b1a81d019d4",
+    "mtime": 1794832217.6293392,
+    "seen": 1794832504.7417629,
+    "ast_hash": "154724de20504544251c39ea369b6bc0",
     "semantic_hash": ""
   },
   "test/e2e-tier1-features.test.mjs": {
@@ -2622,15 +2622,15 @@
     "semantic_hash": ""
   },
   "src/components/focus/PomodoroFullscreenModal.tsx": {
-    "mtime": 1794827650.6859686,
-    "seen": 1794827754.373316,
-    "ast_hash": "5609d95a1d4599e0370f25a4f3f1e71b",
+    "mtime": 1794831741.1460023,
+    "seen": 1794832504.7417629,
+    "ast_hash": "47e844d67705224620bd612654204d9c",
     "semantic_hash": ""
   },
   "src/components/scratchpad/ScratchpadView.tsx": {
-    "mtime": 1794827093.3966107,
-    "seen": 1794827754.373316,
-    "ast_hash": "e3e6b6fb753bf9c8f7a5cc4ff43b6d57",
+    "mtime": 1794831652.9362404,
+    "seen": 1794832504.7417629,
+    "ast_hash": "46cddbd183b3abb094990d1baff28b31",
     "semantic_hash": ""
   },
   "package-lock.json": {

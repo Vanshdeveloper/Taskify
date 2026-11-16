@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Repeat, Bell, Flame, Sun } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
+import { AppLogoMark } from './BrandLogo';
 
 export const ReminderBanner: React.FC = () => {
   const {
@@ -57,22 +58,9 @@ export const ReminderBanner: React.FC = () => {
           >
             {/* Top Row: Native App Header (Icon + App Name + Type + Timestamp) */}
             <div className="flex items-center justify-between text-[11px] text-zinc-400">
-              <div className="flex items-center gap-1.5">
-                {/* Rounded Taskify App Icon */}
-                <div
-                  className="w-5 h-5 rounded-[5px] flex items-center justify-center text-white shadow-sm shrink-0"
-                  style={{ backgroundColor: 'var(--accent-primary)' }}
-                >
-                  {activeReminderAlert.type === 'habit' ? (
-                    <Repeat className="w-3 h-3 stroke-[2.5]" />
-                  ) : activeReminderAlert.type === 'poke' ? (
-                    <Flame className="w-3 h-3 stroke-[2.5]" />
-                  ) : activeReminderAlert.type === 'daypart' ? (
-                    <Sun className="w-3 h-3 stroke-[2.5]" />
-                  ) : (
-                    <Bell className="w-3 h-3 stroke-[2.5]" />
-                  )}
-                </div>
+              <div className="flex items-center gap-2">
+                {/* Dynamic Taskify App Icon (Mirrors Settings Logo Aesthetic) */}
+                <AppLogoMark size={18} />
 
                 <span className="font-mono font-bold tracking-wider text-white/90 uppercase text-[10px]">
                   Taskify

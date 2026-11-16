@@ -715,12 +715,13 @@ export const QuickCaptureModal: React.FC = () => {
                   </div>
 
                   {/* Habit Color Swatches */}
+                  {/* Habit Accent Color Picker */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
                       Accent Color
                     </label>
                     <div
-                      className="flex items-center gap-2.5 overflow-x-auto no-scrollbar scroll-smooth py-1"
+                      className="flex items-center gap-3 bg-black/30 p-2.5 rounded-xl border border-white/8 overflow-x-auto no-scrollbar scroll-smooth"
                       style={{ touchAction: 'pan-x' }}
                       onWheel={(e) => {
                         if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
@@ -734,13 +735,16 @@ export const QuickCaptureModal: React.FC = () => {
                             feedback.playClick();
                             setHabitColor(c.hex);
                           }}
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-                            habitColor === c.hex ? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-950 scale-110' : 'opacity-70 hover:opacity-100'
+                          className={`w-7 h-7 rounded-full transition-transform pressable cursor-pointer shrink-0 ${
+                            habitColor === c.hex ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'
                           }`}
                           style={{ backgroundColor: c.hex }}
                           title={c.name}
                         />
                       ))}
+                      <span className="text-xs text-zinc-400 font-mono ml-auto shrink-0">
+                        {habitColors.find((c) => c.hex === habitColor)?.name || 'Custom'}
+                      </span>
                     </div>
                   </div>
 
