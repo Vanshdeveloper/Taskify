@@ -171,7 +171,7 @@ export const TasksView: React.FC = () => {
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
           onClick={openTaskModal}
-          className="self-start sm:self-auto flex items-center gap-1.5 h-9 px-3.5 rounded-xl font-semibold text-xs pressable shadow-sm transition-all cursor-pointer"
+          className="self-start sm:self-auto flex items-center gap-1.5 h-9 px-4 rounded-full font-bold text-xs pressable shadow-md transition-all cursor-pointer liquid-btn-primary"
           style={{
             backgroundColor: 'var(--accent-primary)',
             color: '#ffffff',
@@ -203,7 +203,7 @@ export const TasksView: React.FC = () => {
               <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 block">
                 Active Focus
               </span>
-              <span className="font-display font-black text-xl text-white">
+              <span className="font-display font-black text-lg sm:text-xl text-white whitespace-nowrap">
                 {pendingCount} Objectives
               </span>
             </div>
@@ -229,7 +229,7 @@ export const TasksView: React.FC = () => {
               <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 block">
                 Completed
               </span>
-              <span className="font-display font-black text-xl text-white">
+              <span className="font-display font-black text-lg sm:text-xl text-white whitespace-nowrap">
                 {completedCount} Done
               </span>
             </div>
@@ -448,8 +448,8 @@ export const TasksView: React.FC = () => {
                     }`}
                     style={{ backgroundColor: 'var(--bg-card)' }}
                   >
-                      {/* Top Row: Category Tag, Deadline Pill, Duplicate Action & Delete Action */}
-                      <div className="flex items-center justify-between gap-2 mb-3">
+                      {/* Top Row: Category Tag, Priority Pip & Actions */}
+                      <div className="flex items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                           <span
                             className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border shrink-0"
@@ -464,28 +464,19 @@ export const TasksView: React.FC = () => {
 
                           {/* Priority Pip */}
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border font-mono shrink-0 ${
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border font-mono shrink-0 priority-badge ${
                               task.priority === 'urgent'
-                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 priority-urgent'
                                 : task.priority === 'high'
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                                : 'bg-black/30 text-zinc-400 border-white/6'
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 priority-high'
+                                : 'bg-black/30 text-zinc-400 border-white/6 priority-medium'
                             }`}
                           >
                             ^ {task.priority}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <div
-                            className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-lg bg-black/30 border border-white/6 text-zinc-400 shrink-0 whitespace-nowrap"
-                            title="Scheduled Due Date"
-                          >
-                            <Calendar className="w-2.5 h-2.5 shrink-0" />
-                            <span className="whitespace-nowrap">{formatDateRelative(task.dueDate)}</span>
-                            {task.dueTime && <span className="whitespace-nowrap"> • {task.dueTime}</span>}
-                          </div>
-
+                        <div className="flex items-center gap-1 shrink-0">
                           {/* 1-click Duplicate Action */}
                           <button
                             type="button"
@@ -511,6 +502,18 @@ export const TasksView: React.FC = () => {
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
+                        </div>
+                      </div>
+
+                      {/* Scheduled Date Pill */}
+                      <div className="flex items-center mb-2.5">
+                        <div
+                          className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-lg bg-black/30 border border-white/6 text-zinc-400 shrink-0 whitespace-nowrap task-date-pill"
+                          title="Scheduled Due Date"
+                        >
+                          <Calendar className="w-2.5 h-2.5 shrink-0" />
+                          <span className="whitespace-nowrap">{formatDateRelative(task.dueDate)}</span>
+                          {task.dueTime && <span className="whitespace-nowrap"> • {task.dueTime}</span>}
                         </div>
                       </div>
 
@@ -700,12 +703,12 @@ export const TasksView: React.FC = () => {
 
                       <div className="flex items-center gap-1.5 shrink-0">
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md priority-badge ${
                             task.priority === 'urgent'
-                              ? 'bg-rose-500/20 text-rose-300'
+                              ? 'bg-rose-500/20 text-rose-300 priority-urgent'
                               : task.priority === 'high'
-                              ? 'bg-amber-500/20 text-amber-300'
-                              : 'bg-black/20 text-zinc-400'
+                              ? 'bg-amber-500/20 text-amber-300 priority-high'
+                              : 'bg-black/20 text-zinc-400 priority-medium'
                           }`}
                         >
                           {task.priority}

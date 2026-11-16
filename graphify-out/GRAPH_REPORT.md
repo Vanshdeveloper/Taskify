@@ -1,7 +1,7 @@
 # Graph Report - taskify (ver-2)  (2026-11-16)
 
 ## Corpus Check
-- 392 files · ~407,546 words
+- 392 files · ~407,677 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 152 file(s) not represented in the graph (top: .xml 80, .csv 53, (none) 6)
 - WARNING: 152 of 590 files seen (26%) have no supported extractor and are missing from this graph entirely. It may look complete while representing only part of the codebase.
@@ -12,7 +12,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1b338cd7`
+- Built from commit: `14ce5aea`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1232,16 +1232,16 @@ Nodes (3): split_values(), style_identities(), TestStyleIdentityContract
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `TailwindConfigGenerator` connect `TailwindConfigGenerator` to `test_tailwind_config_gen.py`, `.add_plugins`, `._base_config`, `json`, `main`, `.write_config`, `.validate_config`, `.generate_config_string`, `.add_colors`, `TestTailwindConfigGenerator`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `TestTailwindConfigGenerator`) actually correct?**
   _`TailwindConfigGenerator` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `AppIntents`, `SwiftUI`, `WidgetKit` to the rest of the system?**
   _7 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ShadcnInstaller` be split into smaller, more focused modules?**
   _Cohesion score 0.053555750658472345 - nodes in this community are weakly interconnected._
-- **Why does `React Best Practices` connect `React Best Practices` to `7. JavaScript Performance`, `1. Eliminating Waterfalls`, `2. Bundle Size Optimization`, `6. Rendering Performance`, `3. Server-Side Performance`, `4. Client-Side Data Fetching`, `5. Re-render Optimization`?**
+- **Why does `ShadcnInstaller` connect `ShadcnInstaller` to `json`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Should `scripts/core.py` be split into smaller, more focused modules?**
   _Cohesion score 0.05563093622795115 - nodes in this community are weakly interconnected._
-- **Why does `preventDefault()` connect `4. Client-Side Data Fetching` to `empirical-m2-gestures.test.mjs`?**
+- **Why does `DesignSystemGenerator` connect `DesignSystemGenerator` to `design_system.py`, `test_data_contracts.py`, `test_design_system_mode.py`, `test_core.py`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._

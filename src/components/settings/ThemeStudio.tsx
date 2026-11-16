@@ -31,15 +31,15 @@ export const ThemeStudio: React.FC = () => {
   const getCategoryBadge = (cat: string) => {
     switch (cat) {
       case 'soft':
-        return { label: 'Soft & Cozy', color: '#c6d77b', icon: Feather };
+        return { label: 'Soft & Cozy', bg: 'var(--cat-fitness-bg, rgba(132, 204, 22, 0.15))', color: 'var(--badge-soft-color, #c6d77b)', icon: Feather };
       case 'aesthetic':
-        return { label: 'Aesthetic Pastel', color: '#f472b6', icon: Sparkles };
+        return { label: 'Aesthetic Pastel', bg: 'var(--cat-creative-bg, rgba(244, 114, 182, 0.15))', color: 'var(--badge-aesthetic-color, #f472b6)', icon: Sparkles };
       case 'minimalist':
-        return { label: 'Minimalist', color: '#38bdf8', icon: Sliders };
+        return { label: 'Minimalist', bg: 'var(--cat-work-bg, rgba(56, 189, 248, 0.15))', color: 'var(--badge-minimalist-color, #38bdf8)', icon: Sliders };
       case 'dark':
-        return { label: 'Dark & OLED', color: '#a855f7', icon: Moon };
+        return { label: 'Dark & OLED', bg: 'var(--cat-default-bg, rgba(168, 85, 247, 0.15))', color: 'var(--badge-dark-color, #a855f7)', icon: Moon };
       default:
-        return { label: 'Theme', color: '#ffffff', icon: Layers };
+        return { label: 'Theme', bg: 'var(--cat-default-bg, rgba(255, 255, 255, 0.08))', color: 'var(--text-primary)', icon: Layers };
     }
   };
 
@@ -161,9 +161,9 @@ export const ThemeStudio: React.FC = () => {
                     </span>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span
-                        className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold flex items-center gap-1 border border-white/10"
+                        className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold flex items-center gap-1 border border-white/10 category-theme-badge"
                         style={{
-                          backgroundColor: `${badge.color}15`,
+                          backgroundColor: badge.bg,
                           color: badge.color,
                         }}
                       >

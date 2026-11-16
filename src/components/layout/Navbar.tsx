@@ -96,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={openPomodoro}
             onPointerDown={(e) => e.stopPropagation()}
-            className={`relative before:absolute before:-inset-2 before:content-[''] h-9 rounded-xl flex items-center justify-center pressable cursor-pointer touch-manipulation glass-expo-interactive ${
+            className={`relative before:absolute before:-inset-2 before:content-[''] h-9 rounded-full flex items-center justify-center pressable cursor-pointer touch-manipulation glass-expo-interactive ${
               isTimerActive
                 ? 'px-3 gap-2 border-orange-500/50 bg-orange-500/15 text-orange-400 shadow-[0_4px_16px_rgba(242,106,54,0.25)]'
                 : 'w-9 text-zinc-300 hover:text-white'
@@ -121,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={onOpenStreaks}
             onPointerDown={(e) => e.stopPropagation()}
-            className="relative before:absolute before:-inset-2 before:content-[''] h-9 px-2.5 rounded-xl flex items-center gap-1.5 pressable cursor-pointer touch-manipulation glass-expo-interactive border-amber-500/30 text-amber-500"
+            className="relative before:absolute before:-inset-2 before:content-[''] h-9 px-3 rounded-full flex items-center gap-1.5 pressable cursor-pointer touch-manipulation glass-expo-interactive border-amber-500/30 text-amber-500"
             title="Open Consistency Hall of Fame"
           >
             <Flame className="w-3.5 h-3.5 fill-current text-amber-500 relative z-10" />
@@ -135,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={onOpenInspector}
             onPointerDown={(e) => e.stopPropagation()}
-            className="relative before:absolute before:-inset-3 before:content-[''] w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable cursor-pointer touch-manipulation glass-expo-interactive"
+            className="relative before:absolute before:-inset-3 before:content-[''] w-9 h-9 rounded-full flex items-center justify-center text-zinc-300 hover:text-white pressable cursor-pointer touch-manipulation glass-expo-interactive"
             aria-label="Open System Inspector"
             title="Inspector & Preferences"
           >

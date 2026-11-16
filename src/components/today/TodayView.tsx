@@ -105,7 +105,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             onClick={onOpenSearch || (() => setActiveTab('tasks'))}
-            className="w-9 h-9 rounded-xl flex items-center justify-center pressable border transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center pressable border transition-colors cursor-pointer glass-expo-interactive"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-card)',
@@ -120,7 +120,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setIsQuickCaptureOpen(true)}
-            className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md pressable cursor-pointer font-bold"
+            className="w-9 h-9 rounded-full flex items-center justify-center shadow-md pressable cursor-pointer font-bold liquid-btn-primary"
             style={{
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
@@ -391,12 +391,12 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
                             {task.category}
                           </span>
                           <span
-                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border font-mono ${
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border font-mono priority-badge ${
                               task.priority === 'urgent'
-                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 priority-urgent'
                                 : task.priority === 'high'
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                                : 'bg-black/30 text-zinc-400 border-white/6'
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 priority-high'
+                                : 'bg-black/30 text-zinc-400 border-white/6 priority-medium'
                             }`}
                           >
                             ^ {task.priority}

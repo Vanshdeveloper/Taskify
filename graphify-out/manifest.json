@@ -588,15 +588,15 @@
     "semantic_hash": ""
   },
   "src/components/layout/MobileTabBar.tsx": {
-    "mtime": 1794737224.1704493,
-    "seen": 1794738169.2066462,
-    "ast_hash": "f3fb661dbd4d259639675e3d737953fe",
+    "mtime": 1794810599.2632978,
+    "seen": 1794811101.9898262,
+    "ast_hash": "febe04b294ce91a0a3c282c99096b767",
     "semantic_hash": ""
   },
   "src/components/layout/Navbar.tsx": {
-    "mtime": 1794802567.2709365,
-    "seen": 1794803435.474713,
-    "ast_hash": "47656ee4dd4ffe564ff21ec92b53a0f8",
+    "mtime": 1794810209.2730558,
+    "seen": 1794811101.9898262,
+    "ast_hash": "ab10859f8bc8353fb186b42a5f12c117",
     "semantic_hash": ""
   },
   "src/components/layout/Sidebar.tsx": {
@@ -660,9 +660,9 @@
     "semantic_hash": ""
   },
   "src/components/settings/ThemeStudio.tsx": {
-    "mtime": 1794807168.7677872,
-    "seen": 1794807406.6314409,
-    "ast_hash": "7e1cc53c0e4d17f15afb6cd29fc6123f",
+    "mtime": 1794809411.264634,
+    "seen": 1794811101.9898262,
+    "ast_hash": "34680c97e0edaece4ae5f77cfa71fe80",
     "semantic_hash": ""
   },
   "src/components/streaks/StreaksView.tsx": {
@@ -684,15 +684,15 @@
     "semantic_hash": ""
   },
   "src/components/tasks/TasksView.tsx": {
-    "mtime": 1794802591.449597,
-    "seen": 1794803435.474713,
-    "ast_hash": "70ab14b1fd7da071466c7e480947ab2b",
+    "mtime": 1794811007.6954587,
+    "seen": 1794811101.9898262,
+    "ast_hash": "a60bb033b3aba5d398c15d28fbe441a9",
     "semantic_hash": ""
   },
   "src/components/today/TodayView.tsx": {
-    "mtime": 1794463959.8181343,
-    "seen": 1794464112.9886668,
-    "ast_hash": "65a9ec2e523a24462a01deaaeefafd7a",
+    "mtime": 1794810294.5707319,
+    "seen": 1794811101.9898262,
+    "ast_hash": "782c09cd8438e8dcdfafb48279c3c7ff",
     "semantic_hash": ""
   },
   "src/components/ui/BrandLogo.tsx": {
@@ -702,9 +702,9 @@
     "semantic_hash": ""
   },
   "src/components/ui/CalendarStrip.tsx": {
-    "mtime": 1794802146.6186433,
-    "seen": 1794803435.474713,
-    "ast_hash": "48328029519b007b836b36927c28e56b",
+    "mtime": 1794809349.2634559,
+    "seen": 1794811101.9898262,
+    "ast_hash": "2f4d1988f8af7b357527d41d2292af11",
     "semantic_hash": ""
   },
   "src/components/ui/CustomDatePicker.tsx": {
@@ -798,9 +798,9 @@
     "semantic_hash": ""
   },
   "src/utils/category.ts": {
-    "mtime": 1793716166.5183995,
-    "seen": 1794412837.3265007,
-    "ast_hash": "8b6c8c2243abcb03177fcef03a966955",
+    "mtime": 1794810314.6334949,
+    "seen": 1794811101.9898262,
+    "ast_hash": "039918e0f8b278c66c3ae9f5a40c48fb",
     "semantic_hash": ""
   },
   "src/utils/currency.ts": {
