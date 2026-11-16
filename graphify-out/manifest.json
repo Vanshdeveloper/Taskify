@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "android/app/capacitor.build.gradle": {
-    "mtime": 1794829425.6363907,
-    "seen": 1794832504.7417629,
+    "mtime": 1794833248.1576505,
+    "seen": 1794837175.9861364,
     "ast_hash": "06796b9d95b34bdd34d57405c42f101d",
     "semantic_hash": ""
   },
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyWidgetProvider.java": {
-    "mtime": 1794664031.432757,
-    "seen": 1794669053.7297263,
-    "ast_hash": "a2f30a039d245f82caf10b9fe474bf1b",
+    "mtime": 1794835792.3079262,
+    "seen": 1794837175.9861364,
+    "ast_hash": "5ea956b64eb79087efe8b3cf2ad41791",
     "semantic_hash": ""
   },
   "android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "android/capacitor.settings.gradle": {
-    "mtime": 1794829425.6363907,
-    "seen": 1794832504.7417629,
+    "mtime": 1794833248.1566505,
+    "seen": 1794837175.9861364,
     "ast_hash": "8087b83c314c84daec05cc78bec69ec5",
     "semantic_hash": ""
   },
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "ios/App/CapApp-SPM/Package.swift": {
-    "mtime": 1794829425.8619163,
-    "seen": 1794832504.7417629,
+    "mtime": 1794833248.3327165,
+    "seen": 1794837175.9861364,
     "ast_hash": "e653513245e72fd597b2d8d7f0d7c0d8",
     "semantic_hash": ""
   },
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "src/components/analytics/ExecutiveDashboardView.tsx": {
-    "mtime": 1794832096.523851,
-    "seen": 1794832504.7417629,
-    "ast_hash": "c7b99644e7c3af657fafcb7d341d2461",
+    "mtime": 1794835512.3013647,
+    "seen": 1794837175.9861364,
+    "ast_hash": "2e5aa8c36482abcb5d4c773164086cd6",
     "semantic_hash": ""
   },
   "src/components/finance/FinanceView.tsx": {
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "src/context/AppContext.tsx": {
-    "mtime": 1794826824.106943,
-    "seen": 1794827754.373316,
-    "ast_hash": "61b978984941afc17062491945d60007",
+    "mtime": 1794835897.232646,
+    "seen": 1794837175.9861364,
+    "ast_hash": "e51a55aeccb86d367e2fab28aa1379cb",
     "semantic_hash": ""
   },
   "src/context/ThemeContext.tsx": {
@@ -882,15 +882,15 @@
     "semantic_hash": ""
   },
   "src/utils/widgetSync.ts": {
-    "mtime": 1794802753.7693503,
-    "seen": 1794803435.474713,
-    "ast_hash": "93e8861431cb5f3b62ec72cd02934cd4",
+    "mtime": 1794835724.8032248,
+    "seen": 1794837175.9861364,
+    "ast_hash": "cf92b84761baf590c0d380ef399d4e94",
     "semantic_hash": ""
   },
   "test/core-logic.test.mjs": {
-    "mtime": 1794832217.6293392,
-    "seen": 1794832504.7417629,
-    "ast_hash": "154724de20504544251c39ea369b6bc0",
+    "mtime": 1794835957.5635574,
+    "seen": 1794837175.9861364,
+    "ast_hash": "ccd4150a3fffa6949237f20ea371e9e1",
     "semantic_hash": ""
   },
   "test/e2e-tier1-features.test.mjs": {
@@ -2562,27 +2562,27 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyNativeWidgetPlugin.java": {
-    "mtime": 1794667481.0537598,
-    "seen": 1794669053.7297056,
-    "ast_hash": "534d0ef6118cf18eff373068494da7fc",
+    "mtime": 1794835740.7673674,
+    "seen": 1794837175.9861364,
+    "ast_hash": "ba12d91c6e411a4653bc2e6de3e878ae",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifySmallWidgetProvider.java": {
-    "mtime": 1794548047.9428205,
-    "seen": 1794548259.7402122,
-    "ast_hash": "d6bf97d4b88b206fc39d62a184dab1a7",
+    "mtime": 1794835835.9078026,
+    "seen": 1794837175.9861364,
+    "ast_hash": "86c3c32b106c9d0b004f683333bc76c3",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyHabitsWidgetProvider.java": {
-    "mtime": 1794548026.540134,
-    "seen": 1794548259.7402074,
-    "ast_hash": "8055d3844e61a3165db97280469d4d12",
+    "mtime": 1794835809.217076,
+    "seen": 1794837175.9861364,
+    "ast_hash": "29aa7a4f94923cc105b8c7330d450143",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyWidgetListService.java": {
-    "mtime": 1794664041.5518427,
-    "seen": 1794669053.7297235,
-    "ast_hash": "daebf5b27ddf63d4866fc01d3ede9ce6",
+    "mtime": 1794835815.4799893,
+    "seen": 1794837175.9861364,
+    "ast_hash": "c8bd864e4ee15b197c96bfd7b7c44552",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyFinanceWidgetProvider.java": {
@@ -2598,9 +2598,9 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyHabitsCompactWidgetProvider.java": {
-    "mtime": 1794642636.863406,
-    "seen": 1794643579.815295,
-    "ast_hash": "4bf3f3bfac0134f76cbb9fc747e10173",
+    "mtime": 1794835851.3821392,
+    "seen": 1794837175.9861364,
+    "ast_hash": "01fd19ad545a103a12035ec7dabad296",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyMatrixWidgetProvider.java": {
@@ -2622,9 +2622,9 @@
     "semantic_hash": ""
   },
   "src/components/focus/PomodoroFullscreenModal.tsx": {
-    "mtime": 1794831741.1460023,
-    "seen": 1794832504.7417629,
-    "ast_hash": "47e844d67705224620bd612654204d9c",
+    "mtime": 1794836892.0637138,
+    "seen": 1794837175.9861364,
+    "ast_hash": "74465975fe61ef125e7c4d4996b1fe8a",
     "semantic_hash": ""
   },
   "src/components/scratchpad/ScratchpadView.tsx": {

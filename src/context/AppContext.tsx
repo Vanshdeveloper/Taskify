@@ -938,6 +938,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, [isDbReady, tasks, habits, habitLogs, transactions, settings.currency, settings.monthlyBudget, settings.userName]);
 
+  // Midnight calendar rollover listener for widgets and UI
+  // Ensures when the day turns at 00:00, habits and widget status reset automatically
+  useEffect(() => {
+    if (!isDbReady) return;
+    let lastDate = getTodayString();
+
+    const checkDateTransition = () => {
+      const currentDate = getTodayString();
+      if (currentDate !== lastDate) {
+        lastDate = currentDate;
+        const timerSnap = focusTimerStore.getSnapshot();
+        syncWidgetData({
+          tasks,
+          habits,
+          habitLogs,
+          transactions,
+          currency: settings.currency,
+          monthlyBudget: settings.monthlyBudget,
+          userName: settings.userName,
+          timerRunning: timerSnap.status === 'running',
+          timerDurationMs: timerSnap.durationSeconds * 1000,
+          timerRemainingMs: timerSnap.remainingMs,
+        });
+      }
+    };
+
+    const interval = setInterval(checkDateTransition, 30000);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        checkDateTransition();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [isDbReady, tasks, habits, habitLogs, transactions, settings.currency, settings.monthlyBudget, settings.userName]);
+
   // Synchronize incoming widget actions (e.g. check-off task or habit from home screen)
   useEffect(() => {
     if (!isDbReady) return;

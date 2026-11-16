@@ -1,13 +1,38 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Bell, RotateCcw, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Play, Pause, X, Bell, RotateCcw, Sparkles, SlidersHorizontal, Sliders, Check, Timer } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import { useFocusTimer } from '../../hooks/useFocusTimer';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
 import { TaskifyNativeWidget } from '../../utils/widgetSync';
+
+interface PomodoroPresetOption {
+  id: string;
+  label: string;
+  seconds: number;
+  desc: string;
+}
+
+const POMODORO_PRESETS: PomodoroPresetOption[] = [
+  { id: '10s', label: '10s', seconds: 10, desc: 'Sprint' },
+  { id: '5m', label: '5m', seconds: 5 * 60, desc: 'Micro' },
+  { id: '15m', label: '15m', seconds: 15 * 60, desc: 'Quick' },
+  { id: '25m', label: '25m', seconds: 25 * 60, desc: 'Classic' },
+  { id: '45m', label: '45m', seconds: 45 * 60, desc: 'Deep' },
+  { id: '60m', label: '60m', seconds: 60 * 60, desc: '1 Hour' },
+  { id: '90m', label: '90m', seconds: 90 * 60, desc: 'Cycle' },
+];
+
+function formatDurationShort(totalSecs: number): string {
+  if (totalSecs < 60) return `${totalSecs}s`;
+  const mins = Math.floor(totalSecs / 60);
+  const secs = totalSecs % 60;
+  if (secs === 0) return `${mins}m`;
+  return `${mins}m ${secs}s`;
+}
 
 interface PomodoroFullscreenModalProps {
   isOpen: boolean;
@@ -32,7 +57,12 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
   const isEdgeProgressOn = settings.focusEdgeProgress !== false;
 
   const [isDimmed, setIsDimmed] = useState(false);
-  const [selectedPreset, setSelectedPreset] = useState<number>(25);
+  const [selectedPresetSeconds, setSelectedPresetSeconds] = useState<number>(25 * 60);
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [customMinutes, setCustomMinutes] = useState(25);
+  const [customSecondsInput, setCustomSecondsInput] = useState(0);
+
+  const isCustomSelected = !POMODORO_PRESETS.some((p) => p.seconds === selectedPresetSeconds);
   const [isDesktop, setIsDesktop] = useState(() => {
     if (typeof window === 'undefined') return false;
     return !Capacitor.isNativePlatform() && window.innerWidth >= 768;
@@ -118,13 +148,22 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
         resetInactivityTimer();
       } else if (e.key === '1') {
         e.preventDefault();
-        handleSelectPreset(5);
+        handleSelectPresetSeconds(10);
       } else if (e.key === '2') {
         e.preventDefault();
-        handleSelectPreset(25);
+        handleSelectPresetSeconds(300);
       } else if (e.key === '3') {
         e.preventDefault();
-        handleSelectPreset(50);
+        handleSelectPresetSeconds(900);
+      } else if (e.key === '4') {
+        e.preventDefault();
+        handleSelectPresetSeconds(1500);
+      } else if (e.key === '5') {
+        e.preventDefault();
+        handleSelectPresetSeconds(2700);
+      } else if (e.key === '6') {
+        e.preventDefault();
+        handleSelectPresetSeconds(3600);
       }
     };
 
@@ -298,10 +337,10 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
     resetInactivityTimer();
   };
 
-  const handleSelectPreset = (mins: number) => {
+  const handleSelectPresetSeconds = (secs: number) => {
     feedback.playClick();
-    setSelectedPreset(mins);
-    setCustomDuration(mins * 60);
+    setSelectedPresetSeconds(secs);
+    setCustomDuration(secs);
     resetInactivityTimer();
   };
 
@@ -312,6 +351,124 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
   };
 
   if (!isOpen || typeof document === 'undefined') return null;
+
+  const renderCustomModal = () => (
+    <AnimatePresence>
+      {isCustomModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none touch-manipulation"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsCustomModalOpen(false);
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-sm rounded-3xl bg-zinc-900 border border-white/15 p-5 shadow-2xl flex flex-col gap-4 text-left relative z-10"
+            onClick={(e) => e.stopPropagation()}
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                  <Timer className="w-4 h-4" />
+                </div>
+                <h4 className="font-display text-sm font-bold text-white">Custom Focus Timer</h4>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCustomModalOpen(false);
+                }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white pressable cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Quick Presets */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Quick Presets</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {[
+                  { label: '10s', sec: 10 },
+                  { label: '30s', sec: 30 },
+                  { label: '1m', sec: 60 },
+                  { label: '2m', sec: 120 },
+                  { label: '10m', sec: 600 },
+                  { label: '30m', sec: 1800 },
+                  { label: '90m', sec: 5400 },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      feedback.playClick();
+                      setCustomMinutes(Math.floor(item.sec / 60));
+                      setCustomSecondsInput(item.sec % 60);
+                    }}
+                    className="px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/8 pressable cursor-pointer"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Minutes & Seconds Inputs */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-mono text-zinc-400 uppercase">Minutes</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={180}
+                  value={customMinutes}
+                  onChange={(e) => setCustomMinutes(Math.max(0, Math.min(180, parseInt(e.target.value) || 0)))}
+                  className="w-full h-11 px-3 rounded-xl bg-black/60 border border-white/10 text-white font-mono text-base focus:border-orange-500 focus:outline-none"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-mono text-zinc-400 uppercase">Seconds</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={59}
+                  value={customSecondsInput}
+                  onChange={(e) => setCustomSecondsInput(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
+                  className="w-full h-11 px-3 rounded-xl bg-black/60 border border-white/10 text-white font-mono text-base focus:border-orange-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-500 leading-tight">
+              Minimum duration is 10 seconds. Focus timer will reset to this duration immediately.
+            </p>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                feedback.playClick();
+                const totalSecs = Math.max(10, customMinutes * 60 + customSecondsInput);
+                handleSelectPresetSeconds(totalSecs);
+                setIsCustomModalOpen(false);
+              }}
+              className="w-full h-10 rounded-xl font-bold text-xs text-white bg-orange-500 hover:bg-orange-600 transition-colors pressable shadow-lg shadow-orange-500/20 cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Set Focus Timer ({formatDurationShort(Math.max(10, customMinutes * 60 + customSecondsInput))})</span>
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
 
   // =========================================================================
   // 1. DESKTOP / PC VIEW: Centered Glass Dialog
@@ -444,12 +601,13 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
             <AnimatePresence>
               {isEdgeCalibrationOpen && (
                 <motion.div
-                  initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                  exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                  transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                   className="w-full rounded-2xl bg-zinc-900/95 border border-white/15 p-4 shadow-2xl flex flex-col gap-3 mb-4 z-50 text-left overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
+                  style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <div className="flex items-center gap-2">
@@ -645,26 +803,49 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
               </button>
             </div>
 
-            {/* Duration Preset Chips */}
-            <div className="flex items-center justify-center gap-2.5 mt-6">
-              {[5, 25, 50].map((mins, idx) => {
-                const isSelected = selectedPreset === mins;
+            {/* Duration Preset Chips & Custom Time Trigger */}
+            <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+              {POMODORO_PRESETS.map((p, idx) => {
+                const isSelected = selectedPresetSeconds === p.seconds;
                 return (
                   <button
-                    key={mins}
+                    key={p.id}
                     type="button"
-                    onClick={() => handleSelectPreset(mins)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all pressable cursor-pointer active:scale-95 ${
+                    onClick={() => handleSelectPresetSeconds(p.seconds)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all pressable cursor-pointer active:scale-95 ${
                       isSelected
                         ? 'bg-[#F26A36] text-white shadow-md shadow-orange-500/25 border border-white/20'
                         : 'glass-expo-interactive text-zinc-400 hover:text-white'
                     }`}
                   >
-                    {mins} mins
-                    <span className="ml-1.5 text-[10px] opacity-60 font-mono">[{idx + 1}]</span>
+                    {p.label}
+                    {idx < 6 && (
+                      <span className="ml-1 text-[9px] opacity-60 font-mono">[{idx + 1}]</span>
+                    )}
                   </button>
                 );
               })}
+
+              {/* Custom Duration Button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  feedback.playClick();
+                  setCustomMinutes(Math.floor(selectedPresetSeconds / 60));
+                  setCustomSecondsInput(selectedPresetSeconds % 60);
+                  setIsCustomModalOpen(true);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all pressable cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                  isCustomSelected
+                    ? 'bg-[#F26A36] text-white shadow-md shadow-orange-500/25 border border-white/20'
+                    : 'glass-expo-interactive text-zinc-400 hover:text-white'
+                }`}
+                title="Set exact custom timer (down to 10s)"
+              >
+                <Sliders className="w-3 h-3" />
+                <span>{isCustomSelected ? formatDurationShort(selectedPresetSeconds) : '+ Custom'}</span>
+              </button>
             </div>
 
             {/* Screen Edge Progress Bar Toggle Bar */}
@@ -731,6 +912,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
             </p>
           </motion.div>
         </div>
+        {renderCustomModal()}
       </AnimatePresence>,
       document.body
     );
@@ -846,12 +1028,13 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
           <AnimatePresence>
             {isEdgeCalibrationOpen && (
               <motion.div
-                initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                 className="w-full rounded-2xl bg-zinc-900/95 border border-white/15 p-4 shadow-2xl flex flex-col gap-3 mb-4 z-50 text-left overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
+                style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
               >
                 <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <div className="flex items-center gap-2">
@@ -1072,25 +1255,48 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
             </div>
           </div>
 
-          {/* Bottom Duration Preset Chips */}
-          <div className="w-full flex items-center justify-center gap-3 pt-6 pb-2">
-            {[5, 25, 50].map((mins) => {
-              const isSelected = selectedPreset === mins;
+          {/* Bottom Duration Preset Chips & Custom Trigger */}
+          <div className="w-full flex items-center justify-start sm:justify-center gap-2 pt-6 pb-2 overflow-x-auto no-scrollbar px-4">
+            {POMODORO_PRESETS.map((p) => {
+              const isSelected = selectedPresetSeconds === p.seconds;
               return (
                 <button
-                  key={mins}
+                  key={p.id}
                   type="button"
-                  onClick={() => handleSelectPreset(mins)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all pressable cursor-pointer active:scale-95 ${
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectPresetSeconds(p.seconds);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all pressable cursor-pointer shrink-0 active:scale-95 ${
                     isSelected
                       ? 'bg-[#F26A36] text-white shadow-md'
                       : 'bg-zinc-900 text-zinc-400 border border-white/8 hover:text-white'
                   }`}
                 >
-                  {mins} mins
+                  {p.label}
                 </button>
               );
             })}
+
+            {/* Custom Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                feedback.playClick();
+                setCustomMinutes(Math.floor(selectedPresetSeconds / 60));
+                setCustomSecondsInput(selectedPresetSeconds % 60);
+                setIsCustomModalOpen(true);
+              }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all pressable cursor-pointer shrink-0 flex items-center gap-1 active:scale-95 ${
+                isCustomSelected
+                  ? 'bg-[#F26A36] text-white shadow-md'
+                  : 'bg-zinc-900 text-zinc-400 border border-white/8 hover:text-white'
+              }`}
+            >
+              <Sliders className="w-3 h-3" />
+              <span>{isCustomSelected ? formatDurationShort(selectedPresetSeconds) : '+ Custom'}</span>
+            </button>
           </div>
 
           {/* Tactile Inactivity Hint */}
@@ -1099,6 +1305,8 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
           </p>
         </motion.div>
       </div>
+
+      {renderCustomModal()}
     </AnimatePresence>,
     document.body
   );

@@ -28,6 +28,7 @@ public class TaskifyWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+        checkAndRolloverDailyRoutines(context);
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
@@ -39,13 +40,97 @@ public class TaskifyWidgetProvider extends AppWidgetProvider {
         super.onReceive(context, intent);
 
         try {
-            String action = intent.getAction();
+            String action = intent != null ? intent.getAction() : null;
+            if (Intent.ACTION_DATE_CHANGED.equals(action) ||
+                Intent.ACTION_TIME_SET.equals(action) ||
+                Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
+                checkAndRolloverDailyRoutines(context);
+                return;
+            }
+
+            checkAndRolloverDailyRoutines(context);
+
             if (ACTION_TOGGLE_ITEM.equals(action)) {
                 handleToggleAction(context, intent);
             }
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    /**
+     * Autonomous Midnight & Day Rollover Check.
+     * When the calendar day changes (e.g. from Nov 15 to Nov 16), resets daily routines/habits
+     * to unchecked so the user starts fresh on the new day even if the app was not opened.
+     */
+    public static synchronized boolean checkAndRolloverDailyRoutines(Context context) {
+        try {
+            if (context == null) return false;
+            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            String savedDateIso = prefs.getString("sync_date_iso", "");
+
+            java.text.SimpleDateFormat isoFormat = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);
+            String todayIso = isoFormat.format(new java.util.Date());
+
+            if (savedDateIso == null || savedDateIso.isEmpty()) {
+                prefs.edit().putString("sync_date_iso", todayIso).apply();
+                return false;
+            }
+
+            if (!todayIso.equals(savedDateIso)) {
+                // Calendar day has rolled over!
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("sync_date_iso", todayIso);
+
+                // 1. Reset all habits to unchecked (done: false)
+                String habitsJson = prefs.getString("all_habits_json", "[]");
+                try {
+                    JSONArray arr = new JSONArray(habitsJson);
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject obj = arr.getJSONObject(i);
+                        obj.put("done", false);
+                        String unit = obj.optString("unit", "times");
+                        int targetCount = obj.optInt("targetCount", 1);
+                        obj.put("progress", "0/" + targetCount + " " + unit);
+                    }
+                    editor.putString("all_habits_json", arr.toString());
+                } catch (Exception ignored) {}
+
+                // Reset habit pills (0-5)
+                for (int i = 0; i < 6; i++) {
+                    editor.putBoolean("habit_pill_" + i + "_done", false);
+                }
+                editor.putInt("habits_completed_count", 0);
+
+                // 2. Update day and date strings to today
+                java.text.SimpleDateFormat dayFormat = new java.text.SimpleDateFormat("EEE", java.util.Locale.US);
+                java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("MMM d", java.util.Locale.US);
+                java.util.Date now = new java.util.Date();
+                String dayShort = dayFormat.format(now);
+                String dateStr = dateFormat.format(now);
+                editor.putString("day_short", dayShort);
+                editor.putString("date_str", dateStr);
+
+                // Update summary text
+                int totalHabits = prefs.getInt("habits_total_count", 0);
+                int pendingTasks = prefs.getInt("total_count", 0) - prefs.getInt("completed_count", 0);
+                if (pendingTasks < 0) pendingTasks = 0;
+                editor.putString("small_summary", pendingTasks + " tasks & " + totalHabits + " routines today.");
+
+                editor.apply();
+
+                // Trigger widget UI refreshes across all providers
+                updateAllWidgets(context);
+                TaskifyHabitsWidgetProvider.updateAllWidgets(context);
+                TaskifySmallWidgetProvider.updateAllWidgets(context);
+                TaskifyHabitsCompactWidgetProvider.updateAllWidgets(context);
+                TaskifyMatrixWidgetProvider.updateAllWidgets(context);
+                return true;
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return false;
     }
 
     public static void handleToggleAction(Context context, Intent intent) {

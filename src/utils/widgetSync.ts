@@ -354,6 +354,7 @@ export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> 
       await TaskifyNativeWidget.syncWidgetState({
         state: {
           // 1. Tasks widget (4x2 Resizable, Y-axis scroll)
+          syncDateIso: todayStr,
           headerTitle: "Today's Tasks",
           headerSubtitle: completedTasksCount >= 3 ? 'Great momentum today' : 'Focus on what matters',
           completedCount: completedTasksCount,

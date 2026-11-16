@@ -90,6 +90,7 @@ public class TaskifyNativeWidgetPlugin extends Plugin {
             editor.putString("all_habits_json", allHabits != null ? allHabits.toString() : "[]");
 
             // 4. Date Header & Live Briefing
+            editor.putString("sync_date_iso", state.optString("syncDateIso", ""));
             editor.putString("day_short", state.optString("dayShort", "Today"));
             editor.putString("date_str", state.optString("dateStr", ""));
             editor.putString("user_name", state.optString("userName", "Alex"));

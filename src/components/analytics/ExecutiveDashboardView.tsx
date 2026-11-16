@@ -23,184 +23,52 @@ import { HabitIconRenderer } from '../habits/HabitIconRenderer';
 import { getCategoryTheme } from '../../utils/category';
 import { focusTimerStore } from '../../utils/focusTimer';
 
-interface AnalyticsSuggestion {
+interface ExecutiveInsight {
   id: string;
   category: 'focus' | 'tasks' | 'habits' | 'finance';
   categoryLabel: string;
-  badge: string;
-  badgeColor: string;
+  dotColor: string;
   title: string;
-  heuristic: string;
-  impact: string;
+  takeaway: string;
+  tag: string;
 }
 
-const ANALYTICS_SUGGESTIONS: AnalyticsSuggestion[] = [
-  // Focus & Deep Work
+const EXECUTIVE_INSIGHTS: ExecutiveInsight[] = [
   {
-    id: 'focus-1',
+    id: 'insight-focus',
     category: 'focus',
     categoryLabel: 'Focus & Deep Work',
-    badge: 'Cognitive Physiology',
-    badgeColor: '#f59e0b',
-    impact: '+35% Sustained Clarity',
-    title: 'Ultradian Rhythm 90-Minute Sprints',
-    heuristic: 'Human cognitive endurance naturally oscillates in 90-minute waves. Cap high-stakes coding and deep problem-solving at 90 minutes, followed by a mandatory 15-minute screen-free recovery walk or hydration.',
+    dotColor: '#f26a36',
+    tag: 'Flow State',
+    title: '90-Minute Ultradian Limit',
+    takeaway: 'Cap deep work blocks at 90 minutes. A brief 10-minute screen-free pause restores cognitive acuity for your next sprint.',
   },
   {
-    id: 'focus-2',
-    category: 'focus',
-    categoryLabel: 'Focus & Deep Work',
-    badge: 'Distraction Protocol',
-    badgeColor: '#ef4444',
-    impact: 'Zero Fragmented Attention',
-    title: 'The Attention Residue Quarantine',
-    heuristic: 'Checking Slack or email for even 30 seconds leaves cognitive residue that degrades performance for up to 23 minutes. Turn on Focus Mode and batch all inbound communication to dedicated 25-minute triage windows.',
-  },
-  {
-    id: 'focus-3',
-    category: 'focus',
-    categoryLabel: 'Focus & Deep Work',
-    badge: 'Biological Prime Time',
-    badgeColor: '#38bdf8',
-    impact: '2.1x Output per Hour',
-    title: 'Chronotype Peak Alignment',
-    heuristic: 'Schedule your single most intellectually demanding task during your morning cortisol peak (09:00 AM – 11:30 AM). Reserve low-cognitive admin, receipts, and scheduling for the natural afternoon dip (02:00 PM – 03:30 PM).',
-  },
-  {
-    id: 'focus-4',
-    category: 'focus',
-    categoryLabel: 'Focus & Deep Work',
-    badge: 'Working Memory Guard',
-    badgeColor: '#a855f7',
-    impact: '-60% Focus Interruption',
-    title: 'Stray Thought Parking Lot',
-    heuristic: 'When an intrusive idea or errand pops into your head during a Pomodoro sprint, do not act on it. Dump it instantly into your Scratchpad or a single note, then immediately return to your active timer.',
-  },
-
-  // Task Velocity & Execution
-  {
-    id: 'tasks-1',
+    id: 'insight-tasks',
     category: 'tasks',
     categoryLabel: 'Task Execution',
-    badge: 'Daily Throughput',
-    badgeColor: '#10b981',
-    impact: 'Zero Paralysis at 9 AM',
-    title: 'The Ivy Lee Six-Objective Protocol',
-    heuristic: 'At the end of each workday, write down the 6 most important tasks for tomorrow. Order them strictly by importance. Tomorrow, do not touch task #2 until task #1 is fully shipped.',
+    dotColor: '#10b981',
+    tag: 'Velocity',
+    title: 'Tackle the Hardest Task First',
+    takeaway: 'Execute your primary high-friction objective before 11:00 AM when mental willpower is peak. The rest flows downhill.',
   },
   {
-    id: 'tasks-2',
-    category: 'tasks',
-    categoryLabel: 'Task Execution',
-    badge: 'Queue Management',
-    badgeColor: '#f97316',
-    impact: '+40% Completion Velocity',
-    title: 'Aggressive WIP (Work-In-Progress) Limiting',
-    heuristic: 'Multitasking is a myth; having 5 tasks "in progress" simply means 5 tasks are blocked. Enforce a strict WIP limit of at most 2 active tasks. Finish or delegate before starting anything new.',
-  },
-  {
-    id: 'tasks-3',
-    category: 'tasks',
-    categoryLabel: 'Task Execution',
-    badge: 'Friction Reduction',
-    badgeColor: '#06b6d4',
-    impact: 'Immediate Task Activation',
-    title: 'Atomic Action Verb Refactoring',
-    heuristic: 'Vague titles like "Project Alpha" trigger procrastination. Rewrite every objective with an atomic imperative verb: "Review PR #42", "Draft 3 bullet points for client memo", or "Export Q3 tax CSV".',
-  },
-  {
-    id: 'tasks-4',
-    category: 'tasks',
-    categoryLabel: 'Task Execution',
-    badge: 'Clutter Eradication',
-    badgeColor: '#64748b',
-    impact: 'Clean Mental Bandwidth',
-    title: 'The 14-Day Backlog Pruning Rule',
-    heuristic: 'If a low-priority task has sat in your backlog for more than 14 days without movement, ruthlessly delete or archive it. If it was truly critical, it will naturally re-emerge.',
-  },
-
-  // Habit Stacking & Consistency
-  {
-    id: 'habits-1',
+    id: 'insight-habits',
     category: 'habits',
-    categoryLabel: 'Habit Adherence',
-    badge: 'Streak Protection',
-    badgeColor: '#f59e0b',
-    impact: '98% Long-Term Adherence',
-    title: 'The Non-Negotiable Two-Day Rule',
-    heuristic: 'Life happens, but never allow two missed days in a row. Missing one day is an accident; missing two is the beginning of a new, destructive habit. If travel or sickness intervenes, do a 2-minute micro version.',
+    categoryLabel: 'Habit Consistency',
+    dotColor: '#f59e0b',
+    tag: 'Streak Shield',
+    title: 'The Non-Negotiable 2-Day Rule',
+    takeaway: 'Never miss two days in a row. When disruptions strike, complete a minimal 2-minute micro version to protect identity.',
   },
   {
-    id: 'habits-2',
-    category: 'habits',
-    categoryLabel: 'Habit Adherence',
-    badge: 'Trigger Architecture',
-    badgeColor: '#8b5cf6',
-    impact: 'Automatic Execution',
-    title: 'Contextual Habit Stacking Anchors',
-    heuristic: 'Attach target behaviors to an existing solid anchor: "Immediately after closing my laptop at 6:00 PM, I will do 20 pushups and fill my water bottle." The anchor removes the friction of choosing a start time.',
-  },
-  {
-    id: 'habits-3',
-    category: 'habits',
-    categoryLabel: 'Habit Adherence',
-    badge: 'Friction Optimization',
-    badgeColor: '#10b981',
-    impact: 'Eliminates Willpower Drain',
-    title: 'Environmental Choice Architecture',
-    heuristic: 'Willpower is a depleting resource. Make good habits visually obvious and physically effortless (leave running shoes by the bed, place vitamins next to the espresso machine). Place distractions out of arms reach.',
-  },
-  {
-    id: 'habits-4',
-    category: 'habits',
-    categoryLabel: 'Habit Adherence',
-    badge: 'Anti-Burnout Safety',
-    badgeColor: '#ec4899',
-    impact: 'Preserves Core Identity',
-    title: 'Minimum Viable Consistency (MVC)',
-    heuristic: 'On high-stress days, execute your habit at 10% volume rather than skipping it. A 3-minute reading session or a 5-minute stretch keeps your neural loop intact and protects your identity as a consistent person.',
-  },
-
-  // Cashflow & Financial Discipline
-  {
-    id: 'finance-1',
+    id: 'insight-finance',
     category: 'finance',
-    categoryLabel: 'Financial Discipline',
-    badge: 'Wealth Velocity',
-    badgeColor: '#10b981',
-    impact: 'Automated Capital Growth',
-    title: 'Reverse Budgeting & Pay-Your-First',
-    heuristic: 'Do not save what remains after spending; spend what remains after saving. The moment income hits your ledger, transfer 20% into your compounding reserve before calibrating your daily safe spend.',
-  },
-  {
-    id: 'finance-2',
-    category: 'finance',
-    categoryLabel: 'Financial Discipline',
-    badge: 'Runway Extension',
-    badgeColor: '#38bdf8',
-    impact: 'Zero Month-End Surprises',
-    title: 'Daily Safe-to-Spend Ceiling Compliance',
-    heuristic: 'Keep daily discretionary outflows strictly beneath your calculated safe threshold. Surpluses roll over into your savings cushion, giving you predictable financial stability without anxiety.',
-  },
-  {
-    id: 'finance-3',
-    category: 'finance',
-    categoryLabel: 'Financial Discipline',
-    badge: 'Emotional Spending Trap',
-    badgeColor: '#f43f5e',
-    impact: '-30% Discretionary Waste',
-    title: 'The 72-Hour Anti-Impulse Buffer',
-    heuristic: 'For any non-essential purchase exceeding $100, enforce a mandatory 72-hour cooling-off period. In over 70% of cases, dopamine fades and the desire to purchase dissolves entirely.',
-  },
-  {
-    id: 'finance-4',
-    category: 'finance',
-    categoryLabel: 'Financial Discipline',
-    badge: 'Cash Leakage Defense',
-    badgeColor: '#f59e0b',
-    impact: '$400–$1,200 Annual Savings',
-    title: 'Quarterly Phantom Subscription Audit',
-    heuristic: 'On the first Sunday of every quarter, review every recurring SaaS, streaming, and premium tier. Ruthlessly cancel any service you have not actively utilized in the past 30 days.',
+    categoryLabel: 'Financial Runway',
+    dotColor: '#38bdf8',
+    tag: 'Safe Runway',
+    title: 'Reverse Budget Automation',
+    takeaway: 'Directly allocate 20% to savings on payday before discretionary spending. Spend within daily allowance with zero guilt.',
   },
 ];
 
@@ -371,8 +239,8 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
   }, [completedPomodoroSessions, totalTasksCompleted]);
 
   const filteredSuggestions = useMemo(() => {
-    if (suggestionCategory === 'all') return ANALYTICS_SUGGESTIONS;
-    return ANALYTICS_SUGGESTIONS.filter((s) => s.category === suggestionCategory);
+    if (suggestionCategory === 'all') return EXECUTIVE_INSIGHTS;
+    return EXECUTIVE_INSIGHTS.filter((s) => s.category === suggestionCategory);
   }, [suggestionCategory]);
 
   // Aggregated totals for the selected period
@@ -1371,7 +1239,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         </div>
       </div>
 
-      {/* 7. Executive Productivity Intelligence & Hardcoded Tactical Suggestions */}
+      {/* 7. Executive Insights */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col gap-4 min-w-0"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
@@ -1381,24 +1249,19 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border"
               style={{
-                backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                borderColor: 'rgba(245, 158, 11, 0.35)',
-                color: '#f59e0b',
+                backgroundColor: 'rgba(242, 106, 54, 0.12)',
+                borderColor: 'rgba(242, 106, 54, 0.25)',
+                color: 'var(--accent-primary)',
               }}
             >
               <Lightbulb className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                  Productivity Intelligence & Suggestions
-                </h4>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">
-                  16 Tactical Playbooks
-                </span>
-              </div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
+                Executive Insights
+              </h4>
               <p className="text-[11px] text-zinc-400 mt-0.5">
-                Hardcoded professional heuristics for deep focus, task velocity, streak adherence, and capital runway.
+                Distilled mental models for deep focus, task velocity, and capital preservation.
               </p>
             </div>
           </div>
@@ -1407,7 +1270,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           <div className="segmented-track flex items-center gap-1 p-0.5 self-start sm:self-auto shrink-0 overflow-x-auto no-scrollbar">
             {(
               [
-                { id: 'all', label: 'All (16)' },
+                { id: 'all', label: 'All' },
                 { id: 'focus', label: 'Focus' },
                 { id: 'tasks', label: 'Tasks' },
                 { id: 'habits', label: 'Habits' },
@@ -1437,7 +1300,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </div>
         </div>
 
-        {/* Suggestions Grid */}
+        {/* Insights Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredSuggestions.map((item) => (
             <div
@@ -1446,18 +1309,24 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ backgroundColor: item.dotColor }}
+                    />
+                    <span className="text-[11px] font-medium text-zinc-400 capitalize">
+                      {item.categoryLabel}
+                    </span>
+                  </div>
                   <span
-                    className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border"
+                    className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full border"
                     style={{
-                      backgroundColor: `${item.badgeColor}18`,
-                      borderColor: `${item.badgeColor}35`,
-                      color: item.badgeColor,
+                      backgroundColor: `${item.dotColor}15`,
+                      borderColor: `${item.dotColor}30`,
+                      color: item.dotColor,
                     }}
                   >
-                    {item.badge}
-                  </span>
-                  <span className="text-[10px] font-mono font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                    {item.impact}
+                    {item.tag}
                   </span>
                 </div>
 
@@ -1466,13 +1335,8 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
                 </h5>
 
                 <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
-                  {item.heuristic}
+                  {item.takeaway}
                 </p>
-              </div>
-
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-zinc-500">
-                <span className="capitalize">{item.categoryLabel}</span>
-                <span className="text-zinc-400 group-hover:text-white transition-colors">Rule verified ✓</span>
               </div>
             </div>
           ))}

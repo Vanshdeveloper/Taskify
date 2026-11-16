@@ -20,6 +20,7 @@ public class TaskifyHabitsWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+        TaskifyWidgetProvider.checkAndRolloverDailyRoutines(context);
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
@@ -31,7 +32,16 @@ public class TaskifyHabitsWidgetProvider extends AppWidgetProvider {
         super.onReceive(context, intent);
 
         try {
-            String action = intent.getAction();
+            String action = intent != null ? intent.getAction() : null;
+            if (Intent.ACTION_DATE_CHANGED.equals(action) ||
+                Intent.ACTION_TIME_SET.equals(action) ||
+                Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
+                TaskifyWidgetProvider.checkAndRolloverDailyRoutines(context);
+                return;
+            }
+
+            TaskifyWidgetProvider.checkAndRolloverDailyRoutines(context);
+
             if (TaskifyWidgetProvider.ACTION_TOGGLE_ITEM.equals(action)) {
                 TaskifyWidgetProvider.handleToggleAction(context, intent);
             }

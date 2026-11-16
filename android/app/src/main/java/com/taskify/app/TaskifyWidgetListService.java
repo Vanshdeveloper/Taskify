@@ -74,6 +74,7 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
     private void loadData() {
         items.clear();
         try {
+            TaskifyWidgetProvider.checkAndRolloverDailyRoutines(context);
             SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
 
             if ("matrix".equals(feedType)) {

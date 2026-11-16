@@ -723,49 +723,89 @@ test('Focus Timer Edge Progress Perimeter, Corner Curvature & Inset Adaptation C
   assert.equal(Math.round(offset), Math.round(perimMobile / 2));
 });
 
-test('Pomodoro Analytics & 16 Tactical Suggestions Contract', () => {
-  // Test productivity focus metrics computation
-  const activeDays = 10;
-  const completedPomodoroSessions = Math.max(12, Math.round(activeDays * 2.2));
-  assert.equal(completedPomodoroSessions, 22);
+test('Pomodoro Presets, Custom Duration & Executive Insights Contract', () => {
+  // 1. Pomodoro Presets Contract (including 10s and custom duration)
+  const presets = [
+    { label: '10s', seconds: 10 },
+    { label: '5m', seconds: 5 * 60 },
+    { label: '15m', seconds: 15 * 60 },
+    { label: '25m', seconds: 25 * 60 },
+    { label: '45m', seconds: 45 * 60 },
+    { label: '60m', seconds: 60 * 60 },
+    { label: '90m', seconds: 90 * 60 },
+  ];
+  assert.equal(presets.length, 7);
+  assert.equal(presets[0].seconds, 10, 'Supports 10s sprint preset');
 
-  const totalFocusMinutes = completedPomodoroSessions * 25;
-  assert.equal(totalFocusMinutes, 550);
+  // Custom duration clamping: minimum 10 seconds
+  const clampCustomDuration = (minutes, seconds) => Math.max(10, Math.min(180 * 60, minutes * 60 + seconds));
+  assert.equal(clampCustomDuration(0, 5), 10, 'Clamps sub-10s duration to 10s');
+  assert.equal(clampCustomDuration(0, 10), 10, 'Allows exact 10s duration');
+  assert.equal(clampCustomDuration(25, 0), 1500, 'Computes 25m correctly');
 
-  const totalFocusHours = (totalFocusMinutes / 60).toFixed(1);
-  assert.equal(totalFocusHours, '9.2');
-
-  const dailyVelocity = (Number(totalFocusHours) / activeDays).toFixed(1);
-  assert.equal(dailyVelocity, '0.9');
-
-  // Verify 16 hardcoded tactical suggestions across 4 pillars
+  // 2. Executive Insights Contract (clean, curated, zero-bloat)
   const categories = ['focus', 'tasks', 'habits', 'finance'];
-  const expectedCounts = { focus: 4, tasks: 4, habits: 4, finance: 4 };
-
-  const mockSuggestions = [
-    { id: 'focus-1', category: 'focus', title: 'Ultradian Rhythm 90-Minute Sprints' },
-    { id: 'focus-2', category: 'focus', title: 'The Attention Residue Quarantine' },
-    { id: 'focus-3', category: 'focus', title: 'Chronotype Peak Alignment' },
-    { id: 'focus-4', category: 'focus', title: 'Stray Thought Parking Lot' },
-    { id: 'tasks-1', category: 'tasks', title: 'The Ivy Lee Six-Objective Protocol' },
-    { id: 'tasks-2', category: 'tasks', title: 'Aggressive WIP Limiting' },
-    { id: 'tasks-3', category: 'tasks', title: 'Atomic Action Verb Refactoring' },
-    { id: 'tasks-4', category: 'tasks', title: 'The 14-Day Backlog Pruning Rule' },
-    { id: 'habits-1', category: 'habits', title: 'The Non-Negotiable Two-Day Rule' },
-    { id: 'habits-2', category: 'habits', title: 'Contextual Habit Stacking Anchors' },
-    { id: 'habits-3', category: 'habits', title: 'Environmental Choice Architecture' },
-    { id: 'habits-4', category: 'habits', title: 'Minimum Viable Consistency (MVC)' },
-    { id: 'finance-1', category: 'finance', title: 'Reverse Budgeting & Pay-Your-First' },
-    { id: 'finance-2', category: 'finance', title: 'Daily Safe-to-Spend Ceiling Compliance' },
-    { id: 'finance-3', category: 'finance', title: 'The 72-Hour Anti-Impulse Buffer' },
-    { id: 'finance-4', category: 'finance', title: 'Quarterly Phantom Subscription Audit' },
+  const mockInsights = [
+    { id: 'insight-focus', category: 'focus', tag: 'Flow State', title: '90-Minute Ultradian Limit' },
+    { id: 'insight-tasks', category: 'tasks', tag: 'Velocity', title: 'Tackle the Hardest Task First' },
+    { id: 'insight-habits', category: 'habits', tag: 'Streak Shield', title: 'The Non-Negotiable 2-Day Rule' },
+    { id: 'insight-finance', category: 'finance', tag: 'Safe Runway', title: 'Reverse Budget Automation' },
   ];
 
-  assert.equal(mockSuggestions.length, 16);
+  assert.equal(mockInsights.length, 4);
   categories.forEach((cat) => {
-    const items = mockSuggestions.filter((s) => s.category === cat);
-    assert.equal(items.length, expectedCounts[cat], `Pillar ${cat} has exactly 4 tactical playbooks`);
+    const item = mockInsights.find((s) => s.category === cat);
+    assert.ok(item, `Category ${cat} is covered in executive insights`);
+    assert.ok(item.tag.length > 0);
   });
+});
+
+test('Daily Routines Widget Midnight Rollover Contract', () => {
+  // Simulate SharedPreferences state
+  const mockPrefs = {
+    sync_date_iso: '2026-11-15',
+    all_habits_json: JSON.stringify([
+      { id: 'h1', title: 'Hydration', done: true, progress: '1/1 times' },
+      { id: 'h2', title: 'Deep Reading', done: true, progress: '30/30 mins' },
+    ]),
+    habits_completed_count: 2,
+    habit_pill_0_done: true,
+    habit_pill_1_done: true,
+    date_str: 'Nov 15',
+    day_short: 'Sun',
+  };
+
+  // Simulate midnight rollover check logic
+  const checkAndRollover = (prefs, todayIso, todayShort, todayDateStr) => {
+    if (prefs.sync_date_iso !== todayIso) {
+      prefs.sync_date_iso = todayIso;
+      const habits = JSON.parse(prefs.all_habits_json);
+      habits.forEach((h) => {
+        h.done = false;
+        h.progress = '0/1 times';
+      });
+      prefs.all_habits_json = JSON.stringify(habits);
+      prefs.habits_completed_count = 0;
+      prefs.habit_pill_0_done = false;
+      prefs.habit_pill_1_done = false;
+      prefs.day_short = todayShort;
+      prefs.date_str = todayDateStr;
+      return true;
+    }
+    return false;
+  };
+
+  const didRollover = checkAndRollover(mockPrefs, '2026-11-16', 'Mon', 'Nov 16');
+  assert.equal(didRollover, true, 'Rollover occurred because date differed');
+  assert.equal(mockPrefs.sync_date_iso, '2026-11-16');
+  assert.equal(mockPrefs.habits_completed_count, 0, 'Completed count reset to 0');
+  assert.equal(mockPrefs.habit_pill_0_done, false, 'Pill 0 reset to false');
+  assert.equal(mockPrefs.date_str, 'Nov 16');
+  assert.equal(mockPrefs.day_short, 'Mon');
+
+  const habits = JSON.parse(mockPrefs.all_habits_json);
+  assert.equal(habits[0].done, false, 'Habit 1 reset to undone');
+  assert.equal(habits[1].done, false, 'Habit 2 reset to undone');
 });
 
 test('Color Ring Overflow Isolation & Edge Radius Auto-Fit Contract', () => {
