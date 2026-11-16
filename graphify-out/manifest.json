@@ -582,15 +582,15 @@
     "semantic_hash": ""
   },
   "src/components/layout/LiquidTabViewport.tsx": {
-    "mtime": 1794802551.515274,
-    "seen": 1794803435.474713,
-    "ast_hash": "520ef20f05076359350166bf9c005cb1",
+    "mtime": 1794823607.158615,
+    "seen": 1794824005.3698652,
+    "ast_hash": "315bc51d47df56f3372552684a5bf4e2",
     "semantic_hash": ""
   },
   "src/components/layout/MobileTabBar.tsx": {
-    "mtime": 1794811754.5139744,
-    "seen": 1794812307.6968796,
-    "ast_hash": "e4c9e660deac9d5f685a585d28641343",
+    "mtime": 1794823650.0797753,
+    "seen": 1794824005.3698652,
+    "ast_hash": "ad521b5281b0cb5bc77e4a72fdfabf96",
     "semantic_hash": ""
   },
   "src/components/layout/Navbar.tsx": {
@@ -600,9 +600,9 @@
     "semantic_hash": ""
   },
   "src/components/layout/Sidebar.tsx": {
-    "mtime": 1794461495.580328,
-    "seen": 1794461534.9681194,
-    "ast_hash": "35e1592b60e35b657c0c0120f8e4564e",
+    "mtime": 1794823751.138371,
+    "seen": 1794824005.3698652,
+    "ast_hash": "304627c8a880e92f6100c0828da60f08",
     "semantic_hash": ""
   },
   "src/components/layout/SlideOverInspector.tsx": {
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "src/context/AppContext.tsx": {
-    "mtime": 1794802805.3859818,
-    "seen": 1794803435.474713,
-    "ast_hash": "c5dfbc7de86d40ab78febc1b0157d66d",
+    "mtime": 1794823465.9482882,
+    "seen": 1794824005.3698652,
+    "ast_hash": "82abaddeeef3bad28fc9f7b2fb812b8a",
     "semantic_hash": ""
   },
   "src/context/ThemeContext.tsx": {
@@ -762,15 +762,15 @@
     "semantic_hash": ""
   },
   "src/db/index.ts": {
-    "mtime": 1792396300.25211,
-    "seen": 1794412837.3264863,
-    "ast_hash": "1812087aa67f161153dd4a26ff16174c",
+    "mtime": 1794823051.6636596,
+    "seen": 1794824005.3698652,
+    "ast_hash": "21a2c7ec675451fd7f20d975bf400e46",
     "semantic_hash": ""
   },
   "src/db/seed.ts": {
-    "mtime": 1794416303.8911827,
-    "seen": 1794416758.604266,
-    "ast_hash": "30052c31c4c5b7f4a27488605428339d",
+    "mtime": 1794823230.3275864,
+    "seen": 1794824005.3698652,
+    "ast_hash": "c91ec39f977088da8e6ee7480c0983ae",
     "semantic_hash": ""
   },
   "src/hooks/useFocusTimer.ts": {
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "src/types/index.ts": {
-    "mtime": 1794811659.8769534,
-    "seen": 1794812307.6968796,
-    "ast_hash": "19dcbc50090001717c7b965fac20925c",
+    "mtime": 1794823010.4642928,
+    "seen": 1794824005.3698652,
+    "ast_hash": "670f8f3c5d7325575e3ef3a59e953edb",
     "semantic_hash": ""
   },
   "src/utils/category.ts": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "test/core-logic.test.mjs": {
-    "mtime": 1794811956.3688347,
-    "seen": 1794812307.6968796,
-    "ast_hash": "6b71478b6121dc7c103b770ee2ecf3f6",
+    "mtime": 1794823860.185678,
+    "seen": 1794824005.3698652,
+    "ast_hash": "b5a67396be34c313ecad14d82b5b138e",
     "semantic_hash": ""
   },
   "test/e2e-tier1-features.test.mjs": {
@@ -2625,6 +2625,12 @@
     "mtime": 1794802348.0364456,
     "seen": 1794803435.474713,
     "ast_hash": "1460056416eb06d4f11d377fec30f509",
+    "semantic_hash": ""
+  },
+  "src/components/scratchpad/ScratchpadView.tsx": {
+    "mtime": 1794823523.6344662,
+    "seen": 1794824005.3698652,
+    "ast_hash": "7904771f6614e6d30e742d72f9cefbd4",
     "semantic_hash": ""
   },
   "package-lock.json": {

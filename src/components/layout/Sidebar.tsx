@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, CheckSquare, Repeat, Flame, PieChart, Settings } from 'lucide-react';
+import { Sun, CheckSquare, Repeat, Flame, PieChart, NotebookPen, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import type { ActiveTab } from '../../types';
@@ -13,6 +13,7 @@ export const Sidebar: React.FC = () => {
     habits,
     habitLogs,
     financeStats,
+    scratchCards,
     settings,
     openStreaks,
     closeStreaks,
@@ -67,10 +68,17 @@ export const Sidebar: React.FC = () => {
       shortcut: '5',
     },
     {
+      id: 'scratchpad',
+      label: 'Scratchpad',
+      icon: NotebookPen,
+      badge: scratchCards.length > 0 ? scratchCards.length : undefined,
+      shortcut: '6',
+    },
+    {
       id: 'settings',
       label: 'Settings',
       icon: Settings,
-      shortcut: '6',
+      shortcut: '7',
     },
   ];
 

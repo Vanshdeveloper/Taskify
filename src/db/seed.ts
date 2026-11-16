@@ -45,7 +45,44 @@ export async function seedInitialDataIfNeeded() {
       await db.habitLogs.bulkPut(backfillLogs);
     }
 
-    // Backfill historical transactions if only today's transactions exist
+    // Backfill starter scratchcards if missing
+    const cardCount = await db.scratchcards.count();
+    if (cardCount === 0) {
+      await db.scratchcards.bulkAdd([
+        {
+          id: 'sc-1',
+          title: 'Welcome to Scratchpad',
+          content: 'Jot down quick thoughts, ideas, or study flashcards. Tap any card to open the fullscreen presentation swiper.',
+          backContent: 'Tip: You can add an optional flip side to test your memory or review concepts!',
+          isTwoSided: true,
+          category: 'General',
+          color: '#f26a36',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: 'sc-2',
+          title: 'Product Vision 2026',
+          content: '• Zero-latency local storage\n• Apple-grade fluid spring animations\n• High-contrast minimal typography',
+          isTwoSided: false,
+          category: 'Ideas',
+          color: '#38bdf8',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: 'sc-3',
+          title: 'Active Recall: Spaced Repetition',
+          content: 'What is the most effective way to retain new knowledge?',
+          backContent: 'Testing yourself with flashcards rather than passive re-reading.',
+          isTwoSided: true,
+          category: 'Study',
+          color: '#84cc16',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ]);
+    }
     const txCount = await db.transactions.count();
     if (txCount <= 4) {
       const backfillTx: Transaction[] = [];
@@ -384,6 +421,40 @@ export async function seedInitialDataIfNeeded() {
   await db.habits.bulkAdd(sampleHabits);
   await db.habitLogs.bulkAdd(sampleHabitLogs);
   await db.transactions.bulkAdd(sampleTransactions);
+  await db.scratchcards.bulkAdd([
+    {
+      id: 'sc-1',
+      title: 'Welcome to Scratchpad',
+      content: 'Jot down quick thoughts, ideas, or study flashcards. Tap any card to open the fullscreen presentation swiper.',
+      backContent: 'Tip: You can add an optional flip side to test your memory or review concepts!',
+      isTwoSided: true,
+      category: 'General',
+      color: '#f26a36',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'sc-2',
+      title: 'Product Vision 2026',
+      content: '• Zero-latency local storage\n• Apple-grade fluid spring animations\n• High-contrast minimal typography',
+      isTwoSided: false,
+      category: 'Ideas',
+      color: '#38bdf8',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'sc-3',
+      title: 'Active Recall: Spaced Repetition',
+      content: 'What is the most effective way to retain new knowledge?',
+      backContent: 'Testing yourself with flashcards rather than passive re-reading.',
+      isTwoSided: true,
+      category: 'Study',
+      color: '#84cc16',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ]);
 
   const detected = autodetectCurrency();
   await db.settings.bulkPut([

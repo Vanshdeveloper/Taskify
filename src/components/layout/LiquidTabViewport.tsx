@@ -4,11 +4,12 @@ import { TodayView } from '../today/TodayView';
 import { TasksView } from '../tasks/TasksView';
 import { HabitsView } from '../habits/HabitsView';
 import { FinanceView } from '../finance/FinanceView';
+import { ScratchpadView } from '../scratchpad/ScratchpadView';
 import { feedback } from '../../utils/feedback';
 import { projectMomentum } from '../../utils/motion';
 import type { ActiveTab } from '../../types';
 
-export const MAIN_SLIDE_TABS: ActiveTab[] = ['today', 'tasks', 'habits', 'finance'];
+export const MAIN_SLIDE_TABS: ActiveTab[] = ['today', 'tasks', 'habits', 'finance', 'scratchpad'];
 
 interface LiquidTabViewportProps {
   openSearchModal: () => void;
@@ -250,6 +251,7 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
                 {tab === 'tasks' && <TasksView />}
                 {tab === 'habits' && <HabitsView />}
                 {tab === 'finance' && <FinanceView />}
+                {tab === 'scratchpad' && <ScratchpadView />}
               </div>
             </div>
           );

@@ -131,7 +131,19 @@ export interface UserSettings {
   focusEdgeProgress?: boolean;
 }
 
-export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'settings';
+export interface ScratchCard {
+  id: string;
+  title: string;
+  content: string;
+  backContent?: string;
+  isTwoSided?: boolean;
+  category?: string;
+  color?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ActiveTab = 'today' | 'tasks' | 'habits' | 'streaks' | 'finance' | 'scratchpad' | 'settings';
 export type ThemeCategory = 'all' | 'soft' | 'dark' | 'minimalist' | 'custom';
 
 export type AppTheme =

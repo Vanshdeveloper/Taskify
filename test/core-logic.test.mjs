@@ -171,10 +171,10 @@ test('Stress Test: Safe-to-spend edge cases (zero remaining, overspent, last day
 });
 
 test('Contract Test: Horizontal slide tabs strictly exclude Streaks and Settings', () => {
-  const MAIN_SLIDE_TABS = ['today', 'tasks', 'habits', 'finance'];
+  const MAIN_SLIDE_TABS = ['today', 'tasks', 'habits', 'finance', 'scratchpad'];
   assert.ok(!MAIN_SLIDE_TABS.includes('streaks'), 'Streaks must NEVER be in slide tabs');
   assert.ok(!MAIN_SLIDE_TABS.includes('settings'), 'Settings must not be in slide tabs');
-  assert.equal(MAIN_SLIDE_TABS.length, 4);
+  assert.equal(MAIN_SLIDE_TABS.length, 5);
 });
 
 test('Currency Auto-Detection: Timezone and locale mappings return valid symbols', () => {

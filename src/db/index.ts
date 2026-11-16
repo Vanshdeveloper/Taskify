@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import type { Task, Habit, HabitLog, Transaction } from '../types';
+import type { Task, Habit, HabitLog, Transaction, ScratchCard } from '../types';
 
 export interface SettingItem {
   key: string;
@@ -12,6 +12,7 @@ export class TaskifyDB extends Dexie {
   habitLogs!: Table<HabitLog, string>;
   transactions!: Table<Transaction, string>;
   settings!: Table<SettingItem, string>;
+  scratchcards!: Table<ScratchCard, string>;
 
   constructor() {
     super('TaskifyDB');
@@ -21,6 +22,9 @@ export class TaskifyDB extends Dexie {
       habitLogs: 'id, [habitId+date], habitId, date, completed',
       transactions: 'id, type, category, date, createdAt',
       settings: 'key',
+    });
+    this.version(2).stores({
+      scratchcards: 'id, category, createdAt, updatedAt',
     });
   }
 }

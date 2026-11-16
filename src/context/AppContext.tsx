@@ -3,7 +3,7 @@ import { useMotionValue, type MotionValue } from 'framer-motion';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, getTodayString } from '../db';
 import { seedInitialDataIfNeeded } from '../db/seed';
-import type { Task, Habit, HabitLog, Transaction, UserSettings, ActiveTab, ReminderAlert, TaskTemplate, Subtask } from '../types';
+import type { Task, Habit, HabitLog, Transaction, UserSettings, ActiveTab, ReminderAlert, TaskTemplate, Subtask, ScratchCard } from '../types';
 import type { DeleteConfirmOptions } from '../components/modals/ConfirmDeleteModal';
 import { feedback, triggerCompletionConfetti } from '../utils/feedback';
 import { formatTime12Hour, sendNativeNotification, requestNotificationPermission, syncNativeScheduledReminders } from '../utils/reminder';
@@ -60,6 +60,12 @@ interface AppContextType {
   updateTransaction: (id: string, updates: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   financeStats: FinanceStats;
+
+  // Scratchpad & Flashcards
+  scratchCards: ScratchCard[];
+  addScratchCard: (data: Omit<ScratchCard, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
+  updateScratchCard: (id: string, updates: Partial<ScratchCard>) => Promise<void>;
+  deleteScratchCard: (id: string) => Promise<void>;
 
   // Settings & Storage
   settings: UserSettings;
@@ -275,6 +281,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const habits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], []) || [];
   const habitLogs = useLiveQuery(() => db.habitLogs.toArray(), [], []) || [];
   const transactions = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), [], []) || [];
+  const scratchCards = useLiveQuery(() => db.scratchcards.orderBy('createdAt').reverse().toArray(), [], []) || [];
   const settingsEntries = useLiveQuery(() => db.settings.toArray(), [], []) || [];
 
   // Reconstruct user settings object
@@ -576,6 +583,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateTransaction = useCallback(async (id: string, updates: Partial<Transaction>) => {
     await db.transactions.update(id, updates);
+    feedback.playClick();
+  }, []);
+
+  // Scratchpad actions
+  const addScratchCard = useCallback(async (data: Omit<ScratchCard, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+    const id = 'sc-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+    const now = new Date().toISOString();
+    const newCard: ScratchCard = {
+      ...data,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await db.scratchcards.add(newCard);
+    feedback.playClick();
+    return id;
+  }, []);
+
+  const updateScratchCard = useCallback(async (id: string, updates: Partial<ScratchCard>): Promise<void> => {
+    await db.scratchcards.update(id, {
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    });
+    feedback.playClick();
+  }, []);
+
+  const deleteScratchCard = useCallback(async (id: string): Promise<void> => {
+    await db.scratchcards.delete(id);
     feedback.playClick();
   }, []);
 
@@ -1049,6 +1084,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateTransaction,
       deleteTransaction,
       financeStats,
+      scratchCards,
+      addScratchCard,
+      updateScratchCard,
+      deleteScratchCard,
       settings,
       updateSettings,
       exportDataAsJson,
@@ -1121,6 +1160,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateTransaction,
       deleteTransaction,
       financeStats,
+      scratchCards,
+      addScratchCard,
+      updateScratchCard,
+      deleteScratchCard,
       settings,
       updateSettings,
       exportDataAsJson,
