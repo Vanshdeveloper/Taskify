@@ -34,7 +34,7 @@ public class TaskifyHabitsWidgetProvider extends AppWidgetProvider {
         try {
             String action = intent != null ? intent.getAction() : null;
             if (Intent.ACTION_DATE_CHANGED.equals(action) ||
-                Intent.ACTION_TIME_SET.equals(action) ||
+                Intent.ACTION_TIME_CHANGED.equals(action) ||
                 Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
                 TaskifyWidgetProvider.checkAndRolloverDailyRoutines(context);
                 return;
