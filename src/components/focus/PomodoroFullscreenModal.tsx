@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Bell, RotateCcw, Sparkles } from 'lucide-react';
+import { Play, Pause, X, Bell, RotateCcw, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import { useFocusTimer } from '../../hooks/useFocusTimer';
@@ -212,10 +212,61 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
     return `${hours}:${mins}`;
   }, [remainingSeconds]);
 
-  // Mobile screen perimeter math for the edge progress contour
+  const [safeArea, setSafeArea] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
+  const [isEdgeCalibrationOpen, setIsEdgeCalibrationOpen] = useState(false);
+
+  // Measure hardware safe area insets dynamically to detect display notch, dynamic island, or curved bezel
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const testEl = document.createElement('div');
+    testEl.style.position = 'fixed';
+    testEl.style.left = '0';
+    testEl.style.top = '0';
+    testEl.style.width = '0';
+    testEl.style.height = '0';
+    testEl.style.visibility = 'hidden';
+    testEl.style.paddingTop = 'env(safe-area-inset-top, 0px)';
+    testEl.style.paddingBottom = 'env(safe-area-inset-bottom, 0px)';
+    testEl.style.paddingLeft = 'env(safe-area-inset-left, 0px)';
+    testEl.style.paddingRight = 'env(safe-area-inset-right, 0px)';
+    document.body.appendChild(testEl);
+    const computed = window.getComputedStyle(testEl);
+    const top = parseFloat(computed.paddingTop) || 0;
+    const bottom = parseFloat(computed.paddingBottom) || 0;
+    const left = parseFloat(computed.paddingLeft) || 0;
+    const right = parseFloat(computed.paddingRight) || 0;
+    document.body.removeChild(testEl);
+    setSafeArea({ top, bottom, left, right });
+  }, []);
+
+  // Intelligent Corner Radius & Inset Auto-Adaptation based on hardware screen metrics
+  const autoCalculatedRadius = useMemo(() => {
+    if (isDesktop) return 24;
+    const maxSafe = Math.max(safeArea.top, safeArea.bottom);
+    // Extreme curvature modern displays (Pixel 8/9, iPhone 14/15/16 Pro, Vivo curved AMOLEDs: radius 48-52px)
+    if (maxSafe >= 44) return 50;
+    // Standard hole-punch / gesture bar displays
+    if (maxSafe >= 28) return 42;
+    // Classic devices
+    return Capacitor.isNativePlatform() ? 40 : 32;
+  }, [isDesktop, safeArea.top, safeArea.bottom]);
+
+  const autoCalculatedInset = useMemo(() => {
+    if (isDesktop) return 2;
+    const maxSafe = Math.max(safeArea.top, safeArea.bottom);
+    if (maxSafe >= 44) return 5;
+    if (maxSafe >= 28) return 4;
+    return 3;
+  }, [isDesktop, safeArea.top, safeArea.bottom]);
+
+  const isAutoRadius = settings.focusEdgeRadius === 'auto' || !settings.focusEdgeRadius;
+  const effectiveRadius = isAutoRadius ? autoCalculatedRadius : Number(settings.focusEdgeRadius);
+  const effectiveInset = settings.focusEdgeInset !== undefined ? Number(settings.focusEdgeInset) : autoCalculatedInset;
+
+  // Screen perimeter math for the edge progress contour with adaptive device curvature
   const strokeWidth = 4;
-  const cornerRadius = Capacitor.isNativePlatform() ? 38 : 24;
-  const padding = 2;
+  const cornerRadius = effectiveRadius;
+  const padding = effectiveInset;
   const rectW = Math.max(10, viewportSize.width - padding * 2);
   const rectH = Math.max(10, viewportSize.height - padding * 2);
   const perimeter = 2 * (rectW + rectH) - 8 * cornerRadius + 2 * Math.PI * cornerRadius;
@@ -357,19 +408,158 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                 </span>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  feedback.playClick();
-                  onClose();
-                }}
-                className="w-8 h-8 rounded-full glass-expo-interactive flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer"
-                aria-label="Close Focus Dialog"
-                title="Close to Background (Esc)"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    feedback.playClick();
+                    setIsEdgeCalibrationOpen((prev) => !prev);
+                  }}
+                  className={`w-8 h-8 rounded-full glass-expo-interactive flex items-center justify-center cursor-pointer transition-colors ${
+                    isEdgeCalibrationOpen
+                      ? 'text-orange-400 border-orange-500/40 bg-orange-500/20'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                  title="Calibrate Screen Edge Corner Radius & Inset"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    feedback.playClick();
+                    onClose();
+                  }}
+                  className="w-8 h-8 rounded-full glass-expo-interactive flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer"
+                  aria-label="Close Focus Dialog"
+                  title="Close to Background (Esc)"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
+
+            {/* Screen Edge Corner Radius & Inset Calibration Panel */}
+            <AnimatePresence>
+              {isEdgeCalibrationOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                  exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                  className="w-full rounded-2xl bg-zinc-900/95 border border-white/15 p-4 shadow-2xl flex flex-col gap-3 mb-4 z-50 text-left overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-orange-400" />
+                      <span className="text-xs font-bold text-white">Edge Contour Calibration</span>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300">
+                      {effectiveRadius}px radius • {effectiveInset}px inset
+                    </span>
+                  </div>
+
+                  {/* Auto Adaptive Mode */}
+                  <div className="flex items-center justify-between py-0.5">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold text-zinc-200">Auto-Fit Screen Curves</span>
+                      <span className="text-[10px] text-zinc-500">
+                        Adapts to device bezel ({autoCalculatedRadius}px auto)
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        feedback.playClick();
+                        await updateSettings({
+                          focusEdgeRadius: isAutoRadius ? 38 : 'auto',
+                        });
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
+                        isAutoRadius
+                          ? 'bg-orange-500 text-white border-orange-400'
+                          : 'bg-zinc-800 text-zinc-400 border-white/10'
+                      }`}
+                    >
+                      {isAutoRadius ? 'Auto Active' : 'Manual'}
+                    </button>
+                  </div>
+
+                  {/* Radius Presets */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                      Corner Curvature (Border Radius)
+                    </span>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {[
+                        { label: '0px', val: 0, desc: 'Square' },
+                        { label: '24px', val: 24, desc: 'Subtle' },
+                        { label: '38px', val: 38, desc: 'Standard' },
+                        { label: '48px', val: 48, desc: 'Curved' },
+                        { label: '56px', val: 56, desc: 'Extreme' },
+                      ].map((item) => {
+                        const isSelected = !isAutoRadius && effectiveRadius === item.val;
+                        return (
+                          <button
+                            key={item.label}
+                            type="button"
+                            onClick={async () => {
+                              feedback.playClick();
+                              await updateSettings({ focusEdgeRadius: item.val });
+                            }}
+                            className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
+                                : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
+                            }`}
+                          >
+                            <span className="text-xs font-bold leading-tight">{item.label}</span>
+                            <span className="text-[8px] opacity-75">{item.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Inset Padding Presets */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                      Bezel Inset (Padding from Glass)
+                    </span>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[
+                        { label: '2px', val: 2, desc: 'Edge' },
+                        { label: '4px', val: 4, desc: 'Standard' },
+                        { label: '6px', val: 6, desc: 'Deep' },
+                        { label: '8px', val: 8, desc: 'Safe' },
+                      ].map((item) => {
+                        const isSelected = effectiveInset === item.val;
+                        return (
+                          <button
+                            key={item.label}
+                            type="button"
+                            onClick={async () => {
+                              feedback.playClick();
+                              await updateSettings({ focusEdgeInset: item.val });
+                            }}
+                            className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
+                                : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
+                            }`}
+                          >
+                            <span className="text-xs font-bold leading-tight">{item.label}</span>
+                            <span className="text-[8px] opacity-75">{item.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Precision Circular Dial */}
             <div className="relative w-[230px] h-[230px] flex items-center justify-center my-2">
@@ -608,26 +798,166 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
           className="w-full max-w-sm flex flex-col items-center justify-between flex-1 px-4 z-40"
           style={{ pointerEvents: isDimmed ? 'none' : 'auto' }}
         >
-          {/* Header Row: Close Button & Subtle Mode Status */}
+          {/* Header Row: Calibration Button, Close Button & Subtle Mode Status */}
           <div className="w-full flex items-center justify-between pt-1 pb-3">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/80 border border-white/8 text-[11px] font-semibold text-zinc-400">
               <span className="w-2 h-2 rounded-full bg-[#F26A36] animate-pulse" />
               <span>{status === 'running' ? 'Focus Session' : 'Ready'}</span>
             </div>
 
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                feedback.playClick();
-                onClose();
-              }}
-              className="w-8 h-8 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white pressable active:scale-95 cursor-pointer"
-              aria-label="Close Fullscreen Timer"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  feedback.playClick();
+                  setIsEdgeCalibrationOpen((prev) => !prev);
+                }}
+                className={`w-8 h-8 rounded-full border flex items-center justify-center pressable active:scale-95 cursor-pointer transition-colors ${
+                  isEdgeCalibrationOpen
+                    ? 'bg-orange-500/20 text-orange-400 border-orange-500/40'
+                    : 'bg-zinc-900 border-white/10 text-zinc-400 hover:text-white'
+                }`}
+                title="Calibrate Screen Edge Corner Radius & Inset"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  feedback.playClick();
+                  onClose();
+                }}
+                className="w-8 h-8 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white pressable active:scale-95 cursor-pointer"
+                aria-label="Close Fullscreen Timer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
+
+          {/* Mobile Screen Edge Calibration Panel */}
+          <AnimatePresence>
+            {isEdgeCalibrationOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                className="w-full rounded-2xl bg-zinc-900/95 border border-white/15 p-4 shadow-2xl flex flex-col gap-3 mb-4 z-50 text-left overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-orange-400" />
+                    <span className="text-xs font-bold text-white">Edge Contour Calibration</span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300">
+                    {effectiveRadius}px radius • {effectiveInset}px inset
+                  </span>
+                </div>
+
+                {/* Auto Adaptive Mode */}
+                <div className="flex items-center justify-between py-0.5">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold text-zinc-200">Auto-Fit Screen Curves</span>
+                    <span className="text-[10px] text-zinc-500">
+                      Adapts to device bezel ({autoCalculatedRadius}px auto)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      feedback.playClick();
+                      await updateSettings({
+                        focusEdgeRadius: isAutoRadius ? 48 : 'auto',
+                      });
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
+                      isAutoRadius
+                        ? 'bg-orange-500 text-white border-orange-400'
+                        : 'bg-zinc-800 text-zinc-400 border-white/10'
+                    }`}
+                  >
+                    {isAutoRadius ? 'Auto Active' : 'Manual'}
+                  </button>
+                </div>
+
+                {/* Radius Presets */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                    Corner Curvature (Border Radius)
+                  </span>
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {[
+                      { label: '0px', val: 0, desc: 'Square' },
+                      { label: '24px', val: 24, desc: 'Subtle' },
+                      { label: '38px', val: 38, desc: 'Standard' },
+                      { label: '48px', val: 48, desc: 'Curved' },
+                      { label: '56px', val: 56, desc: 'Extreme' },
+                    ].map((item) => {
+                      const isSelected = !isAutoRadius && effectiveRadius === item.val;
+                      return (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={async () => {
+                            feedback.playClick();
+                            await updateSettings({ focusEdgeRadius: item.val });
+                          }}
+                          className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
+                              : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
+                          }`}
+                        >
+                          <span className="text-xs font-bold leading-tight">{item.label}</span>
+                          <span className="text-[8px] opacity-75">{item.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Inset Padding Presets */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                    Bezel Inset (Padding from Glass)
+                  </span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { label: '2px', val: 2, desc: 'Edge' },
+                      { label: '4px', val: 4, desc: 'Standard' },
+                      { label: '6px', val: 6, desc: 'Deep' },
+                      { label: '8px', val: 8, desc: 'Safe' },
+                    ].map((item) => {
+                      const isSelected = effectiveInset === item.val;
+                      return (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={async () => {
+                            feedback.playClick();
+                            await updateSettings({ focusEdgeInset: item.val });
+                          }}
+                          className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
+                              : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
+                          }`}
+                        >
+                          <span className="text-xs font-bold leading-tight">{item.label}</span>
+                          <span className="text-[8px] opacity-75">{item.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Top Pill Capsule: Compact Pill */}
           <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-[#111113] border border-white/10 shadow-lg mb-4">

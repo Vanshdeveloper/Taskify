@@ -132,6 +132,8 @@ const DEFAULT_SETTINGS: UserSettings = {
   hapticFeedback: true,
   hapticSound: 'precision',
   focusEdgeProgress: typeof window !== 'undefined' ? localStorage.getItem('taskify_pc_edge_progress') !== 'false' : true,
+  focusEdgeRadius: 'auto',
+  focusEdgeInset: 4,
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -301,6 +303,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       hapticFeedback: map.hapticFeedback ?? DEFAULT_SETTINGS.hapticFeedback,
       hapticSound: map.hapticSound ?? DEFAULT_SETTINGS.hapticSound,
       focusEdgeProgress: map.focusEdgeProgress ?? DEFAULT_SETTINGS.focusEdgeProgress,
+      focusEdgeRadius: map.focusEdgeRadius ?? DEFAULT_SETTINGS.focusEdgeRadius,
+      focusEdgeInset: map.focusEdgeInset ?? DEFAULT_SETTINGS.focusEdgeInset,
     };
   }, [settingsEntries]);
 
@@ -662,6 +666,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
     if (updates.focusEdgeProgress !== undefined && typeof window !== 'undefined') {
       localStorage.setItem('taskify_pc_edge_progress', String(updates.focusEdgeProgress));
+    }
+    if (updates.focusEdgeRadius !== undefined && typeof window !== 'undefined') {
+      localStorage.setItem('taskify_edge_radius', String(updates.focusEdgeRadius));
+    }
+    if (updates.focusEdgeInset !== undefined && typeof window !== 'undefined') {
+      localStorage.setItem('taskify_edge_inset', String(updates.focusEdgeInset));
     }
     for (const [k, v] of Object.entries(updates)) {
       await db.settings.put({ key: k, value: v });

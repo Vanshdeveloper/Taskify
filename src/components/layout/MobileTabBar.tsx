@@ -20,7 +20,9 @@ export const MobileTabBar: React.FC = () => {
   const handleTabClick = (tabId: ActiveTab) => {
     feedback.playClick();
     closeStreaks();
-    setActiveTab(tabId);
+    React.startTransition(() => {
+      setActiveTab(tabId);
+    });
   };
 
   const handleFabClick = () => {
@@ -60,11 +62,11 @@ export const MobileTabBar: React.FC = () => {
                     transition={SPRING_DOCK_LIQUID}
                     className="absolute inset-0 rounded-full"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%)',
-                      border: '1px solid rgba(255, 255, 255, 0.25)',
-                      boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.35), 0 4px 16px rgba(0, 0, 0, 0.45)',
-                      backdropFilter: 'blur(20px)',
-                      WebkitBackdropFilter: 'blur(20px)',
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                      border: '1px solid rgba(255, 255, 255, 0.22)',
+                      boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.35)',
+                      willChange: 'transform',
+                      transform: 'translateZ(0)',
                     }}
                   />
                 )}

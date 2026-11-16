@@ -16,6 +16,8 @@ import {
   Vibrate,
   Volume2,
   DollarSign,
+  Sparkles,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -463,7 +465,165 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 7. Navigation Bar Customization */}
+      {/* 7. Focus Timer Screen Edge & Bezel Calibration */}
+      <div
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+      >
+        <div className="flex items-center justify-between pb-3 border-b border-white/6">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-sm"
+              style={{
+                backgroundColor: 'color-mix(in srgb, #f26a36 16%, transparent)',
+                borderColor: 'color-mix(in srgb, #f26a36 32%, transparent)',
+                color: '#f26a36',
+              }}
+            >
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                <span>Timer Edge Progress & Curvature</span>
+                <span
+                  className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md border"
+                  style={{
+                    backgroundColor:
+                      settings.focusEdgeProgress !== false
+                        ? 'rgba(242, 106, 54, 0.2)'
+                        : 'rgba(255, 255, 255, 0.05)',
+                    borderColor:
+                      settings.focusEdgeProgress !== false
+                        ? 'rgba(242, 106, 54, 0.4)'
+                        : 'rgba(255, 255, 255, 0.1)',
+                    color:
+                      settings.focusEdgeProgress !== false
+                        ? '#f26a36'
+                        : 'var(--text-muted)',
+                  }}
+                >
+                  {settings.focusEdgeProgress !== false ? 'Enabled' : 'Muted'}
+                </span>
+              </h2>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Full-screen glowing perimeter contour with automatic display curvature compensation.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.focusEdgeProgress !== false}
+            onClick={async () => {
+              const nextVal = !(settings.focusEdgeProgress !== false);
+              feedback.playClick();
+              await updateSettings({ focusEdgeProgress: nextVal });
+            }}
+            className={`w-12 h-7 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 border flex items-center ${
+              settings.focusEdgeProgress !== false
+                ? 'justify-end border-transparent bg-[#f26a36]'
+                : 'justify-start bg-white/10 border-white/10'
+            }`}
+          >
+            <motion.div
+              layout
+              transition={{ type: 'spring', damping: 25, stiffness: 450 }}
+              className="w-5 h-5 rounded-full bg-white shadow-md"
+            />
+          </button>
+        </div>
+
+        {/* Curvature & Bezel Radius Settings */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="text-xs font-semibold text-white">Display Corner Curvature</span>
+            </div>
+            <span className="text-[10px] font-mono text-zinc-400">
+              {settings.focusEdgeRadius === 'auto' || !settings.focusEdgeRadius
+                ? 'Auto-Adaptive'
+                : `${settings.focusEdgeRadius}px manual`}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            {[
+              { id: 'auto', label: 'Auto Fit', desc: 'Adaptive' },
+              { id: 0, label: '0px', desc: 'Square' },
+              { id: 24, label: '24px', desc: 'Subtle' },
+              { id: 38, label: '38px', desc: 'Standard' },
+              { id: 48, label: '48px', desc: 'Curved' },
+              { id: 56, label: '56px', desc: 'Extreme' },
+            ].map((r) => {
+              const isSelected =
+                r.id === 'auto'
+                  ? settings.focusEdgeRadius === 'auto' || !settings.focusEdgeRadius
+                  : Number(settings.focusEdgeRadius) === r.id;
+              return (
+                <button
+                  key={String(r.id)}
+                  type="button"
+                  onClick={async () => {
+                    feedback.playClick();
+                    await updateSettings({ focusEdgeRadius: r.id as any });
+                  }}
+                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer pressable ${
+                    isSelected
+                      ? 'border-[#f26a36] bg-[#f26a36]/15 text-white font-bold'
+                      : 'border-white/8 hover:border-white/16 bg-white/[0.02] text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <span className="text-xs block leading-tight">{r.label}</span>
+                  <span className="text-[9px] opacity-70 mt-0.5 block">{r.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Bezel Inset Setting */}
+        <div className="flex flex-col gap-2 pt-2 border-t border-white/6">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-white">Bezel Inset (Padding)</span>
+            <span className="text-[10px] font-mono text-zinc-400">
+              {settings.focusEdgeInset ?? 4}px padding
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { id: 2, label: '2px', desc: 'Edge' },
+              { id: 4, label: '4px', desc: 'Standard' },
+              { id: 6, label: '6px', desc: 'Deep' },
+              { id: 8, label: '8px', desc: 'Safe' },
+            ].map((inset) => {
+              const isSelected = (settings.focusEdgeInset ?? 4) === inset.id;
+              return (
+                <button
+                  key={inset.id}
+                  type="button"
+                  onClick={async () => {
+                    feedback.playClick();
+                    await updateSettings({ focusEdgeInset: inset.id });
+                  }}
+                  className={`p-1.5 rounded-xl border text-center transition-all cursor-pointer pressable ${
+                    isSelected
+                      ? 'border-[#f26a36] bg-[#f26a36]/15 text-white font-bold'
+                      : 'border-white/8 hover:border-white/16 bg-white/[0.02] text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <span className="text-xs block leading-tight">{inset.label}</span>
+                  <span className="text-[9px] opacity-70 block">{inset.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* 8. Navigation Bar Customization */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
@@ -558,7 +718,7 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 8. Data Sovereignty & Portability */}
+      {/* 9. Data Sovereignty & Portability */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}

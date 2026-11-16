@@ -682,3 +682,45 @@ test('Classic Solid Surface & Authentic Cozy Minimalist Themes Contract', () => 
   assert.ok(mockPresetThemes.every((t) => ['soft', 'aesthetic', 'minimalist', 'dark'].includes(t.category)));
 });
 
+test('Focus Timer Edge Progress Perimeter, Corner Curvature & Inset Adaptation Contract', () => {
+  // Edge calculation helper
+  function computePerimeter(w, h, r, inset) {
+    const rectW = Math.max(10, w - inset * 2);
+    const rectH = Math.max(10, h - inset * 2);
+    return 2 * (rectW + rectH) - 8 * r + 2 * Math.PI * r;
+  }
+
+  function resolveAutoFit(isDesktop, safeTop, safeBottom, isNative) {
+    if (isDesktop) return { radius: 24, inset: 2 };
+    const maxSafe = Math.max(safeTop, safeBottom);
+    if (maxSafe >= 44) return { radius: 50, inset: 5 };
+    if (maxSafe >= 28) return { radius: 42, inset: 4 };
+    return { radius: isNative ? 40 : 32, inset: 3 };
+  }
+
+  // 1. Extreme curved mobile (e.g. Pixel 8/9, iPhone 15/16 Pro with safe-area >= 44)
+  const extremeFit = resolveAutoFit(false, 47, 34, true);
+  assert.equal(extremeFit.radius, 50, 'Extreme phone curvature auto-calculates to 50px');
+  assert.equal(extremeFit.inset, 5, 'Extreme phone curvature insets 5px inside bezels');
+
+  // 2. Standard punch-hole phone
+  const standardFit = resolveAutoFit(false, 30, 16, true);
+  assert.equal(standardFit.radius, 42);
+  assert.equal(standardFit.inset, 4);
+
+  // 3. Desktop view
+  const desktopFit = resolveAutoFit(true, 0, 0, false);
+  assert.equal(desktopFit.radius, 24);
+  assert.equal(desktopFit.inset, 2);
+
+  // 4. Perimeter geometry assertion
+  const perimMobile = computePerimeter(390, 844, extremeFit.radius, extremeFit.inset);
+  assert.ok(perimMobile > 2000 && perimMobile < 2500, `Perimeter ${perimMobile} is geometrically accurate`);
+
+  // 5. Dashoffset at 50% progress
+  const progressRatio = 0.5;
+  const offset = perimMobile * (1 - progressRatio);
+  assert.equal(Math.round(offset), Math.round(perimMobile / 2));
+});
+
+

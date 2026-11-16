@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { APPLE_SPRINGS } from '../../utils/motion';
 import {
   Plus,
   Search,
@@ -256,461 +258,488 @@ export const ScratchpadView: React.FC = () => {
       </div>
 
       {/* 3. 2-Column Responsive Card Grid */}
-      {filteredCards.length === 0 ? (
-        <div
-          className="solid-card py-16 px-4 text-center flex flex-col items-center justify-center border shadow-xl"
-          style={{ backgroundColor: 'var(--bg-card)' }}
-        >
-          <Layers className="w-10 h-10 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
-          <span className="font-display text-sm font-semibold text-zinc-300">
-            No cards in this deck
-          </span>
-          <p className="text-xs text-zinc-500 mt-1">Tap "+ New Card" above to jot down a thought or flashcard.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filteredCards.map((card, idx) => {
-            return (
-              <motion.div
-                key={card.id}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="solid-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-lg border relative transition-all group hover:border-white/20"
-                style={{ backgroundColor: 'var(--bg-card)' }}
-              >
-                {/* Top Row: Category Tag, 2-Sided Badge & Quick Actions */}
-                <div className="flex items-center justify-between gap-2 mb-2.5">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span
-                      className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border uppercase tracking-wider"
-                      style={{
-                        backgroundColor: `${card.color || 'var(--accent-primary)'}20`,
-                        color: card.color || 'var(--accent-primary)',
-                        borderColor: `${card.color || 'var(--accent-primary)'}35`,
-                      }}
-                    >
-                      {card.category || 'General'}
-                    </span>
-
-                    {card.isTwoSided && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/6 text-zinc-400 border border-white/8 inline-flex items-center gap-1">
-                        <RotateCw className="w-2.5 h-2.5" />
-                        <span>Flip Side</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEdit(card)}
-                      className="opacity-40 group-hover:opacity-100 w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.08] pressable transition-all cursor-pointer"
-                      title="Edit card"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteCard(card)}
-                      className="opacity-40 group-hover:opacity-100 w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-400 pressable transition-opacity cursor-pointer"
-                      title="Delete card"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Content Area */}
-                <div
-                  className="my-1.5 flex-1 cursor-pointer"
-                  onClick={() => {
-                    feedback.playClick();
-                    setIsFlipped(false);
-                    setPresentingIndex(idx);
-                  }}
+      <AnimatePresence mode="popLayout">
+        {filteredCards.length === 0 ? (
+          <motion.div
+            key="empty-cards"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={APPLE_SPRINGS.snappy}
+            className="solid-card py-16 px-4 text-center flex flex-col items-center justify-center border shadow-xl"
+            style={{ backgroundColor: 'var(--bg-card)' }}
+          >
+            <Layers className="w-10 h-10 stroke-[1.5] mb-2" style={{ color: 'var(--accent-primary)' }} />
+            <span className="font-display text-sm font-semibold text-zinc-300">
+              No cards in this deck
+            </span>
+            <p className="text-xs text-zinc-500 mt-1">Tap "+ New Card" above to jot down a thought or flashcard.</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key={`cards-grid-${selectedCategory}`}
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          >
+            {filteredCards.map((card, idx) => {
+              return (
+                <motion.div
+                  key={card.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={APPLE_SPRINGS.snappy}
+                  className="solid-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-lg border relative transition-colors group hover:border-white/20"
+                  style={{ backgroundColor: 'var(--bg-card)' }}
                 >
-                  <h3 className="font-display text-base font-bold text-white tracking-tight leading-snug">
-                    {card.title}
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-1.5 line-clamp-3 leading-relaxed whitespace-pre-line font-body">
-                    {card.content}
-                  </p>
-                </div>
+                  {/* Top Row: Category Tag, 2-Sided Badge & Quick Actions */}
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border uppercase tracking-wider"
+                        style={{
+                          backgroundColor: `${card.color || 'var(--accent-primary)'}20`,
+                          color: card.color || 'var(--accent-primary)',
+                          borderColor: `${card.color || 'var(--accent-primary)'}35`,
+                        }}
+                      >
+                        {card.category || 'General'}
+                      </span>
 
-                {/* Bottom Row: Present Action */}
-                <div className="pt-3 mt-2 hairline-t flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-zinc-500">
-                    {card.updatedAt ? new Date(card.updatedAt).toLocaleDateString() : 'Recent'}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      feedback.playClick();
-                      setIsFlipped(false);
-                      setPresentingIndex(idx);
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold pressable transition-colors border cursor-pointer hover:border-white/25 text-white"
-                    style={{
-                      backgroundColor: 'var(--bg-subtle)',
-                      borderColor: 'var(--border-card)',
-                    }}
-                  >
-                    <Play className="w-2.5 h-2.5 fill-current" />
-                    <span>Present</span>
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ========================================================
-          FOCUSED FLASHCARD PRESENTATION MODE
-          ======================================================== */}
-      <AnimatePresence>
-        {activePresentedCard && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none modal-backdrop">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setPresentingIndex(null)}
-              className="absolute inset-0 bg-black/75 backdrop-blur-md"
-            />
-
-            <motion.div
-              initial={{ scale: 0.92, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.92, opacity: 0, y: 15 }}
-              transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-              className="relative w-full max-w-lg solid-card p-6 sm:p-8 rounded-3xl shadow-2xl border flex flex-col justify-between min-h-[380px] z-10"
-              style={{ backgroundColor: 'var(--bg-card)' }}
-            >
-              {/* Header Bar: Deck Counter, Tag & Close */}
-              <div className="flex items-center justify-between pb-3 hairline-b">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold text-white px-2.5 py-0.5 rounded-full bg-white/10">
-                    Card {presentingIndex! + 1} of {filteredCards.length}
-                  </span>
-                  <span
-                    className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border"
-                    style={{
-                      backgroundColor: `${activePresentedCard.color || 'var(--accent-primary)'}20`,
-                      color: activePresentedCard.color || 'var(--accent-primary)',
-                      borderColor: `${activePresentedCard.color || 'var(--accent-primary)'}35`,
-                    }}
-                  >
-                    {activePresentedCard.category || 'General'}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenEdit(activePresentedCard)}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 pressable transition-colors cursor-pointer"
-                    title="Edit card"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPresentingIndex(null)}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 pressable transition-colors cursor-pointer"
-                    title="Close Presentation (Esc)"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Main Card Body with 3D Flip Support */}
-              <div
-                className="my-auto py-8 text-center flex flex-col items-center justify-center cursor-pointer min-h-[180px]"
-                onClick={() => {
-                  if (activePresentedCard.isTwoSided) handleFlip();
-                }}
-              >
-                <AnimatePresence mode="wait">
-                  {!isFlipped ? (
-                    <motion.div
-                      key="front"
-                      initial={{ opacity: 0, rotateY: -80 }}
-                      animate={{ opacity: 1, rotateY: 0 }}
-                      exit={{ opacity: 0, rotateY: 80 }}
-                      transition={{ duration: 0.22, ease: 'easeOut' }}
-                      className="w-full flex flex-col items-center"
-                    >
-                      <h2 className="font-display text-xl sm:text-2xl font-black text-white tracking-tight max-w-md">
-                        {activePresentedCard.title}
-                      </h2>
-                      <p className="text-sm sm:text-base text-zinc-300 mt-4 max-w-md leading-relaxed whitespace-pre-line font-body">
-                        {activePresentedCard.content}
-                      </p>
-                      {activePresentedCard.isTwoSided && (
-                        <span className="text-[10px] font-mono text-zinc-500 mt-6 inline-flex items-center gap-1 opacity-75">
-                          <RotateCw className="w-3 h-3" /> Tap or press Space to reveal answer
+                      {card.isTwoSided && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/6 text-zinc-400 border border-white/8 inline-flex items-center gap-1">
+                          <RotateCw className="w-2.5 h-2.5" />
+                          <span>Flip Side</span>
                         </span>
                       )}
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="back"
-                      initial={{ opacity: 0, rotateY: 80 }}
-                      animate={{ opacity: 1, rotateY: 0 }}
-                      exit={{ opacity: 0, rotateY: -80 }}
-                      transition={{ duration: 0.22, ease: 'easeOut' }}
-                      className="w-full flex flex-col items-center"
-                    >
-                      <span className="text-[10px] uppercase font-mono tracking-widest text-[var(--accent-primary)] font-bold mb-2">
-                        Flip Side (Answer / Notes)
-                      </span>
-                      <p className="text-sm sm:text-base text-zinc-100 max-w-md leading-relaxed whitespace-pre-line font-body font-medium">
-                        {activePresentedCard.backContent || '(No back content entered)'}
-                      </p>
-                      <span className="text-[10px] font-mono text-zinc-500 mt-6 inline-flex items-center gap-1 opacity-75">
-                        <RotateCw className="w-3 h-3" /> Tap to flip back
-                      </span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                    </div>
 
-              {/* Minimalist Deck Controls: Prev / Flip / Next */}
-              <div className="pt-4 hairline-t flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={handlePrevCard}
-                  className="flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-bold solid-input text-zinc-300 hover:text-white pressable cursor-pointer"
-                  title="Previous Card (←)"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Prev</span>
-                </button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(card)}
+                        className="opacity-40 group-hover:opacity-100 w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.08] pressable transition-all cursor-pointer"
+                        title="Edit card"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
 
-                {activePresentedCard.isTwoSided ? (
-                  <button
-                    type="button"
-                    onClick={handleFlip}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold pressable transition-all cursor-pointer shadow-md"
-                    style={{
-                      backgroundColor: 'var(--accent-primary)',
-                      color: '#ffffff',
-                    }}
-                    title="Flip Card (Space)"
-                  >
-                    <RotateCw className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>Flip Card</span>
-                  </button>
-                ) : (
-                  <span className="text-[11px] font-mono text-zinc-500">
-                    Use ← and → to navigate
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={handleNextCard}
-                  className="flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-bold solid-input text-zinc-300 hover:text-white pressable cursor-pointer"
-                  title="Next Card (→)"
-                >
-                  <span className="hidden sm:inline">Next</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* ========================================================
-          CARD CREATOR / EDITOR MODAL
-          ======================================================== */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none modal-backdrop">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/70 backdrop-blur-md"
-            />
-
-            <motion.div
-              initial={{ scale: 0.94, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.94, opacity: 0, y: 15 }}
-              transition={{ type: 'spring', damping: 26, stiffness: 350 }}
-              className="relative w-full max-w-lg solid-card p-5 sm:p-6 rounded-3xl shadow-2xl border flex flex-col gap-4 z-10"
-              style={{ backgroundColor: 'var(--bg-card)' }}
-            >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between pb-3 hairline-b">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: `${color}25`, color }}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <h3 className="font-display text-base font-bold text-white">
-                    {editingCard ? 'Edit Flashcard' : 'New Flashcard'}
-                  </h3>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white pressable cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Title Input */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
-                  Card Title / Topic
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Active Recall, Project Note, Grocery Idea..."
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-                  autoFocus
-                />
-              </div>
-
-              {/* Front Content */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
-                  Front Side Notes / Question
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder="Write your note or question here..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="w-full p-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
-                />
-              </div>
-
-              {/* Optional Two-Sided Flip Toggle */}
-              <div className="flex flex-col gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <RotateCw className="w-3.5 h-3.5 text-zinc-400" />
-                    <div>
-                      <span className="text-xs font-bold text-white block">Add Flip Side (Back)</span>
-                      <span className="text-[10px] text-zinc-500 font-mono">For study testing & answers</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCard(card)}
+                        className="opacity-40 group-hover:opacity-100 w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-400 pressable transition-opacity cursor-pointer"
+                        title="Delete card"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setIsTwoSided((prev) => !prev)}
-                    className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer pressable p-0.5 ${
-                      isTwoSided ? 'bg-[var(--accent-primary)]' : 'bg-white/10'
-                    }`}
+                  {/* Content Area - Clicking opens the note editor menu */}
+                  <div
+                    className="my-1.5 flex-1 cursor-pointer"
+                    onClick={() => {
+                      feedback.playClick();
+                      handleOpenEdit(card);
+                    }}
                   >
-                    <motion.div
-                      animate={{ x: isTwoSided ? 20 : 0 }}
-                      transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                      className="w-5 h-5 rounded-full bg-white shadow-md"
-                    />
-                  </button>
-                </div>
-
-                {isTwoSided && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="pt-2"
-                  >
-                    <textarea
-                      rows={3}
-                      placeholder="Enter the answer or back-of-card notes..."
-                      value={backContent}
-                      onChange={(e) => setBackContent(e.target.value)}
-                      className="w-full p-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
-                    />
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Category & Color Picker */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
-                    Category Tag
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="General, Ideas, Study..."
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full h-9 px-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
-                    Color Accent
-                  </label>
-                  <div className="flex items-center gap-1.5 h-9">
-                    {CARD_COLORS.map((c) => (
-                      <button
-                        key={c.value}
-                        type="button"
-                        onClick={() => setColor(c.value)}
-                        className={`w-5 h-5 rounded-full flex items-center justify-center pressable cursor-pointer border ${
-                          color === c.value ? 'ring-2 ring-white scale-110' : 'border-white/20'
-                        }`}
-                        style={{ backgroundColor: c.value }}
-                        title={c.label}
-                      >
-                        {color === c.value && <Check className="w-3 h-3 text-white stroke-[3]" />}
-                      </button>
-                    ))}
+                    <h3 className="font-display text-base font-bold text-white tracking-tight leading-snug">
+                      {card.title}
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1.5 line-clamp-3 leading-relaxed whitespace-pre-line font-body">
+                      {card.content}
+                    </p>
                   </div>
-                </div>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="pt-3 hairline-t flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold solid-input text-zinc-400 hover:text-white pressable cursor-pointer"
-                >
-                  Cancel
-                </button>
+                  {/* Bottom Row: Present Action */}
+                  <div className="pt-3 mt-2 hairline-t flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-zinc-500">
+                      {card.updatedAt ? new Date(card.updatedAt).toLocaleDateString() : 'Recent'}
+                    </span>
 
-                <button
-                  type="button"
-                  onClick={handleSaveCard}
-                  className="px-5 py-2 rounded-xl text-xs font-bold pressable cursor-pointer shadow-md"
-                  style={{
-                    backgroundColor: 'var(--accent-primary)',
-                    color: '#ffffff',
-                  }}
-                >
-                  {editingCard ? 'Save Changes' : 'Create Card'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        feedback.playClick();
+                        setIsFlipped(false);
+                        setPresentingIndex(idx);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold pressable transition-colors border cursor-pointer hover:border-white/25 text-white"
+                      style={{
+                        backgroundColor: 'var(--bg-subtle)',
+                        borderColor: 'var(--border-card)',
+                      }}
+                    >
+                      <Play className="w-2.5 h-2.5 fill-current" />
+                      <span>Present</span>
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ========================================================
+          FOCUSED FLASHCARD PRESENTATION MODE (PORTAL TO BODY)
+          ======================================================== */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {activePresentedCard && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none modal-backdrop">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setPresentingIndex(null)}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-md"
+                  style={{ willChange: 'opacity' }}
+                />
+
+                <motion.div
+                  initial={{ scale: 0.92, opacity: 0, y: 15 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.92, opacity: 0, y: 15 }}
+                  transition={APPLE_SPRINGS.snappy}
+                  className="relative w-full max-w-lg solid-card p-6 sm:p-8 rounded-3xl shadow-2xl border flex flex-col justify-between min-h-[380px] z-10 max-h-[90vh] overflow-y-auto no-scrollbar"
+                  style={{
+                    backgroundColor: 'var(--bg-card)',
+                    willChange: 'transform, opacity',
+                  }}
+                >
+                  {/* Header Bar: Deck Counter, Tag & Close */}
+                  <div className="flex items-center justify-between pb-3 hairline-b">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-white px-2.5 py-0.5 rounded-full bg-white/10">
+                        Card {presentingIndex! + 1} of {filteredCards.length}
+                      </span>
+                      <span
+                        className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border"
+                        style={{
+                          backgroundColor: `${activePresentedCard.color || 'var(--accent-primary)'}20`,
+                          color: activePresentedCard.color || 'var(--accent-primary)',
+                          borderColor: `${activePresentedCard.color || 'var(--accent-primary)'}35`,
+                        }}
+                      >
+                        {activePresentedCard.category || 'General'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(activePresentedCard)}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 pressable transition-colors cursor-pointer"
+                        title="Edit card"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setPresentingIndex(null)}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 pressable transition-colors cursor-pointer"
+                        title="Close Presentation (Esc)"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Main Card Body with 3D Flip Support */}
+                  <div
+                    className="my-auto py-8 text-center flex flex-col items-center justify-center cursor-pointer min-h-[180px]"
+                    onClick={() => {
+                      if (activePresentedCard.isTwoSided) handleFlip();
+                    }}
+                  >
+                    <AnimatePresence mode="wait">
+                      {!isFlipped ? (
+                        <motion.div
+                          key="front"
+                          initial={{ opacity: 0, rotateY: -80 }}
+                          animate={{ opacity: 1, rotateY: 0 }}
+                          exit={{ opacity: 0, rotateY: 80 }}
+                          transition={{ duration: 0.22, ease: 'easeOut' }}
+                          className="w-full flex flex-col items-center"
+                        >
+                          <h2 className="font-display text-xl sm:text-2xl font-black text-white tracking-tight max-w-md">
+                            {activePresentedCard.title}
+                          </h2>
+                          <p className="text-sm sm:text-base text-zinc-300 mt-4 max-w-md leading-relaxed whitespace-pre-line font-body">
+                            {activePresentedCard.content}
+                          </p>
+                          {activePresentedCard.isTwoSided && (
+                            <span className="text-[10px] font-mono text-zinc-500 mt-6 inline-flex items-center gap-1 opacity-75">
+                              <RotateCw className="w-3 h-3" /> Tap or press Space to reveal answer
+                            </span>
+                          )}
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="back"
+                          initial={{ opacity: 0, rotateY: 80 }}
+                          animate={{ opacity: 1, rotateY: 0 }}
+                          exit={{ opacity: 0, rotateY: -80 }}
+                          transition={{ duration: 0.22, ease: 'easeOut' }}
+                          className="w-full flex flex-col items-center"
+                        >
+                          <span className="text-[10px] uppercase font-mono tracking-widest text-[var(--accent-primary)] font-bold mb-2">
+                            Flip Side (Answer / Notes)
+                          </span>
+                          <p className="text-sm sm:text-base text-zinc-100 max-w-md leading-relaxed whitespace-pre-line font-body font-medium">
+                            {activePresentedCard.backContent || '(No back content entered)'}
+                          </p>
+                          <span className="text-[10px] font-mono text-zinc-500 mt-6 inline-flex items-center gap-1 opacity-75">
+                            <RotateCw className="w-3 h-3" /> Tap to flip back
+                          </span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Minimalist Deck Controls: Prev / Flip / Next */}
+                  <div className="pt-4 hairline-t flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={handlePrevCard}
+                      className="flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-bold solid-input text-zinc-300 hover:text-white pressable cursor-pointer"
+                      title="Previous Card (←)"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span className="hidden sm:inline">Prev</span>
+                    </button>
+
+                    {activePresentedCard.isTwoSided ? (
+                      <button
+                        type="button"
+                        onClick={handleFlip}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold pressable transition-all cursor-pointer shadow-md"
+                        style={{
+                          backgroundColor: 'var(--accent-primary)',
+                          color: '#ffffff',
+                        }}
+                        title="Flip Card (Space)"
+                      >
+                        <RotateCw className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>Flip Card</span>
+                      </button>
+                    ) : (
+                      <span className="text-[11px] font-mono text-zinc-500">
+                        Use ← and → to navigate
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleNextCard}
+                      className="flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-bold solid-input text-zinc-300 hover:text-white pressable cursor-pointer"
+                      title="Next Card (→)"
+                    >
+                      <span className="hidden sm:inline">Next</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
+
+      {/* ========================================================
+          CARD CREATOR / EDITOR MODAL (PORTAL TO BODY)
+          ======================================================== */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {isModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none modal-backdrop">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsModalOpen(false)}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-md"
+                  style={{ willChange: 'opacity' }}
+                />
+
+                <motion.div
+                  initial={{ scale: 0.94, opacity: 0, y: 15 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.94, opacity: 0, y: 15 }}
+                  transition={APPLE_SPRINGS.snappy}
+                  className="relative w-full max-w-lg solid-card p-5 sm:p-6 rounded-3xl shadow-2xl border flex flex-col gap-4 z-10 max-h-[90vh] overflow-y-auto no-scrollbar"
+                  style={{
+                    backgroundColor: 'var(--bg-card)',
+                    willChange: 'transform, opacity',
+                  }}
+                >
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between pb-3 hairline-b">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${color}25`, color }}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <h3 className="font-display text-base font-bold text-white">
+                        {editingCard ? 'Edit Flashcard' : 'New Flashcard'}
+                      </h3>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white pressable cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Title Input */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                      Card Title / Topic
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Active Recall, Project Note, Grocery Idea..."
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      className="w-full h-10 px-3.5 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* Front Content */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                      Front Side Notes / Question
+                    </label>
+                    <textarea
+                      rows={4}
+                      placeholder="Write your note or question here..."
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      className="w-full p-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  {/* Optional Two-Sided Flip Toggle */}
+                  <div className="flex flex-col gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <RotateCw className="w-3.5 h-3.5 text-zinc-400" />
+                        <div>
+                          <span className="text-xs font-bold text-white block">Add Flip Side (Back)</span>
+                          <span className="text-[10px] text-zinc-500 font-mono">For study testing & answers</span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsTwoSided((prev) => !prev)}
+                        className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer pressable p-0.5 ${
+                          isTwoSided ? 'bg-[var(--accent-primary)]' : 'bg-white/10'
+                        }`}
+                      >
+                        <motion.div
+                          animate={{ x: isTwoSided ? 20 : 0 }}
+                          transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                          className="w-5 h-5 rounded-full bg-white shadow-md"
+                        />
+                      </button>
+                    </div>
+
+                    {isTwoSided && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="pt-2"
+                      >
+                        <textarea
+                          rows={3}
+                          placeholder="Enter the answer or back-of-card notes..."
+                          value={backContent}
+                          onChange={(e) => setBackContent(e.target.value)}
+                          className="w-full p-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none resize-none"
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Category & Color Picker */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                        Category Tag
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="General, Ideas, Study..."
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="w-full h-9 px-3 rounded-xl solid-input text-xs text-white placeholder-zinc-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                        Color Accent
+                      </label>
+                      <div className="flex items-center gap-1.5 h-9">
+                        {CARD_COLORS.map((c) => (
+                          <button
+                            key={c.value}
+                            type="button"
+                            onClick={() => setColor(c.value)}
+                            className={`w-5 h-5 rounded-full flex items-center justify-center pressable cursor-pointer border ${
+                              color === c.value ? 'ring-2 ring-white scale-110' : 'border-white/20'
+                            }`}
+                            style={{ backgroundColor: c.value }}
+                            title={c.label}
+                          >
+                            {color === c.value && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-3 hairline-t flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-4 py-2 rounded-xl text-xs font-semibold solid-input text-zinc-400 hover:text-white pressable cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSaveCard}
+                      className="px-5 py-2 rounded-xl text-xs font-bold pressable cursor-pointer shadow-md"
+                      style={{
+                        backgroundColor: 'var(--accent-primary)',
+                        color: '#ffffff',
+                      }}
+                    >
+                      {editingCard ? 'Save Changes' : 'Create Card'}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </div>
   );
 };

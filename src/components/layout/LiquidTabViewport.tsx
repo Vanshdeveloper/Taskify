@@ -46,7 +46,7 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
     if (trackRef.current && !isDragging.current) {
       // Pure Viscous Oil Glide: Critical viscous damping, flat 2D tape
       trackRef.current.style.willChange = 'transform';
-      trackRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+      trackRef.current.style.transition = 'transform 0.30s cubic-bezier(0.16, 1, 0.3, 1)';
       trackRef.current.style.transform = `translate3d(-${activeSlideIndex * 100}%, 0, 0)`;
     }
   }, [activeSlideIndex]);
@@ -242,8 +242,9 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
                 overscrollBehaviorY: 'contain',
                 WebkitOverflowScrolling: 'touch',
                 contain: 'layout paint',
-                contentVisibility: isAdjacent ? 'visible' : 'auto',
+                transform: 'translateZ(0)',
                 pointerEvents: isCurrent ? 'auto' : 'none',
+                visibility: isAdjacent ? 'visible' : 'hidden',
               }}
             >
               <div data-tab-content={tab} className="w-full h-full">

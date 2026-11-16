@@ -129,6 +129,8 @@ export interface UserSettings {
   hapticFeedback?: boolean;
   hapticSound?: HapticSoundStyle;
   focusEdgeProgress?: boolean;
+  focusEdgeRadius?: number | 'auto';
+  focusEdgeInset?: number;
 }
 
 export interface ScratchCard {

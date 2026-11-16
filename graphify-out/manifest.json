@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "android/app/capacitor.build.gradle": {
-    "mtime": 1794799606.157023,
-    "seen": 1794799737.302626,
+    "mtime": 1794825506.1677148,
+    "seen": 1794827754.373316,
     "ast_hash": "06796b9d95b34bdd34d57405c42f101d",
     "semantic_hash": ""
   },
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "android/capacitor.settings.gradle": {
-    "mtime": 1794799606.157023,
-    "seen": 1794799737.302626,
+    "mtime": 1794825506.1607125,
+    "seen": 1794827754.373316,
     "ast_hash": "8087b83c314c84daec05cc78bec69ec5",
     "semantic_hash": ""
   },
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "ios/App/CapApp-SPM/Package.swift": {
-    "mtime": 1794550428.0658078,
-    "seen": 1794554033.6193428,
+    "mtime": 1794825506.4104195,
+    "seen": 1794827754.373316,
     "ast_hash": "e653513245e72fd597b2d8d7f0d7c0d8",
     "semantic_hash": ""
   },
@@ -582,15 +582,15 @@
     "semantic_hash": ""
   },
   "src/components/layout/LiquidTabViewport.tsx": {
-    "mtime": 1794823607.158615,
-    "seen": 1794824005.3698652,
-    "ast_hash": "315bc51d47df56f3372552684a5bf4e2",
+    "mtime": 1794827167.882205,
+    "seen": 1794827754.373316,
+    "ast_hash": "d34ce6fd649c10c28b857d58e875b3a0",
     "semantic_hash": ""
   },
   "src/components/layout/MobileTabBar.tsx": {
-    "mtime": 1794823650.0797753,
-    "seen": 1794824005.3698652,
-    "ast_hash": "ad521b5281b0cb5bc77e4a72fdfabf96",
+    "mtime": 1794827125.073884,
+    "seen": 1794827754.373316,
+    "ast_hash": "2a5f984f0aff41d000222e548c80e7fb",
     "semantic_hash": ""
   },
   "src/components/layout/Navbar.tsx": {
@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "src/components/settings/SettingsView.tsx": {
-    "mtime": 1794802821.23973,
-    "seen": 1794803435.474713,
-    "ast_hash": "3f5ba10a097eb5415b096f96649cf5e0",
+    "mtime": 1794827597.8591945,
+    "seen": 1794827754.373316,
+    "ast_hash": "818f933ab0bf72b53b571d1887ebfac6",
     "semantic_hash": ""
   },
   "src/components/settings/ThemeStudio.tsx": {
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "src/context/AppContext.tsx": {
-    "mtime": 1794823465.9482882,
-    "seen": 1794824005.3698652,
-    "ast_hash": "82abaddeeef3bad28fc9f7b2fb812b8a",
+    "mtime": 1794826824.106943,
+    "seen": 1794827754.373316,
+    "ast_hash": "61b978984941afc17062491945d60007",
     "semantic_hash": ""
   },
   "src/context/ThemeContext.tsx": {
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "src/types/index.ts": {
-    "mtime": 1794823010.4642928,
-    "seen": 1794824005.3698652,
-    "ast_hash": "670f8f3c5d7325575e3ef3a59e953edb",
+    "mtime": 1794826764.5008397,
+    "seen": 1794827754.373316,
+    "ast_hash": "c81c1a8a0cc1a19362851aaf5f2748a2",
     "semantic_hash": ""
   },
   "src/utils/category.ts": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "test/core-logic.test.mjs": {
-    "mtime": 1794823860.185678,
-    "seen": 1794824005.3698652,
-    "ast_hash": "b5a67396be34c313ecad14d82b5b138e",
+    "mtime": 1794828286.9737139,
+    "seen": 1794828345.7474632,
+    "ast_hash": "0da58ff7b3e56e3d1e878b1a81d019d4",
     "semantic_hash": ""
   },
   "test/e2e-tier1-features.test.mjs": {
@@ -2622,15 +2622,15 @@
     "semantic_hash": ""
   },
   "src/components/focus/PomodoroFullscreenModal.tsx": {
-    "mtime": 1794802348.0364456,
-    "seen": 1794803435.474713,
-    "ast_hash": "1460056416eb06d4f11d377fec30f509",
+    "mtime": 1794827650.6859686,
+    "seen": 1794827754.373316,
+    "ast_hash": "5609d95a1d4599e0370f25a4f3f1e71b",
     "semantic_hash": ""
   },
   "src/components/scratchpad/ScratchpadView.tsx": {
-    "mtime": 1794823523.6344662,
-    "seen": 1794824005.3698652,
-    "ast_hash": "7904771f6614e6d30e742d72f9cefbd4",
+    "mtime": 1794827093.3966107,
+    "seen": 1794827754.373316,
+    "ast_hash": "e3e6b6fb753bf9c8f7a5cc4ff43b6d57",
     "semantic_hash": ""
   },
   "package-lock.json": {
