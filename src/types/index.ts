@@ -162,3 +162,11 @@ export type AppTheme =
   | 'kyoto-matcha'
   | 'amber-dune'
   | (string & {});
+
+declare global {
+  interface Window {
+    electronAPI?: {
+      setAppIcon: (dataUrl: string) => void;
+    };
+  }
+}

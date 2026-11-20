@@ -1247,27 +1247,34 @@ test('TASK-102: Focus Timer Edge Light Gating & Android BigTextStyle Full Notifi
   assert.ok(reminderCode.includes('largeBody: expandedBody'), 'Task and habit reminders must supply largeBody');
 });
 
-test('TASK-105: Dynamic Logo Aesthetic in Navbar & Exclusivity of Single Windows NSIS Setup', () => {
+test('TASK-105: Navbar Centered Brand Dot, Dynamic Actual App Icon, and Web Option Removal', () => {
   const navbarCode = fs.readFileSync(path.resolve('src/components/layout/Navbar.tsx'), 'utf-8');
-  const brandLogoCode = fs.readFileSync(path.resolve('src/components/ui/BrandLogo.tsx'), 'utf-8');
+  const faviconCode = fs.readFileSync(path.resolve('src/utils/favicon.ts'), 'utf-8');
+  const electronMain = fs.readFileSync(path.resolve('electron/main.cjs'), 'utf-8');
+  const electronPreload = fs.readFileSync(path.resolve('electron/preload.cjs'), 'utf-8');
   const packageJson = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf-8'));
-  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+  const readmeCode = fs.readFileSync(path.resolve('README.md'), 'utf-8');
+  const releaseYml = fs.readFileSync(path.resolve('.github/workflows/release.yml'), 'utf-8');
 
-  // 1. Navbar Dynamic BrandLogo Integration
-  assert.ok(navbarCode.includes('<BrandLogo aesthetic={settings.appAesthetic} />'), 'Navbar must render BrandLogo with settings.appAesthetic');
+  // 1. Navbar: Taskify + centered dot dynamically colored with active theme
+  assert.ok(navbarCode.includes('Taskify'), 'Navbar must render Taskify brand wordmark');
+  assert.ok(navbarCode.includes("var(--accent-primary)"), 'Navbar dot must be dynamically colored with active theme color');
+  assert.ok(navbarCode.includes('items-center') && navbarCode.includes('w-1.5 h-1.5 rounded-full'), 'Navbar dot must be vertically centered with brand wordmark');
 
-  // 2. BrandLogo Refined Aesthetics
-  assert.ok(brandLogoCode.includes('minimal-obsidian'), 'BrandLogo must handle minimal-obsidian aesthetic');
-  assert.ok(brandLogoCode.includes('#160f0d'), 'BrandLogo minimal-obsidian must use dark center');
+  // 2. Dynamic Actual App Icon Sync (Electron Desktop & Webview Favicon)
+  assert.ok(faviconCode.includes('window.electronAPI?.setAppIcon'), 'Favicon engine must dispatch rasterized icon to Electron');
+  assert.ok(electronPreload.includes('setAppIcon'), 'Electron preload must expose setAppIcon bridge');
+  assert.ok(electronMain.includes('set-window-icon'), 'Electron main process must listen for set-window-icon to update window and taskbar icon');
+  assert.ok(faviconCode.includes('minimal-obsidian'), 'Favicon must handle minimal-obsidian aesthetic');
 
-  // 3. Single Windows Executable Contract (No Portable, NSIS Only with Desktop & Start Menu Shortcuts)
-  assert.deepEqual(packageJson.build.win.target, ['nsis'], 'Windows target must be strictly nsis (portable target must NOT be present)');
+  // 3. Single Windows Installer Exclusivity (No Portable, NSIS Only with Desktop & Start Menu Shortcuts)
+  assert.deepEqual(packageJson.build.win.target, ['nsis'], 'Windows target must be strictly nsis');
   assert.equal(packageJson.build.nsis.createDesktopShortcut, 'always', 'NSIS must always create desktop shortcut');
   assert.equal(packageJson.build.nsis.createStartMenuShortcut, true, 'NSIS must create start menu shortcut');
-  assert.equal(packageJson.build.nsis.shortcutName, 'Taskify', 'NSIS shortcut name must be Taskify');
 
-  // 4. Bloat Word Elimination
-  assert.equal(settingsCode.includes('Taskify OS'), false, 'SettingsView must not contain "Taskify OS"');
+  // 4. Web Option Removal from README and Release Workflow
+  assert.equal(readmeCode.includes('| Web | Browser |'), false, 'README must not offer web usage');
+  assert.equal(releaseYml.includes('taskify-web'), false, 'Release workflow must not build or package web distribution zip');
 });
 
 

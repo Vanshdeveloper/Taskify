@@ -10,8 +10,8 @@ permissions:
   contents: write
 
 jobs:
-  build-android-and-web:
-    name: Build Android APK & Web Zip
+  build-android:
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
@@ -39,16 +39,12 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
-      - name: Package Web Distribution
-        run: |
-          mkdir -p artifacts
-          zip -r "artifacts/taskify-web-${{ github.ref_name || 'v1.0.0' }}.zip" dist/
-
       - name: Sync Capacitor Android
         run: npx cap sync android
 
       - name: Build Android APK
         run: |
+          mkdir -p artifacts
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
@@ -57,10 +53,10 @@ jobs:
             cp "android/app/build/outputs/apk/debug/app-debug.apk" "artifacts/taskify-android-${{ github.ref_name || 'v1.0.0' }}.apk"
           fi
 
-      - name: Upload Android & Web Artifacts
+      - name: Upload Android Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: artifacts-android-web
+          name: artifacts-android
           path: artifacts/*
 
   build-desktop:
@@ -112,7 +108,7 @@ jobs:
 
   publish-release:
     name: Publish Release
-    needs: [build-android-and-web, build-desktop]
+    needs: [build-android, build-desktop]
     runs-on: ubuntu-latest
 
     steps:

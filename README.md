@@ -17,11 +17,10 @@ Taskify is available across platforms:
 
 | Platform | Format | Release |
 |:---|:---|:---|
-| Windows | `.exe` (Installer & Portable) | [Download](https://github.com/Vanshdeveloper/Taskify/releases/latest) |
+| Windows | `.exe` (Installer) | [Download](https://github.com/Vanshdeveloper/Taskify/releases/latest) |
 | macOS | `.dmg` | [Download](https://github.com/Vanshdeveloper/Taskify/releases/latest) |
 | Linux | `.AppImage` | [Download](https://github.com/Vanshdeveloper/Taskify/releases/latest) |
 | Android | `.apk` | [Download](https://github.com/Vanshdeveloper/Taskify/releases/latest) |
-| Web | Browser | [Live Demo](https://vanshdeveloper.github.io/Taskify/) |
 
 ## Development Setup
 

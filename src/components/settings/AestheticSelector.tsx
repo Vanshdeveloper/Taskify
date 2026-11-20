@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Sparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { AESTHETIC_DEFINITIONS } from '../../utils/favicon';
+import { useTheme } from '../../context/ThemeContext';
+import { AESTHETIC_DEFINITIONS, syncAppFavicon } from '../../utils/favicon';
 import { feedback } from '../../utils/feedback';
 import type { AppAesthetic } from '../../types';
 
@@ -14,11 +15,16 @@ export const AestheticSelector: React.FC<AestheticSelectorProps> = ({
   className = '',
 }) => {
   const { settings, updateSettings } = useApp();
+  const { theme, themes } = useTheme();
   const currentAesthetic = settings.appAesthetic || 'dynamic-theme';
   const [filterCategory, setFilterCategory] = useState<'all' | 'circle' | 'text'>('all');
 
+  const currentThemeObj = themes.find((t) => t.id === theme);
+  const currentAccent = currentThemeObj ? currentThemeObj.colors[1] : '#f26a36';
+
   const handleSelectAesthetic = async (val: AppAesthetic) => {
     feedback.playClick();
+    syncAppFavicon(val, currentAccent);
     await updateSettings({ appAesthetic: val });
   };
 

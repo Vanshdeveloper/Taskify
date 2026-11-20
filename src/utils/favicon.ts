@@ -46,23 +46,54 @@ export function syncAppFavicon(aesthetic: AppAesthetic, activeThemePrimaryColor 
     else if (aesthetic === 'text-spark') glyph = '✦';
 
     svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-      <rect width="100" height="100" rx="28" fill="#160f0d"/>
+      <rect width="100" height="100" rx="24" fill="#160f0d"/>
       <text x="50" y="${glyph.length > 2 ? '60' : '68'}" font-family="-apple-system, system-ui, sans-serif" font-weight="900" font-size="${glyph.length > 2 ? '42' : '56'}" text-anchor="middle" fill="${activeThemePrimaryColor}">${glyph}</text>
     </svg>`;
   } else {
-    // Chrome concentric circular bullseye logo standard
+    // Concentric circular squircle app icon standard
     svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="44" fill="${outerColor}"/>
-      <circle cx="50" cy="50" r="20" fill="${aesthetic === 'minimal-obsidian' ? '#160f0d' : '#ffffff'}"/>
+      <rect width="100" height="100" rx="24" fill="#160f0d"/>
+      <circle cx="50" cy="50" r="38" fill="${outerColor}"/>
+      <circle cx="50" cy="50" r="17" fill="${aesthetic === 'minimal-obsidian' ? '#160f0d' : '#ffffff'}"/>
     </svg>`;
   }
 
   const encoded = `data:image/svg+xml,${encodeURIComponent(svgContent.trim())}`;
-  let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null;
-  if (!link) {
-    link = document.createElement('link');
+  
+  // 1. Update all favicon and touch icon links in document head
+  const links = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon'], link[rel='apple-touch-icon']");
+  if (links.length > 0) {
+    links.forEach((l) => {
+      l.type = 'image/svg+xml';
+      l.href = encoded;
+    });
+  } else {
+    const link = document.createElement('link');
     link.rel = 'icon';
+    link.type = 'image/svg+xml';
+    link.href = encoded;
     document.head.appendChild(link);
   }
-  link.href = encoded;
+
+  // 2. Render to PNG and dispatch to Electron main process to update desktop window and taskbar icon
+  if (typeof window !== 'undefined' && window.electronAPI?.setAppIcon) {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        if (ctx) {
+          ctx.clearRect(0, 0, 128, 128);
+          ctx.drawImage(img, 0, 0, 128, 128);
+          const pngUrl = canvas.toDataURL('image/png');
+          window.electronAPI?.setAppIcon(pngUrl);
+        }
+      };
+      img.src = encoded;
+    } catch {
+      // Ignore rasterization errors in unsupported environments
+    }
+  }
 }
