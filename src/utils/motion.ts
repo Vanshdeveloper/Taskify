@@ -6,7 +6,7 @@
  * - sheet: Critically damped (zeta = 1.0, duration = 0.35s) for slide-over side drawers and bottom sheets.
  * - snappy: Snappy response (duration = 0.30s, damping = 28, stiffness = 380) for slider rebounds and flicks.
  */
-export const APPLE_SPRINGS = {
+export const FLUID_SPRINGS = {
   modal: {
     type: 'spring' as const,
     damping: 38,
@@ -29,6 +29,8 @@ export const APPLE_SPRINGS = {
     duration: 0.30,
   },
 } as const;
+
+export const APPLE_SPRINGS = FLUID_SPRINGS;
 
 export const SPRING_LIQUID = {
   type: 'spring' as const,

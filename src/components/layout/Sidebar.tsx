@@ -69,7 +69,7 @@ export const Sidebar: React.FC = () => {
     },
     {
       id: 'scratchpad',
-      label: 'Scratchpad',
+      label: 'Notes',
       icon: NotebookPen,
       badge: scratchCards.length > 0 ? scratchCards.length : undefined,
       shortcut: '6',

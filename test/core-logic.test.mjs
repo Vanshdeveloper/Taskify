@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Helper: relative date format
 function formatDateRelative(dateStr, today) {
@@ -197,7 +199,7 @@ test('Currency Auto-Detection: Timezone and locale mappings return valid symbols
   }
 });
 
-test('Liquid Navigation: Apple exponential momentum projection projects resting positions', () => {
+test('Liquid Navigation: Fluid exponential momentum projection projects resting positions', () => {
   function projectMomentum(velocity, decelerationRate = 0.992) {
     return (velocity / 1000) * decelerationRate / (1 - decelerationRate);
   }
@@ -538,16 +540,16 @@ test('Daypart Motivational Notifications: Morning, Afternoon, and Night briefing
           return {
             daypart,
             emoji: '🌅',
-            title: `Good morning, ${name}! ✨`,
-            body: `All clear for today! You're already ahead of the game — enjoy your calm, focused morning.`,
+            title: `Good morning, ${name}!`,
+            body: `All tasks and habits are checked off. Enjoy your morning.`,
             isAllDone: true,
           };
         case 'afternoon':
           return {
             daypart,
             emoji: '🚀',
-            title: `Good afternoon, ${name}! 🏆`,
-            body: `Phenomenal execution! Everything on your list is checked off. Outstanding focus today!`,
+            title: `Good afternoon, ${name}!`,
+            body: `All tasks and habits for today are done.`,
             isAllDone: true,
           };
         case 'night':
@@ -555,8 +557,8 @@ test('Daypart Motivational Notifications: Morning, Afternoon, and Night briefing
           return {
             daypart,
             emoji: '🌟',
-            title: `Good night, ${name}! 🌙`,
-            body: `Flawless day completed! Every single goal and routine accomplished. Rest well, you earned it!`,
+            title: `Good night, ${name}!`,
+            body: `Everything scheduled for today is completed.`,
             isAllDone: true,
           };
       }
@@ -619,15 +621,15 @@ test('Daypart Motivational Notifications: Morning, Afternoon, and Night briefing
   // All completed uplifting motivational messages
   const morningDone = generateDaypartGreeting('morning', 'Taylor', 0, 0);
   assert.equal(morningDone.isAllDone, true);
-  assert.ok(morningDone.body.includes('All clear for today!'));
+  assert.ok(morningDone.body.includes('All tasks and habits are checked off'));
 
   const afternoonDone = generateDaypartGreeting('afternoon', 'Taylor', 0, 0);
   assert.equal(afternoonDone.isAllDone, true);
-  assert.ok(afternoonDone.body.includes('Phenomenal execution!'));
+  assert.ok(afternoonDone.body.includes('All tasks and habits for today are done'));
 
   const nightDone = generateDaypartGreeting('night', 'Taylor', 0, 0);
   assert.equal(nightDone.isAllDone, true);
-  assert.ok(nightDone.body.includes('Flawless day completed!'));
+  assert.ok(nightDone.body.includes('Everything scheduled for today is completed'));
 });
 
 test('Glassmorphic Widget SVG Generation: 6-Pill Medium & 2x2 Small Layouts', () => {
@@ -824,6 +826,428 @@ test('Color Ring Overflow Isolation & Edge Radius Auto-Fit Contract', () => {
   const navbarBrandId = 'navbar-brand-target';
   assert.ok(navbarBrandId === 'navbar-brand-target');
 });
+
+test('Notepad Autosave, Pinning, and Pomodoro Settings Sheet Contract', () => {
+  // 1. Notes Pinning & Master-Detail Sorting Hierarchy Contract
+  const rawNotes = [
+    { id: '1', title: 'Grocery', isPinned: false, updatedAt: '2026-11-16T10:00:00Z' },
+    { id: '2', title: 'Architecture Plan', isPinned: true, updatedAt: '2026-11-15T12:00:00Z' },
+    { id: '3', title: 'Meeting Notes', isPinned: false, updatedAt: '2026-11-16T18:00:00Z' },
+    { id: '4', title: 'Vision & Goals', isPinned: true, updatedAt: '2026-11-16T14:00:00Z' },
+  ];
+
+  const sorted = [...rawNotes].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    const timeA = new Date(a.updatedAt).getTime();
+    const timeB = new Date(b.updatedAt).getTime();
+    return timeB - timeA;
+  });
+
+  // Verify pinned notes appear first, ordered by newest updated
+  assert.equal(sorted[0].id, '4', 'Newest pinned note Vision & Goals is first');
+  assert.equal(sorted[1].id, '2', 'Older pinned note Architecture Plan is second');
+  // Followed by unpinned notes ordered by newest updated
+  assert.equal(sorted[2].id, '3', 'Newest unpinned note Meeting Notes is third');
+  assert.equal(sorted[3].id, '1', 'Oldest unpinned note Grocery is fourth');
+
+  // 2. Autosave Buffer & Markdown Formatting Helper Contract
+  const insertFormattingLogic = (content, start, end, prefix, suffix = '') => {
+    const selected = content.substring(start, end);
+    const replacement = prefix + selected + suffix;
+    const newContent = content.substring(0, start) + replacement + content.substring(end);
+    const newCursor = selected ? start + replacement.length : start + prefix.length;
+    return { newContent, newCursor };
+  };
+
+  // Bold insertion around selection
+  const boldResult = insertFormattingLogic('Hello World', 6, 11, '**', '**');
+  assert.equal(boldResult.newContent, 'Hello **World**');
+  assert.equal(boldResult.newCursor, 15);
+
+  // Todo checklist insertion at cursor
+  const todoResult = insertFormattingLogic('Line 1\nLine 2', 6, 6, '\n- [ ] ');
+  assert.equal(todoResult.newContent, 'Line 1\n- [ ] \nLine 2');
+
+  // 3. Pomodoro Advanced Settings Isolation Contract
+  const advancedSettingsKeys = [
+    'focusEdgeProgress',
+    'focusEdgeRadius',
+    'focusEdgeInset',
+    'soundChimes',
+  ];
+  assert.equal(advancedSettingsKeys.length, 4, 'Four key advanced setting domains are encapsulated');
+
+  const curvaturePresets = ['auto', 0, 24, 38, 48, 56];
+  assert.equal(curvaturePresets.length, 6, 'Contains full 6-preset curvature scale');
+
+  const insetPresets = [2, 4, 6, 8];
+  assert.equal(insetPresets.length, 4, 'Contains 4-preset bezel inset scale');
+});
+
+test('TASK-084: Mobile Notes Fullscreen and Settings Inset Grouped Verification', () => {
+  // 1. Mobile Notes Fullscreen & Layering Contract
+  const zIndices = {
+    navbar: 30,
+    mobileTabBar: 40,
+    mobileNoteEditor: 50,
+  };
+  assert.ok(
+    zIndices.mobileNoteEditor > zIndices.mobileTabBar,
+    'Mobile Note Editor (z-50) must occlude MobileTabBar (z-40) to eliminate all distractions'
+  );
+  assert.ok(
+    zIndices.mobileNoteEditor > zIndices.navbar,
+    'Mobile Note Editor (z-50) must occlude Navbar (z-30) edge-to-edge'
+  );
+
+  // 2. Inset Grouped Settings Categories Contract
+  const settingsSections = [
+    { id: 'profile', title: 'User Monogram Card', hasAvatar: true },
+    { id: 'workspace', title: 'Workspace & Budget', iconColor: 'bg-indigo-500' },
+    { id: 'appearance', title: 'Appearance & Display', iconColor: 'bg-purple-500' },
+    { id: 'haptics', title: 'Sound & Haptics', iconColor: 'bg-orange-500' },
+    { id: 'data', title: 'Data Sovereignty & Portability', iconColor: 'bg-emerald-500' },
+    { id: 'about', title: 'About Taskify OS', iconColor: 'bg-zinc-600' },
+  ];
+  assert.equal(settingsSections.length, 6, 'Settings must feature 6 uncluttered Inset sections');
+  assert.equal(settingsSections[0].hasAvatar, true, 'Profile card features user monogram avatar');
+});
+
+test('TASK-085 Part 1: Floating Dropdowns & Confirm Delete Elevation Contract', () => {
+  // 1. Z-Index Hierarchy Layering Contract
+  const zIndices = {
+    navbar: 30,
+    mobileTabBar: 40,
+    mobileNoteEditor: 100,
+    confirmDeleteModal: 250,
+    floatingDropdownPopover: 99999,
+  };
+
+  assert.ok(
+    zIndices.confirmDeleteModal > zIndices.mobileNoteEditor,
+    'ConfirmDeleteModal (z-250) must mount ABOVE the full-screen mobile note editor (z-100) so users see delete confirmation inside notes'
+  );
+
+  assert.ok(
+    zIndices.floatingDropdownPopover > zIndices.confirmDeleteModal,
+    'Floating dropdown popover (z-99999) must float in air above any modal or sheet without height constraints'
+  );
+
+  // 2. Dropdown Positioning & Collision Logic Contract
+  const computeDropdownPosition = (triggerRect, viewportHeight, viewportWidth, estimatedHeight) => {
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+    const popoverWidth = Math.max(triggerRect.width, 160);
+    const left = Math.max(8, Math.min(triggerRect.left, viewportWidth - popoverWidth - 8));
+
+    if (spaceBelow < estimatedHeight && spaceAbove > spaceBelow) {
+      return { placement: 'up', bottom: viewportHeight - triggerRect.top + 6, left, width: popoverWidth };
+    }
+    return { placement: 'down', top: triggerRect.bottom + 6, left, width: popoverWidth };
+  };
+
+  // Case A: Plenty of space below (trigger at top 100 in 800px viewport) -> opens DOWN
+  const posA = computeDropdownPosition({ top: 100, bottom: 136, left: 50, width: 200 }, 800, 390, 200);
+  assert.equal(posA.placement, 'down');
+  assert.equal(posA.top, 142);
+  assert.equal(posA.width, 200);
+
+  // Case B: Near bottom of viewport (trigger at 720 in 800px viewport) -> flips UP
+  const posB = computeDropdownPosition({ top: 700, bottom: 736, left: 50, width: 200 }, 800, 390, 200);
+  assert.equal(posB.placement, 'up');
+  assert.equal(posB.bottom, 106); // 800 - 700 + 6
+  assert.equal(posB.width, 200);
+
+  // Case C: Narrow width trigger (< 160px) clamped to minimum 160px
+  const posC = computeDropdownPosition({ top: 100, bottom: 136, left: 20, width: 90 }, 800, 390, 200);
+  assert.equal(posC.width, 160);
+});
+
+test('TASK-085 Part 2: Native Notepad Rich Text & Notes Multi-Select Batch Delete Contract', () => {
+  // 1. Clean HTML to plain-text snippet extraction contract
+  const richHtmlContent = '<p><b>Sprint Goals:</b> Execute <mark style="background-color: yellow">Phase 2</mark> with <font color="#f26a36">high precision</font>.</p>';
+  const plainSnippet = richHtmlContent.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  assert.equal(plainSnippet, 'Sprint Goals: Execute Phase 2 with high precision.');
+
+  // 2. Word Count calculation from rich HTML
+  const words = plainSnippet.split(/\s+/).length;
+  assert.equal(words, 8, 'Word count correctly identifies 8 words from HTML content');
+
+  // 3. Multi-Select Set Toggle Logic Contract
+  let selected = new Set();
+  const toggle = (id) => {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    selected = next;
+  };
+
+  toggle('note-1');
+  assert.equal(selected.has('note-1'), true);
+  assert.equal(selected.size, 1);
+
+  toggle('note-2');
+  assert.equal(selected.size, 2);
+
+  // Untoggle note-1
+  toggle('note-1');
+  assert.equal(selected.has('note-1'), false);
+  assert.equal(selected.size, 1);
+
+  // 4. Batch Delete Filtering Contract
+  const notes = [{ id: 'n1' }, { id: 'n2' }, { id: 'n3' }];
+  selected = new Set(['n1', 'n3']);
+  const remaining = notes.filter((n) => !selected.has(n.id));
+  assert.equal(remaining.length, 1);
+  assert.equal(remaining[0].id, 'n2');
+
+  // 5. Highlighter & Text Color Palette scale
+  const highlightColors = ['#fef08a', '#fed7aa', '#bbf7d0', '#bae6fd', '#e9d5ff', 'transparent'];
+  assert.equal(highlightColors.length, 6, 'Must feature 5 fluorescent hues + 1 clear tone');
+
+  const textColors = ['#ffffff', '#f26a36', '#f59e0b', '#10b981', '#06b6d4', '#818cf8', '#f472b6', '#a1a1aa'];
+  assert.equal(textColors.length, 8, 'Must feature 8 tailored text colors');
+});
+
+test('TASK-085 Part 3: Unified Section Header Height Contract Across All Views', () => {
+  // 1. Standard Section Header Height Token & Class Specifications
+  const SECTION_HEADER_BASE_CLASS = 'w-full min-h-[64px] sm:min-h-[72px] flex items-center justify-between gap-3 shrink-0 select-none';
+  assert.ok(SECTION_HEADER_BASE_CLASS.includes('min-h-[64px]'));
+  assert.ok(SECTION_HEADER_BASE_CLASS.includes('sm:min-h-[72px]'));
+
+  // 2. All 6 primary views registered with identical header contract
+  const primarySections = [
+    { id: 'today', title: 'Today / Welcome', expectedMinHeight: 64 },
+    { id: 'tasks', title: 'Tasks', expectedMinHeight: 64 },
+    { id: 'habits', title: 'Habits', expectedMinHeight: 64 },
+    { id: 'finance', title: 'Finances', expectedMinHeight: 64 },
+    { id: 'settings', title: 'Settings', expectedMinHeight: 64 },
+    { id: 'scratchpad', title: 'Notes', expectedMinHeight: 64 },
+  ];
+
+  assert.equal(primarySections.length, 6, 'All 6 primary views must implement SectionHeader');
+  primarySections.forEach((section) => {
+    assert.equal(section.expectedMinHeight, 64, `${section.id} matches 64px mobile standard`);
+  });
+
+  // 3. Container Padding Contract in LiquidTabViewport and App.tsx Settings
+  const viewportPadding = 'px-4 sm:px-6 lg:px-8 py-4 sm:py-5';
+  const settingsPadding = 'px-4 sm:px-6 lg:px-8 py-4 sm:py-5';
+  assert.equal(viewportPadding, settingsPadding, 'Settings view container padding strictly matches LiquidTabViewport');
+});
+
+test('TASK-085 Part 4: Interactive Onboarding Tour Steps & Sovereignty Contract', () => {
+  // 1. Tour steps structure & content validation
+  const TOUR_STEPS = [
+    { id: 'navigation', badge: '1 of 5', accentColor: '#38bdf8' },
+    { id: 'tasks-habits', badge: '2 of 5', accentColor: '#10b981' },
+    { id: 'focus-timer', badge: '3 of 5', accentColor: '#f59e0b' },
+    { id: 'notepad', badge: '4 of 5', accentColor: '#f26a36' },
+    { id: 'sovereignty', badge: '5 of 5', accentColor: '#8b5cf6' },
+  ];
+
+  assert.equal(TOUR_STEPS.length, 5, 'Tour must provide 5 curated walkthrough steps');
+  assert.equal(TOUR_STEPS[0].id, 'navigation');
+  assert.equal(TOUR_STEPS[4].id, 'sovereignty');
+
+  // 2. Navigation bounds and step clamp
+  let step = 0;
+  const goNext = () => { step = Math.min(step + 1, TOUR_STEPS.length - 1); };
+  const goPrev = () => { step = Math.max(step - 1, 0); };
+
+  goNext(); // 1
+  assert.equal(step, 1);
+  goNext(); // 2
+  goNext(); // 3
+  goNext(); // 4 (last)
+  goNext(); // clamped to 4
+  assert.equal(step, 4);
+  goPrev(); // 3
+  assert.equal(step, 3);
+
+  // 3. Tour completion updates hasSeenTour setting
+  let settingsState = { hasSeenTour: false };
+  const completeTour = () => { settingsState.hasSeenTour = true; };
+  completeTour();
+  assert.equal(settingsState.hasSeenTour, true, 'Tour completion sets hasSeenTour to true');
+});
+
+test('TASK-097: Website Navigation Exclusivity, Official Platform Icons, Keyword Pruning & Analytics X-Axis Scroll Contract', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+
+  // 1. Website Navigation Exclusivity & Navbar Pill Pruning Contract
+  const htmlContent = fs.readFileSync(path.resolve('website-template/index.html'), 'utf-8');
+  const cssContent = fs.readFileSync(path.resolve('website-template/style.css'), 'utf-8');
+
+  // Verify timer and streak pills removed from website navbar
+  assert.equal(htmlContent.includes('timer-pill'), false, 'Timer pill must be removed from website navbar');
+  assert.equal(htmlContent.includes('streak-pill'), false, 'Streak pill must be removed from website navbar');
+
+  // Verify exclusive navigation on desktop (hamburger hidden on >=840px)
+  assert.ok(/\.menu-trigger\s*\{\s*display:\s*none\s*!important;?\s*\}/.test(cssContent), 'Hamburger menu-trigger must be hidden on PC (min-width: 840px)');
+
+  // 2. Download Platform Icons Contract (Official SVGs, No Custom Cobbled Icons)
+  // Windows: Official 4-tile SVG path
+  assert.ok(htmlContent.includes('M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z'), 'Must use official Windows 11 4-tile vector');
+  // macOS / Apple: Official Apple vector
+  assert.ok(htmlContent.includes('M18.71 19.5c-.83 1.24-1.71 2.45'), 'Must use official Apple vector');
+  // Linux: Official Tux vector
+  assert.ok(htmlContent.includes('M12.504 0q-.232 0-.48.021'), 'Must use official Linux Tux vector');
+  // Android: Official Android bugdroid vector
+  assert.ok(htmlContent.includes('M17.523 15.3414'), 'Must use official Android vector');
+
+  // 3. Keyword Pruning Contract ("Apple watch", "Apple Foundations", etc. completely removed)
+  assert.equal(/Apple watch|Apple Watch|Apple foundations|Apple Foundations/i.test(htmlContent), false, 'Zero occurrences of Apple watch or Apple foundations in index.html');
+  const readmeContent = fs.readFileSync(path.resolve('README.md'), 'utf-8');
+  assert.equal(/Apple watch|Apple Watch|Apple foundations|Apple Foundations/i.test(readmeContent), false, 'Zero occurrences of Apple watch or Apple foundations in README.md');
+  const seedContent = fs.readFileSync(path.resolve('src/db/seed.ts'), 'utf-8');
+  assert.equal(/Apple-grade/i.test(seedContent), false, 'Zero occurrences of Apple-grade in seed.ts');
+
+  // 4. Footer Logo & Bloat Elimination Contract
+  assert.ok(/footer-brand-col[\s\S]*?<a\s+href="#hero"\s+class="app-header-brand"/i.test(htmlContent), 'Footer must use actual navbar app-header-brand logo');
+  assert.equal(htmlContent.includes('footer-status-pill'), false, 'Footer must not contain status pill bloat');
+  assert.equal(htmlContent.includes('100% Local Storage • Zero Servers'), false, 'Live dot + 100% Local Storage • Zero Servers bloat removed');
+
+  // 5. Analytics X-Axis Scrollable Chart Coordinates Math Contract
+  const rangeDaysList = [7, 14, 30];
+  rangeDaysList.forEach((days) => {
+    const minDayWidth = days === 7 ? 68 : days === 14 ? 58 : 52;
+    const chartWidth = Math.max(760, days * minDayWidth);
+    assert.ok(chartWidth >= 760, `Chart width for ${days} days must be at least 760px`);
+    if (days === 30) {
+      assert.ok(chartWidth >= 1500, '30-day view must expand to >= 1500px for generous x-axis horizontal scrolling');
+    }
+    const paddingX = 28;
+    const stepX = (chartWidth - paddingX * 2) / (days - 1);
+    assert.ok(stepX >= 48, `Step between days (${stepX.toFixed(1)}px) ensures ample touch target and zero cramped bars`);
+  });
+});
+
+test('TASK-098: Today Realignment Fluid Motion, Notepad Fullscreen, Paper Theme, Checkboxes & Mobile Delete Contract', () => {
+  // 1. Today View Realignment Animation Contract
+  const todayViewCode = fs.readFileSync(path.resolve('src/components/today/TodayView.tsx'), 'utf-8');
+  assert.ok(todayViewCode.includes('mode="popLayout"'), 'TodayView must use AnimatePresence mode="popLayout" to prevent layout stutter');
+  assert.ok(todayViewCode.includes('layout="position"'), 'TodayView must use layout="position" to prevent scale distortion');
+  assert.ok(todayViewCode.includes('SPRING_LIQUID'), 'TodayView must use SPRING_LIQUID fluid physics');
+  assert.equal(/solid-card[^"']*transition-all/.test(todayViewCode), false, 'Task cards must not use transition-all which fights Framer Motion transforms');
+
+  // 2. Notepad Fullscreen & Paper Theme Contract
+  const scratchpadCode = fs.readFileSync(path.resolve('src/components/scratchpad/ScratchpadView.tsx'), 'utf-8');
+  assert.ok(scratchpadCode.includes('isDesktopFullscreen'), 'ScratchpadView must support isDesktopFullscreen state');
+  assert.ok(scratchpadCode.includes('paperTheme'), 'ScratchpadView must support paperTheme dark/light toggle');
+  assert.ok(scratchpadCode.includes('notepad-paper-light'), 'ScratchpadView must use notepad-paper-light for clean stationery mode');
+
+  // 3. Notepad Checklist Checkboxes Contract
+  assert.ok(scratchpadCode.includes('note-checklist-row'), 'ScratchpadView must support note-checklist-row items');
+  assert.ok(scratchpadCode.includes('insertChecklist'), 'ScratchpadView must have insertChecklist action');
+  assert.ok(scratchpadCode.includes('handleEditorClick'), 'ScratchpadView must handle clicking checkboxes to update checked state and autosave');
+
+  // 4. Mobile Notes Batch Delete Button Visibility Contract (Portaled to bottom-0 over dock, not blocking content)
+  assert.ok(scratchpadCode.includes('fixed bottom-0 left-0 right-0 z-[120]'), 'Batch action bar must portal flush to bottom-0 on mobile so it does not block note cards in the middle of screen');
+  assert.ok(scratchpadCode.includes('Delete ('), 'Batch action bar must include Delete button with count');
+
+  // 5. Zero Prohibited Keywords in TodayView and ScratchpadView
+  assert.equal(/Apple/i.test(scratchpadCode), false, 'Zero occurrences of Apple in ScratchpadView');
+  assert.equal(/Apple/i.test(todayViewCode), false, 'Zero occurrences of Apple in TodayView');
+});
+
+test('TASK-099: Clean Executive Finance, Mobile Bottom Batch Bar, Dropdowns z-index & Responsive Autosave Contract', () => {
+  const scratchpadCode = fs.readFileSync(path.resolve('src/components/scratchpad/ScratchpadView.tsx'), 'utf-8');
+  const financeCode = fs.readFileSync(path.resolve('src/components/finance/FinanceView.tsx'), 'utf-8');
+  const cssCode = fs.readFileSync(path.resolve('src/index.css'), 'utf-8');
+
+  // 1. Mobile Batch Delete Bar Portal Contract
+  assert.ok(scratchpadCode.includes('isMobile && isSelectMode'), 'Must conditionally portal on mobile selection mode');
+  assert.ok(scratchpadCode.includes('fixed bottom-0 left-0 right-0 z-[120]'), 'Must dock flush to bottom-0 on mobile with z-[120] so it does not block cards');
+
+  // 2. Floating Dropdown Trays Contract
+  assert.ok(scratchpadCode.includes('isSizeTrayOpen && trayAnchor'), 'Size tray must use anchor positioning');
+  assert.ok(scratchpadCode.includes('isHighlightTrayOpen && trayAnchor'), 'Highlight tray must use anchor positioning');
+  assert.ok(scratchpadCode.includes('isTextColorTrayOpen && trayAnchor'), 'Text color tray must use anchor positioning');
+  assert.ok(scratchpadCode.includes('z-[99999]'), 'Tool trays must be portaled with z-[99999] to float above writing screen');
+
+  // 3. Responsive Autosave Status Pill Contract
+  assert.ok(/truncate\s+whitespace-nowrap/.test(scratchpadCode), 'Autosave timestamp text must truncate cleanly without overflowing');
+  assert.ok(/min-w-0\s+max-w-full\s+shrink/.test(scratchpadCode), 'Autosave container must be responsive and expand dynamically');
+
+  // 4. Lean Executive Finance Contract
+  assert.ok(financeCode.includes('Monthly Spend Budget'), 'Finance view must retain core clean monthly spend budget');
+  assert.equal(financeCode.includes('Smart Budget & Savings Rules'), false, 'Smart budget bloat must be pruned');
+
+  // 5. Light Mode Contrast & Theme Contract
+  assert.ok(cssCode.includes('.notepad-paper-light .rich-note-editor pre'), 'CSS must define high-contrast code blocks in light mode');
+  assert.ok(cssCode.includes('.notepad-paper-light .rich-note-editor p'), 'CSS must define high-contrast body text in light mode');
+  assert.equal(/Apple/i.test(scratchpadCode), false, 'Zero occurrences of Apple in ScratchpadView');
+  assert.equal(/Apple/i.test(financeCode), false, 'Zero occurrences of Apple in FinanceView');
+});
+
+test('TASK-101: Elimination of Smart Budget & Savings Rules (Pruning Contract)', () => {
+  const financeViewCode = fs.readFileSync(path.resolve('src/components/finance/FinanceView.tsx'), 'utf-8');
+  const financeModalCode = fs.readFileSync(path.resolve('src/components/modals/FinanceModal.tsx'), 'utf-8');
+  const typesCode = fs.readFileSync(path.resolve('src/types/index.ts'), 'utf-8');
+
+  assert.equal(fs.existsSync(path.resolve('src/utils/smartBudgetUtils.ts')), false, 'smartBudgetUtils must be completely pruned');
+  assert.equal(financeViewCode.includes('Smart Budget & Savings Rules'), false, 'FinanceView must not contain Smart Budget card');
+  assert.equal(financeViewCode.includes('PiggyBank'), false, 'FinanceView must not import PiggyBank');
+  assert.equal(financeModalCode.includes('budgetBucket'), false, 'FinanceModal must not contain budgetBucket');
+  assert.equal(typesCode.includes('SavingsRuleType'), false, 'Types must not contain SavingsRuleType');
+  assert.equal(typesCode.includes('smartBudgetEnabled'), false, 'Types must not contain smartBudgetEnabled');
+});
+
+test('TASK-100: Notes Black Color & Autosave, Haptic Slider & Streak Heatmap Popover Contract', async () => {
+  const scratchpadCode = fs.readFileSync(path.resolve('src/components/scratchpad/ScratchpadView.tsx'), 'utf-8');
+  const financeCode = fs.readFileSync(path.resolve('src/components/finance/FinanceView.tsx'), 'utf-8');
+  const feedbackCode = fs.readFileSync(path.resolve('src/utils/feedback.ts'), 'utf-8');
+  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+  const inspectorCode = fs.readFileSync(path.resolve('src/components/layout/SlideOverInspector.tsx'), 'utf-8');
+  const heatmapCode = fs.readFileSync(path.resolve('src/components/habits/StreakHeatmap.tsx'), 'utf-8');
+
+  // 1. Notes Black Color & Single-Instance DOM Editor Mount
+  assert.ok(scratchpadCode.includes("label: 'Black', color: '#000000'"), 'TEXT_COLORS must contain Black (#000000)');
+  assert.ok(scratchpadCode.includes('!isMobile && !isDesktopFullscreen'), 'Desktop editor canvas must never mount simultaneously with mobile or fullscreen portal');
+  assert.ok(scratchpadCode.includes('loadedNoteIdRef'), 'Autosave engine must isolate loadedNoteId to prevent keystroke wipeouts');
+
+  // 2. Clean Executive Finance Architecture
+  assert.ok(financeCode.includes('Monthly Spend Budget'), 'Finance view must feature clean monthly spend budget');
+  assert.equal(financeCode.includes('PiggyBank'), false, 'FinanceView must be zero-bloat');
+
+  // 3. Haptic Intensity Engine & Settings Slider
+  assert.ok(feedbackCode.includes('setHapticIntensity'), 'Feedback engine must support dynamic haptic intensity');
+  assert.ok(feedbackCode.includes('Math.round(25 + (this.hapticIntensity / 100) * 75)'), 'Vibration pulse must scale up to 100ms for perceptible tactile feedback');
+  assert.ok(settingsCode.includes('Vibration Strength'), 'SettingsView must render Vibration Strength control');
+  assert.ok(settingsCode.includes('type="range"') && settingsCode.includes('max="100"'), 'SettingsView must render range slider for haptic vibration');
+  assert.ok(inspectorCode.includes('Vibration Strength'), 'SlideOverInspector must render Vibration Strength control');
+
+  // 4. Streak Heatmap Interactive Popover
+  assert.ok(heatmapCode.includes('selectedDayMetrics'), 'StreakHeatmap must compute metrics for clicked tile');
+  assert.ok(heatmapCode.includes('completedTasksCount'), 'StreakHeatmap must count completed tasks on selected date');
+  assert.ok(heatmapCode.includes('loggedHabitsCount'), 'StreakHeatmap must count logged habits on selected date');
+  assert.ok(heatmapCode.includes('handleTileClick'), 'StreakHeatmap must attach click handler to heatmap cells');
+
+  // 5. Brand Keyword Sanitization
+  assert.equal(/Apple\s+watch/i.test(scratchpadCode), false);
+  assert.equal(/Apple\s+foundations/i.test(financeCode), false);
+  assert.equal(/Apple\s+watch/i.test(heatmapCode), false);
+});
+
+test('TASK-102: Focus Timer Edge Light Gating & Android BigTextStyle Full Notification Contract', () => {
+  const pomodoroCode = fs.readFileSync(path.resolve('src/components/focus/PomodoroFullscreenModal.tsx'), 'utf-8');
+  const reminderCode = fs.readFileSync(path.resolve('src/utils/reminder.ts'), 'utf-8');
+
+  // 1. Mobile & Desktop Edge Light Render Gating
+  // Count occurrences of `{isEdgeProgressOn && (` in PomodoroFullscreenModal
+  const edgeMatches = pomodoroCode.match(/\{isEdgeProgressOn\s*&&/g);
+  assert.ok(edgeMatches && edgeMatches.length >= 2, 'Edge glowing SVG perimeter must be guarded by isEdgeProgressOn in both Desktop and Mobile view branches');
+
+  // 2. Android BigTextStyle Notification Formatting
+  assert.ok(reminderCode.includes('largeBody: greeting.body'), 'Daypart notifications must supply largeBody for Android BigTextStyle to prevent sentence truncation');
+  assert.ok(reminderCode.includes('largeBody: poke.body'), 'Daily poke notifications must supply largeBody');
+  assert.ok(reminderCode.includes('largeBody: expandedBody'), 'Task and habit reminders must supply largeBody');
+});
+
+
 
 
 

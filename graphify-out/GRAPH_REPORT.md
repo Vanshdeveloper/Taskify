@@ -1,34 +1,33 @@
-# Graph Report - taskify (ver-2)  (2026-11-16)
+# Graph Report - taskify (ver-2)  (2026-11-20)
 
 ## Corpus Check
-- 393 files · ~415,759 words
+- 402 files · ~431,337 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 152 file(s) not represented in the graph (top: .xml 80, .csv 53, (none) 6)
-- WARNING: 152 of 591 files seen (26%) have no supported extractor and are missing from this graph entirely. It may look complete while representing only part of the codebase.
 
 ## Summary
-- 4260 nodes · 6265 edges · 348 communities (188 shown, 160 thin omitted)
+- 4360 nodes · 6438 edges · 357 communities (195 shown, 162 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 126 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `29839378`
+- Built from commit: `f8e9113c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - ShadcnInstaller
 - scripts/core.py
-- SubtaskList.tsx
-- TasksView.tsx
-- json
+- QuickCaptureModal.tsx
+- motion.ts
+- pathlib
 - gray
 - Tailwind CSS Utility Reference
-- csv
+- SubtaskList.tsx
 - Brand Guidelines v1.0
-- package.json
-- test_design_system_mode.py
+- test_style_taxonomy.py
 - e2e-tier1-features.test.mjs
+- f11-duplication.test.mjs
 - Design
 - Canvas Design System
 - Prerequisites
@@ -39,20 +38,20 @@
 - Tailwind CSS Responsive Design
 - validate_data.py
 - icon/generate.py
-- TestThresholdGate
+- DesignSystemGenerator
 - React View Transitions
 - ExampleInstrumentedTest.java
 - Typography Specifications
 - TestSearchDomains
 - React View Transitions
-- cip/core.py
+- test_core.py
 - App.tsx
 - Logo Usage Rules
 - Component Specifications
 - html-token-validator.py
 - shadcn/ui Accessibility Patterns
 - AppDelegate
-- QuickCaptureModal.tsx
+- with
 - Verification Chains (by Language)
 - Asset Approval Checklist
 - Logo AI Prompt Engineering
@@ -61,16 +60,17 @@
 - CIP Deliverable Guide
 - States and Variants
 - UI Styling Skill
-- LiquidTabViewport.tsx
+- f13-f14-cross-cutting-edge-cases.test.mjs
 - cip/generate.py
 - generate-slide.py
 - Workflow
 - slide_search_core.py
 - The 20 Anti-Patterns
 - Persona Protocol
+- empirical-m3-duplication-export.test.mjs
 - Design System
 - Tailwind CSS Customization
-- render-html.py
+- ThemeContext.tsx
 - spacing
 - GRAVITAS Prompt Template
 - Apple Design
@@ -93,7 +93,7 @@
 - CSS Animation Recipes
 - CSS Animation Recipes
 - compilerOptions
-- feedback.ts
+- android.content.Intent
 - Model-Native Optimization Notes (Gemini tuned)
 - Memory Protocol
 - steps
@@ -118,7 +118,7 @@
 - React Native Skills
 - Quick Reference
 - empirical-m2-gestures.test.mjs
-- empirical-m3-duplication-export.test.mjs
+- .syncWidgetState
 - design_system.py
 - Banner Design - Multi-Format Creative Banner System
 - Messaging Framework
@@ -129,7 +129,7 @@
 - radius
 - GRAVITAS -- Engineering Reliability Runtime
 - Layout Patterns
-- react
+- test_design_system_mode.py
 - TestWebStackFreshness
 - Patterns and Guidelines
 - View Transitions in Next.js
@@ -138,30 +138,32 @@
 - TaskifyWidgetViewsFactory
 - update.md
 - Logo Design Reference
-- search-slides.py
+- TestNativeDesktopStackFreshness
 - Token Architecture
 - design-tokens-starter.json
 - TestDomainDetection
-- .updateAllWidgets
-- DesignSystemGenerator
-- Taskify •
+- fetch-background.py
+- ExecutiveDashboardView.tsx
+- Quickstart
 - Primitive Tokens
 - embed-tokens.cjs
 - validate-tokens.cjs
 - button
 - Gravitas -- Verification Reference
 - 6. Rendering Performance
-- logo/search.py
+- TestThresholdGate
 - e2e-tier2-boundaries.test.mjs
 - Core Visual Elements
 - inject-brand-context.cjs
 - CIP Design Style Guide
-- FocusTimerEngine
+- Taskify
 - android.content.Context
 - verify.sh
+- main
 - 3. Server-Side Performance
 - React Best Practices
-- BM25
+- Common Patterns
+- core-logic.test.mjs
 - TEST_INFRA.md — Master Opaque-Box Test Infrastructure & Methodology
 - TEST_READY.md — Test Suite Readiness Declaration
 - sync-brand-to-tokens.cjs
@@ -179,20 +181,20 @@
 - Sections
 - 9. User Interface
 - f15-task-export.test.mjs
-- primary-hover
-- AppContext.tsx
+- argparse
+- Security Policy
 - Agent: Explore
 - 2. List Performance
 - vercel-react-view-transitions/AGENTS.md
 - Contributing to Taskify
 - FocusTimerEngine
-- dexie-react-hooks
+- Core Features
 - Gravitas -- Model Routing Reference
 - Gravitas -- Adaptive Reasoning Reference
 - Gravitas -- Reconnaissance Reference
-- scripts
-- .validate_config
-- @tailwindcss/vite
+- package.json
+- Contributor Code of Conduct
+- bug_report.md
 - 4. Client-Side Data Fetching
 - Implementation Workflow
 - Implementation Workflow
@@ -200,18 +202,25 @@
 - 1. The Core Directives
 - Slides Reference
 - HTML Slide Template
-- logo/core.py
+- FocusTimerEngine
 - HTML Slide Template
 - 1. Eliminating Waterfalls
 - 2. Bundle Size Optimization
 - TaskifyQuickCaptureActivity.java
-- android.content.Intent
+- primary-hover
 - AudioFeedbackEngine
-- FocusTimerEngine
+- .updateAllWidgets
 - Slides
+- TailwindConfigGenerator
 - Use Native Navigators for Navigation
 - React View Transitions Skill
-- test_style_taxonomy.py
+- feature_request.md
+- react
+- dexie-react-hooks
+- PULL_REQUEST_TEMPLATE.md
+- TaskifyQuickActionsWidgetProvider
+- scripts
+- AppContext.tsx
 - Web Interface Guidelines
 - Taskify High-End Product Website Template
 - xl
@@ -223,7 +232,10 @@
 - 6. React State
 - devDependencies
 - NativeWidgetBridge
+- How to Contribute
+- FocusTimerEngine
 - ring
+- csv
 - 11. Monorepo
 - 1. Core Rendering
 - 8. React Compiler
@@ -336,26 +348,25 @@
 - ui-styling.md
 - Package.swift
 - CapApp-SPM/README.md
-- TaskifyQuickActionsWidgetProvider
-- f11-duplication.test.mjs
-- .syncWidgetState
-- BM25
-- unittest
-- test_core.py
+- test_native_desktop_stack_freshness.py
+- TestBm25CoreBehavior
+- @tailwindcss/vite
 - @capacitor/cli
 - clsx@^2.1.1
+- BM25
+- BM25
 
 ## God Nodes (most connected - your core abstractions)
 1. `TailwindConfigGenerator` - 58 edges
-2. `useApp()` - 51 edges
-3. `react` - 44 edges
-4. `DesignSystemGenerator` - 35 edges
-5. `TestTailwindConfigGenerator` - 35 edges
-6. `ShadcnInstaller` - 34 edges
-7. `framer-motion` - 34 edges
-8. `lucide-react` - 33 edges
-9. `getTodayString()` - 31 edges
-10. `feedback` - 31 edges
+2. `useApp()` - 53 edges
+3. `react` - 47 edges
+4. `framer-motion` - 37 edges
+5. `lucide-react` - 36 edges
+6. `TestTailwindConfigGenerator` - 35 edges
+7. `DesignSystemGenerator` - 35 edges
+8. `ShadcnInstaller` - 34 edges
+9. `feedback` - 34 edges
+10. `getTodayString()` - 31 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `2. Feature Inventory Mapping (Features F1–F17)` --references--> `getLiveTranslateX()`  [INFERRED]
@@ -372,7 +383,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (348 total, 160 thin omitted)
+## Communities (357 total, 162 thin omitted)
 
 ### Community 0 - "ShadcnInstaller"
 Cohesion: 0.05
@@ -382,17 +393,17 @@ Nodes (3): main(), ShadcnInstaller, TestShadcnInstaller
 Cohesion: 0.06
 Nodes (31): BM25, _contains_phrase(), detect_domain(), _domain_keywords(), _exact_match_diagnostic(), _exact_row_identity(), _exact_stack_identifier(), _file_signature() (+23 more)
 
-### Community 2 - "SubtaskList.tsx"
-Cohesion: 0.18
-Nodes (15): SubtaskList(), SubtaskListProps, Subtask, addSubtask(), calculateSubtaskProgress(), createSubtask(), deleteSubtask, deleteSubtaskItem() (+7 more)
+### Community 2 - "QuickCaptureModal.tsx"
+Cohesion: 0.17
+Nodes (27): react-dom, HABIT_ICON_OPTIONS, FinanceModal(), FinanceModalProps, HabitModal(), HabitModalProps, QuickCaptureModal(), TaskModal() (+19 more)
 
-### Community 3 - "TasksView.tsx"
-Cohesion: 0.19
-Nodes (15): TasksView(), formatDateRelative(), handleTaskKeyDown(), useTaskKeyboardNavigation(), UseTaskKeyboardNavigationOptions, compareTasks(), loadSavedSortPreferences(), PRIORITY_WEIGHTS (+7 more)
-
-### Community 4 - "json"
+### Community 3 - "motion.ts"
 Cohesion: 0.07
-Nodes (19): test_sync_parses_bundled_starter_template(), format_brief(), format_results(), main(), main(), _run(), test_flags_hardcoded_hex_sharing_line_with_token(), test_token_only_line_reports_no_violation() (+11 more)
+Nodes (50): FinanceView(), formatPaymentMethod(), getAmountTypographyClass(), HabitsView(), LiquidTabViewport(), LiquidTabViewportProps, MAIN_SLIDE_TABS, FONT_HIERARCHIES (+42 more)
+
+### Community 4 - "pathlib"
+Cohesion: 0.08
+Nodes (15): test_sync_parses_bundled_starter_template(), main(), _run(), test_flags_hardcoded_hex_sharing_line_with_token(), test_token_only_line_reports_no_violation(), count_source_files(), detect_language(), main() (+7 more)
 
 ### Community 5 - "gray"
 Cohesion: 0.05
@@ -402,25 +413,21 @@ Nodes (53): $type, $value, $type, $value, $type, $value, $type, $value (+45 more
 Cohesion: 0.05
 Nodes (43): Arbitrary Values, Aspect Ratio, Background Colors, Border Color, Border Radius, Border Style, Border Width, Borders (+35 more)
 
-### Community 7 - "csv"
-Cohesion: 0.07
-Nodes (11): generate_css_for_background(), get_background_image(), get_curated_images(), get_overlay_css(), get_pexels_search_url(), load_backgrounds_config(), load_brand_colors(), main() (+3 more)
+### Community 7 - "SubtaskList.tsx"
+Cohesion: 0.18
+Nodes (15): SubtaskList(), SubtaskListProps, Subtask, addSubtask(), calculateSubtaskProgress(), createSubtask(), deleteSubtask, deleteSubtaskItem() (+7 more)
 
 ### Community 8 - "Brand Guidelines v1.0"
 Cohesion: 0.05
 Nodes (37): 1. Color Palette, 2. Typography, 3. Logo Usage, 4. Voice & Tone, 5. Imagery Guidelines, 6. Design Components, Accessibility, AI Image Generation (+29 more)
 
-### Community 9 - "package.json"
-Cohesion: 0.15
-Nodes (12): canvas-confetti@^1.9.4, @capacitor/android@^8.5.3, @capacitor/filesystem@^8.1.5, @capacitor/haptics@^8.0.2, name, private, type, version (+4 more)
-
-### Community 10 - "test_design_system_mode.py"
-Cohesion: 0.09
-Nodes (10): _contrast_ratio(), _derive_dark_palette(), _filter_anti_patterns_for_mode(), _palette_is_dark(), _relative_luminance(), _select_palette_for_mode(), TestAntiPatternGating, TestEndToEndCoherence (+2 more)
-
-### Community 11 - "e2e-tier1-features.test.mjs"
-Cohesion: 0.07
+### Community 10 - "e2e-tier1-features.test.mjs"
+Cohesion: 0.08
 Nodes (23): @capacitor/local-notifications, AppProvider(), Daypart, DAYPART_SCHEDULE, DaypartNotification, DaypartSlot, generateDaypartGreeting(), ALL_COMPLETED_POKES (+15 more)
+
+### Community 11 - "f11-duplication.test.mjs"
+Cohesion: 0.47
+Nodes (4): BUILTIN_TASK_TEMPLATES, cloneSubtasks(), duplicateTaskData(), generateDuplicateTitle()
 
 ### Community 12 - "Design"
 Cohesion: 0.06
@@ -462,9 +469,13 @@ Nodes (44): read_rows(), TestAccessibilityGuidance, TestChartsTypographyAndIcons
 Cohesion: 0.11
 Nodes (13): apply_color(), apply_viewbox_size(), extract_svgs(), generate_batch(), generate_icon(), generate_sizes(), load_env(), main() (+5 more)
 
+### Community 22 - "DesignSystemGenerator"
+Cohesion: 0.08
+Nodes (8): DesignSystemGenerator, TestReasoningMatch, read_rows(), split_values(), style_identities(), TestLandingAndStackContract, TestReasoningContract, TestStyleIdentityContract
+
 ### Community 23 - "React View Transitions"
-Cohesion: 0.06
-Nodes (32): Accessibility, Animation Triggers, Availability, Choosing Animation Style, Common Patterns, Composing Shared Elements with List Identity, Core Concepts, Critical Placement Rule (+24 more)
+Cohesion: 0.08
+Nodes (25): Accessibility, Animation Triggers, Availability, Choosing Animation Style, Core Concepts, Critical Placement Rule, CSS Pseudo-Elements, Full Compiled Document (+17 more)
 
 ### Community 25 - "Typography Specifications"
 Cohesion: 0.06
@@ -474,13 +485,13 @@ Nodes (30): Accessibility, Base System, Best Practices, Clean & Modern, Common F
 Cohesion: 0.06
 Nodes (31): Accessibility, Animation Triggers, Availability, Choosing Animation Style, Common Patterns, Composing Shared Elements with List Identity, Core Concepts, Critical Placement Rule (+23 more)
 
-### Community 28 - "cip/core.py"
-Cohesion: 0.12
-Nodes (7): BM25, detect_domain(), get_cip_brief(), _load_csv(), search(), search_all(), _search_csv()
+### Community 28 - "test_core.py"
+Cohesion: 0.10
+Nodes (5): format_markdown(), generate_design_system(), TestDiagnosticsContracts, TestPersistence, TestTokenizer
 
 ### Community 29 - "App.tsx"
-Cohesion: 0.10
-Nodes (38): App(), ExecutiveDashboardView, FaviconManager(), MainLayout(), LiquidTabViewport(), MobileTabBar(), Navbar(), NavbarProps (+30 more)
+Cohesion: 0.11
+Nodes (35): App(), ExecutiveDashboardView, FaviconManager(), MainLayout(), StreakHeatmap(), MobileTabBar(), Navbar(), Sidebar() (+27 more)
 
 ### Community 30 - "Logo Usage Rules"
 Cohesion: 0.07
@@ -502,9 +513,9 @@ Nodes (28): Accordion, Alert, ARIA Labels, Checkbox and Radio, Color Contrast, C
 Cohesion: 0.09
 Nodes (4): Capacitor, AppDelegate, SceneDelegate, UIKit
 
-### Community 35 - "QuickCaptureModal.tsx"
-Cohesion: 0.15
-Nodes (30): lucide-react, react-dom, HABIT_ICON_MAP, HABIT_ICON_OPTIONS, HabitIconOption, HabitIconRendererProps, FinanceModal(), FinanceModalProps (+22 more)
+### Community 35 - "with"
+Cohesion: 0.07
+Nodes (27): name, runs-on, steps, GITHUB_TOKEN, jobs, build-and-release, name, on (+19 more)
 
 ### Community 36 - "Verification Chains (by Language)"
 Cohesion: 0.07
@@ -538,9 +549,9 @@ Nodes (24): Accessibility, Accessibility Requirements, ARIA States, Color Contra
 Cohesion: 0.08
 Nodes (24): Accessibility Patterns, Alternative: Tailwind-Only Setup, Best Practices, Common Patterns, Component Layer: shadcn/ui, Component Library Guide, Component + Styling Setup, Core Stack (+16 more)
 
-### Community 44 - "LiquidTabViewport.tsx"
-Cohesion: 0.13
-Nodes (20): @capacitor/core, FinanceView(), getAmountTypographyClass(), HabitIconRenderer(), HabitsView(), LiquidTabViewportProps, MAIN_SLIDE_TABS, CARD_COLORS (+12 more)
+### Community 44 - "f13-f14-cross-cutting-edge-cases.test.mjs"
+Cohesion: 0.20
+Nodes (6): BUILTIN_TASK_TEMPLATES, cloneSubtasks(), createTaskFromTemplateData(), duplicateTaskData(), generateDuplicateTitle(), SubtaskTemplate
 
 ### Community 45 - "cip/generate.py"
 Cohesion: 0.18
@@ -548,15 +559,15 @@ Nodes (7): build_cip_prompt(), check_logo_required(), generate_cip_set(), genera
 
 ### Community 46 - "generate-slide.py"
 Cohesion: 0.13
-Nodes (11): _e(), generate_chart_slide(), generate_cta_slide(), generate_deck(), generate_metrics_slide(), generate_problem_slide(), generate_solution_slide(), generate_testimonial_slide() (+3 more)
+Nodes (10): _e(), generate_chart_slide(), generate_cta_slide(), generate_deck(), generate_metrics_slide(), generate_problem_slide(), generate_solution_slide(), generate_testimonial_slide() (+2 more)
 
 ### Community 47 - "Workflow"
 Cohesion: 0.08
 Nodes (23): Art Direction Styles (Reuse from Banner), Color & Contrast, Design Best Practices, HTML Design Rules, HTML Template Structure, Option A: Chrome Headless CLI (Recommended — zero dependencies), Option B: chrome-devtools skill, Option C: Playwright script (+15 more)
 
 ### Community 48 - "slide_search_core.py"
-Cohesion: 0.13
-Nodes (11): calculate_pattern_break(), detect_domain(), get_background_config(), get_color_for_emotion(), get_layout_for_goal(), get_typography_for_slide(), _load_csv(), _load_decision_csv() (+3 more)
+Cohesion: 0.08
+Nodes (17): format_context(), format_result(), main(), BM25, calculate_pattern_break(), detect_domain(), get_background_config(), get_color_for_emotion() (+9 more)
 
 ### Community 49 - "The 20 Anti-Patterns"
 Cohesion: 0.08
@@ -566,6 +577,10 @@ Nodes (23): 10. Preamble Padding, 11. Over-scoping, 12. Quiet Workarounds, 13. S
 Cohesion: 0.08
 Nodes (23): After Tool Calls, Always open with:, Autonomous Operation Voice, Core Voice, Disagreement Protocol, Do, Don't, Examples (+15 more)
 
+### Community 51 - "empirical-m3-duplication-export.test.mjs"
+Cohesion: 0.28
+Nodes (11): TaskExportMenu(), capitalize(), downloadBlob(), escapeCSVField(), exportTasksToCSV(), exportTasksToMarkdown(), formatTimestamp(), generateTasksCSV() (+3 more)
+
 ### Community 52 - "Design System"
 Cohesion: 0.09
 Nodes (22): Best Practices, Chart.js Integration, Command, Component Spec Pattern, Contextual Decision Flow, Decision System CSVs, Design System, Integration (+14 more)
@@ -574,9 +589,9 @@ Nodes (22): Best Practices, Chart.js Integration, Command, Component Spec Patter
 Cohesion: 0.09
 Nodes (22): @apply Directive, Best Practices, Color Customization, Complete Tailwind Config, Configuration Examples, Content Configuration, Custom Color Palette, Custom Font Sizes (+14 more)
 
-### Community 54 - "render-html.py"
-Cohesion: 0.25
-Nodes (4): generate_html(), get_deliverable_info(), get_image_base64(), main()
+### Community 54 - "ThemeContext.tsx"
+Cohesion: 0.32
+Nodes (7): ALL_THEMES, PRESET_THEMES, ThemeContext, ThemeContextType, ThemeDefinition, ThemeProvider(), SurfaceMaterial
 
 ### Community 55 - "spacing"
 Cohesion: 0.06
@@ -657,10 +672,6 @@ Nodes (18): Backdrop-Blur Workaround, CSS Animation Recipes, Directional Navigat
 ### Community 76 - "compilerOptions"
 Cohesion: 0.11
 Nodes (17): compilerOptions, allowImportingTsExtensions, isolatedModules, jsx, lib, module, moduleDetection, moduleResolution (+9 more)
-
-### Community 77 - "feedback.ts"
-Cohesion: 0.10
-Nodes (27): @capacitor/status-bar, FocusTimerModal(), FocusTimerModalProps, formatDurationShort(), POMODORO_PRESETS, PomodoroFullscreenModal(), PomodoroFullscreenModalProps, PomodoroPresetOption (+19 more)
 
 ### Community 78 - "Model-Native Optimization Notes (Gemini tuned)"
 Cohesion: 0.12
@@ -747,16 +758,12 @@ Cohesion: 0.13
 Nodes (14): 1. List Performance (CRITICAL), 2. Animation (HIGH), 3. Navigation (HIGH), 4. UI Patterns (HIGH), 5. State Management (MEDIUM), 6. Rendering (MEDIUM), 7. Monorepo (MEDIUM), 8. Configuration (LOW) (+6 more)
 
 ### Community 102 - "empirical-m2-gestures.test.mjs"
-Cohesion: 0.29
-Nodes (4): getLiveTranslateX(), MockW3CDOMMatrix, projectMomentum(), resolveTargetTab()
-
-### Community 103 - "empirical-m3-duplication-export.test.mjs"
-Cohesion: 0.22
-Nodes (14): TaskExportMenu(), capitalize(), downloadBlob(), escapeCSVField(), exportTasksToCSV(), exportTasksToMarkdown(), formatTimestamp(), generateTasksCSV() (+6 more)
+Cohesion: 0.15
+Nodes (7): __dirname, __filename, ROOT_DIR, getLiveTranslateX(), MockW3CDOMMatrix, projectMomentum(), resolveTargetTab()
 
 ### Community 104 - "design_system.py"
 Cohesion: 0.06
-Nodes (16): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+8 more)
+Nodes (17): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), hex_to_ansi(), persist_design_system() (+9 more)
 
 ### Community 105 - "Banner Design - Multi-Format Creative Banner System"
 Cohesion: 0.14
@@ -794,9 +801,9 @@ Nodes (13): DECISION RECORDS, DEEP REFERENCES, DELEGATION, EFFORT PROFILES, Evid
 Cohesion: 0.14
 Nodes (13): Card Styles, Component Variants, CSS Structures, Feature Grid (3 columns), Layout Decision Flow, Layout Patterns, Layout Selection by Use Case, Metric Styles (+5 more)
 
-### Community 114 - "react"
-Cohesion: 0.11
-Nodes (23): framer-motion, react, EXECUTIVE_INSIGHTS, ExecutiveDashboardView(), ExecutiveDashboardViewProps, ExecutiveInsight, formatFullCurrency(), getAmountTypographyClass() (+15 more)
+### Community 114 - "test_design_system_mode.py"
+Cohesion: 0.07
+Nodes (14): _contrast_ratio(), _derive_dark_palette(), _filter_anti_patterns_for_mode(), _palette_is_dark(), _query_wants_dark(), _relative_luminance(), _resolve_color_mode(), _select_palette_for_mode() (+6 more)
 
 ### Community 116 - "Patterns and Guidelines"
 Cohesion: 0.14
@@ -822,10 +829,6 @@ Nodes (12): Color Presets, Examples, Files Modified, Important, Overview, Skills
 Cohesion: 0.15
 Nodes (12): Available Styles, Color Psychology, Commands, Design Brief (Start Here), Detailed References, Generate Logo, Industry Defaults, Logo Design Reference (+4 more)
 
-### Community 123 - "search-slides.py"
-Cohesion: 0.27
-Nodes (5): format_context(), format_result(), main(), search(), search_all()
-
 ### Community 124 - "Token Architecture"
 Cohesion: 0.15
 Nodes (12): Categories, Dark Mode, File Organization, Layer 1: Primitive Tokens, Layer 2: Semantic Tokens, Layer 3: Component Tokens, Layer Overview, Migration from Flat Tokens (+4 more)
@@ -834,13 +837,17 @@ Nodes (12): Categories, Dark Mode, File Organization, Layer 1: Primitive Tokens,
 Cohesion: 0.15
 Nodes (12): $type, $value, dark, semantic, primitive, $schema, $type, $value (+4 more)
 
-### Community 128 - "DesignSystemGenerator"
-Cohesion: 0.06
-Nodes (12): DesignSystemGenerator, apply_decision_rules(), _object_without_duplicates(), parse_decision_rules(), _validate_action(), TestReasoningMatch, read_rows(), split_values() (+4 more)
+### Community 127 - "fetch-background.py"
+Cohesion: 0.16
+Nodes (9): generate_css_for_background(), get_background_image(), get_curated_images(), get_overlay_css(), get_pexels_search_url(), load_backgrounds_config(), load_brand_colors(), main() (+1 more)
 
-### Community 129 - "Taskify •"
-Cohesion: 0.15
-Nodes (12): 🏗️ Architecture, Installation, ✨ Key Features, ⌨️ Keyboard Shortcuts, 📄 License, 📱 Mobile Platform Builds (Capacitor), 🌟 Overview, Prerequisites (+4 more)
+### Community 128 - "ExecutiveDashboardView.tsx"
+Cohesion: 0.24
+Nodes (10): EXECUTIVE_INSIGHTS, ExecutiveDashboardView(), ExecutiveDashboardViewProps, ExecutiveInsight, formatFullCurrency(), getAmountTypographyClass(), HABIT_ICON_MAP, HabitIconOption (+2 more)
+
+### Community 129 - "Quickstart"
+Cohesion: 0.67
+Nodes (3): Installation, Prerequisites, Quickstart
 
 ### Community 130 - "Primitive Tokens"
 Cohesion: 0.17
@@ -867,8 +874,8 @@ Cohesion: 0.17
 Nodes (12): 6.10 Use React DOM Resource Hints, 6.11 Use useTransition Over Manual Loading States, 6.1 Animate SVG Wrapper Instead of SVG Element, 6.2 CSS content-visibility for Long Lists, 6.3 Hoist Static JSX Elements, 6.4 Optimize SVG Precision, 6.5 Prevent Hydration Mismatch Without Flickering, 6.6 Suppress Expected Hydration Mismatches (+4 more)
 
 ### Community 137 - "e2e-tier2-boundaries.test.mjs"
-Cohesion: 0.12
-Nodes (6): __dirname, __filename, ROOT_DIR, __dirname, __filename, ROOT_DIR
+Cohesion: 0.17
+Nodes (3): __dirname, __filename, ROOT_DIR
 
 ### Community 138 - "Core Visual Elements"
 Cohesion: 0.18
@@ -881,6 +888,10 @@ Nodes (10): extractColorsFromTable(), extractCoreAttributes(), extractHexColors(
 ### Community 140 - "CIP Design Style Guide"
 Cohesion: 0.18
 Nodes (10): Bold Dynamic, CIP Design Style Guide, Classic Traditional, Color Psychology, Corporate Minimal, Fresh Modern, Luxury Premium, Modern Tech (+2 more)
+
+### Community 141 - "Taskify"
+Cohesion: 0.13
+Nodes (15): Architecture, Contributing, Data Sovereignty & Portability, Downloads, Engineering Foundations, Global Keyboard Shortcuts, Interface Showcase, License (+7 more)
 
 ### Community 142 - "android.content.Context"
 Cohesion: 0.19
@@ -897,6 +908,10 @@ Nodes (10): 3.10 Use after() for Non-Blocking Operations, 3.1 Authenticate Serve
 ### Community 146 - "React Best Practices"
 Cohesion: 0.18
 Nodes (10): Acknowledgments, Contributing, Creating a New Rule, File Naming Convention, Getting Started, Impact Levels, React Best Practices, Rule File Structure (+2 more)
+
+### Community 147 - "Common Patterns"
+Cohesion: 0.29
+Nodes (7): Common Patterns, Composing Shared Elements with List Identity, Enter/Exit, Force Re-Enter with `key`, Layout Displacement Morph, List Reorder, Suspense Fallback to Content
 
 ### Community 149 - "TEST_INFRA.md — Master Opaque-Box Test Infrastructure & Methodology"
 Cohesion: 0.18
@@ -962,13 +977,13 @@ Nodes (10): 9.1 Measuring View Dimensions, 9.2 Modern React Native Styling Patte
 Cohesion: 0.27
 Nodes (6): capitalize(), escapeCSVField(), formatTimestamp(), generateTasksCSV(), generateTasksMarkdown(), RFC-4180
 
-### Community 167 - "primary-hover"
-Cohesion: 0.67
-Nodes (3): primary-hover, $type, $value
+### Community 167 - "argparse"
+Cohesion: 0.09
+Nodes (10): generate_html(), get_deliverable_info(), get_image_base64(), main(), format_brief(), format_results(), main(), format_output() (+2 more)
 
-### Community 168 - "AppContext.tsx"
-Cohesion: 0.10
-Nodes (39): DeleteConfirmOptions, AppContext, AppContextType, DEFAULT_SETTINGS, FinanceStats, db, SettingItem, TaskifyDB (+31 more)
+### Community 168 - "Security Policy"
+Cohesion: 0.22
+Nodes (5): Best Practices for Users, Data Sovereignty and Local Storage, Reporting a Security Concern, Security Policy, Supported Versions
 
 ### Community 169 - "Agent: Explore"
 Cohesion: 0.22
@@ -979,8 +994,12 @@ Cohesion: 0.22
 Nodes (9): 2.1 Avoid Inline Objects in renderItem, 2.2 Hoist callbacks to the root of lists, 2.3 Keep List Items Lightweight, 2.4 Optimize List Performance with Stable Object References, 2.5 Pass Primitives to List Items for Memoization, 2.6 Use a List Virtualizer for Any List, 2.7 Use Compressed Images in Lists, 2.8 Use Item Types for Heterogeneous Lists (+1 more)
 
 ### Community 172 - "Contributing to Taskify"
-Cohesion: 0.22
-Nodes (8): Contributing to Taskify, Development Setup, Getting Started, Guiding Principles, License, Mobile Development (Capacitor), Prerequisites, Submitting Pull Requests
+Cohesion: 0.25
+Nodes (8): Contributing to Taskify, Development Setup, License, Mobile Builds (Capacitor), Prerequisites, Steps, What We Value, Writing Guidelines
+
+### Community 175 - "Core Features"
+Cohesion: 0.25
+Nodes (8): 1. Today Command Center, 2. Bento Milestone Tasks, 3. Atomic Habits and Consistency Streaks, 4. Distraction-Free Aesthetic Notes, 5. Pomodoro Focus Timer, 6. Cashflow and Daily Safe-to-Spend, 7. 7 Handcrafted Solid Themes, Core Features
 
 ### Community 176 - "Gravitas -- Model Routing Reference"
 Cohesion: 0.25
@@ -994,13 +1013,17 @@ Nodes (7): Gravitas -- Adaptive Reasoning Reference, Reasoning by Scenario, Reas
 Cohesion: 0.25
 Nodes (7): Dependency-Directed Recon, Extended Recon (unfamiliar codebase or high fan-out), Gravitas -- Reconnaissance Reference, Recon Completeness Check, Recon Principle, Standard Recon (Tier 1 tasks), What Not to Do
 
-### Community 180 - "scripts"
-Cohesion: 0.25
-Nodes (8): scripts, build, cap:android, cap:ios, cap:sync, dev, preview, test
+### Community 179 - "package.json"
+Cohesion: 0.15
+Nodes (12): canvas-confetti@^1.9.4, @capacitor/android@^8.5.3, @capacitor/filesystem@^8.1.5, @capacitor/haptics@^8.0.2, name, private, type, version (+4 more)
 
-### Community 183 - "@tailwindcss/vite"
+### Community 180 - "Contributor Code of Conduct"
 Cohesion: 0.29
-Nodes (6): @tailwindcss/vite@^4.0.6, vite@^6.1.0, @vitejs/plugin-react@^4.3.4, @tailwindcss/vite, vite, @vitejs/plugin-react
+Nodes (7): Attribution, Contributor Code of Conduct, Enforcement Responsibilities, Our Pledge, Our Standards, Reporting and Enforcement, Scope
+
+### Community 183 - "bug_report.md"
+Cohesion: 0.29
+Nodes (6): Any extra context, Environment, Expected behavior, Screenshots or recordings, Steps to reproduce, What happened?
 
 ### Community 184 - "4. Client-Side Data Fetching"
 Cohesion: 0.25
@@ -1026,10 +1049,6 @@ Nodes (6): Key Features, Knowledge Base, Slides Reference, Usage, When to Use, W
 Cohesion: 0.29
 Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integration, CSS Variables Reference, HTML Slide Template
 
-### Community 191 - "logo/core.py"
-Cohesion: 0.21
-Nodes (5): detect_domain(), _load_csv(), search(), search_all(), _search_csv()
-
 ### Community 192 - "HTML Slide Template"
 Cohesion: 0.29
 Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integration, CSS Variables Reference, HTML Slide Template
@@ -1046,6 +1065,10 @@ Nodes (7): 2.1 Avoid Barrel File Imports, 2.2 Conditional Module Loading, 2.3 De
 Cohesion: 0.13
 Nodes (4): TaskifyFinanceWidgetProvider, TaskifyQuickCaptureActivity, View.OnClickListener, View.OnClickListener
 
+### Community 198 - "primary-hover"
+Cohesion: 0.67
+Nodes (3): primary-hover, $type, $value
+
 ### Community 201 - "Slides"
 Cohesion: 0.33
 Nodes (5): References (Knowledge Base), Routing, Slides, Subcommands, When to Use
@@ -1058,9 +1081,25 @@ Nodes (5): Prefer Native Header Options Over Custom Components, Stack Navigation
 Cohesion: 0.33
 Nodes (5): Installation, React View Transitions Skill, Resources, Skill Structure, What This Skill Covers
 
-### Community 211 - "test_style_taxonomy.py"
+### Community 205 - "feature_request.md"
+Cohesion: 0.33
+Nodes (5): Alternatives considered, Is your feature request related to a problem?, Visual ideas or mockups, What is your proposed solution?, Would you like to build this yourself?
+
+### Community 206 - "react"
 Cohesion: 0.10
-Nodes (6): _query_wants_dark(), _resolve_color_mode(), _style_is_dark_primary(), TestModeResolution, read_rows(), TestStyleTaxonomy
+Nodes (36): @capacitor/core, @capacitor/status-bar, framer-motion, lucide-react, react, FocusTimerModal(), FocusTimerModalProps, formatDurationShort() (+28 more)
+
+### Community 208 - "PULL_REQUEST_TEMPLATE.md"
+Cohesion: 0.33
+Nodes (5): Checklist, How Was This Tested?, Screenshots or Videos, Summary of Changes, Type of Change
+
+### Community 210 - "scripts"
+Cohesion: 0.25
+Nodes (8): scripts, build, cap:android, cap:ios, cap:sync, dev, preview, test
+
+### Community 211 - "AppContext.tsx"
+Cohesion: 0.10
+Nodes (37): StreakHeatmapProps, DeleteConfirmOptions, TaskExportMenuProps, AppContext, AppContextType, DEFAULT_SETTINGS, FinanceStats, db (+29 more)
 
 ### Community 212 - "Web Interface Guidelines"
 Cohesion: 0.40
@@ -1068,7 +1107,7 @@ Nodes (4): Guidelines Source, How It Works, Usage, Web Interface Guidelines
 
 ### Community 213 - "Taskify High-End Product Website Template"
 Cohesion: 0.40
-Nodes (4): 🎨 Architectural & Design Highlights (`gpt-taste`), 📁 File Structure, 🚀 Quick Start (Zero Build Step Required), Taskify High-End Product Website Template
+Nodes (4): Architectural & Design Features, File Structure, Quick Start (Zero Build Step Required), Taskify Website
 
 ### Community 215 - "xl"
 Cohesion: 0.67
@@ -1094,9 +1133,17 @@ Nodes (4): 6.1 Minimize State Variables and Derive Values, 6.2 Use fallback stat
 Cohesion: 0.15
 Nodes (13): devDependencies, tailwindcss@^4.0.6, @types/canvas-confetti@^1.9.0, @types/node@^22.13.4, @types/react@^19.0.8, @types/react-dom@^19.0.3, typescript@~5.7.2, tailwindcss (+5 more)
 
+### Community 225 - "How to Contribute"
+Cohesion: 0.40
+Nodes (5): 1. Finding or Reporting Bugs, 2. Proposing Features, 3. Vibe-Coding and AI Contributions, 4. Submitting a Pull Request, How to Contribute
+
 ### Community 233 - "ring"
 Cohesion: 0.67
 Nodes (3): ring, $type, $value
+
+### Community 234 - "csv"
+Cohesion: 0.07
+Nodes (14): detect_domain(), get_cip_brief(), _load_csv(), search(), search_all(), _search_csv(), detect_domain(), _load_csv() (+6 more)
 
 ### Community 235 - "11. Monorepo"
 Cohesion: 0.67
@@ -1110,41 +1157,33 @@ Nodes (3): 1.1 Never Use && with Potentially Falsy Values, 1.2 Wrap Strings in T
 Cohesion: 0.67
 Nodes (3): 8.1 Destructure Functions Early in Render (React Compiler), 8.2 Use .get() and .set() for Reanimated Shared Values (not .value), 8. React Compiler
 
-### Community 350 - "f11-duplication.test.mjs"
-Cohesion: 0.47
-Nodes (4): BUILTIN_TASK_TEMPLATES, cloneSubtasks(), duplicateTaskData(), generateDuplicateTitle()
+### Community 362 - "@tailwindcss/vite"
+Cohesion: 0.29
+Nodes (6): @tailwindcss/vite@^4.0.6, vite@^6.1.0, @vitejs/plugin-react@^4.3.4, @tailwindcss/vite, vite, @vitejs/plugin-react
 
-### Community 363 - "unittest"
-Cohesion: 0.09
-Nodes (5): TestFixtureValidation, TestMetricMath, read_rows(), TestTextLayoutDataContracts, TestTextLayoutRetrieval
-
-### Community 364 - "test_core.py"
-Cohesion: 0.11
-Nodes (3): TestBm25CoreBehavior, TestDiagnosticsContracts, TestTokenizer
-
-### Community 366 - "@capacitor/cli"
+### Community 365 - "@capacitor/cli"
 Cohesion: 0.50
 Nodes (3): config, @capacitor/cli@^8.5.3, @capacitor/cli
 
 ## Knowledge Gaps
-- **7 isolated node(s):** `RFC-4180`, `RFC-4180`, `AppIntents`, `SwiftUI`, `WidgetKit` (+2 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2600 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **160 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 isolated node(s):** `PackageDescription`, `WidgetKit`, `SwiftUI`, `AppIntents`, `RFC-4180` (+2 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2662 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **162 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `TailwindConfigGenerator` connect `.validate_config` to `test_tailwind_config_gen.py`, `.add_plugins`, `._base_config`, `json`, `.recommend_plugins`, `main`, `.write_config`, `.generate_config_string`, `.add_colors`, `TestTailwindConfigGenerator`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `TailwindConfigGenerator` connect `TailwindConfigGenerator` to `test_tailwind_config_gen.py`, `.add_plugins`, `.add_colors`, `._base_config`, `pathlib`, `main`, `.write_config`, `.validate_config`, `.generate_config_string`, `TestTailwindConfigGenerator`?**
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `TestTailwindConfigGenerator`) actually correct?**
   _`TailwindConfigGenerator` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `RFC-4180`, `RFC-4180`, `AppIntents` to the rest of the system?**
+- **What connects `PackageDescription`, `WidgetKit`, `SwiftUI` to the rest of the system?**
   _7 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ShadcnInstaller` be split into smaller, more focused modules?**
   _Cohesion score 0.053555750658472345 - nodes in this community are weakly interconnected._
-- **Why does `React Best Practices` connect `React Best Practices` to `7. JavaScript Performance`, `1. Eliminating Waterfalls`, `2. Bundle Size Optimization`, `6. Rendering Performance`, `3. Server-Side Performance`, `4. Client-Side Data Fetching`, `5. Re-render Optimization`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+- **Why does `DesignSystemGenerator` connect `DesignSystemGenerator` to `design_system.py`, `test_design_system_mode.py`, `test_core.py`?**
+  _High betweenness centrality (0.003) - this node is a cross-community bridge._
 - **Should `scripts/core.py` be split into smaller, more focused modules?**
   _Cohesion score 0.05563093622795115 - nodes in this community are weakly interconnected._
-- **Why does `preventDefault()` connect `4. Client-Side Data Fetching` to `empirical-m2-gestures.test.mjs`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+- **Why does `main()` connect `main` to `test_tailwind_config_gen.py`, `.add_plugins`, `.add_colors`, `pathlib`, `argparse`, `TailwindConfigGenerator`, `.write_config`, `.validate_config`, `.generate_config_string`?**
+  _High betweenness centrality (0.003) - this node is a cross-community bridge._

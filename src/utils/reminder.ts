@@ -199,12 +199,16 @@ export async function syncNativeScheduledReminders(
 
           // Only schedule if the alarm is in the future (plus 5s margin)
           if (scheduledDate.getTime() > nowMs + 5000) {
+            const bodyText = t.dueTime
+              ? `Due at ${formatTime12Hour(t.dueTime)} • ${t.category}`
+              : `Scheduled for today • ${t.category}`;
+            const expandedBody = t.description ? `${bodyText}\n${t.description}` : bodyText;
             notifications.push({
               id: stringToIntegerId(`task-${t.id}-${t.dueDate}-${targetTime}`),
               title: `Task Reminder: ${t.title}`,
-              body: t.dueTime
-                ? `Due at ${formatTime12Hour(t.dueTime)} • ${t.category}`
-                : `Scheduled for today • ${t.category}`,
+              body: bodyText,
+              largeBody: expandedBody,
+              summaryText: t.category || 'Task Reminder',
               channelId: 'taskify_reminders',
               smallIcon: 'ic_stat_taskify',
               iconColor: '#f26a36',
@@ -216,107 +220,117 @@ export async function syncNativeScheduledReminders(
               extra: { type: 'task', id: t.id },
             });
           }
-        }
+          }
+        });
       });
-    });
 
-    // 2. Schedule daily recurring habit reminders
-    habits.forEach((h) => {
-      if (!h.reminderEnabled || !h.reminderTimes || !h.reminderTimes.length) return;
+      // 2. Schedule daily recurring habit reminders
+      habits.forEach((h) => {
+        if (!h.reminderEnabled || !h.reminderTimes || !h.reminderTimes.length) return;
 
-      h.reminderTimes.forEach((time) => {
-        const [hStr, mStr] = time.split(':');
-        const hour = parseInt(hStr, 10);
-        const minute = parseInt(mStr, 10);
-        if (!isNaN(hour) && !isNaN(minute)) {
-          notifications.push({
-            id: stringToIntegerId(`habit-${h.id}-${time}`),
-            title: `Daily Routine: ${h.name}`,
-            body: `Time for your daily routine: ${h.targetCount} ${h.unit} • ${h.timeOfDay}`,
-            channelId: 'taskify_reminders',
-            smallIcon: 'ic_stat_taskify',
-            iconColor: '#f26a36',
-            schedule: {
-              on: { hour, minute },
-              allowWhileIdle: true,
-            },
-            autoCancel: true,
-            extra: { type: 'habit', id: h.id },
-          });
-        }
+        h.reminderTimes.forEach((time) => {
+          const [hStr, mStr] = time.split(':');
+          const hour = parseInt(hStr, 10);
+          const minute = parseInt(mStr, 10);
+          if (!isNaN(hour) && !isNaN(minute)) {
+            const bodyText = `Time for your daily routine: ${h.targetCount} ${h.unit} • ${h.timeOfDay}`;
+            const expandedBody = h.description ? `${bodyText}\n${h.description}` : bodyText;
+            notifications.push({
+              id: stringToIntegerId(`habit-${h.id}-${time}`),
+              title: `Daily Routine: ${h.name}`,
+              body: bodyText,
+              largeBody: expandedBody,
+              summaryText: 'Daily Routine',
+              channelId: 'taskify_reminders',
+              smallIcon: 'ic_stat_taskify',
+              iconColor: '#f26a36',
+              schedule: {
+                on: { hour, minute },
+                allowWhileIdle: true,
+              },
+              autoCancel: true,
+              extra: { type: 'habit', id: h.id },
+            });
+          }
+        });
       });
-    });
 
-    // 3. Schedule daily recurring witty poke notifications (7 times/day spaced every 2 hours)
-    const pendingCount = tasks.filter((t) => t.status !== 'completed').length;
-    DAILY_POKE_SCHEDULE.forEach((slot, idx) => {
-      const poke = getDailyPoke(userName, pendingCount, idx + 1);
-      notifications.push({
-        id: stringToIntegerId(`daily-poke-${slot.slotId}`),
-        title: poke.title,
-        body: poke.body,
-        channelId: 'taskify_reminders',
-        smallIcon: 'ic_stat_taskify',
-        iconColor: '#f26a36',
-        schedule: {
-          on: { hour: slot.hour, minute: slot.minute },
-          allowWhileIdle: true,
-        },
-        autoCancel: true,
-        extra: { type: 'poke', slot: slot.slotId },
-      });
-    });
-
-    // 4. Schedule daily recurring contextual daypart notifications (Morning, Afternoon, Night)
-    const pendingHabitsCount = habits.length;
-    DAYPART_SCHEDULE.forEach((slot) => {
-      const greeting = generateDaypartGreeting(slot.slotId, userName, pendingCount, pendingHabitsCount);
-      notifications.push({
-        id: stringToIntegerId(`daypart-greeting-${slot.slotId}`),
-        title: greeting.title,
-        body: greeting.body,
-        channelId: 'taskify_reminders',
-        smallIcon: 'ic_stat_taskify',
-        iconColor: '#f26a36',
-        schedule: {
-          on: { hour: slot.hour, minute: slot.minute },
-          allowWhileIdle: true,
-        },
-        autoCancel: true,
-        extra: { type: 'daypart', slot: slot.slotId },
-      });
-    });
-
-    if (notifications.length > 0) {
-      await LocalNotifications.schedule({ notifications });
-    }
-  } catch (err) {
-    console.error('[Notification] Error syncing background reminders:', err);
-  }
-}
-
-/**
- * Trigger native OS notification when app is backgrounded / not active
- */
-export function sendNativeNotification(
-  title: string,
-  options?: { body?: string; icon?: string; tag?: string }
-): boolean {
-  if (Capacitor.isNativePlatform()) {
-    try {
-      LocalNotifications.schedule({
-        notifications: [
-          {
-            id: (Date.now() & 0x7fffffff) || 1,
-            title,
-            body: options?.body || 'Taskify Reminder',
-            channelId: 'taskify_reminders',
-            smallIcon: 'ic_stat_taskify',
-            iconColor: '#f26a36',
-            autoCancel: true,
+      // 3. Schedule daily recurring witty poke notifications (7 times/day spaced every 2 hours)
+      const pendingCount = tasks.filter((t) => t.status !== 'completed').length;
+      DAILY_POKE_SCHEDULE.forEach((slot, idx) => {
+        const poke = getDailyPoke(userName, pendingCount, idx + 1);
+        notifications.push({
+          id: stringToIntegerId(`daily-poke-${slot.slotId}`),
+          title: poke.title,
+          body: poke.body,
+          largeBody: poke.body,
+          summaryText: 'Taskify Focus',
+          channelId: 'taskify_reminders',
+          smallIcon: 'ic_stat_taskify',
+          iconColor: '#f26a36',
+          schedule: {
+            on: { hour: slot.hour, minute: slot.minute },
+            allowWhileIdle: true,
           },
-        ],
+          autoCancel: true,
+          extra: { type: 'poke', slot: slot.slotId },
+        });
       });
+
+      // 4. Schedule daily recurring contextual daypart notifications (Morning, Afternoon, Night)
+      const pendingHabitsCount = habits.length;
+      DAYPART_SCHEDULE.forEach((slot) => {
+        const greeting = generateDaypartGreeting(slot.slotId, userName, pendingCount, pendingHabitsCount);
+        notifications.push({
+          id: stringToIntegerId(`daypart-greeting-${slot.slotId}`),
+          title: greeting.title,
+          body: greeting.body,
+          largeBody: greeting.body,
+          summaryText: 'Daily Briefing',
+          channelId: 'taskify_reminders',
+          smallIcon: 'ic_stat_taskify',
+          iconColor: '#f26a36',
+          schedule: {
+            on: { hour: slot.hour, minute: slot.minute },
+            allowWhileIdle: true,
+          },
+          autoCancel: true,
+          extra: { type: 'daypart', slot: slot.slotId },
+        });
+      });
+
+      if (notifications.length > 0) {
+        await LocalNotifications.schedule({ notifications });
+      }
+    } catch (err) {
+      console.error('[Notification] Error syncing background reminders:', err);
+    }
+  }
+
+  /**
+   * Trigger native OS notification when app is backgrounded / not active
+   */
+  export function sendNativeNotification(
+    title: string,
+    options?: { body?: string; icon?: string; tag?: string }
+  ): boolean {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const bodyText = options?.body || 'Taskify Reminder';
+        LocalNotifications.schedule({
+          notifications: [
+            {
+              id: (Date.now() & 0x7fffffff) || 1,
+              title,
+              body: bodyText,
+              largeBody: bodyText,
+              channelId: 'taskify_reminders',
+              smallIcon: 'ic_stat_taskify',
+              iconColor: '#f26a36',
+              autoCancel: true,
+            },
+          ],
+        });
       return true;
     } catch {
       return false;

@@ -6,6 +6,7 @@ class AudioFeedbackEngine {
   private ctx: AudioContext | null = null;
   private isHapticsEnabled: boolean = true;
   private hapticSound: HapticSoundStyle = 'precision';
+  private hapticIntensity: number = 70; // 0 to 100%
 
   setHapticsEnabled(enabled: boolean) {
     this.isHapticsEnabled = enabled;
@@ -23,22 +24,44 @@ class AudioFeedbackEngine {
     return this.hapticSound;
   }
 
-  private triggerVibration(type: 'click' | 'success') {
-    if (!this.isHapticsEnabled) return;
+  setHapticIntensity(intensity: number) {
+    this.hapticIntensity = Math.max(0, Math.min(100, intensity));
+  }
 
-    // 1. Native mobile hardware impact via Capacitor
+  getHapticIntensity(): number {
+    return this.hapticIntensity;
+  }
+
+  private triggerVibration(type: 'click' | 'success') {
+    if (!this.isHapticsEnabled || this.hapticIntensity <= 0) return;
+
+    // 1. Native mobile hardware impact via Capacitor with scaled intensity
     try {
       if (type === 'click') {
-        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+        const style = this.hapticIntensity <= 35
+          ? ImpactStyle.Light
+          : this.hapticIntensity <= 70
+          ? ImpactStyle.Medium
+          : ImpactStyle.Heavy;
+        Haptics.impact({ style }).catch(() => {});
       } else {
         Haptics.notification({ type: NotificationType.Success }).catch(() => {});
       }
     } catch {}
 
-    // 2. Direct physical vibration motor fallback across Android WebViews & browsers
+    // 2. Direct physical vibration motor fallback across Android WebViews & mobile browsers
+    // Scales vibration pulse length proportionally so vibration is noticeably felt on all hardware
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
       try {
-        navigator.vibrate(type === 'click' ? 18 : [20, 40, 25]);
+        if (type === 'click') {
+          // Range: 25ms to 100ms
+          const pulseMs = Math.round(25 + (this.hapticIntensity / 100) * 75);
+          navigator.vibrate(pulseMs);
+        } else {
+          const p1 = Math.round(25 + (this.hapticIntensity / 100) * 45);
+          const p2 = Math.round(35 + (this.hapticIntensity / 100) * 65);
+          navigator.vibrate([p1, 40, p2]);
+        }
       } catch {}
     }
   }

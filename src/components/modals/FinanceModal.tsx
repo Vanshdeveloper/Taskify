@@ -9,7 +9,7 @@ import { CustomSelect } from '../ui/CustomSelect';
 import { CustomDatePicker } from '../ui/CustomDatePicker';
 import { feedback } from '../../utils/feedback';
 import { getEmptyFieldError } from '../../utils/genz';
-import { APPLE_SPRINGS } from '../../utils/motion';
+import { FLUID_SPRINGS } from '../../utils/motion';
 
 interface FinanceModalProps {
   isOpen: boolean;
@@ -127,7 +127,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={APPLE_SPRINGS.snappy}
+            transition={FLUID_SPRINGS.snappy}
             className="relative w-full max-w-lg solid-card p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col gap-4 border z-10 max-h-[88vh] overflow-y-auto no-scrollbar"
             style={{
               backgroundColor: 'var(--bg-card)',
@@ -247,7 +247,9 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ isOpen, onClose }) =
                   <CustomSelect
                     options={txType === 'expense' ? expenseCategories : incomeCategories}
                     value={category}
-                    onChange={setCategory}
+                    onChange={(cat) => {
+                      setCategory(cat);
+                    }}
                   />
                 </div>
 

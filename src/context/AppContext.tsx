@@ -63,9 +63,10 @@ interface AppContextType {
 
   // Scratchpad & Flashcards
   scratchCards: ScratchCard[];
-  addScratchCard: (data: Omit<ScratchCard, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
-  updateScratchCard: (id: string, updates: Partial<ScratchCard>) => Promise<void>;
+  addScratchCard: (data: Omit<ScratchCard, 'id' | 'createdAt' | 'updatedAt'>, silent?: boolean) => Promise<string>;
+  updateScratchCard: (id: string, updates: Partial<ScratchCard>, silent?: boolean) => Promise<void>;
   deleteScratchCard: (id: string) => Promise<void>;
+  bulkDeleteScratchCards: (ids: string[]) => Promise<void>;
 
   // Settings & Storage
   settings: UserSettings;
@@ -117,6 +118,9 @@ interface AppContextType {
   isExecutiveDashboardOpen: boolean;
   openExecutiveDashboard: () => void;
   closeExecutiveDashboard: () => void;
+  isTourOpen: boolean;
+  openTour: () => void;
+  closeTour: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -131,9 +135,11 @@ const DEFAULT_SETTINGS: UserSettings = {
   navbarGlass: 'solid',
   hapticFeedback: true,
   hapticSound: 'precision',
+  hapticIntensity: 70,
   focusEdgeProgress: typeof window !== 'undefined' ? localStorage.getItem('taskify_pc_edge_progress') !== 'false' : true,
   focusEdgeRadius: 'auto',
   focusEdgeInset: 4,
+  hasSeenTour: false,
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -169,6 +175,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isPomodoroOpen, setIsPomodoroOpen] = useState(false);
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const [isExecutiveDashboardOpen, setIsExecutiveDashboardOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   const openTaskModal = useCallback(() => {
     setEditingTask(null);
@@ -226,6 +233,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const openExecutiveDashboard = useCallback(() => setIsExecutiveDashboardOpen(true), []);
   const closeExecutiveDashboard = useCallback(() => setIsExecutiveDashboardOpen(false), []);
+
+  const openTour = useCallback(() => setIsTourOpen(true), []);
+  const closeTour = useCallback(() => setIsTourOpen(false), []);
 
   const requestDelete = useCallback((options: DeleteConfirmOptions) => {
     setDeleteConfirmOptions(options);
@@ -302,9 +312,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       navbarGlass: map.navbarGlass ?? DEFAULT_SETTINGS.navbarGlass,
       hapticFeedback: map.hapticFeedback ?? DEFAULT_SETTINGS.hapticFeedback,
       hapticSound: map.hapticSound ?? DEFAULT_SETTINGS.hapticSound,
+      hapticIntensity: map.hapticIntensity !== undefined ? Number(map.hapticIntensity) : (DEFAULT_SETTINGS.hapticIntensity ?? 70),
       focusEdgeProgress: map.focusEdgeProgress ?? DEFAULT_SETTINGS.focusEdgeProgress,
       focusEdgeRadius: map.focusEdgeRadius ?? DEFAULT_SETTINGS.focusEdgeRadius,
       focusEdgeInset: map.focusEdgeInset ?? DEFAULT_SETTINGS.focusEdgeInset,
+      hasSeenTour: map.hasSeenTour ?? DEFAULT_SETTINGS.hasSeenTour,
     };
   }, [settingsEntries]);
 
@@ -312,7 +324,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     feedback.setHapticsEnabled(settings.hapticFeedback ?? true);
     feedback.setHapticSound(settings.hapticSound ?? 'precision');
-  }, [settings.hapticFeedback, settings.hapticSound]);
+    feedback.setHapticIntensity(settings.hapticIntensity ?? 70);
+  }, [settings.hapticFeedback, settings.hapticSound, settings.hapticIntensity]);
 
   // Tasks actions
   const addTask = useCallback(async (data: Omit<Task, 'id' | 'createdAt'>): Promise<string> => {
@@ -332,7 +345,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const task = await db.tasks.get(id);
       if (!task) return;
 
-      const nextStatus = task.status === 'completed' ? 'todo' : 'completed';
+      const nextStatus: Task['status'] = task.status === 'completed' ? 'todo' : 'completed';
       const completedAt = nextStatus === 'completed' ? Date.now() : undefined;
 
       // Auto-mark all subtasks complete when parent task is completed
@@ -341,11 +354,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updatedSubtasks = task.subtasks.map((st) => ({ ...st, completed: true }));
       }
 
-      await db.tasks.update(id, {
+      const updates = {
         status: nextStatus,
         completedAt,
         ...(updatedSubtasks ? { subtasks: updatedSubtasks } : {}),
-      });
+      };
+
+      await db.tasks.update(id, updates);
 
       if (nextStatus === 'completed') {
         if (!options?.silent) {
@@ -432,14 +447,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const nextCount = current + 1;
       const isCompleted = nextCount >= habit.targetCount;
 
-      await db.habitLogs.put({
+      const logData = {
         id: logId,
         habitId,
         date: today,
         currentCount: nextCount,
         completed: isCompleted,
         timestamp: Date.now(),
-      });
+      };
+
+      await db.habitLogs.put(logData);
 
       if (isCompleted && (!existing || !existing.completed)) {
         if (!options?.silent) {
@@ -466,14 +483,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!existing || existing.currentCount <= 0) return;
 
     const nextCount = existing.currentCount - 1;
-    await db.habitLogs.put({
+    const logData = {
       id: logId,
       habitId,
       date: today,
       currentCount: nextCount,
       completed: nextCount >= habit.targetCount,
       timestamp: Date.now(),
-    });
+    };
+
+    await db.habitLogs.put(logData);
     feedback.playClick();
   }, []);
 
@@ -487,27 +506,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const existing = await db.habitLogs.get(logId);
       const isCurrentlyDone = existing?.completed ?? false;
 
+      const logData = isCurrentlyDone
+        ? {
+            id: logId,
+            habitId,
+            date: today,
+            currentCount: 0,
+            completed: false,
+            timestamp: Date.now(),
+          }
+        : {
+            id: logId,
+            habitId,
+            date: today,
+            currentCount: habit.targetCount,
+            completed: true,
+            timestamp: Date.now(),
+          };
+
+      await db.habitLogs.put(logData);
+
       if (isCurrentlyDone) {
-        await db.habitLogs.put({
-          id: logId,
-          habitId,
-          date: today,
-          currentCount: 0,
-          completed: false,
-          timestamp: Date.now(),
-        });
         if (!options?.silent) {
           feedback.playClick();
         }
       } else {
-        await db.habitLogs.put({
-          id: logId,
-          habitId,
-          date: today,
-          currentCount: habit.targetCount,
-          completed: true,
-          timestamp: Date.now(),
-        });
         if (!options?.silent) {
           const x = event ? event.clientX / window.innerWidth : 0.5;
           const y = event ? event.clientY / window.innerHeight : 0.5;
@@ -591,7 +614,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   // Scratchpad actions
-  const addScratchCard = useCallback(async (data: Omit<ScratchCard, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+  const addScratchCard = useCallback(async (data: Omit<ScratchCard, 'id' | 'createdAt' | 'updatedAt'>, silent = false): Promise<string> => {
     const id = 'sc-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
     const now = new Date().toISOString();
     const newCard: ScratchCard = {
@@ -601,20 +624,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updatedAt: now,
     };
     await db.scratchcards.add(newCard);
-    feedback.playClick();
+    if (!silent) {
+      feedback.playClick();
+    }
     return id;
   }, []);
 
-  const updateScratchCard = useCallback(async (id: string, updates: Partial<ScratchCard>): Promise<void> => {
-    await db.scratchcards.update(id, {
+  const updateScratchCard = useCallback(async (id: string, updates: Partial<ScratchCard>, silent = false): Promise<void> => {
+    const now = new Date().toISOString();
+    const fullUpdates = {
       ...updates,
-      updatedAt: new Date().toISOString(),
-    });
-    feedback.playClick();
+      updatedAt: now,
+    };
+    await db.scratchcards.update(id, fullUpdates);
+    if (!silent) {
+      feedback.playClick();
+    }
   }, []);
 
   const deleteScratchCard = useCallback(async (id: string): Promise<void> => {
     await db.scratchcards.delete(id);
+    feedback.playClick();
+  }, []);
+
+  const bulkDeleteScratchCards = useCallback(async (ids: string[]): Promise<void> => {
+    if (!ids.length) return;
+    await db.transaction('rw', db.scratchcards, async () => {
+      await db.scratchcards.bulkDelete(ids);
+    });
     feedback.playClick();
   }, []);
 
@@ -685,6 +722,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const allLogs = await db.habitLogs.toArray();
     const allTxs = await db.transactions.toArray();
     const allSettings = await db.settings.toArray();
+    const allScratchcards = await db.scratchcards.toArray();
 
     const data = {
       version: 1,
@@ -694,6 +732,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       habitLogs: allLogs,
       transactions: allTxs,
       settings: allSettings,
+      scratchcards: allScratchcards,
     };
 
     return JSON.stringify(data, null, 2);
@@ -706,18 +745,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         throw new Error('Invalid backup schema');
       }
 
-      await db.transaction('rw', [db.tasks, db.habits, db.habitLogs, db.transactions, db.settings], async () => {
+      await db.transaction('rw', [db.tasks, db.habits, db.habitLogs, db.transactions, db.settings, db.scratchcards], async () => {
         await db.tasks.clear();
         await db.habits.clear();
         await db.habitLogs.clear();
         await db.transactions.clear();
         await db.settings.clear();
+        await db.scratchcards.clear();
 
         if (data.tasks.length) await db.tasks.bulkAdd(data.tasks);
         if (data.habits.length) await db.habits.bulkAdd(data.habits);
         if (data.habitLogs.length) await db.habitLogs.bulkAdd(data.habitLogs);
         if (data.transactions.length) await db.transactions.bulkAdd(data.transactions);
         if (data.settings?.length) await db.settings.bulkAdd(data.settings);
+        if (data.scratchcards?.length) await db.scratchcards.bulkAdd(data.scratchcards);
       });
 
       feedback.playSuccessChime();
@@ -734,6 +775,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await db.habitLogs.clear();
     await db.transactions.clear();
     await db.settings.clear();
+    await db.scratchcards.clear();
     await seedInitialDataIfNeeded();
     feedback.playClick();
   }, []);
@@ -1138,6 +1180,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addScratchCard,
       updateScratchCard,
       deleteScratchCard,
+      bulkDeleteScratchCards,
       settings,
       updateSettings,
       exportDataAsJson,
@@ -1177,6 +1220,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isExecutiveDashboardOpen,
       openExecutiveDashboard,
       closeExecutiveDashboard,
+      isTourOpen,
+      openTour,
+      closeTour,
       activeReminderAlert,
       dismissReminderAlert,
       completeReminderAlert,
@@ -1214,6 +1260,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addScratchCard,
       updateScratchCard,
       deleteScratchCard,
+      bulkDeleteScratchCards,
       settings,
       updateSettings,
       exportDataAsJson,
@@ -1253,6 +1300,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isExecutiveDashboardOpen,
       openExecutiveDashboard,
       closeExecutiveDashboard,
+      isTourOpen,
+      openTour,
+      closeTour,
       activeReminderAlert,
       dismissReminderAlert,
       completeReminderAlert,

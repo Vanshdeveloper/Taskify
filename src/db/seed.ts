@@ -63,7 +63,7 @@ export async function seedInitialDataIfNeeded() {
         {
           id: 'sc-2',
           title: 'Product Vision 2026',
-          content: '• Zero-latency local storage\n• Apple-grade fluid spring animations\n• High-contrast minimal typography',
+          content: '• Zero-latency local storage\n• Fluid tactile spring animations\n• High-contrast minimal typography',
           isTwoSided: false,
           category: 'Ideas',
           color: '#38bdf8',
@@ -436,7 +436,7 @@ export async function seedInitialDataIfNeeded() {
     {
       id: 'sc-2',
       title: 'Product Vision 2026',
-      content: '• Zero-latency local storage\n• Apple-grade fluid spring animations\n• High-contrast minimal typography',
+      content: '• Zero-latency local storage\n• Fluid tactile spring animations\n• High-contrast minimal typography',
       isTwoSided: false,
       category: 'Ideas',
       color: '#38bdf8',

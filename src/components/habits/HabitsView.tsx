@@ -18,6 +18,7 @@ import type { HabitTimeOfDay } from '../../types';
 import { SPRING_PILL } from '../../utils/motion';
 import { HabitIconRenderer } from './HabitIconRenderer';
 import { getRandomDeletePrompt } from '../../utils/genz';
+import { SectionHeader } from '../ui/SectionHeader';
 
 export const HabitsView: React.FC = () => {
   const {
@@ -76,29 +77,24 @@ export const HabitsView: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10">
-      {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
-            Atomic Routines
-          </h1>
-          <p className="text-xs text-zinc-400 mt-1">
-            Track daily routines, build lasting streaks, and achieve consistency.
-          </p>
-        </div>
-
-        <motion.button
-          type="button"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={openHabitModal}
-          className="self-start sm:self-auto flex items-center gap-1.5 h-9 px-3.5 rounded-xl font-semibold text-xs pressable shadow-sm transition-all cursor-pointer"
-          style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>New Routine</span>
-        </motion.button>
-      </div>
+      {/* 1. Standardized Section Header */}
+      <SectionHeader
+        title="Habits"
+        subtitle="Daily routines and streaks."
+        actions={
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={openHabitModal}
+            className="flex items-center gap-1.5 h-9 px-3.5 rounded-full font-bold text-xs pressable shadow-sm transition-all cursor-pointer"
+            style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>New Routine</span>
+          </motion.button>
+        }
+      />
 
       {/* 2. Today's Routine Check-Ins */}
       <div

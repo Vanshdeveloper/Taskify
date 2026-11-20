@@ -4,11 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Palette,
-  ShieldCheck,
   Download,
   Upload,
   RotateCcw,
-  Command,
   Sliders,
   User,
   PanelTop,
@@ -20,6 +18,10 @@ import {
   Vibrate,
   Volume2,
   Sparkles,
+  CreditCard,
+  DollarSign,
+  Layers,
+  ChevronRight,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -27,6 +29,7 @@ import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from '../settings/ThemeStudio';
 import { AestheticSelector } from '../settings/AestheticSelector';
+import { APPLE_SPRINGS } from '../../utils/motion';
 import type { NavbarHeight, NavbarGlass } from '../../types';
 
 interface SlideOverInspectorProps {
@@ -45,6 +48,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
     importDataFromJson,
     resetToDefaults,
     openExecutiveDashboard,
+    requestDelete,
   } = useApp();
 
   const [userNameInput, setUserNameInput] = useState(settings.userName);
@@ -76,6 +80,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
       monthlyBudget: budgetVal,
       currencyExplicit: true,
     });
+    feedback.playClick();
     setSavedNotice(true);
     setTimeout(() => setSavedNotice(false), 2000);
   };
@@ -91,6 +96,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   };
 
   const handleExportBackup = async () => {
+    feedback.playClick();
     const jsonStr = await exportDataAsJson();
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -109,22 +115,34 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
     if (!file) return;
 
     try {
+      feedback.playClick();
       const text = await file.text();
-      const ok = await importDataFromJson(text);
-      setImportStatus(ok ? 'Backup restored successfully.' : 'Invalid backup schema.');
+      const success = await importDataFromJson(text);
+      if (success) {
+        setImportStatus('Backup restored successfully!');
+      } else {
+        setImportStatus('Failed to parse backup format.');
+      }
     } catch {
       setImportStatus('Error reading backup file.');
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setTimeout(() => setImportStatus(null), 3000);
     }
-
-    setTimeout(() => setImportStatus(null), 3000);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleReset = async () => {
-    if (window.confirm('Reset database to clean starter data? This will overwrite your current entries.')) {
-      await resetToDefaults();
-      onClose();
-    }
+  const handleResetDatabase = () => {
+    feedback.playClick();
+    requestDelete({
+      title: 'Reset to Starter Database?',
+      message: 'This will purge all local custom tasks, routines, and records, restoring clean defaults. Cannot be undone.',
+      confirmText: 'Reset Database',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        await resetToDefaults();
+        onClose();
+      },
+    });
   };
 
   if (typeof document === 'undefined') return null;
@@ -132,116 +150,122 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex justify-end select-none">
+          {/* Frosted Glass Backdrop Scrim */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.22 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/75"
-            style={{ willChange: 'opacity' }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-md"
           />
 
-          {/* Slide-Over Drawer: Fully Responsive (Full on mobile, wide & spacious on desktop) */}
+          {/* Slide-over Apple Settings Sheet */}
           <motion.aside
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 340, mass: 0.55 }}
-            className="relative w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl h-full z-10 flex flex-col shadow-2xl border-l border-white/15 backdrop-blur-2xl"
+            transition={APPLE_SPRINGS.sheet}
+            className="relative w-full sm:max-w-md md:max-w-lg lg:max-w-xl h-full z-10 flex flex-col shadow-2xl border-l border-white/10 backdrop-blur-2xl overflow-hidden"
             style={{
-              backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 92%, transparent)',
-              boxShadow: 'inset 1px 0 0 0 rgba(255, 255, 255, 0.12), -16px 0 48px rgba(0, 0, 0, 0.75)',
-              willChange: 'transform',
+              backgroundColor: 'color-mix(in srgb, var(--bg-canvas) 94%, transparent)',
               transform: 'translateZ(0)',
             }}
           >
-            {/* Drawer Header: Exactly matches Main Navbar Height, Safe Area, and Styling */}
+            {/* Apple Settings Navigation Header */}
             <div
-              className={`sticky top-0 z-20 w-full px-5 sm:px-8 flex items-center justify-between select-none hairline-b transition-all duration-200 shrink-0 ${
-                settings.navbarHeight === 'compact'
-                  ? 'py-2'
-                  : settings.navbarHeight === 'spacious'
-                  ? 'py-4 sm:py-5'
-                  : 'py-3'
-              }`}
+              className="sticky top-0 z-20 w-full px-5 sm:px-7 py-3.5 flex items-center justify-between border-b border-white/8 shrink-0 bg-black/30 backdrop-blur-xl"
               style={{
-                backgroundColor: 'var(--bg-canvas)',
-                paddingTop: 'max(var(--sat, 0px), 0.75rem)',
+                paddingTop: 'max(var(--sat, 0px), 0.85rem)',
               }}
             >
               <div className="flex items-center gap-2.5">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm border border-white/8 shrink-0"
-                  style={{ backgroundColor: 'var(--bg-card)', color: 'var(--accent-primary)' }}
-                >
+                <div className="w-8 h-8 rounded-xl bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 flex items-center justify-center text-[var(--accent-primary)]">
                   <Sliders className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em]">
-                    Settings & System
+                <div>
+                  <h3 className="font-display font-black text-lg text-white tracking-tight">
+                    Settings
                   </h3>
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: 'var(--accent-primary)' }}
-                  />
                 </div>
               </div>
 
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', damping: 28, stiffness: 380 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-300 hover:text-white pressable transition-colors border border-white/8 hover:border-white/16 cursor-pointer shrink-0"
-                style={{ backgroundColor: 'var(--bg-card)' }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-white/8"
                 aria-label="Close Settings"
                 title="Close Settings (ESC)"
               >
-                <X className="w-4 h-4 stroke-[2]" />
+                <X className="w-4 h-4" />
               </motion.button>
             </div>
 
-            {/* Drawer Body */}
-            <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-5 flex flex-col gap-6 no-scrollbar pb-[max(var(--sab,0px),2.5rem)]">
-              {/* Section 1: Workspace Profile & Defaults (Shown FIRST) */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-zinc-400" />
-                    <span className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
-                      Workspace Profile
-                    </span>
-                  </div>
-                  {savedNotice && (
-                    <span className="flex items-center gap-1 text-[11px] font-mono font-bold animate-pulse text-emerald-400">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Saved
-                    </span>
-                  )}
+            {/* Apple Settings Inset Grouped Scroll Body */}
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 flex flex-col gap-6 no-scrollbar pb-[max(var(--sab,0px),2.5rem)]">
+              {/* Apple User Monogram Profile Card */}
+              <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl flex items-center gap-3.5 shadow-md">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[var(--accent-primary)] to-amber-400 flex items-center justify-center text-white font-black text-lg shadow-lg">
+                  {userNameInput.charAt(0).toUpperCase() || 'A'}
                 </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-display text-base font-bold text-white truncate">
+                    {userNameInput || 'Alex'}
+                  </h4>
+                  <p className="text-[11px] font-mono text-zinc-400 truncate">
+                    Taskify Workspace • 100% Local-First
+                  </p>
+                </div>
+                {savedNotice && (
+                  <span className="flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-400 animate-pulse">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Saved
+                  </span>
+                )}
+              </div>
 
-                <form onSubmit={handleSaveWorkspace} className="solid-card p-4 sm:p-5 flex flex-col gap-3.5">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-[10px] text-zinc-400 mb-1 font-mono uppercase">
-                        Name
-                      </label>
+              {/* ========================================================
+                  SECTION 1: WORKSPACE & FINANCES (Apple Inset Grouped)
+                  ======================================================== */}
+              <div className="flex flex-col gap-1.5">
+                <span className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-zinc-400">
+                  Workspace & Preferences
+                </span>
+
+                <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden divide-y divide-white/6 shadow-lg">
+                  {/* Name Row */}
+                  <div className="p-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
+                        <User className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-white">Your Name</span>
+                    </div>
+
+                    <form onSubmit={handleSaveWorkspace} className="flex items-center gap-2">
                       <input
                         type="text"
                         value={userNameInput}
                         onChange={(e) => setUserNameInput(e.target.value)}
-                        className="w-full h-9 px-3 rounded-xl solid-input text-xs font-medium focus:outline-none"
+                        onBlur={handleSaveWorkspace}
+                        className="w-28 sm:w-36 h-7 px-2.5 rounded-lg bg-white/5 border border-white/8 text-xs font-medium text-white text-right focus:outline-none focus:border-white/20"
                       />
+                    </form>
+                  </div>
+
+                  {/* Currency Format Row */}
+                  <div className="p-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+                        <DollarSign className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-white">Currency Symbol</span>
                     </div>
 
-                    <div>
-                      <label className="block text-[10px] text-zinc-400 font-mono uppercase mb-1.5">
-                        Currency Format
-                      </label>
+                    <div className="w-28 sm:w-36">
                       <CustomSelect
                         value={currencyInput}
                         onChange={handleCurrencyChange}
@@ -251,361 +275,351 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                         }))}
                       />
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-[10px] text-zinc-400 mb-1 font-mono uppercase">
-                        Monthly Budget Target
-                      </label>
-                      <input
-                        type="number"
-                        value={budgetInput}
-                        onChange={(e) => setBudgetInput(e.target.value)}
-                        className="w-full h-9 px-3 rounded-xl solid-input text-xs font-medium focus:outline-none font-mono"
-                      />
+                  {/* Monthly Budget Target Row */}
+                  <div className="p-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
+                        <CreditCard className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-white">Monthly Budget</span>
+                    </div>
+
+                    <input
+                      type="number"
+                      value={budgetInput}
+                      onChange={(e) => setBudgetInput(e.target.value)}
+                      onBlur={handleSaveWorkspace}
+                      className="w-28 sm:w-36 h-7 px-2.5 rounded-lg bg-white/5 border border-white/8 text-xs font-mono text-white text-right focus:outline-none focus:border-white/20"
+                    />
+                  </div>
+
+                  {/* Executive Analytics Navigation Row */}
+                  <div
+                    onClick={() => {
+                      feedback.playClick();
+                      onClose();
+                      openExecutiveDashboard();
+                    }}
+                    className="p-3.5 flex items-center justify-between gap-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0">
+                        <TrendingUp className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white">Executive Insights & Trends</span>
+                        <span className="text-[10px] text-zinc-400">Routines, deep work & velocity</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-zinc-400 text-xs font-semibold">
+                      <span>Open</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ========================================================
+                  SECTION 2: APPEARANCE & THEMES (Apple Inset Grouped)
+                  ======================================================== */}
+              <div className="flex flex-col gap-1.5">
+                <span className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-zinc-400">
+                  Appearance & Atmosphere
+                </span>
+
+                <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden divide-y divide-white/6 shadow-lg">
+                  {/* App Logo Aesthetic Selector */}
+                  <div className="p-3.5">
+                    <AestheticSelector />
+                  </div>
+
+                  {/* Themes Studio */}
+                  <div className="p-3.5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-7 h-7 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 shrink-0">
+                        <Palette className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-white">Theme & Colorway</span>
+                    </div>
+                    <ThemeStudio />
+                  </div>
+
+                  {/* Navbar Height Selector */}
+                  <div className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center text-indigo-400 shrink-0">
+                        <PanelTop className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-white">Header Height</span>
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-white/5 border border-white/8 rounded-xl p-0.5">
+                      {(
+                        [
+                          { id: 'compact', label: 'Compact' },
+                          { id: 'default', label: 'Default' },
+                          { id: 'spacious', label: 'Spacious' },
+                        ] as const
+                      ).map((h) => {
+                        const isSel = (settings.navbarHeight || 'default') === h.id;
+                        return (
+                          <button
+                            key={h.id}
+                            type="button"
+                            onClick={() => handleNavbarHeightChange(h.id)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                              isSel ? 'bg-white/15 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
+                            }`}
+                          >
+                            {h.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-1">
+                  {/* Surface Material Selector */}
+                  <div className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-violet-500/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0">
+                        <Layers className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-white">Surface Material</span>
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-white/5 border border-white/8 rounded-xl p-0.5">
+                      {(
+                        [
+                          { id: 'solid', label: 'Solid' },
+                          { id: 'glass', label: 'Frosted' },
+                          { id: 'vibrant', label: 'Vibrant' },
+                        ] as const
+                      ).map((g) => {
+                        const isSel = (settings.navbarGlass || 'glass') === g.id;
+                        return (
+                          <button
+                            key={g.id}
+                            type="button"
+                            onClick={() => handleNavbarGlassChange(g.id)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                              isSel ? 'bg-white/15 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
+                            }`}
+                          >
+                            {g.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ========================================================
+                  SECTION 3: SOUND & HAPTICS (Apple Inset Grouped)
+                  ======================================================== */}
+              <div className="flex flex-col gap-1.5">
+                <span className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-zinc-400">
+                  Sound & Haptics
+                </span>
+
+                <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden divide-y divide-white/6 shadow-lg">
+                  {/* Haptic Vibration Row */}
+                  <div className="p-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-pink-500/15 border border-pink-500/25 flex items-center justify-center text-pink-400 shrink-0">
+                        <Vibrate className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white">Haptic Vibration</span>
+                        <span className="text-[10px] text-zinc-400">Tactile pulses on buttons & routines</span>
+                      </div>
+                    </div>
+
                     <button
-                      type="submit"
-                      className="w-full sm:w-auto px-5 h-9 rounded-xl font-bold text-xs pressable shadow-sm transition-all flex items-center justify-center cursor-pointer"
-                      style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
+                      type="button"
+                      role="switch"
+                      aria-checked={settings.hapticFeedback !== false}
+                      onClick={async () => {
+                        const nextVal = !(settings.hapticFeedback !== false);
+                        feedback.setHapticsEnabled(nextVal);
+                        if (nextVal) feedback.playClick();
+                        await updateSettings({ hapticFeedback: nextVal });
+                      }}
+                      className={`w-11 h-6 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center shrink-0 ${
+                        settings.hapticFeedback !== false ? 'bg-[var(--accent-primary)] justify-end' : 'bg-zinc-700 justify-start'
+                      }`}
                     >
-                      Update Profile
+                      <motion.div
+                        layout
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                        className="w-5 h-5 rounded-full bg-white shadow-md"
+                      />
                     </button>
                   </div>
-                </form>
-              </div>
 
-              {/* Section 2: Analytics Launch Card */}
-              <div
-                className="solid-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border cursor-pointer hover:border-white/20 transition-all group"
-                style={{ borderColor: 'var(--border-card)' }}
-                onClick={() => {
-                  feedback.playClick();
-                  onClose();
-                  openExecutiveDashboard();
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shadow-md border shrink-0 transition-transform group-hover:scale-105"
-                    style={{
-                      backgroundColor: 'color-mix(in srgb, var(--accent-primary) 15%, transparent)',
-                      borderColor: 'color-mix(in srgb, var(--accent-primary) 30%, transparent)',
-                      color: 'var(--accent-primary)',
-                    }}
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-xs font-bold text-white tracking-tight">
-                      Analytics
-                    </h3>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">
-                      Activity trends, category progress, and routine consistency.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white pressable shadow-md flex items-center gap-1.5 shrink-0 self-start sm:self-auto cursor-pointer"
-                  style={{ backgroundColor: 'var(--accent-primary)' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    feedback.playClick();
-                    onClose();
-                    openExecutiveDashboard();
-                  }}
-                >
-                  <span>Open</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Section 3: App Logo Aesthetic Selector */}
-              <AestheticSelector />
-
-              {/* Section 4: Themes & Palettes Studio */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Palette className="w-4 h-4 text-zinc-400" />
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
-                    Atmosphere & Colorways
-                  </span>
-                </div>
-
-                <ThemeStudio />
-              </div>
-
-              {/* Section 3: Navigation Bar Customization */}
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <PanelTop className="w-4 h-4 text-zinc-400" />
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
-                    Navbar Customization
-                  </span>
-                </div>
-
-                <div className="solid-card p-4 sm:p-5 flex flex-col gap-3.5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Height */}
-                    <div>
-                      <label className="block text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
-                        Header Height
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(
-                          [
-                            { id: 'compact', label: 'Compact', desc: '48px slim' },
-                            { id: 'default', label: 'Default', desc: '56px' },
-                            { id: 'spacious', label: 'Spacious', desc: '66px airy' },
-                          ] as const
-                        ).map((h) => {
-                          const isSel = (settings.navbarHeight || 'default') === h.id;
-                          return (
-                            <button
-                              key={h.id}
-                              type="button"
-                              onClick={() => handleNavbarHeightChange(h.id)}
-                              className={`p-2 rounded-xl border text-left transition-all cursor-pointer pressable ${
-                                isSel
-                                  ? 'border-white/30 ring-1 ring-white/20 bg-white/[0.08]'
-                                  : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
-                              }`}
-                            >
-                              <span className="text-xs font-bold text-white block">
-                                {h.label}
-                              </span>
-                              <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">
-                                {h.desc}
-                              </span>
-                            </button>
-                          );
-                        })}
+                  {/* Tactile Click Sound Style */}
+                  <div className="p-3.5 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-lg bg-rose-500/15 border border-rose-500/25 flex items-center justify-center text-rose-400 shrink-0">
+                          <Volume2 className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs font-semibold text-white">Tactile Click Sound</span>
                       </div>
                     </div>
 
-                    {/* Material */}
-                    <div>
-                      <label className="block text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
-                        Glass Material
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(
-                          [
-                            { id: 'solid', label: 'Solid', desc: 'Opaque' },
-                            { id: 'glass', label: 'Frosted', desc: '20px blur' },
-                            { id: 'vibrant', label: 'Vibrant', desc: 'Glow glass' },
-                          ] as const
-                        ).map((g) => {
-                          const isSel = (settings.navbarGlass || 'glass') === g.id;
-                          return (
-                            <button
-                              key={g.id}
-                              type="button"
-                              onClick={() => handleNavbarGlassChange(g.id)}
-                              className={`p-2 rounded-xl border text-left transition-all cursor-pointer pressable ${
-                                isSel
-                                  ? 'border-white/30 ring-1 ring-white/20 bg-white/[0.08]'
-                                  : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
-                              }`}
-                            >
-                              <span className="text-xs font-bold text-white block">
-                                {g.label}
-                              </span>
-                              <span className="text-[9px] font-mono text-zinc-400 mt-0.5 block">
-                                {g.desc}
-                              </span>
-                            </button>
-                          );
-                        })}
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 pt-0.5">
+                      {(
+                        [
+                          { id: 'precision', label: 'Precision' },
+                          { id: 'mechanical', label: 'Mechanical' },
+                          { id: 'pop', label: 'Pop' },
+                          { id: 'subtle', label: 'Subtle' },
+                          { id: 'mute', label: 'Muted' },
+                        ] as const
+                      ).map((sound) => {
+                        const currentSound = settings.hapticSound || 'precision';
+                        const isSelected = currentSound === sound.id || (currentSound === 'apple' && sound.id === 'precision');
+                        return (
+                          <button
+                            key={sound.id}
+                            type="button"
+                            onClick={async () => {
+                              feedback.setHapticSound(sound.id);
+                              feedback.playClick();
+                              await updateSettings({ hapticSound: sound.id });
+                            }}
+                            className={`py-1 px-1.5 rounded-xl text-xs font-medium border text-center transition-all pressable cursor-pointer truncate ${
+                              isSelected
+                                ? 'bg-white/15 text-white border-white/25 shadow-sm font-bold'
+                                : 'text-zinc-400 hover:text-white border-white/6 hover:bg-white/[0.04]'
+                            }`}
+                          >
+                            {sound.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Haptic Vibration Intensity Slider */}
+                  {settings.hapticFeedback !== false && (
+                    <div className="p-3.5 hairline-t flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Vibrate className="w-3.5 h-3.5 text-zinc-400" />
+                          <span className="text-xs font-semibold text-white">Vibration Strength</span>
+                        </div>
+                        <span className="font-mono text-xs font-bold text-white bg-white/10 px-2 py-0.5 rounded-md border border-white/10">
+                          {(settings.hapticIntensity ?? 70) === 0 ? 'Off' : `${settings.hapticIntensity ?? 70}%`}
+                        </span>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Section 4: Haptic Vibration Setting */}
-              <div>
-                <div className="flex items-center justify-between solid-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm border shrink-0"
-                      style={{
-                        backgroundColor: 'color-mix(in srgb, var(--accent-primary) 15%, transparent)',
-                        borderColor: 'color-mix(in srgb, var(--accent-primary) 30%, transparent)',
-                        color: 'var(--accent-primary)',
-                      }}
-                    >
-                      <Vibrate className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-white block">
-                        Haptic Vibration
-                      </span>
-                      <span className="text-[10px] text-zinc-400">
-                        Tactile vibration pulses on buttons, routines & completion
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={settings.hapticFeedback !== false}
-                    onClick={async () => {
-                      const nextVal = !(settings.hapticFeedback !== false);
-                      feedback.setHapticsEnabled(nextVal);
-                      if (nextVal) {
-                        feedback.playClick();
-                      }
-                      await updateSettings({ hapticFeedback: nextVal });
-                    }}
-                    className={`w-12 h-6.5 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center ${
-                      settings.hapticFeedback !== false ? 'bg-emerald-500 justify-end' : 'bg-zinc-700 justify-start'
-                    }`}
-                    style={{
-                      backgroundColor: settings.hapticFeedback !== false ? 'var(--accent-primary)' : undefined,
-                    }}
-                  >
-                    <div className="w-5 h-5 rounded-full bg-white shadow-md transition-all" />
-                  </button>
-                </div>
-
-                {/* Haptic Sound Style Customization */}
-                <div className="flex flex-col gap-2 pt-3 hairline-t">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Volume2 className="w-3.5 h-3.5 text-zinc-400" />
-                      <span className="text-xs font-semibold text-white">Tactile Click Sound</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-zinc-400">
-                      {settings.hapticSound === 'precision' || settings.hapticSound === 'apple'
-                        ? 'Precision Taptic'
-                        : settings.hapticSound === 'mechanical'
-                        ? 'Mechanical'
-                        : settings.hapticSound === 'pop'
-                        ? 'Bubble Pop'
-                        : settings.hapticSound === 'subtle'
-                        ? 'Subtle Tick'
-                        : 'Muted'}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
-                    {(
-                      [
-                        { id: 'precision', label: 'Precision Taptic' },
-                        { id: 'mechanical', label: 'Mechanical' },
-                        { id: 'pop', label: 'Bubble Pop' },
-                        { id: 'subtle', label: 'Subtle Tick' },
-                        { id: 'mute', label: 'Muted' },
-                      ] as const
-                    ).map((sound) => {
-                      const currentSound = settings.hapticSound || 'precision';
-                      const isSelected = currentSound === sound.id || (currentSound === 'apple' && sound.id === 'precision');
-                      return (
-                        <button
-                          key={sound.id}
-                          type="button"
-                          onClick={async () => {
-                            feedback.setHapticSound(sound.id);
+                      <div className="flex items-center gap-3 pt-1">
+                        <span className="text-[10px] font-mono text-zinc-500">Soft</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value={settings.hapticIntensity ?? 70}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            feedback.setHapticIntensity(val);
                             feedback.playClick();
-                            await updateSettings({ hapticSound: sound.id });
+                            updateSettings({ hapticIntensity: val });
                           }}
-                          className={`px-2.5 py-1.5 rounded-xl text-[11px] font-medium border text-center transition-all pressable cursor-pointer truncate ${
-                            isSelected
-                              ? 'text-white shadow-sm font-bold'
-                              : 'text-zinc-400 hover:text-white border-white/6 hover:bg-white/[0.04]'
-                          }`}
-                          style={{
-                            backgroundColor: isSelected
-                              ? 'var(--accent-primary)'
-                              : 'color-mix(in srgb, var(--bg-card) 60%, transparent)',
-                            borderColor: isSelected ? 'var(--accent-primary)' : 'var(--border-card)',
-                          }}
-                        >
-                          {sound.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                          className="flex-1 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[var(--accent-primary)]"
+                        />
+                        <span className="text-[10px] font-mono text-zinc-500">Max</span>
+                      </div>
+                    </div>
+                  )}
 
-                {/* Focus Timer Screen Edge Progress (PC / Ambient) */}
-                <div className="flex items-center justify-between pt-3 hairline-t">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm border shrink-0"
-                      style={{
-                        backgroundColor: 'rgba(242, 106, 54, 0.15)',
-                        borderColor: 'rgba(242, 106, 54, 0.3)',
-                        color: '#F26A36',
+                  {/* Focus Edge Progress Glow Toggle */}
+                  <div className="p-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400 shrink-0">
+                        <Sparkles className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white">Screen Edge Progress Glow</span>
+                        <span className="text-[10px] text-zinc-400">Glowing perimeter contour during timer</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={settings.focusEdgeProgress !== false}
+                      onClick={async () => {
+                        const nextVal = !(settings.focusEdgeProgress !== false);
+                        feedback.playClick();
+                        await updateSettings({ focusEdgeProgress: nextVal });
                       }}
+                      className={`w-11 h-6 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center shrink-0 ${
+                        settings.focusEdgeProgress !== false ? 'bg-[#F26A36] justify-end' : 'bg-zinc-700 justify-start'
+                      }`}
                     >
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-white block">
-                        Screen Edge Progress Bar
-                      </span>
-                      <span className="text-[10px] text-zinc-400">
-                        Glowing perimeter contour along monitor edges during timer
-                      </span>
-                    </div>
+                      <motion.div
+                        layout
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                        className="w-5 h-5 rounded-full bg-white shadow-md"
+                      />
+                    </button>
                   </div>
-
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={settings.focusEdgeProgress !== false}
-                    onClick={async () => {
-                      const nextVal = !(settings.focusEdgeProgress !== false);
-                      feedback.playClick();
-                      await updateSettings({ focusEdgeProgress: nextVal });
-                    }}
-                    className={`w-12 h-6.5 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center ${
-                      settings.focusEdgeProgress !== false ? 'bg-[#F26A36] justify-end' : 'bg-zinc-700 justify-start'
-                    }`}
-                  >
-                    <div className="w-5 h-5 rounded-full bg-white shadow-md transition-all" />
-                  </button>
                 </div>
               </div>
 
-              {/* Section 5: Data Sovereignty */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-zinc-300">
-                    Data Sovereignty & Portability
-                  </span>
-                </div>
-                <p className="text-[11px] text-zinc-400 mb-3 leading-relaxed">
-                  100% offline-first Dexie.js IndexedDB storage. Zero cloud telemetry, zero account walls.
-                </p>
+              {/* ========================================================
+                  SECTION 4: DATA & BACKUP (Apple Inset Grouped)
+                  ======================================================== */}
+              <div className="flex flex-col gap-1.5">
+                <span className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-zinc-400">
+                  Data Sovereignty & Backup
+                </span>
 
-                {importStatus && (
-                  <div className="mb-3 p-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-xs text-white">
-                    {importStatus}
-                  </div>
-                )}
+                <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden divide-y divide-white/6 shadow-lg">
+                  {importStatus && (
+                    <div className="p-3 bg-white/5 text-xs text-white text-center font-mono">
+                      {importStatus}
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
+                  {/* Export Backup Row */}
+                  <div
                     onClick={handleExportBackup}
-                    className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/8 text-zinc-200 text-xs font-semibold pressable cursor-pointer"
+                    className="p-3.5 flex items-center justify-between gap-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Export JSON</span>
-                  </button>
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+                        <Download className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white">Export Local Backup (JSON)</span>
+                        <span className="text-[10px] text-zinc-400">100% offline-first Dexie.js database</span>
+                      </div>
+                    </div>
 
-                  <label className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/8 text-zinc-200 text-xs font-semibold pressable cursor-pointer">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Restore</span>
+                    <ChevronRight className="w-4 h-4 text-zinc-500" />
+                  </div>
+
+                  {/* Restore Backup Row */}
+                  <label className="p-3.5 flex items-center justify-between gap-3 hover:bg-white/[0.04] transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white">Restore from Backup</span>
+                        <span className="text-[10px] text-zinc-400">Select previously exported .json file</span>
+                      </div>
+                    </div>
+
+                    <ChevronRight className="w-4 h-4 text-zinc-500" />
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -614,61 +628,40 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                       className="hidden"
                     />
                   </label>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="mt-2.5 w-full flex items-center justify-center gap-2 h-9 px-3 rounded-xl text-rose-400 hover:bg-rose-500/10 text-xs font-medium pressable transition-colors cursor-pointer"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Reset starter database</span>
-                </button>
-              </div>
-
-              {/* Section 6: Target Packaging & Specs */}
-              <div className="solid-card p-4 flex flex-col gap-3">
-                <span className="font-display text-xs font-bold uppercase tracking-wider text-zinc-400">
-                  Target Packaging & Specs
-                </span>
-                <div className="grid grid-cols-2 gap-2 text-xs text-zinc-400">
-                  <div className="flex items-center gap-2 p-2 rounded-xl bg-black/30 border border-white/5">
-                    <Smartphone className="w-3.5 h-3.5 text-zinc-400" />
-                    <div>
-                      <span className="font-medium text-zinc-200 block text-[11px]">Mobile</span>
-                      <span className="text-[9px] text-zinc-500 font-mono">Capacitor 6/7</span>
+                  {/* Reset Database Row */}
+                  <div
+                    onClick={handleResetDatabase}
+                    className="p-3.5 flex items-center justify-between gap-3 hover:bg-rose-500/10 transition-colors cursor-pointer text-rose-400"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-rose-500/15 border border-rose-500/25 flex items-center justify-center text-rose-400 shrink-0">
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold">Reset to Starter Database</span>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-2 p-2 rounded-xl bg-black/30 border border-white/5">
-                    <Laptop className="w-3.5 h-3.5 text-zinc-400" />
-                    <div>
-                      <span className="font-medium text-zinc-200 block text-[11px]">Desktop</span>
-                      <span className="text-[9px] text-zinc-500 font-mono">Electron</span>
-                    </div>
+                    <ChevronRight className="w-4 h-4 text-rose-500/50" />
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono pt-2 hairline-t">
-                  <span>Taskify OS v1.0.0 • Dexie Local-First</span>
-                  <span>MIT License</span>
                 </div>
               </div>
 
-              {/* Section 7: Keyboard Navigation */}
-              <div className="pt-2 hairline-t">
-                <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-mono mb-2">
-                  <Command className="w-3.5 h-3.5" />
-                  <span>Keyboard Shortcuts</span>
+              {/* ========================================================
+                  SECTION 5: ABOUT & SPECS
+                  ======================================================== */}
+              <div className="rounded-2xl bg-zinc-900/40 border border-white/6 p-4 flex flex-col gap-2.5 text-center text-xs text-zinc-500 font-mono">
+                <div className="flex items-center justify-center gap-4 text-zinc-400">
+                  <span className="flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5" /> Capacitor Mobile
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1.5">
+                    <Laptop className="w-3.5 h-3.5" /> Electron Desktop
+                  </span>
                 </div>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-[11px] font-mono text-zinc-400">
-                  <span className="p-1 rounded bg-white/[0.03] text-center">1 Today</span>
-                  <span className="p-1 rounded bg-white/[0.03] text-center">2 Tasks</span>
-                  <span className="p-1 rounded bg-white/[0.03] text-center">3 Habits</span>
-                  <span className="p-1 rounded bg-white/[0.03] text-center">4 Streaks</span>
-                  <span className="p-1 rounded bg-white/[0.03] text-center">5 Finance</span>
-                  <span className="p-1 rounded bg-white/[0.03] text-center">6 Settings</span>
-                </div>
+                <p className="text-[10px] text-zinc-500">
+                  Taskify OS v1.0.0 • Offline-First Dexie.js • MIT Open Source
+                </p>
               </div>
             </div>
           </motion.aside>

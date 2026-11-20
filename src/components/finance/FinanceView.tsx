@@ -19,6 +19,7 @@ import { useApp } from '../../context/AppContext';
 import { getTodayString } from '../../db';
 import { SPRING_PILL } from '../../utils/motion';
 import { getRandomDeletePrompt } from '../../utils/genz';
+import { SectionHeader } from '../ui/SectionHeader';
 import { feedback } from '../../utils/feedback';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
@@ -30,6 +31,15 @@ function getAmountTypographyClass(amountStr: string): string {
   if (len > 11) return 'text-sm sm:text-base lg:text-lg';
   if (len > 8) return 'text-base sm:text-lg lg:text-xl';
   return 'text-xl sm:text-2xl';
+}
+
+function formatPaymentMethod(method?: string): string {
+  if (!method) return 'Card';
+  if (method.endsWith('_pay') || method === 'wallet') return 'Mobile Wallet';
+  if (method === 'card') return 'Card';
+  if (method === 'cash') return 'Cash';
+  if (method === 'transfer') return 'Bank Transfer';
+  return method.replace('_', ' ');
 }
 
 export const FinanceView: React.FC = () => {
@@ -144,29 +154,24 @@ export const FinanceView: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-5 max-w-5xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10">
-      {/* 1. Header (Cleaned: "FINANCE, CASHFLOW ARCHITECTURE" line removed completely) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
-            Wealth & Cashflow
-          </h1>
-          <p className="text-xs text-zinc-400 mt-1">
-            Maintain daily safe spend discipline and track your monthly budget.
-          </p>
-        </div>
-
-        <motion.button
-          type="button"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={openFinanceModal}
-          className="self-start sm:self-auto flex items-center gap-1.5 h-9 px-3.5 rounded-xl font-semibold text-xs pressable shadow-sm transition-all cursor-pointer"
-          style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>New Record</span>
-        </motion.button>
-      </div>
+      {/* 1. Standardized Section Header */}
+      <SectionHeader
+        title="Finances"
+        subtitle="Daily allowance and monthly budget."
+        actions={
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={openFinanceModal}
+            className="flex items-center gap-1.5 h-9 px-3.5 rounded-full font-bold text-xs pressable shadow-sm transition-all cursor-pointer"
+            style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>New Record</span>
+          </motion.button>
+        }
+      />
 
       {/* 2. 4 Executive Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -508,9 +513,9 @@ export const FinanceView: React.FC = () => {
                         <div
                           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
                           style={{
-                            backgroundColor: isIncome ? 'rgba(102, 124, 62, 0.2)' : 'rgba(255, 255, 255, 0.04)',
-                            color: isIncome ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                            borderColor: isIncome ? 'rgba(102, 124, 62, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                            backgroundColor: isIncome ? 'rgba(52, 211, 153, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+                            color: isIncome ? '#34d399' : 'var(--text-secondary)',
+                            borderColor: isIncome ? 'rgba(52, 211, 153, 0.25)' : 'rgba(255, 255, 255, 0.08)',
                           }}
                         >
                           {isIncome ? (
@@ -559,7 +564,7 @@ export const FinanceView: React.FC = () => {
 
                   <div className="flex items-center justify-between pt-3 mt-3 hairline-t text-[10px] font-mono text-zinc-500">
                     <span>{tx.date}</span>
-                    <span className="capitalize">{tx.paymentMethod.replace('_', ' ')}</span>
+                    <span>{formatPaymentMethod(tx.paymentMethod)}</span>
                   </div>
                 </div>
               );
@@ -613,8 +618,8 @@ export const FinanceView: React.FC = () => {
                         <span className="text-zinc-600 shrink-0">•</span>
                         <span className="text-zinc-400 shrink-0">{tx.date}</span>
                         <span className="text-zinc-600 shrink-0">•</span>
-                        <span className="capitalize text-zinc-400 truncate">
-                          {tx.paymentMethod.replace('_', ' ')}
+                        <span className="text-zinc-400 truncate">
+                          {formatPaymentMethod(tx.paymentMethod)}
                         </span>
                       </div>
                     </div>

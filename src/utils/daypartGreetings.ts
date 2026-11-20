@@ -59,7 +59,7 @@ export function generateDaypartGreeting(
           daypart,
           emoji: '🌅',
           title: `Good morning, ${name}!`,
-          body: `All clear for today! You're already ahead of the game — enjoy your calm, focused morning.`,
+          body: `All tasks and habits are checked off. Enjoy your morning.`,
           isAllDone: true,
         };
       case 'afternoon':
@@ -67,7 +67,7 @@ export function generateDaypartGreeting(
           daypart,
           emoji: '🚀',
           title: `Good afternoon, ${name}!`,
-          body: `Phenomenal execution! Everything on your list is checked off. Outstanding focus today!`,
+          body: `All tasks and habits for today are done.`,
           isAllDone: true,
         };
       case 'night':
@@ -76,7 +76,7 @@ export function generateDaypartGreeting(
           daypart,
           emoji: '🌟',
           title: `Good night, ${name}!`,
-          body: `Flawless day completed! Every single goal and routine accomplished. Rest well, you earned it!`,
+          body: `Everything scheduled for today is completed.`,
           isAllDone: true,
         };
     }

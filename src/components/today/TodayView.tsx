@@ -21,6 +21,8 @@ import { DotProgressMatrix } from '../ui/DotProgressMatrix';
 import { SwipeToComplete } from '../ui/SwipeToComplete';
 import { getCategoryTheme } from '../../utils/category';
 import { getRandomDeletePrompt } from '../../utils/genz';
+import { SectionHeader } from '../ui/SectionHeader';
+import { SPRING_LIQUID } from '../../utils/motion';
 
 interface TodayViewProps {
   onOpenSearch?: () => void;
@@ -45,11 +47,15 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
   const todayStr = getTodayString();
   const [selectedDate, setSelectedDate] = useState(todayStr);
 
-  // Filter tasks for selected date
+  // Filter tasks for selected date with pending items prioritized
   const dateTasks = useMemo(() => {
-    return tasks.filter(
+    const list = tasks.filter(
       (t) => t.dueDate === selectedDate || (t.status !== 'completed' && t.dueDate < selectedDate)
     );
+    return list.sort((a, b) => {
+      if (a.status === b.status) return 0;
+      return a.status === 'completed' ? 1 : -1;
+    });
   }, [tasks, selectedDate]);
 
   const completedDateCount = useMemo(() => {
@@ -81,56 +87,43 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10">
-      {/* 1. Header (Cleaned: "TASKIFY, and Daily Nexus" removed completely) */}
-      <div className="flex items-center justify-between pt-2">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-light text-zinc-400">
-            Welcome Back,
-          </h1>
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white mt-0.5">
-            {settings.userName}
-          </h2>
-          <button
-            type="button"
-            onClick={() => setSelectedDate(todayStr)}
-            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white mt-2 pressable font-mono"
-          >
-            <span>Today, {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-            <span style={{ color: 'var(--accent-primary)' }}>→</span>
-          </button>
-        </div>
+      {/* 1. Standardized Section Header */}
+      <SectionHeader
+        title={settings.userName ? `Welcome, ${settings.userName}` : 'Today'}
+        subtitle={new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+        actions={
+          <>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={onOpenSearch || (() => setActiveTab('tasks'))}
+              className="w-9 h-9 rounded-full flex items-center justify-center pressable border transition-colors cursor-pointer glass-expo-interactive"
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                borderColor: 'var(--border-card)',
+                color: 'var(--text-secondary)',
+              }}
+              title="Universal Search & Command (Cmd+K)"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </motion.button>
 
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={onOpenSearch || (() => setActiveTab('tasks'))}
-            className="w-9 h-9 rounded-full flex items-center justify-center pressable border transition-colors cursor-pointer glass-expo-interactive"
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              borderColor: 'var(--border-card)',
-              color: 'var(--text-secondary)',
-            }}
-            title="Universal Search & Command (Cmd+K)"
-          >
-            <Search className="w-3.5 h-3.5" />
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setIsQuickCaptureOpen(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center shadow-md pressable cursor-pointer font-bold"
-            style={{
-              backgroundColor: 'var(--accent-primary)',
-              color: '#ffffff',
-            }}
-            title="Quick Capture (+)"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-          </motion.button>
-        </div>
-      </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setIsQuickCaptureOpen(true)}
+              className="w-9 h-9 rounded-full flex items-center justify-center shadow-md pressable cursor-pointer font-bold"
+              style={{
+                backgroundColor: 'var(--accent-primary)',
+                color: '#ffffff',
+              }}
+              title="Quick Capture (+)"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+            </motion.button>
+          </>
+        }
+      />
 
       {/* 2. Interactive Calendar Strip (Autoselected Today, Zero Required Scroll) */}
       <div className="solid-card p-3.5 sm:p-4 shadow-xl" style={{ backgroundColor: 'var(--bg-card)' }}>
@@ -357,21 +350,21 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
               {displayedTasks.map((task) => {
                 const isDone = task.status === 'completed';
                 const catTheme = getCategoryTheme(task.category);
 
                 return (
                   <motion.div
-                    layout
+                    layout="position"
                     key={task.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ type: 'spring', damping: 26, stiffness: 360 }}
+                    initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.18 } }}
+                    transition={SPRING_LIQUID}
                     onClick={() => openEditTaskModal(task)}
-                    className={`solid-card p-4 rounded-2xl flex flex-col justify-between shadow-xl border relative transition-all group hover:border-white/20 cursor-pointer ${
+                    className={`solid-card p-4 rounded-2xl flex flex-col justify-between shadow-xl border relative group hover:border-white/20 cursor-pointer transition-[border-color,background-color,opacity] duration-200 ${
                       isDone ? 'opacity-65' : ''
                     }`}
                     style={{ backgroundColor: 'var(--bg-card)' }}

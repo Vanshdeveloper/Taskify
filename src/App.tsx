@@ -22,6 +22,8 @@ import { FinanceModal } from './components/modals/FinanceModal';
 import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
 import { SlideOverInspector } from './components/layout/SlideOverInspector';
 import { PomodoroFullscreenModal } from './components/focus/PomodoroFullscreenModal';
+import { InteractiveTour } from './components/onboarding/InteractiveTour';
+import { WelcomeNameModal } from './components/onboarding/WelcomeNameModal';
 import { SettingsView } from './components/settings/SettingsView';
 import { syncAppFavicon } from './utils/favicon';
 import { useTheme } from './context/ThemeContext';
@@ -77,6 +79,11 @@ const MainLayout: React.FC = () => {
     closeInspector,
     isExecutiveDashboardOpen,
     closeExecutiveDashboard,
+    isTourOpen,
+    openTour,
+    closeTour,
+    settings,
+    updateSettings,
   } = useApp();
 
   // Maximum active streak for live navbar flame counter
@@ -87,6 +94,17 @@ const MainLayout: React.FC = () => {
 
   // Brand Choreographed Splash Screen visibility state
   const [showSplash, setShowSplash] = useState(true);
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+
+  // Auto-launch interactive tour for first-time users after splash screen
+  useEffect(() => {
+    if (!showSplash && settings.hasSeenTour === false) {
+      const timer = setTimeout(() => {
+        openTour();
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash, settings.hasSeenTour, openTour]);
 
   // Native mobile status bar setup
   useEffect(() => {
@@ -174,6 +192,9 @@ const MainLayout: React.FC = () => {
         setActiveTab('finance');
       } else if (e.key === '6') {
         closeStreaks();
+        setActiveTab('scratchpad');
+      } else if (e.key === '7') {
+        closeStreaks();
         openInspector();
       } else if (e.key === '/') {
         e.preventDefault();
@@ -226,7 +247,7 @@ const MainLayout: React.FC = () => {
           style={{ touchAction: 'pan-y' }}
         >
           {activeTab === 'settings' ? (
-            <div className="w-full h-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 no-scrollbar" style={{ touchAction: 'pan-y' }}>
+            <div className="w-full h-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 no-scrollbar" style={{ touchAction: 'pan-y' }}>
               <SettingsView />
             </div>
           ) : (
@@ -309,6 +330,31 @@ const MainLayout: React.FC = () => {
       <SlideOverInspector
         isOpen={isInspectorOpen}
         onClose={closeInspector}
+      />
+      <InteractiveTour
+        isOpen={isTourOpen}
+        onClose={() => {
+          closeTour();
+          if (settings.hasSeenTour === false) {
+            setIsNameModalOpen(true);
+          }
+        }}
+        onComplete={() => {
+          closeTour();
+          setIsNameModalOpen(true);
+        }}
+      />
+      <WelcomeNameModal
+        isOpen={isNameModalOpen}
+        initialName={settings.userName}
+        onSave={(name) => {
+          setIsNameModalOpen(false);
+          updateSettings({ userName: name, hasSeenTour: true });
+        }}
+        onSkip={() => {
+          setIsNameModalOpen(false);
+          updateSettings({ hasSeenTour: true });
+        }}
       />
 
       {/* Fullscreen OLED Edge Pomodoro Timer Modal */}

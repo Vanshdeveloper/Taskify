@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Taskify — Simple, Private Daily Planner</title>
+  <title>Taskify: Private, Local-First Productivity Operating System</title>
   
   <!-- Typography Stacks: Outfit, Space Grotesk, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,26 +17,95 @@
   <!-- Top Scroll Progress Bar -->
   <div id="scroll-progress" class="scroll-progress-bar" aria-hidden="true"></div>
 
-  <!-- Floating Minimalist Glass Pill Navigation -->
-  <header class="nav-wrapper">
-    <nav class="nav-pill">
-      <div class="nav-brand">
-        <span class="brand-dot"></span>
-        <span class="brand-title">TASKIFY</span>
-      </div>
+  <!-- Sticky Full-Width Native App Header (Exact same header as Taskify app) -->
+  <header class="app-header" id="app-header">
+    <div class="app-header-container">
+      <!-- Left: Traditional Taskify + dot wordmark -->
+      <a href="#hero" class="app-header-brand" aria-label="Taskify Home">
+        <span class="app-brand-name">Taskify</span>
+        <span class="app-brand-dot"></span>
+      </a>
 
-      <div class="nav-links">
-        <a href="#promise" class="nav-link">Our Promise</a>
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#how-it-works" class="nav-link">How It Works</a>
-        <a href="#install" class="nav-link">Download</a>
-      </div>
+      <!-- Center Desktop Navigation Links -->
+      <nav class="app-header-nav" aria-label="Primary navigation">
+        <a href="#hero" class="app-nav-link">Home</a>
+        <a href="#features" class="app-nav-link">Features</a>
+        <a href="#showcase" class="app-nav-link">Showcase</a>
+        <a href="#notes-focus" class="app-nav-link">Notes &amp; Focus</a>
+        <a href="#commitment" class="app-nav-link">Commitment</a>
+        <a href="#download" class="app-nav-link">Download</a>
+      </nav>
 
-      <div class="nav-actions">
-        <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary-small">Install</a>
+      <!-- Right Native App Controls: Download CTA, Menu Trigger -->
+      <div class="app-header-actions">
+        <!-- Desktop Download Button -->
+        <a href="#download" class="btn-primary-small header-download-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Get Taskify</span>
+        </a>
+
+        <!-- Menu / Hamburger Trigger Button (Matches App Inspector Button) -->
+        <button type="button" class="app-control-btn menu-trigger" id="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+          <svg class="menu-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12"></line>
+            <line x1="4" x2="20" y1="6" y2="6"></line>
+            <line x1="4" x2="20" y1="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
-    </nav>
+    </div>
+    <!-- Scroll-Edge Gradient Mask -->
+    <div class="app-header-mask" aria-hidden="true"></div>
   </header>
+
+  <!-- Mobile Fullscreen Backdrop Overlay -->
+  <div class="mobile-menu-backdrop" id="mobile-menu-backdrop" aria-hidden="true"></div>
+
+  <!-- Mobile Dropdown Menu Drawer -->
+  <div class="mobile-menu-drawer" id="mobile-menu" aria-hidden="true">
+    <div class="mobile-menu-inner">
+      <div class="mobile-menu-links">
+        <a href="#hero" class="mobile-menu-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <span>Home</span>
+        </a>
+        <a href="#features" class="mobile-menu-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>Core Features</span>
+        </a>
+        <a href="#showcase" class="mobile-menu-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
+          <span>Interface Showcase</span>
+        </a>
+        <a href="#notes-focus" class="mobile-menu-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>Notes & Focus</span>
+        </a>
+        <a href="#commitment" class="mobile-menu-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Our Commitment</span>
+        </a>
+        <a href="#download" class="mobile-menu-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Download Native Packages</span>
+        </a>
+      </div>
+
+      <div class="mobile-menu-footer">
+        <a href="#download" class="btn-primary" style="width: 100%;">
+          <span>Install Taskify Free</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </a>
+        <div class="mobile-menu-badges">
+          <span>Windows</span> • <span>Mac</span> • <span>Linux</span> • <span>Android</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Strict Overflow-X Wrapped Main Container -->
   <main class="page-container">
@@ -44,10 +113,9 @@
     <!-- Ambient Radial Lighting Glow -->
     <div class="ambient-glow" aria-hidden="true"></div>
 
-    <!-- 1. HERO SECTION -->
-    <section class="hero-section">
+    <!-- 1. HERO SECTION (Increased Height, Spacious Precision Layout) -->
+    <section id="hero" class="hero-section">
       <div class="hero-content">
-        <!-- 2-Line Iron Rule: Ultra-wide breathe, clean natural English -->
         <h1 class="hero-headline">
           Your daily life, organized. 
           <span class="inline-capsule">100% PRIVATE</span> 
@@ -55,12 +123,12 @@
         </h1>
 
         <p class="hero-subtext">
-          Tasks, habits, and everyday spending in one beautifully simple app. You don't just download it, you own it—zero subscriptions, zero tracking, and 100% private on your device.
+          Tasks, habits, notes, focus cycles, and everyday spending in one tactile app. Zero subscriptions, zero tracking, and 100% stored directly on your device.
         </p>
 
         <div class="hero-cta-group">
-          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary">
-            <span>Install Taskify</span>
+          <a href="#download" class="btn-primary">
+            <span>Download for Your Device</span>
             <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
@@ -68,96 +136,324 @@
             </svg>
           </a>
 
-          <a href="#promise" class="btn-secondary">
-            <span>See How It Works</span>
+          <a href="#showcase" class="btn-secondary">
+            <span>Explore Interface</span>
             <svg class="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </a>
         </div>
+
+        <div style="margin-top: 1.75rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span class="platform-badge">Windows 10/11</span>
+          <span class="platform-badge">macOS Universal</span>
+          <span class="platform-badge">Linux AppImage</span>
+          <span class="platform-badge">Android APK</span>
+          <span class="platform-badge" style="color: var(--accent-emerald);">MIT Open Source</span>
+        </div>
       </div>
 
-      <!-- Live App Preview Card (Gorgeous on Mobile & Desktop) -->
+      <!-- Live Interactive App Mockup Window in Hero -->
       <div class="hero-frame-wrapper">
-        <div class="hero-frame-outer">
-          <div class="hero-frame-inner">
+        <div class="hero-mockup-window glass-expo">
+          
+          <!-- Authentic macOS Titlebar (Clean, Zero Fake UI) -->
+          <div class="mockup-titlebar">
+            <div class="mockup-traffic-lights">
+              <span class="traffic-dot dot-close" title="Close"></span>
+              <span class="traffic-dot dot-minimize" title="Minimize"></span>
+              <span class="traffic-dot dot-expand" title="Expand"></span>
+            </div>
+            <div class="mockup-window-title">
+              <span class="mockup-app-name">Taskify Workspace</span>
+            </div>
+            <div class="mockup-window-meta">
+              <span class="mockup-clock" id="mockup-live-clock">4:30 PM</span>
+            </div>
+          </div>
+
+          <!-- In-Window Tab Switcher -->
+          <div class="mockup-tab-bar" role="tablist">
+            <button class="mockup-tab-btn active" data-tab="today" role="tab" aria-selected="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+              <span>Today</span>
+            </button>
+            <button class="mockup-tab-btn" data-tab="tasks" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+              <span>Tasks</span>
+            </button>
+            <button class="mockup-tab-btn" data-tab="habits" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+              <span>Habits</span>
+            </button>
+            <button class="mockup-tab-btn" data-tab="notes" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+              <span>Notes</span>
+            </button>
+            <button class="mockup-tab-btn" data-tab="focus" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>Focus</span>
+            </button>
+          </div>
+
+          <!-- Inside-Window Panels Container -->
+          <div class="mockup-panels-container">
             
-            <!-- App Card Header -->
-            <div class="app-card-header">
-              <div class="app-user-block">
-                <div class="app-avatar">A</div>
+            <!-- PANEL 1: TODAY (Live Dashboard) -->
+            <div class="mockup-panel active" id="mockup-panel-today" role="tabpanel">
+              <div class="mockup-user-block">
+                <div class="mockup-avatar-wrap">
+                  <div class="mockup-avatar">A</div>
+                  <div>
+                    <div class="mockup-greeting">Welcome back, Alex</div>
+                    <div class="mockup-subdate" id="today-tasks-pending-caption">Today Focus: 3 tasks pending</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Summary Widgets (Flame Streak + Safe to Spend) -->
+              <div class="mockup-widgets-grid">
+                <div class="mockup-widget-card">
+                  <div class="mockup-widget-left">
+                    <div class="mockup-widget-icon icon-flame">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                    </div>
+                    <div class="mockup-widget-data">
+                      <span class="mockup-widget-label">CONSISTENCY STREAK</span>
+                      <span class="mockup-widget-val" id="streak-counter-val">14 Days</span>
+                      <span class="mockup-widget-sub">Unbroken momentum</span>
+                    </div>
+                  </div>
+                  <button class="btn-mini-checkin" id="btn-checkin-today">+1 Check In</button>
+                </div>
+
+                <div class="mockup-widget-card">
+                  <div class="mockup-widget-left">
+                    <div class="mockup-widget-icon icon-spend">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <div class="mockup-widget-data">
+                      <span class="mockup-widget-label">SAFE TO SPEND TODAY</span>
+                      <span class="mockup-widget-val">&#8377;144.00</span>
+                      <span class="mockup-widget-sub">Remaining velocity</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Tasks List -->
+              <div class="mockup-tasks-list" id="today-interactive-tasks">
+                <div class="mockup-task-item completed">
+                  <div class="mockup-task-left">
+                    <div class="mockup-check-circle checked">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="mockup-task-info">
+                      <span class="mockup-task-title">Deep Work Session: Core Architecture Refactor</span>
+                      <span class="mockup-task-meta">Completed 09:30 AM • Growth</span>
+                    </div>
+                  </div>
+                  <span class="mockup-tag tag-green">Done</span>
+                </div>
+
+                <div class="mockup-task-item">
+                  <div class="mockup-task-left">
+                    <div class="mockup-check-circle"></div>
+                    <div class="mockup-task-info">
+                      <span class="mockup-task-title">Review quarterly project roadmap & milestones</span>
+                      <span class="mockup-task-meta">Due 02:00 PM • Priority High</span>
+                    </div>
+                  </div>
+                  <span class="mockup-tag tag-orange">High</span>
+                </div>
+
+                <div class="mockup-task-item">
+                  <div class="mockup-task-left">
+                    <div class="mockup-check-circle"></div>
+                    <div class="mockup-task-info">
+                      <span class="mockup-task-title">Prepare presentation deck demo for clients</span>
+                      <span class="mockup-task-meta">Due 04:30 PM • Work</span>
+                    </div>
+                  </div>
+                  <span class="mockup-tag tag-blue">Work</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 2: TASKS BOARD -->
+            <div class="mockup-panel" id="mockup-panel-tasks" role="tabpanel">
+              <div class="mockup-add-task-bar">
+                <input type="text" id="input-quick-task" class="mockup-add-input" placeholder="Type a task and hit Enter (e.g. Audit subscriptions)..." autocomplete="off">
+                <button id="btn-add-quick-task" class="btn-mockup-add">+ Add</button>
+              </div>
+
+              <div class="mockup-filters-row">
+                <span class="filter-chip active">All (<span id="count-all-tasks">4</span>)</span>
+                <span class="filter-chip">High Priority (2)</span>
+                <span class="filter-chip">Work (2)</span>
+                <span class="filter-chip">Personal (1)</span>
+              </div>
+
+              <div class="mockup-tasks-list" id="tasks-module-list">
+                <div class="mockup-task-item">
+                  <div class="mockup-task-left">
+                    <div class="mockup-check-circle"></div>
+                    <div class="mockup-task-info">
+                      <span class="mockup-task-title">Compile native production binaries for Windows & Linux</span>
+                      <span class="mockup-task-meta">Today • High Priority</span>
+                    </div>
+                  </div>
+                  <span class="mockup-tag tag-orange">High</span>
+                </div>
+
+                <div class="mockup-task-item">
+                  <div class="mockup-task-left">
+                    <div class="mockup-check-circle"></div>
+                    <div class="mockup-task-info">
+                      <span class="mockup-task-title">Polish 120Hz fluid gesture transitions</span>
+                      <span class="mockup-task-meta">Today • Engineering</span>
+                    </div>
+                  </div>
+                  <span class="mockup-tag tag-purple">Design</span>
+                </div>
+
+                <div class="mockup-task-item">
+                  <div class="mockup-task-left">
+                    <div class="mockup-check-circle"></div>
+                    <div class="mockup-task-info">
+                      <span class="mockup-task-title">Audit offline IndexedDB relational table integrity</span>
+                      <span class="mockup-task-meta">Tomorrow • Core Logic</span>
+                    </div>
+                  </div>
+                  <span class="mockup-tag tag-green">Data</span>
+                </div>
+
+                <div class="mockup-task-item completed">
+                  <div class="mockup-task-left">
+                    <div class="mockup-check-circle checked">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="mockup-task-info">
+                      <span class="mockup-task-title">Verify sub-16ms layout compositing benchmarks</span>
+                      <span class="mockup-task-meta">Completed 08:15 AM</span>
+                    </div>
+                  </div>
+                  <span class="mockup-tag tag-blue">Done</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 3: HABITS MATRIX -->
+            <div class="mockup-panel" id="mockup-panel-habits" role="tabpanel">
+              <div class="mockup-user-block" style="margin-bottom: 0.875rem;">
                 <div>
-                  <div class="app-greeting">Good morning, Alex</div>
-                  <div class="app-subdate">Today's Focus • 3 items pending</div>
+                  <div class="mockup-greeting">Daily Routines & Streaks</div>
+                  <div class="mockup-subdate">Consistency builds identity. Check in for today:</div>
                 </div>
               </div>
-              <div class="app-status-badge">
-                <span class="status-dot"></span>
-                <span>SAVED OFFLINE</span>
+
+              <div class="mockup-habits-grid">
+                <div class="mockup-habit-card">
+                  <div class="mockup-habit-left">
+                    <span class="mockup-habit-name">Morning Sunlight & Hydration</span>
+                    <span class="mockup-habit-streak">
+                      <span style="color: var(--accent-orange);">&#128293;</span>
+                      <span class="habit-streak-num">18 days unbroken</span>
+                    </span>
+                  </div>
+                  <button class="btn-mini-checkin habit-checkin-btn">+1 Check In</button>
+                </div>
+
+                <div class="mockup-habit-card">
+                  <div class="mockup-habit-left">
+                    <span class="mockup-habit-name">10,000 Daily Steps</span>
+                    <span class="mockup-habit-streak">
+                      <span style="color: var(--accent-orange);">&#128293;</span>
+                      <span class="habit-streak-num">12 days unbroken</span>
+                    </span>
+                  </div>
+                  <button class="btn-mini-checkin habit-checkin-btn">+1 Check In</button>
+                </div>
+
+                <div class="mockup-habit-card">
+                  <div class="mockup-habit-left">
+                    <span class="mockup-habit-name">90-Minute Deep Work Block</span>
+                    <span class="mockup-habit-streak">
+                      <span style="color: var(--accent-orange);">&#128293;</span>
+                      <span class="habit-streak-num">24 days unbroken</span>
+                    </span>
+                  </div>
+                  <button class="btn-mini-checkin habit-checkin-btn">+1 Check In</button>
+                </div>
+
+                <div class="mockup-habit-card">
+                  <div class="mockup-habit-left">
+                    <span class="mockup-habit-name">Read 20 Pages Non-Fiction</span>
+                    <span class="mockup-habit-streak">
+                      <span style="color: var(--accent-orange);">&#128293;</span>
+                      <span class="habit-streak-num">9 days unbroken</span>
+                    </span>
+                  </div>
+                  <button class="btn-mini-checkin habit-checkin-btn">+1 Check In</button>
+                </div>
               </div>
             </div>
 
-            <!-- Interactive Daily Tasks Sample -->
-            <div class="app-tasks-list">
-              <div class="app-task-item completed">
-                <div class="task-check-circle checked">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
+            <!-- PANEL 4: NOTES NOTEPAD -->
+            <div class="mockup-panel" id="mockup-panel-notes" role="tabpanel">
+              <div class="mockup-notes-wrap">
+                <div class="mockup-notes-toolbar">
+                  <div class="toolbar-group">
+                    <button class="tool-btn" id="tool-bold" title="Bold">B</button>
+                    <button class="tool-btn" id="tool-italic" title="Italic">I</button>
+                    <button class="tool-btn" id="tool-heading" title="Heading">H</button>
+                    <button class="tool-btn" id="tool-list" title="Bullet List">&bull;</button>
+                    <button class="tool-btn" id="tool-highlight" title="Highlight">&#9998;</button>
+                  </div>
+                  <div class="color-dots">
+                    <span class="color-dot" style="background: #f26a36;" title="Terracotta"></span>
+                    <span class="color-dot" style="background: #10b981;" title="Emerald"></span>
+                    <span class="color-dot" style="background: #e5a42f;" title="Amber"></span>
+                    <span class="color-dot" style="background: #3b82f6;" title="Nordic Blue"></span>
+                    <span class="color-dot" style="background: #8b5cf6;" title="Cyber Purple"></span>
+                  </div>
                 </div>
-                <div class="task-info">
-                  <span class="task-title">Morning 20-minute walk & coffee</span>
-                  <span class="task-meta">Completed at 08:15 AM</span>
-                </div>
-                <span class="task-tag tag-green">Done</span>
-              </div>
 
-              <div class="app-task-item">
-                <div class="task-check-circle"></div>
-                <div class="task-info">
-                  <span class="task-title">Review project milestone with team</span>
-                  <span class="task-meta">Due today at 02:00 PM</span>
-                </div>
-                <span class="task-tag tag-orange">Priority</span>
-              </div>
+                <textarea id="mockup-note-input" class="mockup-textarea" placeholder="Start typing your thoughts... Autosaves locally.">Taskify Product Principles:
+1. Zero servers, zero user accounts, zero telemetry.
+2. All relational tables stored in local IndexedDB.
+3. Sub-16ms fluid spring motion across all platforms.</textarea>
 
-              <div class="app-task-item">
-                <div class="task-check-circle"></div>
-                <div class="task-info">
-                  <span class="task-title">Read 15 pages of book before bed</span>
-                  <span class="task-meta">Daily evening routine</span>
+                <div class="mockup-notes-status">
+                  <span id="note-stats-text">20 words • 138 characters</span>
+                  <span style="color: var(--accent-emerald);">&#10003; Autosaved to local storage</span>
                 </div>
-                <span class="task-tag tag-neutral">Habit</span>
               </div>
             </div>
 
-            <!-- Mini Summary Widgets (Habit Streak & Safe to Spend) -->
-            <div class="app-widgets-grid">
-              <div class="widget-card">
-                <div class="widget-icon icon-amber">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            <!-- PANEL 5: FOCUS POMODORO -->
+            <div class="mockup-panel" id="mockup-panel-focus" role="tabpanel">
+              <div class="mockup-focus-wrap">
+                <div class="focus-ring-container">
+                  <svg class="focus-svg-ring" viewBox="0 0 100 100">
+                    <circle class="focus-ring-bg" cx="50" cy="50" r="45" fill="none" stroke-width="6"></circle>
+                    <circle id="focus-progress-circle" class="focus-ring-progress" cx="50" cy="50" r="45" fill="none" stroke-width="6" stroke-linecap="round"></circle>
                   </svg>
+                  <div class="focus-center-info">
+                    <span class="focus-timer-text" id="focus-time-display">25:00</span>
+                    <span class="focus-session-tag">DEEP FOCUS CYCLE</span>
+                  </div>
                 </div>
-                <div class="widget-data">
-                  <span class="widget-label">CONSISTENCY STREAK</span>
-                  <span class="widget-value counter-item" data-target="14">14</span>
-                  <span class="widget-unit">days unbroken</span>
-                </div>
-              </div>
 
-              <div class="widget-card">
-                <div class="widget-icon icon-emerald">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="20" x2="18" y2="10"></line>
-                    <line x1="12" y1="20" x2="12" y2="4"></line>
-                    <line x1="6" y1="20" x2="6" y2="14"></line>
-                  </svg>
+                <div class="focus-presets-row">
+                  <button class="focus-preset-pill active" data-minutes="25">25m Classic</button>
+                  <button class="focus-preset-pill" data-minutes="45">45m Deep Work</button>
+                  <button class="focus-preset-pill" data-minutes="60">60m Flow State</button>
                 </div>
-                <div class="widget-data">
-                  <span class="widget-label">SAFE TO SPEND TODAY</span>
-                  <span class="widget-value">$45.00</span>
-                  <span class="widget-unit">comfortable daily limit</span>
+
+                <div class="focus-controls-row">
+                  <button class="btn-focus-action btn-focus-primary" id="btn-focus-toggle">Start Focus</button>
+                  <button class="btn-focus-action btn-focus-secondary" id="btn-focus-reset">Reset</button>
                 </div>
               </div>
             </div>
@@ -171,37 +467,109 @@
     <section class="marquee-section">
       <div class="marquee-track">
         <div class="marquee-content">
-          <div class="marquee-item"><span class="bullet"></span><span>You Don't Rent It — You Own It</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Works 100% Offline</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>100% Local-First Storage</span></div>
           <div class="marquee-item"><span class="bullet"></span><span>Zero Accounts or Passwords</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Zero Monthly Fees</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Your Data Stays on Your Device</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Opens Instantly With No Lag</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Gentle Daily Reminders</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>For iPhone, Android & Desktop</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Sub-16ms Fluid Motion</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Zero Tracking or Telemetry</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Works Fully Offline</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Windows, Linux, macOS & Android</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>MIT Open Source</span></div>
         </div>
         <div class="marquee-content" aria-hidden="true">
-          <div class="marquee-item"><span class="bullet"></span><span>You Don't Rent It — You Own It</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Works 100% Offline</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>100% Local-First Storage</span></div>
           <div class="marquee-item"><span class="bullet"></span><span>Zero Accounts or Passwords</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Zero Monthly Fees</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Your Data Stays on Your Device</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Opens Instantly With No Lag</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>Gentle Daily Reminders</span></div>
-          <div class="marquee-item"><span class="bullet"></span><span>For iPhone, Android & Desktop</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Sub-16ms Fluid Motion</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Zero Tracking or Telemetry</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Works Fully Offline</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>Windows, Linux, macOS & Android</span></div>
+          <div class="marquee-item"><span class="bullet"></span><span>MIT Open Source</span></div>
         </div>
       </div>
     </section>
 
-    <!-- 3. OUR PROMISE (GSAP Scrubbing Word Reveal) -->
-    <section id="promise" class="manifesto-section">
-      <div class="section-tag">
-        <span class="tag-dot"></span>
-        <span class="tag-title">OUR PROMISE</span>
+    <!-- 3. REAL APP SHOWCASE GALLERY -->
+    <section id="showcase" class="showcase-section">
+      <div class="section-header-left">
+        <div class="section-tag">
+          <span class="tag-dot"></span>
+          <span class="tag-title">AUTHENTIC INTERFACE</span>
+        </div>
+        <h2 class="section-title">Designed with restraint and depth.</h2>
+        <p class="hero-subtext" style="max-width: 42rem; margin: 0.5rem 0 0 0; text-align: left;">
+          No web wrappers or generic templates. Taskify is engineered with tactile design foundations, fluid spring physics, and solid surface palettes.
+        </p>
       </div>
 
-      <div class="manifesto-text" id="manifesto-text">
-        You don't just download Taskify. You own it. No subscriptions, no user accounts, and no remote servers deciding if you can access your day. It lives on your hardware, completely private and permanent. Software you actually own.
+      <div class="showcase-grid">
+        <!-- Full-width Today Dashboard -->
+        <div class="showcase-card full-width">
+          <img src="images/01_today_dashboard_desktop.png" alt="Taskify Today Command Center" class="showcase-img">
+          <div class="showcase-meta">
+            <div>
+              <h3 class="showcase-title">Today Command Center</h3>
+              <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Daypart briefing, unbroken flame counter, safe-to-spend velocity, and pending milestones.
+              </p>
+            </div>
+            <span class="showcase-badge">Desktop 1440x900</span>
+          </div>
+        </div>
+
+        <!-- Bento Tasks Grid -->
+        <div class="showcase-card">
+          <img src="images/02_tasks_bento_grid.png" alt="Tasks Bento Grid & Milestones" class="showcase-img">
+          <div class="showcase-meta">
+            <div>
+              <h3 class="showcase-title">Bento Milestone Tasks</h3>
+              <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Priority capsules, ISO calendar dial, and compact triage rows.
+              </p>
+            </div>
+            <span class="showcase-badge">Tasks Module</span>
+          </div>
+        </div>
+
+        <!-- Distraction-Free Notes -->
+        <div class="showcase-card">
+          <img src="images/05_notes_aesthetic_editor.png" alt="Distraction-Free Aesthetic Notes" class="showcase-img">
+          <div class="showcase-meta">
+            <div>
+              <h3 class="showcase-title">Aesthetic Notepad</h3>
+              <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Rich formatting toolbar, instant autosave, color accents, and word counters.
+              </p>
+            </div>
+            <span class="showcase-badge">Notes Module</span>
+          </div>
+        </div>
+
+        <!-- Pomodoro Focus Ring -->
+        <div class="showcase-card">
+          <img src="images/06_pomodoro_focus_ring.png" alt="Pomodoro Focus Timer" class="showcase-img">
+          <div class="showcase-meta">
+            <div>
+              <h3 class="showcase-title">Precision Focus Ring</h3>
+              <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Glowing circular progress ring, preset chips, and screen edge contour lighting.
+              </p>
+            </div>
+            <span class="showcase-badge">Focus Timer</span>
+          </div>
+        </div>
+
+        <!-- Safe-to-Spend Finance -->
+        <div class="showcase-card">
+          <img src="images/07_finance_safetospend_ledger.png" alt="Daily Safe-to-Spend Ledger" class="showcase-img">
+          <div class="showcase-meta">
+            <div>
+              <h3 class="showcase-title">Cashflow & Safe-to-Spend</h3>
+              <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Auto-calculated daily allowance velocity and itemized transaction ledger.
+              </p>
+            </div>
+            <span class="showcase-badge">Finance Module</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -210,13 +578,13 @@
       <div class="section-header-left">
         <div class="section-tag">
           <span class="tag-dot"></span>
-          <span class="tag-title">EVERYDAY FEATURES</span>
+          <span class="tag-title">UNIFIED PRODUCTIVITY</span>
         </div>
-        <h2 class="section-title">Everything you need to stay on track.</h2>
+        <h2 class="section-title">Everything you need to master your day.</h2>
       </div>
 
       <div class="bento-grid">
-        <!-- Card 1: Software You Actually Own (8 cols) -->
+        <!-- Card 1: 100% Local-First Data Sovereignty (8 cols) -->
         <div class="bento-card bento-card-8">
           <div class="bento-card-top">
             <div class="card-icon-box icon-box-orange">
@@ -225,33 +593,33 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
             </div>
-            <span class="bento-badge">ZERO SUBSCRIPTIONS</span>
+            <span class="bento-badge">ZERO REMOTE SERVERS</span>
           </div>
 
           <div class="bento-card-body">
-            <h3 class="bento-title">You don't rent it. You own it.</h3>
+            <h3 class="bento-title">Software you actually own.</h3>
             <p class="bento-desc">
-              Most productivity apps are rented services tied to monthly charges and remote servers that can change or shut down. Taskify lives directly on your hardware. Zero subscriptions, zero logins, and zero cloud lock-in. Once installed, it is yours.
+              Most productivity apps are rented services tied to recurring fees and corporate clouds that can inspect your data or shut down. Taskify stores all relational tables directly on your device using IndexedDB (Dexie.js). Zero accounts, zero tracking, and complete data portability with one-click JSON export.
             </p>
           </div>
 
           <div class="bento-metrics-row">
             <div class="metric-block">
-              <span class="metric-caption">OWNERSHIP</span>
-              <span class="metric-stat stat-emerald">Yours forever</span>
+              <span class="metric-caption">DATA SOVEREIGNTY</span>
+              <span class="metric-stat stat-emerald">100% On-Device</span>
             </div>
             <div class="metric-block">
               <span class="metric-caption">STORAGE</span>
-              <span class="metric-stat">100% on your device</span>
+              <span class="metric-stat">IndexedDB (Dexie.js)</span>
             </div>
             <div class="metric-block">
-              <span class="metric-caption">INTERNET</span>
-              <span class="metric-stat">Works without Wi-Fi</span>
+              <span class="metric-caption">NETWORK</span>
+              <span class="metric-stat">Fully Offline</span>
             </div>
           </div>
         </div>
 
-        <!-- Card 2: Butter-Smooth Feel (4 cols) -->
+        <!-- Card 2: Sub-16ms Viscous Fluid Motion (4 cols) -->
         <div class="bento-card bento-card-4">
           <div class="bento-card-top">
             <div class="card-icon-box icon-box-amber">
@@ -262,16 +630,16 @@
           </div>
 
           <div class="bento-card-body">
-            <h3 class="bento-title">Butter-Smooth Feel</h3>
+            <h3 class="bento-title">Sub-16ms Motion</h3>
             <p class="bento-desc">
-              Designed with fluid, natural animations that make checking off tasks and building routines feel genuinely satisfying.
+              Built on tactile design foundations with hardware-composited tape motion, exponential momentum handoff, and zero React re-render lag during gestures.
             </p>
           </div>
 
           <div class="bento-metrics-row">
             <div class="metric-block">
-              <span class="metric-caption">SPEED</span>
-              <span class="metric-stat stat-emerald">Zero lag or delays</span>
+              <span class="metric-caption">PERFORMANCE</span>
+              <span class="metric-stat stat-emerald">120Hz Fluid</span>
             </div>
           </div>
         </div>
@@ -285,24 +653,25 @@
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
             </div>
+            <span class="bento-badge">DAILY SAFE-TO-SPEND</span>
           </div>
 
           <div class="bento-card-body">
             <h3 class="bento-title">Guilt-Free Daily Budget</h3>
             <p class="bento-desc">
-              Know exactly how much you can comfortably spend today without worrying about going over budget at the end of the month.
+              Know exactly how much you can comfortably spend today based on your monthly budget and remaining calendar days. Zero complex accounting.
             </p>
           </div>
 
           <div class="bento-metrics-row">
             <div class="metric-block">
               <span class="metric-caption">CALCULATION</span>
-              <span class="metric-stat stat-emerald">Auto-adjusts every day</span>
+              <span class="metric-stat stat-emerald">Auto-adjusts Daily</span>
             </div>
           </div>
         </div>
 
-        <!-- Card 4: Habits That Stick (7 cols) -->
+        <!-- Card 4: Atomic Habits & Consistency Heatmap (7 cols) -->
         <div class="bento-card bento-card-7">
           <div class="bento-card-top">
             <div class="card-icon-box icon-box-indigo">
@@ -310,165 +679,526 @@
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
             </div>
-            <span class="bento-badge">DAILY ROUTINES</span>
+            <span class="bento-badge">14-WEEK MATRIX</span>
           </div>
 
           <div class="bento-card-body">
-            <h3 class="bento-title">Habits That Actually Stick</h3>
+            <h3 class="bento-title">Atomic Habits & Streaks</h3>
             <p class="bento-desc">
-              Build better routines step-by-step. See your consistency grow day by day with visual streak charts and friendly, non-annoying reminders.
+              Build routines step by step. Celebrate unbroken runs with the live flame counter, track your 14-week consistency heatmap matrix, and protect your streak with Freeze Shields.
             </p>
           </div>
 
           <div class="bento-metrics-row">
             <div class="metric-block">
-              <span class="metric-caption">REMINDERS</span>
-              <span class="metric-stat">Timed to your schedule</span>
+              <span class="metric-caption">MOMENTUM</span>
+              <span class="metric-stat stat-amber">Streak Shields</span>
             </div>
             <div class="metric-block">
-              <span class="metric-caption">STREAKS</span>
-              <span class="metric-stat stat-amber">Forgiving & encouraging</span>
+              <span class="metric-caption">HEATMAP</span>
+              <span class="metric-stat">98-Day Visual Matrix</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 5. HOW IT WORKS (Three Simple Pillars) -->
-    <section id="how-it-works" class="pillars-section">
+    <!-- 5. NOTES & FOCUS SPOTLIGHT (Hover-to-Reveal, 25 Handcrafted Themes) -->
+    <section id="notes-focus" class="pillars-section">
       <div class="pillars-layout">
-        <!-- Pinned Left Column -->
         <div class="pillars-pinned-col" id="pinned-headline">
           <div class="section-tag">
             <span class="tag-dot"></span>
-            <span class="tag-title">HOW IT WORKS</span>
+            <span class="tag-title">DEEP FOCUS & NOTES</span>
           </div>
-          <h2 class="section-title">Three simple tools in one clean screen.</h2>
+          <h2 class="section-title">Built for deep thought and calm execution.</h2>
           <p class="pillars-lead">
-            No more jumping between separate to-do apps, habit trackers, and budgeting spreadsheets. Taskify brings everything together into one calm workspace.
+            Eliminate mental clutter. Hover over each card to preview capabilities. Draft thoughts in a clean notepad and enter flow state with the circular focus timer.
           </p>
           <div class="pinned-cta">
-            <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary-outline">Install Now</a>
+            <a href="#download" class="btn-primary-outline">Download Free</a>
           </div>
         </div>
 
-        <!-- Interactive Pillar Cards on Right -->
         <div class="pillars-cards-col">
-          <div class="pillar-card active" data-index="0">
+          <!-- Card 1: Distraction-Free Notepad -->
+          <div class="pillar-card" data-index="0">
             <div class="pillar-card-header">
               <div class="pillar-card-left">
                 <div class="pillar-icon-box">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="9 11 12 14 22 4"></polyline>
-                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="pillar-title">Smart Daily Checklists</h3>
-                  <span class="pillar-tagline">Focus on what matters most today</span>
+                  <h3 class="pillar-title">Distraction-Free Notepad</h3>
+                  <span class="pillar-tagline">Continuous autosave on every keystroke</span>
                 </div>
               </div>
-              <span class="pillar-badge">Clear to-do lists</span>
+              <span class="pillar-badge">Rich text</span>
             </div>
             <p class="pillar-desc">
-              Organize what you need to do with simple priority tags and flexible reminders. Swipe to complete when you are finished.
+              Format text with bold, italic, highlights, code blocks, bulleted lists, and color tags. On mobile, the editor takes over the full viewport to eliminate distractions.
             </p>
           </div>
 
+          <!-- Card 2: Precision Focus Timer -->
           <div class="pillar-card" data-index="1">
             <div class="pillar-card-header">
               <div class="pillar-card-left">
                 <div class="pillar-icon-box">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="pillar-title">Visual Habit Tracker</h3>
-                  <span class="pillar-tagline">Celebrate progress, not perfection</span>
+                  <h3 class="pillar-title">Precision Focus Timer</h3>
+                  <span class="pillar-tagline">Visual progress ring and tick sounds</span>
                 </div>
               </div>
-              <span class="pillar-badge">Yearly streak map</span>
+              <span class="pillar-badge">Pomodoro</span>
             </div>
             <p class="pillar-desc">
-              Track reading, workouts, meditation, or drinking water. Build a chain of successful days with gentle nudges that encourage you without pressure.
+              Dial in custom focus intervals or select classic presets (25m, 45m, 60m). Features screen edge progress illumination and ambient chimes for deep work sessions.
             </p>
           </div>
 
+          <!-- Card 3: 25 Handcrafted Themes (4 Palettes) -->
           <div class="pillar-card" data-index="2">
             <div class="pillar-card-header">
               <div class="pillar-card-left">
                 <div class="pillar-icon-box">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
-                    <path d="M12 18V6"></path>
+                    <path d="m4.93 4.93 4.24 4.24"></path>
+                    <path d="m14.83 9.17 4.24-4.24"></path>
+                    <path d="m14.83 14.83 4.24 4.24"></path>
+                    <path d="m9.17 14.83-4.24 4.24"></path>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="pillar-title">Stress-Free Budgeting</h3>
-                  <span class="pillar-tagline">Peace of mind with your money</span>
+                  <h3 class="pillar-title">25 Handcrafted Themes</h3>
+                  <span class="pillar-tagline">4 curated aesthetic palettes</span>
                 </div>
               </div>
-              <span class="pillar-badge">No bank sync needed</span>
+              <span class="pillar-badge">25 Palettes</span>
             </div>
             <p class="pillar-desc">
-              Set a simple monthly spending goal. The app shows you what is safe to spend each day so you stay on track without complex accounting.
+              Personalize with 25 distinct themes across Soft & Cozy (Espresso Terracotta, Lavender Mist, Peach Cashmere, Pistachio Cream, Forest Rose, Kyoto Matcha, Amber Dune), Minimalist (Nordic Frost, Sage Studio, Monochrome Pure, Warm Sandstone), Dark & OLED (Obsidian Pure, Velvet Burgundy, Tokyo Neon, Midnight Ocean), and Aesthetic Pastel.
             </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 6. ACTION & FOOTER -->
-    <section id="install" class="footer-section">
-      <div class="footer-container">
-        <h2 class="footer-headline">Take back control of your day.</h2>
-        <p class="footer-subtext">
-          No subscriptions, no accounts to remember, and no cloud servers holding your life hostage. Install Taskify once and own it forever.
+    <!-- 6. REDESIGNED COMMITMENT & LOCAL-FIRST DATA VAULT -->
+    <section id="commitment" class="commitment-section">
+      <div class="commitment-container">
+        <div class="section-tag" style="margin: 0 auto 0.75rem;">
+          <span class="tag-dot"></span>
+          <span class="tag-title">DATA SOVEREIGNTY</span>
+        </div>
+        
+        <h2 class="section-title">Local-First Cryptographic Vault.</h2>
+        <p class="hero-subtext" style="margin: 0.5rem auto 0; max-width: 38rem;">
+          Zero telemetry. Pure local persistence. No user accounts required.
         </p>
 
-        <div class="footer-cta-box">
-          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-primary-large">
-            <span>Install Taskify</span>
-            <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-          </a>
-        </div>
-
-        <!-- Specifications Matrix in Plain English -->
-        <div class="specs-grid">
-          <div class="spec-cell">
-            <span class="spec-label">PLATFORMS</span>
-            <span class="spec-value">Android, iPhone, Windows, Mac</span>
+        <div class="vault-chip-row" style="margin-top: 1.5rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;">
+          <div class="vault-chip">
+            <span class="status-dot-pulse"></span>
+            <span>Zero Outbound Network Telemetry</span>
           </div>
-          <div class="spec-cell">
-            <span class="spec-label">OWNERSHIP</span>
-            <span class="spec-value">You own it, forever</span>
+          <div class="vault-chip">
+            <span>&#128274; Client-Side AES-GCM Encryption</span>
           </div>
-          <div class="spec-cell">
-            <span class="spec-label">PRIVACY</span>
-            <span class="spec-value">Saved only on your device</span>
+          <div class="vault-chip">
+            <span>&#128190; IndexedDB Relational Storage</span>
           </div>
-          <div class="spec-cell">
-            <span class="spec-label">INTERNET</span>
-            <span class="spec-value">Works 100% offline</span>
+          <div class="vault-chip">
+            <span>&#9874; MIT Open Source</span>
           </div>
         </div>
 
-        <div class="footer-bottom-strip">
-          <span>Taskify Open Source Project &copy; 2026. Private and clutter-free.</span>
-          <div class="footer-bottom-links">
-            <a href="#promise">Our Promise</a>
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How It Works</a>
+        <!-- Extraordinary Interactive Data Sovereignty Console -->
+        <div class="sovereignty-console" id="sovereignty-console">
+          <!-- Console Top Window Header -->
+          <div class="console-titlebar">
+            <div class="console-traffic-lights">
+              <span class="dot-red" style="background: #ff5f56;"></span>
+              <span class="dot-amber" style="background: #ffbd2e;"></span>
+              <span class="dot-green" style="background: #27c93f;"></span>
+            </div>
+            <span class="console-title">Local-First Cryptographic Inspector</span>
+            <div class="console-mode-tabs">
+              <button type="button" class="console-tab-btn active" data-console-mode="encrypt">Live AES-GCM</button>
+              <button type="button" class="console-tab-btn" data-console-mode="network">Air-Gap Status</button>
+              <button type="button" class="console-tab-btn" data-console-mode="schema">Local Schema</button>
+            </div>
+          </div>
+
+          <!-- Console Panels -->
+          <div class="console-body">
+            <!-- Panel 1: Live AES-GCM 256-bit Encryption Simulator -->
+            <div class="console-panel active" id="console-panel-encrypt">
+              <div class="console-interactive-row">
+                <div class="console-input-wrap">
+                  <div class="console-label">
+                    <span>1. Type plain text to encrypt locally</span>
+                    <span class="console-badge-green">&#10003; In-Browser WebCrypto</span>
+                  </div>
+                  <input
+                    type="text"
+                    id="console-plain-input"
+                    class="console-text-input"
+                    value="Launch private quarterly budget and atomic morning habits"
+                    placeholder="Type anything to test client encryption..."
+                  />
+                </div>
+
+                <div class="console-arrow-col">
+                  <div class="console-process-pill">AES-256-GCM</div>
+                </div>
+
+                <div class="console-output-wrap">
+                  <div class="console-label">
+                    <span>2. Client Ciphertext Output</span>
+                    <span class="console-badge-orange">0 Outbound Network Bytes</span>
+                  </div>
+                  <div class="console-cipher-box" id="console-cipher-display">
+                    <code>f4a1 9b88 e0c2 d317 88a4 12df b56c 99aa 01ef 77c3 44bc e190 3a51 2f4d...</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="console-explain-bar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-400">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Hardware cryptographic acceleration: Keys are derived on your CPU. No remote server ever sees the plain text or keys.</span>
+              </div>
+            </div>
+
+            <!-- Panel 2: Offline Air-Gap Simulator -->
+            <div class="console-panel" id="console-panel-network">
+              <div class="airgap-stage">
+                <div class="airgap-toggle-bar">
+                  <span class="airgap-label">Simulate Device Connectivity:</span>
+                  <div class="airgap-toggle-group">
+                    <button type="button" class="airgap-btn active" id="btn-airgap-offline">100% Airplane Mode</button>
+                    <button type="button" class="airgap-btn" id="btn-airgap-online">Normal Network</button>
+                  </div>
+                </div>
+
+                <div class="airgap-telemetry-grid">
+                  <div class="telemetry-card">
+                    <span class="telemetry-label">Outbound Cloud Requests</span>
+                    <span class="telemetry-value text-emerald" id="val-telemetry-requests">0</span>
+                    <span class="telemetry-desc">Zero tracking, analytics, or telemetry packets</span>
+                  </div>
+                  <div class="telemetry-card">
+                    <span class="telemetry-label">IndexedDB Write Latency</span>
+                    <span class="telemetry-value text-white" id="val-telemetry-latency">&lt; 1.2 ms</span>
+                    <span class="telemetry-desc">Zero network hop round-trip delays</span>
+                  </div>
+                  <div class="telemetry-card">
+                    <span class="telemetry-label">Cloud Lock-in Risk</span>
+                    <span class="telemetry-value text-orange" id="val-telemetry-lockin">0.0%</span>
+                    <span class="telemetry-desc">100% portable JSON local records</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel 3: Transparent Local Schema -->
+            <div class="console-panel" id="console-panel-schema">
+              <div class="schema-viewer-wrap">
+                <div class="schema-viewer-header">
+                  <span>Dexie.js IndexedDB Schema (Local-Only Stores)</span>
+                  <button type="button" class="btn-copy-schema" id="btn-copy-schema">&#9675; Copy Schema</button>
+                </div>
+                <pre class="schema-code-block"><code>db.version(1).stores({
+  tasks: '++id, title, completed, priority, dueDate, createdAt',
+  habits: '++id, title, frequency, streak, createdAt',
+  habitLogs: '++id, habitId, date, completed',
+  notes: '++id, title, isPinned, colorTag, updatedAt',
+  transactions: '++id, amount, category, type, date',
+  settings: 'key, value'
+}); // 100% Client-Side. No remote connection string.</code></pre>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- 7. DOWNLOAD SECTION (Windows, macOS, Linux, Android) -->
+    <section id="download" class="download-section">
+      <div class="section-header-left" style="text-align: center; margin-bottom: 2rem;">
+        <div class="section-tag" style="margin: 0 auto 0.75rem;">
+          <span class="tag-dot"></span>
+          <span class="tag-title">DOWNLOAD TASKIFY</span>
+        </div>
+        <h2 class="section-title">Available on all your devices.</h2>
+        <p class="hero-subtext" style="margin: 0.5rem auto 0; max-width: 38rem;">
+          Download native packages for your computers and Android phone. Zero accounts required to install and start using.
+        </p>
+      </div>
+
+      <div class="download-grid">
+        <!-- Windows Card -->
+        <div class="download-card">
+          <div>
+            <div class="download-card-header">
+              <div class="platform-icon-wrap platform-icon-windows">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/>
+                </svg>
+              </div>
+              <span class="platform-badge">v1.0.0 • 64-bit</span>
+            </div>
+
+            <h3 class="download-card-title">Windows</h3>
+            <p class="download-card-desc">For Windows 10 &amp; 11 PCs and laptops.</p>
+
+            <ul class="download-specs-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Global hotkeys (Cmd+K, 1-7)</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Full offline IndexedDB engine</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Standalone executable package</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-download-platform">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download for Windows (.exe)</span>
+          </a>
+        </div>
+
+        <!-- macOS Card -->
+        <div class="download-card">
+          <div>
+            <div class="download-card-header">
+              <div class="platform-icon-wrap platform-icon-mac">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.9.04-2.02.63-2.67 1.38-.58.68-1.08 1.76-1.02 2.81 1.01.08 2.07-.57 2.68-1.32z"/>
+                </svg>
+              </div>
+              <span class="platform-badge">Universal DMG</span>
+            </div>
+
+            <h3 class="download-card-title">macOS</h3>
+            <p class="download-card-desc">For Apple Silicon (M1-M4) &amp; Intel Macs.</p>
+
+            <ul class="download-specs-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Trackpad gestures and fluid physics</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Spotlight command palette search</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Dark mode auto synchronization</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-download-platform">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download for macOS (.dmg)</span>
+          </a>
+        </div>
+
+        <!-- Linux Card -->
+        <div class="download-card">
+          <div>
+            <div class="download-card-header">
+              <div class="platform-icon-wrap platform-icon-linux">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12.504 0q-.232 0-.48.021c-4.226.333-3.105 4.807-3.17 6.298c-.076 1.092-.3 1.953-1.05 3.02c-.885 1.051-2.127 2.75-2.716 4.521c-.278.832-.41 1.684-.287 2.489a.4.4 0 0 0-.11.135c-.26.268-.45.6-.663.839c-.199.199-.485.267-.797.4c-.313.136-.658.269-.864.68c-.09.189-.136.394-.132.602c0 .199.027.4.055.536c.058.399.116.728.04.97c-.249.68-.28 1.145-.106 1.484c.174.334.535.47.94.601c.81.2 1.91.135 2.774.6c.926.466 1.866.67 2.616.47c.526-.116.97-.464 1.208-.946c.587-.003 1.23-.269 2.26-.334c.699-.058 1.574.267 2.577.2c.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071s1.592-.536 2.257-1.306c.631-.765 1.683-1.084 2.378-1.503c.348-.199.629-.469.649-.853c.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926c-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.36.36 0 0 0-.19-.064c.431-1.278.264-2.55-.173-3.694c-.533-1.41-1.465-2.638-2.175-3.483c-.796-1.005-1.576-1.957-1.56-3.368c.026-2.152.236-6.133-3.544-6.139m.529 3.405h.013c.213 0 .396.062.584.198c.19.135.33.332.438.533c.105.259.158.459.166.724c0-.02.006-.04.006-.06v.105l-.004-.021l-.004-.024a1.8 1.8 0 0 1-.15.706a.95.95 0 0 1-.213.335a1 1 0 0 0-.088-.042c-.104-.045-.198-.064-.284-.133a1.3 1.3 0 0 0-.22-.066c.05-.06.146-.133.183-.198q.08-.193.088-.402v-.02a1.2 1.2 0 0 0-.061-.4c-.045-.134-.101-.2-.183-.333c-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 0 0-.209.333c-.044.134-.063.268-.063.402v.02q.008.209.088.402c.037.065.133.138.183.198a1.3 1.3 0 0 0-.22.066c-.086.069-.18.088-.284.133a1 1 0 0 0-.088.042a.95.95 0 0 1-.213-.335a1.8 1.8 0 0 1-.15-.706l-.004.024l-.004.021v-.105c0 .02.006.04.006.06c.008-.265.061-.465.166-.724c.108-.201.248-.398.438-.533c.188-.136.371-.198.584-.198h.013z"/>
+                </svg>
+              </div>
+              <span class="platform-badge">Linux 64-bit</span>
+            </div>
+
+            <h3 class="download-card-title">Linux</h3>
+            <p class="download-card-desc">For Ubuntu, Debian, Fedora, Arch &amp; openSUSE.</p>
+
+            <ul class="download-specs-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Universal .AppImage &amp; .deb packages</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Zero dependency standalone bundle</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Native Wayland &amp; X11 acceleration</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-download-platform">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download for Linux (.AppImage)</span>
+          </a>
+        </div>
+
+        <!-- Android Card (Direct Standalone APK Package) -->
+        <div class="download-card">
+          <div>
+            <div class="download-card-header">
+              <div class="platform-icon-wrap platform-icon-android">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4116 13.8533 8.0805 12 8.0805c-1.8533 0-3.5902.3311-5.1367.8692L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396"/>
+                </svg>
+              </div>
+              <span class="platform-badge">Android 10+</span>
+            </div>
+
+            <h3 class="download-card-title">Android</h3>
+            <p class="download-card-desc">Direct standalone APK package.</p>
+
+            <ul class="download-specs-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Direct standalone APK installation</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Screen edge progress focus timer</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Zero background battery drain</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="https://github.com/your-username/taskify/releases/latest" target="_blank" rel="noopener noreferrer" class="btn-download-platform">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download Android APK (.apk)</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. PROFESSIONAL STRUCTURED FOOTER -->
+    <footer class="footer-section">
+      <div class="footer-container">
+        
+        <!-- Top Callout Banner -->
+        <div class="footer-top-banner">
+          <div class="footer-underglow-aura" aria-hidden="true"></div>
+          <h2 class="footer-headline">Take back control of your day.</h2>
+          <p class="footer-subtext">
+            No subscriptions, no accounts to remember, and no cloud servers holding your life hostage. Install Taskify once and own it forever.
+          </p>
+          <div class="footer-cta-box">
+            <a href="#download" class="btn-primary-large">
+              <span>Install Taskify Free</span>
+              <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- 4-Column Structured Link Grid -->
+        <div class="footer-nav-grid">
+          <!-- Column 1: Brand & Sovereignty -->
+          <div class="footer-brand-col">
+            <a href="#hero" class="app-header-brand" aria-label="Taskify Home">
+              <span class="app-brand-name">Taskify</span>
+              <span class="app-brand-dot"></span>
+            </a>
+            <p class="footer-brand-desc" style="margin-top: 0.75rem;">
+              Private, local-first productivity operating system. Designed with tactile precision and zero server reliance.
+            </p>
+          </div>
+
+          <!-- Column 2: Product Capabilities -->
+          <div>
+            <h4 class="footer-col-title">PRODUCT</h4>
+            <ul class="footer-col-links">
+              <li><a href="#hero">Today Command Center</a></li>
+              <li><a href="#showcase">Bento Milestone Tasks</a></li>
+              <li><a href="#features">Atomic Habits & Streaks</a></li>
+              <li><a href="#notes-focus">Distraction-Free Notes</a></li>
+              <li><a href="#notes-focus">Precision Focus Ring</a></li>
+              <li><a href="#features">Daily Safe-to-Spend</a></li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Platform Binaries -->
+          <div>
+            <h4 class="footer-col-title">PLATFORMS</h4>
+            <ul class="footer-col-links">
+              <li><a href="#download">Windows 10/11 (.exe)</a></li>
+              <li><a href="#download">macOS Universal (.dmg)</a></li>
+              <li><a href="#download">Linux (.AppImage)</a></li>
+              <li><a href="#download">Android Package (.apk)</a></li>
+              <li><a href="https://github.com/your-username/taskify" target="_blank" rel="noopener noreferrer">Releases & Binaries</a></li>
+            </ul>
+          </div>
+
+          <!-- Column 4: Architecture & Open Source -->
+          <div>
+            <h4 class="footer-col-title">OPEN SOURCE</h4>
+            <ul class="footer-col-links">
+              <li><a href="https://github.com/your-username/taskify" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
+              <li><a href="https://github.com/your-username/taskify/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing Guide</a></li>
+              <li><a href="https://github.com/your-username/taskify/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Security Policy</a></li>
+              <li><a href="https://github.com/your-username/taskify/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
+              <li><a href="#commitment">Data Sovereignty Manifesto</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Bottom Copyright Strip -->
+        <div class="footer-bottom-strip">
+          <span>Taskify Open Source Project &copy; 2026. Released under the MIT License.</span>
+          <button class="footer-back-to-top" id="btn-back-to-top" aria-label="Back to top of page">
+            <span>Back to top</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          </button>
+        </div>
+
+      </div>
+    </footer>
 
   </main>
 

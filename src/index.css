@@ -812,3 +812,167 @@
   border: 1px solid rgba(255, 255, 255, 0.35);
   box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 3px 10px rgba(0, 0, 0, 0.35);
 }
+
+/* =========================================================================
+   TASKIFY FLUID NOTEPAD RICH TEXT EDITOR STYLES
+   ========================================================================= */
+.rich-note-editor {
+  outline: none !important;
+}
+
+.rich-note-editor:empty:before,
+.rich-note-editor[data-empty="true"]:before {
+  content: attr(data-placeholder);
+  color: #71717a;
+  pointer-events: none;
+  display: block;
+}
+
+.rich-note-editor h1 {
+  font-family: var(--font-display, inherit);
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+.rich-note-editor h2 {
+  font-family: var(--font-display, inherit);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-top: 0.85rem;
+  margin-bottom: 0.4rem;
+  color: #f4f4f5;
+}
+
+.rich-note-editor h3 {
+  font-family: var(--font-display, inherit);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+  color: #e4e4e7;
+}
+
+.rich-note-editor p {
+  margin-bottom: 0.6rem;
+  line-height: 1.65;
+}
+
+.rich-note-editor ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.rich-note-editor ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.rich-note-editor li {
+  margin-bottom: 0.25rem;
+  line-height: 1.55;
+}
+
+.rich-note-editor pre {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.875rem;
+  margin-bottom: 0.6rem;
+  overflow-x: auto;
+  color: #38bdf8;
+}
+
+.rich-note-editor blockquote {
+  border-left: 3px solid var(--accent-primary);
+  padding-left: 0.85rem;
+  color: #a1a1aa;
+  font-style: italic;
+  margin-bottom: 0.6rem;
+}
+
+.rich-note-editor mark {
+  padding: 0.15em 0.35em;
+  border-radius: 0.3em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Note Checklist Rows & Paper Light Theme */
+.rich-note-editor .note-checklist-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+  user-select: text;
+}
+
+.rich-note-editor .note-checklist-row input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.2rem;
+  border-radius: 0.25rem;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.rich-note-editor .note-checklist-row input[type="checkbox"]:checked + span {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.notepad-paper-light {
+  background-color: #fcfbf9 !important;
+  color: #18181b !important;
+}
+
+.notepad-paper-light .rich-note-editor {
+  color: #18181b !important;
+}
+
+.notepad-paper-light .rich-note-editor:empty:before,
+.notepad-paper-light .rich-note-editor[data-empty="true"]:before {
+  color: #a1a1aa !important;
+}
+
+.notepad-paper-light .rich-note-editor h1,
+.notepad-paper-light .rich-note-editor h2,
+.notepad-paper-light .rich-note-editor h3 {
+  color: #09090b !important;
+}
+
+.notepad-paper-light .rich-note-editor p,
+.notepad-paper-light .rich-note-editor li,
+.notepad-paper-light .rich-note-editor ul,
+.notepad-paper-light .rich-note-editor ol {
+  color: #27272a !important;
+}
+
+.notepad-paper-light .rich-note-editor blockquote {
+  color: #52525b !important;
+  border-left-color: var(--accent-primary) !important;
+}
+
+.notepad-paper-light .rich-note-editor pre {
+  background: #f4f4f5 !important;
+  border: 1px solid #e4e4e7 !important;
+  color: #0284c7 !important;
+}
+
+.notepad-paper-light .rich-note-editor .note-checklist-row span {
+  color: #18181b !important;
+}
+

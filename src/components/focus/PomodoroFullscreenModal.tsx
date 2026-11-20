@@ -1,12 +1,28 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Bell, RotateCcw, Sparkles, SlidersHorizontal, Sliders, Check, Timer } from 'lucide-react';
+import {
+  Play,
+  Pause,
+  X,
+  Bell,
+  RotateCcw,
+  Sparkles,
+  SlidersHorizontal,
+  Sliders,
+  Check,
+  Timer,
+  Settings,
+  Volume2,
+  VolumeX,
+  Moon,
+} from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import { useFocusTimer } from '../../hooks/useFocusTimer';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
+import { APPLE_SPRINGS } from '../../utils/motion';
 import { TaskifyNativeWidget } from '../../utils/widgetSync';
 
 interface PomodoroPresetOption {
@@ -46,19 +62,23 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
     formattedTime,
     progress,
     remainingSeconds,
+    isMuted,
     start,
     pause,
     resume,
     reset,
     setCustomDuration,
+    toggleMute,
   } = useFocusTimer();
 
   const { settings, updateSettings } = useApp();
-  const isEdgeProgressOn = settings.focusEdgeProgress !== false;
+  const [localEdgeProgress, setLocalEdgeProgress] = useState<boolean | null>(null);
+  const isEdgeProgressOn = localEdgeProgress !== null ? localEdgeProgress : (settings.focusEdgeProgress !== false);
 
   const [isDimmed, setIsDimmed] = useState(false);
   const [selectedPresetSeconds, setSelectedPresetSeconds] = useState<number>(25 * 60);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [customMinutes, setCustomMinutes] = useState(25);
   const [customSecondsInput, setCustomSecondsInput] = useState(0);
 
@@ -129,8 +149,15 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
       if (e.key === 'Escape') {
         e.preventDefault();
         feedback.playClick();
-        onClose();
+        if (isCustomModalOpen) {
+          setIsCustomModalOpen(false);
+        } else if (isSettingsOpen) {
+          setIsSettingsOpen(false);
+        } else {
+          onClose();
+        }
       } else if (e.code === 'Space') {
+        if (isCustomModalOpen || isSettingsOpen) return;
         e.preventDefault();
         feedback.playClick();
         if (status === 'running') {
@@ -142,6 +169,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
         }
         resetInactivityTimer();
       } else if (e.key === 'r' || e.key === 'R') {
+        if (isCustomModalOpen || isSettingsOpen) return;
         e.preventDefault();
         feedback.playClick();
         reset();
@@ -178,7 +206,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
       window.removeEventListener('touchstart', handleInteraction);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, resetInactivityTimer, status, pause, resume, start, reset, onClose]);
+  }, [isOpen, resetInactivityTimer, status, pause, resume, start, reset, onClose, isCustomModalOpen, isSettingsOpen]);
 
   // Mobile Native Immersive Mode & Status Bar Removal
   useEffect(() => {
@@ -252,7 +280,6 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
   }, [remainingSeconds]);
 
   const [safeArea, setSafeArea] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
-  const [isEdgeCalibrationOpen, setIsEdgeCalibrationOpen] = useState(false);
 
   // Measure hardware safe area insets dynamically to detect display notch, dynamic island, or curved bezel
   useEffect(() => {
@@ -282,11 +309,8 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
   const autoCalculatedRadius = useMemo(() => {
     if (isDesktop) return 24;
     const maxSafe = Math.max(safeArea.top, safeArea.bottom);
-    // Extreme curvature modern displays (Pixel 8/9, iPhone 14/15/16 Pro, Vivo curved AMOLEDs: radius 48-52px)
     if (maxSafe >= 44) return 50;
-    // Standard hole-punch / gesture bar displays
     if (maxSafe >= 28) return 42;
-    // Classic devices
     return Capacitor.isNativePlatform() ? 40 : 32;
   }, [isDesktop, safeArea.top, safeArea.bottom]);
 
@@ -314,7 +338,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
 
   // Desktop Precision circular dial math
   const dialRadius = 96;
-  const dialCircumference = 2 * Math.PI * dialRadius; // ~603.185
+  const dialCircumference = 2 * Math.PI * dialRadius;
   const dialOffset = dialCircumference * (1 - progressRatio);
 
   const handleToggleTimer = (e: React.MouseEvent) => {
@@ -344,19 +368,266 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
     resetInactivityTimer();
   };
 
-  const handleToggleEdgeProgress = async () => {
+  const handleToggleEdgeProgress = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const nextVal = !isEdgeProgressOn;
+    setLocalEdgeProgress(nextVal);
     feedback.playClick();
     await updateSettings({ focusEdgeProgress: nextVal });
   };
 
   if (!isOpen || typeof document === 'undefined') return null;
 
+  // =========================================================================
+  // DEDICATED APPLE FROSTED GLASS POMODORO SETTINGS SHEET
+  // =========================================================================
+  const renderSettingsModal = () => (
+    <AnimatePresence>
+      {isSettingsOpen && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none touch-manipulation"
+          onClick={(e) => {
+            e.stopPropagation();
+            feedback.playClick();
+            setIsSettingsOpen(false);
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 14 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 14 }}
+            transition={APPLE_SPRINGS.modal}
+            className="w-full max-w-md rounded-3xl bg-zinc-900/95 border border-white/15 p-5 sm:p-6 shadow-2xl flex flex-col gap-4 text-left relative z-10 max-h-[88vh] overflow-y-auto no-scrollbar"
+            onClick={(e) => e.stopPropagation()}
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                  <SlidersHorizontal className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-display text-sm font-bold text-white">Timer & Display Settings</h4>
+                  <p className="text-[10px] text-zinc-400 font-mono">Edge glow, sound chimes & curvature</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  feedback.playClick();
+                  setIsSettingsOpen(false);
+                }}
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-400 hover:text-white pressable cursor-pointer"
+                title="Close Settings"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Section 1: Screen Edge Progress Bar Toggle */}
+            <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/8 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-orange-400" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-white">Screen Edge Progress Glow</span>
+                  <span className="text-[10px] text-zinc-400 leading-tight">
+                    Glowing perimeter contour along display edges
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isEdgeProgressOn}
+                onClick={(e) => handleToggleEdgeProgress(e)}
+                className={`w-11 h-6 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center shrink-0 ${
+                  isEdgeProgressOn ? 'bg-[#F26A36] justify-end' : 'bg-zinc-700 justify-start'
+                }`}
+              >
+                <motion.div
+                  layout
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  className="w-5 h-5 rounded-full bg-white shadow-md"
+                />
+              </button>
+            </div>
+
+            {/* Section 2: Corner Curvature Calibration */}
+            <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/8 flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sliders className="w-3.5 h-3.5 text-orange-400" />
+                  <span className="text-xs font-semibold text-white">Corner Curvature (Radius)</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    feedback.playClick();
+                    await updateSettings({
+                      focusEdgeRadius: isAutoRadius ? 38 : 'auto',
+                    });
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer ${
+                    isAutoRadius
+                      ? 'bg-orange-500 text-white border-orange-400'
+                      : 'bg-zinc-800 text-zinc-400 border-white/10'
+                  }`}
+                >
+                  {isAutoRadius ? 'Auto Fit Active' : 'Manual'}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-6 gap-1.5 pt-1">
+                {[
+                  { label: 'Auto', val: 'auto', desc: 'Auto' },
+                  { label: '0px', val: 0, desc: 'Square' },
+                  { label: '24px', val: 24, desc: 'Subtle' },
+                  { label: '38px', val: 38, desc: 'Normal' },
+                  { label: '48px', val: 48, desc: 'Curved' },
+                  { label: '56px', val: 56, desc: 'Extreme' },
+                ].map((item) => {
+                  const isSelected =
+                    item.val === 'auto'
+                      ? isAutoRadius
+                      : !isAutoRadius && effectiveRadius === item.val;
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={async () => {
+                        feedback.playClick();
+                        await updateSettings({ focusEdgeRadius: item.val as any });
+                      }}
+                      className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-orange-500 text-white border-orange-400 shadow-sm font-bold'
+                          : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
+                      }`}
+                    >
+                      <span className="text-xs font-bold leading-tight">{item.label}</span>
+                      <span className="text-[8px] opacity-75">{item.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section 3: Bezel Inset (Padding) */}
+            <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/8 flex flex-col gap-2">
+              <span className="text-xs font-semibold text-white">Bezel Inset (Glass Padding)</span>
+              <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                {[
+                  { label: '2px', val: 2, desc: 'Edge' },
+                  { label: '4px', val: 4, desc: 'Standard' },
+                  { label: '6px', val: 6, desc: 'Deep' },
+                  { label: '8px', val: 8, desc: 'Safe' },
+                ].map((item) => {
+                  const isSelected = effectiveInset === item.val;
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={async () => {
+                        feedback.playClick();
+                        await updateSettings({ focusEdgeInset: item.val });
+                      }}
+                      className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-orange-500 text-white border-orange-400 shadow-sm font-bold'
+                          : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
+                      }`}
+                    >
+                      <span className="text-xs font-bold leading-tight">{item.label}</span>
+                      <span className="text-[8px] opacity-75">{item.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section 4: Audio Chimes */}
+            <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/8 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                  {isMuted ? (
+                    <VolumeX className="w-4 h-4 text-zinc-400" />
+                  ) : (
+                    <Volume2 className="w-4 h-4 text-orange-400" />
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-white">Solfeggio Milestone Chimes</span>
+                  <span className="text-[10px] text-zinc-400 leading-tight">
+                    Harmonic bell chime plays when focus cycle completes
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={!isMuted}
+                onClick={() => {
+                  feedback.playClick();
+                  toggleMute();
+                }}
+                className={`w-11 h-6 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center shrink-0 ${
+                  !isMuted ? 'bg-[#F26A36] justify-end' : 'bg-zinc-700 justify-start'
+                }`}
+              >
+                <motion.div
+                  layout
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  className="w-5 h-5 rounded-full bg-white shadow-md"
+                />
+              </button>
+            </div>
+
+            {/* Section 5: OLED Pitch-Black Auto-Dim Hint */}
+            <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/8 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center shrink-0 text-zinc-400">
+                <Moon className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-xs font-semibold text-zinc-200">5-Second OLED Auto-Dim</span>
+                <span className="text-[10px] text-zinc-500 leading-tight">
+                  Display switches to pitch-black power saver after 5s when timer runs. Tap screen to wake.
+                </span>
+              </div>
+            </div>
+
+            {/* Done Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                feedback.playClick();
+                setIsSettingsOpen(false);
+              }}
+              className="w-full h-11 rounded-xl font-bold text-xs text-white bg-orange-500 hover:bg-orange-600 transition-colors pressable shadow-lg shadow-orange-500/20 cursor-pointer flex items-center justify-center gap-1.5 mt-1"
+            >
+              <Check className="w-4 h-4 stroke-[2.5]" />
+              <span>Done</span>
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+
+  // =========================================================================
+  // CUSTOM TIMER DURATION MODAL
+  // =========================================================================
   const renderCustomModal = () => (
     <AnimatePresence>
       {isCustomModalOpen && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none touch-manipulation"
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none touch-manipulation"
           onClick={(e) => {
             e.stopPropagation();
             setIsCustomModalOpen(false);
@@ -471,7 +742,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
   );
 
   // =========================================================================
-  // 1. DESKTOP / PC VIEW: Centered Glass Dialog
+  // 1. DESKTOP / PC VIEW: Clean Minimalist Apple Centered Glass Dialog
   // =========================================================================
   if (isDesktop) {
     return createPortal(
@@ -494,7 +765,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
             }
           }}
         >
-          {/* Fullscreen Edge Perimeter Glowing Progress Bar (Lights up in Pomodoro timer, persists in pitch black OLED mode) */}
+          {/* Fullscreen Edge Perimeter Glowing Progress Bar */}
           {isEdgeProgressOn && (
             <svg
               className="fixed inset-0 w-full h-full pointer-events-none z-30"
@@ -502,7 +773,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                 filter: 'drop-shadow(0 0 8px rgba(242, 106, 54, 0.75))',
               }}
             >
-              {/* Subtle dim track (hidden when pitch-black dimmed) */}
+              {/* Subtle dim track */}
               <rect
                 x={padding}
                 y={padding}
@@ -548,7 +819,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
             style={{ pointerEvents: isDimmed ? 'none' : 'auto' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header: Session Status & Close Button */}
+            {/* Clean Header: Session Status Pill, Settings Button, Close Button */}
             <div className="w-full flex items-center justify-between mb-5">
               <div className="flex items-center gap-2 px-3 py-1 rounded-full glass-expo-pill text-xs font-semibold text-zinc-300">
                 <span
@@ -570,16 +841,16 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                   type="button"
                   onClick={() => {
                     feedback.playClick();
-                    setIsEdgeCalibrationOpen((prev) => !prev);
+                    setIsSettingsOpen(true);
                   }}
                   className={`w-8 h-8 rounded-full glass-expo-interactive flex items-center justify-center cursor-pointer transition-colors ${
-                    isEdgeCalibrationOpen
+                    isSettingsOpen
                       ? 'text-orange-400 border-orange-500/40 bg-orange-500/20'
                       : 'text-zinc-400 hover:text-white'
                   }`}
-                  title="Calibrate Screen Edge Corner Radius & Inset"
+                  title="Timer & Display Settings"
                 >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <Settings className="w-3.5 h-3.5" />
                 </button>
 
                 <button
@@ -596,132 +867,6 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                 </button>
               </div>
             </div>
-
-            {/* Screen Edge Corner Radius & Inset Calibration Panel */}
-            <AnimatePresence>
-              {isEdgeCalibrationOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                  className="w-full rounded-2xl bg-zinc-900/95 border border-white/15 p-4 shadow-2xl flex flex-col gap-3 mb-4 z-50 text-left overflow-hidden"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
-                >
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <div className="flex items-center gap-2">
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-orange-400" />
-                      <span className="text-xs font-bold text-white">Edge Contour Calibration</span>
-                    </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300">
-                      {effectiveRadius}px radius • {effectiveInset}px inset
-                    </span>
-                  </div>
-
-                  {/* Auto Adaptive Mode */}
-                  <div className="flex items-center justify-between py-0.5">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-zinc-200">Auto-Fit Screen Curves</span>
-                      <span className="text-[10px] text-zinc-500">
-                        Adapts to device bezel ({autoCalculatedRadius}px auto)
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        feedback.playClick();
-                        await updateSettings({
-                          focusEdgeRadius: isAutoRadius ? 38 : 'auto',
-                        });
-                      }}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                        isAutoRadius
-                          ? 'bg-orange-500 text-white border-orange-400'
-                          : 'bg-zinc-800 text-zinc-400 border-white/10'
-                      }`}
-                    >
-                      {isAutoRadius ? 'Auto Active' : 'Manual'}
-                    </button>
-                  </div>
-
-                  {/* Radius Presets */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-                      Corner Curvature (Border Radius)
-                    </span>
-                    <div className="grid grid-cols-6 gap-1.5">
-                      {[
-                        { label: 'Auto', val: 'auto', desc: 'Auto Fit' },
-                        { label: '0px', val: 0, desc: 'Square' },
-                        { label: '24px', val: 24, desc: 'Subtle' },
-                        { label: '38px', val: 38, desc: 'Standard' },
-                        { label: '48px', val: 48, desc: 'Curved' },
-                        { label: '56px', val: 56, desc: 'Extreme' },
-                      ].map((item) => {
-                        const isSelected =
-                          item.val === 'auto'
-                            ? isAutoRadius
-                            : !isAutoRadius && effectiveRadius === item.val;
-                        return (
-                          <button
-                            key={item.label}
-                            type="button"
-                            onClick={async () => {
-                              feedback.playClick();
-                              await updateSettings({ focusEdgeRadius: item.val as any });
-                            }}
-                            className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
-                              isSelected
-                                ? 'bg-orange-500 text-white border-orange-400 shadow-sm font-bold'
-                                : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
-                            }`}
-                          >
-                            <span className="text-xs font-bold leading-tight">{item.label}</span>
-                            <span className="text-[8px] opacity-75">{item.desc}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Inset Padding Presets */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-                      Bezel Inset (Padding from Glass)
-                    </span>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {[
-                        { label: '2px', val: 2, desc: 'Edge' },
-                        { label: '4px', val: 4, desc: 'Standard' },
-                        { label: '6px', val: 6, desc: 'Deep' },
-                        { label: '8px', val: 8, desc: 'Safe' },
-                      ].map((item) => {
-                        const isSelected = effectiveInset === item.val;
-                        return (
-                          <button
-                            key={item.label}
-                            type="button"
-                            onClick={async () => {
-                              feedback.playClick();
-                              await updateSettings({ focusEdgeInset: item.val });
-                            }}
-                            className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
-                              isSelected
-                                ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
-                                : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
-                            }`}
-                          >
-                            <span className="text-xs font-bold leading-tight">{item.label}</span>
-                            <span className="text-[8px] opacity-75">{item.desc}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* Precision Circular Dial */}
             <div className="relative w-[230px] h-[230px] flex items-center justify-center my-2">
@@ -809,7 +954,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                 const isSelected = selectedPresetSeconds === p.seconds;
                 return (
                   <button
-                    key={p.id}
+                    key={`desktop-preset-${p.id}`}
                     type="button"
                     onClick={() => handleSelectPresetSeconds(p.seconds)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all pressable cursor-pointer active:scale-95 ${
@@ -848,40 +993,6 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
               </button>
             </div>
 
-            {/* Screen Edge Progress Bar Toggle Bar */}
-            <div className="w-full flex items-center justify-between px-4 py-3 rounded-2xl glass-expo-pill mt-5">
-              <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4 text-orange-400" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-xs font-semibold text-zinc-200">
-                    Screen Edge Progress Bar
-                  </span>
-                  <span className="text-[10px] text-zinc-500 leading-tight">
-                    Glowing perimeter contour along monitor edges
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                role="switch"
-                aria-checked={isEdgeProgressOn}
-                onClick={handleToggleEdgeProgress}
-                className={`w-11 h-6 rounded-full transition-colors relative pressable cursor-pointer p-0.5 flex items-center ${
-                  isEdgeProgressOn ? 'bg-[#F26A36] justify-end' : 'bg-zinc-700 justify-start'
-                }`}
-                title={isEdgeProgressOn ? 'Turn off screen edge progress bar' : 'Turn on screen edge progress bar'}
-              >
-                <motion.div
-                  layout
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  className="w-5 h-5 rounded-full bg-white shadow-md"
-                />
-              </button>
-            </div>
-
             {/* Desktop Keyboard Shortcuts Reference */}
             <div className="w-full flex items-center justify-center gap-3 mt-6 pt-4 border-t border-white/[0.06] text-[11px] text-zinc-500 font-medium">
               <span>
@@ -913,6 +1024,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
           </motion.div>
         </div>
         {renderCustomModal()}
+        {renderSettingsModal()}
       </AnimatePresence>,
       document.body
     );
@@ -936,43 +1048,45 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
         }}
       >
         {/* Fullscreen Edge Perimeter Glowing Progress Bar */}
-        <svg
-          className="fixed inset-0 w-full h-full pointer-events-none z-30"
-          style={{
-            filter: 'drop-shadow(0 0 6px rgba(242, 106, 54, 0.75))',
-          }}
-        >
-          {/* Subtle dim track (hidden when pitch-black dimmed) */}
-          <rect
-            x={padding}
-            y={padding}
-            width={rectW}
-            height={rectH}
-            rx={cornerRadius}
-            ry={cornerRadius}
-            fill="none"
-            stroke={isDimmed ? 'none' : 'rgba(242, 106, 54, 0.12)'}
-            strokeWidth={strokeWidth}
-          />
-          {/* Active glowing orange contour */}
-          <rect
-            x={padding}
-            y={padding}
-            width={rectW}
-            height={rectH}
-            rx={cornerRadius}
-            ry={cornerRadius}
-            fill="none"
-            stroke="#F26A36"
-            strokeWidth={strokeWidth}
-            strokeDasharray={perimeter}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
+        {isEdgeProgressOn && (
+          <svg
+            className="fixed inset-0 w-full h-full pointer-events-none z-30"
             style={{
-              transition: 'stroke-dashoffset 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)',
+              filter: 'drop-shadow(0 0 6px rgba(242, 106, 54, 0.75))',
             }}
-          />
-        </svg>
+          >
+            {/* Subtle dim track */}
+            <rect
+              x={padding}
+              y={padding}
+              width={rectW}
+              height={rectH}
+              rx={cornerRadius}
+              ry={cornerRadius}
+              fill="none"
+              stroke={isDimmed ? 'none' : 'rgba(242, 106, 54, 0.12)'}
+              strokeWidth={strokeWidth}
+            />
+            {/* Active glowing orange contour */}
+            <rect
+              x={padding}
+              y={padding}
+              width={rectW}
+              height={rectH}
+              rx={cornerRadius}
+              ry={cornerRadius}
+              fill="none"
+              stroke="#F26A36"
+              strokeWidth={strokeWidth}
+              strokeDasharray={perimeter}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              style={{
+                transition: 'stroke-dashoffset 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)',
+              }}
+            />
+          </svg>
+        )}
 
         {/* Main Controls Overlay: Fades out in OLED Black Auto-Dim mode */}
         <motion.div
@@ -984,7 +1098,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
           className="w-full max-w-sm flex flex-col items-center justify-between flex-1 px-4 z-40"
           style={{ pointerEvents: isDimmed ? 'none' : 'auto' }}
         >
-          {/* Header Row: Calibration Button, Close Button & Subtle Mode Status */}
+          {/* Clean Mobile Header Row: Status Pill, Settings Button & Close Button */}
           <div className="w-full flex items-center justify-between pt-1 pb-3">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/80 border border-white/8 text-[11px] font-semibold text-zinc-400">
               <span className="w-2 h-2 rounded-full bg-[#F26A36] animate-pulse" />
@@ -997,16 +1111,16 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
                 onClick={(e) => {
                   e.stopPropagation();
                   feedback.playClick();
-                  setIsEdgeCalibrationOpen((prev) => !prev);
+                  setIsSettingsOpen(true);
                 }}
                 className={`w-8 h-8 rounded-full border flex items-center justify-center pressable active:scale-95 cursor-pointer transition-colors ${
-                  isEdgeCalibrationOpen
+                  isSettingsOpen
                     ? 'bg-orange-500/20 text-orange-400 border-orange-500/40'
                     : 'bg-zinc-900 border-white/10 text-zinc-400 hover:text-white'
                 }`}
-                title="Calibrate Screen Edge Corner Radius & Inset"
+                title="Timer & Display Settings"
               >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <Settings className="w-3.5 h-3.5" />
               </button>
 
               <button
@@ -1023,132 +1137,6 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
               </button>
             </div>
           </div>
-
-          {/* Mobile Screen Edge Calibration Panel */}
-          <AnimatePresence>
-            {isEdgeCalibrationOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full rounded-2xl bg-zinc-900/95 border border-white/15 p-4 shadow-2xl flex flex-col gap-3 mb-4 z-50 text-left overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-                style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
-              >
-                <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-orange-400" />
-                    <span className="text-xs font-bold text-white">Edge Contour Calibration</span>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300">
-                    {effectiveRadius}px radius • {effectiveInset}px inset
-                  </span>
-                </div>
-
-                {/* Auto Adaptive Mode */}
-                <div className="flex items-center justify-between py-0.5">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-zinc-200">Auto-Fit Screen Curves</span>
-                    <span className="text-[10px] text-zinc-500">
-                      Adapts to device bezel ({autoCalculatedRadius}px auto)
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      feedback.playClick();
-                      await updateSettings({
-                        focusEdgeRadius: isAutoRadius ? 48 : 'auto',
-                      });
-                    }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                      isAutoRadius
-                        ? 'bg-orange-500 text-white border-orange-400'
-                        : 'bg-zinc-800 text-zinc-400 border-white/10'
-                    }`}
-                  >
-                    {isAutoRadius ? 'Auto Active' : 'Manual'}
-                  </button>
-                </div>
-
-                {/* Radius Presets */}
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-                    Corner Curvature (Border Radius)
-                  </span>
-                  <div className="grid grid-cols-6 gap-1.5">
-                    {[
-                      { label: 'Auto', val: 'auto', desc: 'Auto Fit' },
-                      { label: '0px', val: 0, desc: 'Square' },
-                      { label: '24px', val: 24, desc: 'Subtle' },
-                      { label: '38px', val: 38, desc: 'Standard' },
-                      { label: '48px', val: 48, desc: 'Curved' },
-                      { label: '56px', val: 56, desc: 'Extreme' },
-                    ].map((item) => {
-                      const isSelected =
-                        item.val === 'auto'
-                          ? isAutoRadius
-                          : !isAutoRadius && effectiveRadius === item.val;
-                      return (
-                        <button
-                          key={item.label}
-                          type="button"
-                          onClick={async () => {
-                            feedback.playClick();
-                            await updateSettings({ focusEdgeRadius: item.val as any });
-                          }}
-                          className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
-                            isSelected
-                              ? 'bg-orange-500 text-white border-orange-400 shadow-sm font-bold'
-                              : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
-                          }`}
-                        >
-                          <span className="text-xs font-bold leading-tight">{item.label}</span>
-                          <span className="text-[8px] opacity-75">{item.desc}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Inset Padding Presets */}
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-                    Bezel Inset (Padding from Glass)
-                  </span>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {[
-                      { label: '2px', val: 2, desc: 'Edge' },
-                      { label: '4px', val: 4, desc: 'Standard' },
-                      { label: '6px', val: 6, desc: 'Deep' },
-                      { label: '8px', val: 8, desc: 'Safe' },
-                    ].map((item) => {
-                      const isSelected = effectiveInset === item.val;
-                      return (
-                        <button
-                          key={item.label}
-                          type="button"
-                          onClick={async () => {
-                            feedback.playClick();
-                            await updateSettings({ focusEdgeInset: item.val });
-                          }}
-                          className={`py-1 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
-                            isSelected
-                              ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
-                              : 'bg-zinc-800/80 text-zinc-400 border-white/8 hover:text-white hover:bg-zinc-800'
-                          }`}
-                        >
-                          <span className="text-xs font-bold leading-tight">{item.label}</span>
-                          <span className="text-[8px] opacity-75">{item.desc}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Top Pill Capsule: Compact Pill */}
           <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-[#111113] border border-white/10 shadow-lg mb-4">
@@ -1261,7 +1249,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
               const isSelected = selectedPresetSeconds === p.seconds;
               return (
                 <button
-                  key={p.id}
+                  key={`mobile-preset-${p.id}`}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1307,6 +1295,7 @@ export const PomodoroFullscreenModal: React.FC<PomodoroFullscreenModalProps> = (
       </div>
 
       {renderCustomModal()}
+      {renderSettingsModal()}
     </AnimatePresence>,
     document.body
   );

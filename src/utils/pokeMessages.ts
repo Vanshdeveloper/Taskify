@@ -103,28 +103,28 @@ const ALL_COMPLETED_POKES = [
   }),
   (name: string) => ({
     emoji: '👑',
-    title: 'Clean sweep, absolute legend!',
-    body: `Zero tasks pending, ${name}. You officially own this rest—enjoy your royal evening!`,
+    title: 'Clean sweep!',
+    body: `Zero tasks pending, ${name}. Have a restful evening.`,
   }),
   (name: string) => ({
     emoji: '🍕',
-    title: 'Guilt-free relaxation unlocked!',
-    body: `Every single objective conquered today, ${name}! Put your feet up, you earned every bit of this.`,
+    title: 'Done for the day',
+    body: `Every objective is finished today, ${name}. Time to relax.`,
   }),
   (name: string) => ({
     emoji: '🛋️',
-    title: 'The throne is yours tonight!',
-    body: `Mission fully accomplished, ${name}! Enjoy your evening like royalty with 100% peace of mind.`,
+    title: 'All done tonight',
+    body: `Your list is clear, ${name}. Enjoy your evening.`,
   }),
   (name: string) => ({
     emoji: '🏆',
-    title: 'Undeniable victory today!',
-    body: `Nothing left on your to-do list, ${name}. Sleep like royalty tonight, you own this rest!`,
+    title: 'Day complete',
+    body: `Nothing left on your to-do list, ${name}. Rest well.`,
   }),
   (name: string) => ({
     emoji: '🎉',
-    title: 'All clear for the day!',
-    body: `Every task is finished, ${name}. Go do whatever you love—you've earned every minute of it!`,
+    title: 'All clear for the day',
+    body: `Every task is finished, ${name}. Enjoy the rest of your day.`,
   }),
   (name: string) => ({
     emoji: '🧘',

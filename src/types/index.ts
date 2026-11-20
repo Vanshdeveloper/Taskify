@@ -128,9 +128,11 @@ export interface UserSettings {
   navbarGlass?: NavbarGlass;
   hapticFeedback?: boolean;
   hapticSound?: HapticSoundStyle;
+  hapticIntensity?: number; // Vibration motor intensity (0 - 100%)
   focusEdgeProgress?: boolean;
   focusEdgeRadius?: number | 'auto';
   focusEdgeInset?: number;
+  hasSeenTour?: boolean;
 }
 
 export interface ScratchCard {
@@ -139,6 +141,7 @@ export interface ScratchCard {
   content: string;
   backContent?: string;
   isTwoSided?: boolean;
+  isPinned?: boolean;
   category?: string;
   color?: string;
   createdAt: string;

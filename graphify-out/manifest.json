@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "android/app/capacitor.build.gradle": {
-    "mtime": 1794833248.1576505,
-    "seen": 1794837175.9861364,
+    "mtime": 1794920500.9589489,
+    "seen": 1794923088.0721848,
     "ast_hash": "06796b9d95b34bdd34d57405c42f101d",
     "semantic_hash": ""
   },
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyWidgetProvider.java": {
-    "mtime": 1794835792.3079262,
-    "seen": 1794837175.9861364,
-    "ast_hash": "5ea956b64eb79087efe8b3cf2ad41791",
+    "mtime": 1794837776.1490781,
+    "seen": 1794840698.26938,
+    "ast_hash": "2b74e3b507db530dcc8cb175406e735a",
     "semantic_hash": ""
   },
   "android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "android/capacitor.settings.gradle": {
-    "mtime": 1794833248.1566505,
-    "seen": 1794837175.9861364,
+    "mtime": 1794920500.9589489,
+    "seen": 1794923088.0721848,
     "ast_hash": "8087b83c314c84daec05cc78bec69ec5",
     "semantic_hash": ""
   },
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "ios/App/CapApp-SPM/Package.swift": {
-    "mtime": 1794833248.3327165,
-    "seen": 1794837175.9861364,
+    "mtime": 1794920501.1655655,
+    "seen": 1794923088.0721848,
     "ast_hash": "e653513245e72fd597b2d8d7f0d7c0d8",
     "semantic_hash": ""
   },
@@ -540,21 +540,21 @@
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1794807138.4467006,
-    "seen": 1794807406.6314409,
-    "ast_hash": "8f1e5c62acf086d72bd081a767a97c5f",
+    "mtime": 1794922571.5081427,
+    "seen": 1794923088.0721848,
+    "ast_hash": "34b95cf63eb62014d66b2634f022f517",
     "semantic_hash": ""
   },
   "src/components/analytics/ExecutiveDashboardView.tsx": {
-    "mtime": 1794835512.3013647,
-    "seen": 1794837175.9861364,
-    "ast_hash": "2e5aa8c36482abcb5d4c773164086cd6",
+    "mtime": 1794983569.1671288,
+    "seen": 1794983699.2625473,
+    "ast_hash": "9dfc2d6f25f529baf77f3e57a8975ecc",
     "semantic_hash": ""
   },
   "src/components/finance/FinanceView.tsx": {
-    "mtime": 1794802502.2326162,
-    "seen": 1794803435.474713,
-    "ast_hash": "97a71dbd10cfef8785fc9f360dbf7efb",
+    "mtime": 1795166686.857663,
+    "seen": 1795166817.8771281,
+    "ast_hash": "2f73140f29f72b20e6ece8ed0eb6a090",
     "semantic_hash": ""
   },
   "src/components/focus/FocusTimerModal.tsx": {
@@ -570,15 +570,15 @@
     "semantic_hash": ""
   },
   "src/components/habits/HabitsView.tsx": {
-    "mtime": 1794802533.0007596,
-    "seen": 1794803435.474713,
-    "ast_hash": "76e7953181cdc8d3a2567c0d9e506b5c",
+    "mtime": 1794890632.9425395,
+    "seen": 1794890941.1775377,
+    "ast_hash": "9669b7d46acb1d0be1de13eab8819b5d",
     "semantic_hash": ""
   },
   "src/components/habits/StreakHeatmap.tsx": {
-    "mtime": 1794287711.5890875,
-    "seen": 1794412837.3264132,
-    "ast_hash": "6cd31713f4509fd99beaf1fc43b65847",
+    "mtime": 1795069770.7108088,
+    "seen": 1795094757.4103498,
+    "ast_hash": "672db8331f09cd525d115769ec3f25f3",
     "semantic_hash": ""
   },
   "src/components/layout/LiquidTabViewport.tsx": {
@@ -594,33 +594,33 @@
     "semantic_hash": ""
   },
   "src/components/layout/Navbar.tsx": {
-    "mtime": 1794810209.2730558,
-    "seen": 1794811101.9898262,
+    "mtime": 1794911759.8737671,
+    "seen": 1794912058.2871337,
     "ast_hash": "ab10859f8bc8353fb186b42a5f12c117",
     "semantic_hash": ""
   },
   "src/components/layout/Sidebar.tsx": {
-    "mtime": 1794823751.138371,
-    "seen": 1794824005.3698652,
-    "ast_hash": "304627c8a880e92f6100c0828da60f08",
+    "mtime": 1794840236.3505688,
+    "seen": 1794840698.26938,
+    "ast_hash": "87bdd9d4cd5a813f1bf320ff1e5e5a51",
     "semantic_hash": ""
   },
   "src/components/layout/SlideOverInspector.tsx": {
-    "mtime": 1794802832.8529024,
-    "seen": 1794803435.474713,
-    "ast_hash": "efc2d746f3f23a89e34c50c8a8e63ff8",
+    "mtime": 1795069653.318067,
+    "seen": 1795094757.41135,
+    "ast_hash": "10dc1f52abd4ee2bf211a19d7b001815",
     "semantic_hash": ""
   },
   "src/components/modals/ConfirmDeleteModal.tsx": {
-    "mtime": 1794327416.590799,
-    "seen": 1794412837.3264265,
-    "ast_hash": "f9337d6c4bb6567f3c7afb05cdbddad7",
+    "mtime": 1794887209.2516596,
+    "seen": 1794889522.4426231,
+    "ast_hash": "a9ff0e54292a9b496ce2798bbc0bb67c",
     "semantic_hash": ""
   },
   "src/components/modals/FinanceModal.tsx": {
-    "mtime": 1794802301.58561,
-    "seen": 1794803435.474713,
-    "ast_hash": "726290c546da2b6be2993528094ead64",
+    "mtime": 1795097548.7827456,
+    "seen": 1795097694.69888,
+    "ast_hash": "c6ea4328ca829ab39453cbdbe162d010",
     "semantic_hash": ""
   },
   "src/components/modals/HabitModal.tsx": {
@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "src/components/settings/SettingsView.tsx": {
-    "mtime": 1794831853.1832488,
-    "seen": 1794832504.7417629,
-    "ast_hash": "ef57aff1f76df4f85c8b1eb67a99d0b5",
+    "mtime": 1795166334.7796123,
+    "seen": 1795166817.8772104,
+    "ast_hash": "7a3ed4c8bce06075d5d2a77c70e586a7",
     "semantic_hash": ""
   },
   "src/components/settings/ThemeStudio.tsx": {
@@ -684,15 +684,15 @@
     "semantic_hash": ""
   },
   "src/components/tasks/TasksView.tsx": {
-    "mtime": 1794811767.080409,
-    "seen": 1794812307.6968796,
-    "ast_hash": "43638a004466e991f1fcd5f4a2a4e168",
+    "mtime": 1794890610.0053267,
+    "seen": 1794890941.1775377,
+    "ast_hash": "64fdffce9a27f7ccdae26a8ec9651d78",
     "semantic_hash": ""
   },
   "src/components/today/TodayView.tsx": {
-    "mtime": 1794811781.5629296,
-    "seen": 1794812307.6968796,
-    "ast_hash": "4dc0ff4c591df247cffaa63192b51641",
+    "mtime": 1794989006.2304888,
+    "seen": 1794989668.8582573,
+    "ast_hash": "e1841cdda3d027056515621f704ccd86",
     "semantic_hash": ""
   },
   "src/components/ui/BrandLogo.tsx": {
@@ -714,9 +714,9 @@
     "semantic_hash": ""
   },
   "src/components/ui/CustomSelect.tsx": {
-    "mtime": 1794802122.722289,
-    "seen": 1794803435.474713,
-    "ast_hash": "feb2861e2ab2519a2b3a36b5d9bc26ad",
+    "mtime": 1794887234.6115546,
+    "seen": 1794889522.4426231,
+    "ast_hash": "3611b733917a40318ed8972fc6fbec89",
     "semantic_hash": ""
   },
   "src/components/ui/CustomTimePicker.tsx": {
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "src/context/AppContext.tsx": {
-    "mtime": 1794835897.232646,
-    "seen": 1794837175.9861364,
-    "ast_hash": "e51a55aeccb86d367e2fab28aa1379cb",
+    "mtime": 1795165975.0002024,
+    "seen": 1795166817.877255,
+    "ast_hash": "03c41dc584b89552a3ea84868c3d607a",
     "semantic_hash": ""
   },
   "src/context/ThemeContext.tsx": {
@@ -768,9 +768,9 @@
     "semantic_hash": ""
   },
   "src/db/seed.ts": {
-    "mtime": 1794823230.3275864,
-    "seen": 1794824005.3698652,
-    "ast_hash": "c91ec39f977088da8e6ee7480c0983ae",
+    "mtime": 1794983358.8236115,
+    "seen": 1794983699.2625473,
+    "ast_hash": "fffc6ad022ec202fac5654b97677379b",
     "semantic_hash": ""
   },
   "src/hooks/useFocusTimer.ts": {
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "src/types/index.ts": {
-    "mtime": 1794826764.5008397,
-    "seen": 1794827754.373316,
-    "ast_hash": "c81c1a8a0cc1a19362851aaf5f2748a2",
+    "mtime": 1795097069.646655,
+    "seen": 1795097694.69888,
+    "ast_hash": "8fe0576d0992497b9e57520e71b62038",
     "semantic_hash": ""
   },
   "src/utils/category.ts": {
@@ -810,9 +810,9 @@
     "semantic_hash": ""
   },
   "src/utils/daypartGreetings.ts": {
-    "mtime": 1794415849.3272417,
-    "seen": 1794416758.6042867,
-    "ast_hash": "c01fd118c33ad0676a949f1d8bc77612",
+    "mtime": 1794890697.774269,
+    "seen": 1794890941.1775377,
+    "ast_hash": "a0f6bc22e665e8f0267d085be5176b88",
     "semantic_hash": ""
   },
   "src/utils/favicon.ts": {
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "src/utils/feedback.ts": {
-    "mtime": 1794802787.2246673,
-    "seen": 1794803435.474713,
-    "ast_hash": "f3cc23f6cb442e1f358aaacb77bb830d",
+    "mtime": 1795069538.409146,
+    "seen": 1795094757.41135,
+    "ast_hash": "fa3b01ae7ed97aaec59878d2bc8f9bbb",
     "semantic_hash": ""
   },
   "src/utils/focusTimer.ts": {
@@ -840,21 +840,21 @@
     "semantic_hash": ""
   },
   "src/utils/motion.ts": {
-    "mtime": 1794802718.8538866,
-    "seen": 1794803435.474713,
-    "ast_hash": "e08b693dea91a46b83295fb2a51d5f07",
+    "mtime": 1794989029.5837185,
+    "seen": 1794989668.8582573,
+    "ast_hash": "2a59f9f6647a8110babec8338ec93183",
     "semantic_hash": ""
   },
   "src/utils/pokeMessages.ts": {
-    "mtime": 1793983294.0813043,
-    "seen": 1794412837.3265212,
-    "ast_hash": "d6e104591f0294b1ffcfc69dbd950e79",
+    "mtime": 1794890721.537528,
+    "seen": 1794890941.1775377,
+    "ast_hash": "598871a5f4d819d81ba9ab0c454dd200",
     "semantic_hash": ""
   },
   "src/utils/reminder.ts": {
-    "mtime": 1794415779.0537972,
-    "seen": 1794416758.6043077,
-    "ast_hash": "9715f6f7342d8103e7b31aa279a93bfb",
+    "mtime": 1795166493.410628,
+    "seen": 1795166817.8772933,
+    "ast_hash": "9d1c1bb1b3728a0b12e4732bc1277f10",
     "semantic_hash": ""
   },
   "src/utils/subtaskUtils.ts": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "test/core-logic.test.mjs": {
-    "mtime": 1794835957.5635574,
-    "seen": 1794837175.9861364,
-    "ast_hash": "ccd4150a3fffa6949237f20ea371e9e1",
+    "mtime": 1795166661.1311808,
+    "seen": 1795166817.8773084,
+    "ast_hash": "5938bc99fdcd8edf80ae3c29e0097456",
     "semantic_hash": ""
   },
   "test/e2e-tier1-features.test.mjs": {
@@ -987,12 +987,6 @@
     "mtime": 1792397571.062904,
     "seen": 1794412837.3265765,
     "ast_hash": "006919b6fff2abc59af61796a4ab5237",
-    "semantic_hash": ""
-  },
-  "website-template/script.js": {
-    "mtime": 1794039280.954754,
-    "seen": 1794412837.326579,
-    "ast_hash": "5ffb584586b58fdacc44c07e4cb10f59",
     "semantic_hash": ""
   },
   ".agents/skills/Apple design/SKILL.md": {
@@ -2268,15 +2262,15 @@
     "semantic_hash": ""
   },
   "CONTRIBUTING.md": {
-    "mtime": 1793716486.2878041,
-    "seen": 1794412837.327094,
-    "ast_hash": "5a33cff6ed53b2842bdb09ce9dbcbf0b",
+    "mtime": 1794910740.1388347,
+    "seen": 1794911209.5649672,
+    "ast_hash": "cbad7336a6be6f7efca48f683110969e",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793716472.5261931,
-    "seen": 1794412837.3270962,
-    "ast_hash": "d77217eafec95f8f5cd2f1dea06153ca",
+    "mtime": 1795166311.128423,
+    "seen": 1795166817.877887,
+    "ast_hash": "d9beb4a7aacdbfbe7790100455f9c17e",
     "semantic_hash": ""
   },
   "TEST_INFRA.md": {
@@ -2301,18 +2295,6 @@
     "mtime": 1791382562.0,
     "seen": 1794412837.327105,
     "ast_hash": "d256f6b5922d4249607779141357d565",
-    "semantic_hash": ""
-  },
-  "website-template/README.md": {
-    "mtime": 1794039311.0615299,
-    "seen": 1794412837.3271077,
-    "ast_hash": "ddbb72d763ba7edb28d24bec8fe671fd",
-    "semantic_hash": ""
-  },
-  "website-template/index.html": {
-    "mtime": 1794039836.0090635,
-    "seen": 1794412837.3271098,
-    "ast_hash": "0330a2797f25ccfaa22e22580b835c27",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-hdpi/splash.png": {
@@ -2568,15 +2550,15 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifySmallWidgetProvider.java": {
-    "mtime": 1794835835.9078026,
-    "seen": 1794837175.9861364,
-    "ast_hash": "86c3c32b106c9d0b004f683333bc76c3",
+    "mtime": 1794837766.5437844,
+    "seen": 1794840698.26938,
+    "ast_hash": "03aad6e5d7fa28e76e4fb64988a0a32f",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyHabitsWidgetProvider.java": {
-    "mtime": 1794835809.217076,
-    "seen": 1794837175.9861364,
-    "ast_hash": "29aa7a4f94923cc105b8c7330d450143",
+    "mtime": 1794837743.3662999,
+    "seen": 1794840698.26938,
+    "ast_hash": "233917e5c66ff65442d1bd5af4f67b22",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyWidgetListService.java": {
@@ -2598,9 +2580,9 @@
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyHabitsCompactWidgetProvider.java": {
-    "mtime": 1794835851.3821392,
-    "seen": 1794837175.9861364,
-    "ast_hash": "01fd19ad545a103a12035ec7dabad296",
+    "mtime": 1794837736.3088756,
+    "seen": 1794840698.26938,
+    "ast_hash": "13ef23ad3d266da822f33a0a2fcdc80c",
     "semantic_hash": ""
   },
   "android/app/src/main/java/com/taskify/app/TaskifyMatrixWidgetProvider.java": {
@@ -2622,15 +2604,279 @@
     "semantic_hash": ""
   },
   "src/components/focus/PomodoroFullscreenModal.tsx": {
-    "mtime": 1794836892.0637138,
-    "seen": 1794837175.9861364,
-    "ast_hash": "74465975fe61ef125e7c4d4996b1fe8a",
+    "mtime": 1795166441.5839999,
+    "seen": 1795166817.8771355,
+    "ast_hash": "e096c6d98605bbcaf2465a129bd5278a",
     "semantic_hash": ""
   },
   "src/components/scratchpad/ScratchpadView.tsx": {
-    "mtime": 1794831652.9362404,
-    "seen": 1794832504.7417629,
-    "ast_hash": "46cddbd183b3abb094990d1baff28b31",
+    "mtime": 1795166212.1680734,
+    "seen": 1795166817.8772037,
+    "ast_hash": "f5d3bd3e529bb8cce99a25a4ab67999a",
+    "semantic_hash": ""
+  },
+  "src/components/onboarding/InteractiveTour.tsx": {
+    "mtime": 1794890525.2935417,
+    "seen": 1794890941.1775377,
+    "ast_hash": "e34a6258a01849e821ced0472dd33ff8",
+    "semantic_hash": ""
+  },
+  "src/components/ui/SectionHeader.tsx": {
+    "mtime": 1794888561.7567253,
+    "seen": 1794889522.4426231,
+    "ast_hash": "49dfe7a3be43140b40cb86a35c5bf90b",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/bug_report.md": {
+    "mtime": 1794910668.3152282,
+    "seen": 1794911209.564959,
+    "ast_hash": "75f0e9e72a78d7bfd971549f0a624189",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/feature_request.md": {
+    "mtime": 1794910683.8244565,
+    "seen": 1794911209.5649605,
+    "ast_hash": "99130c5269d5a12c6aa08737d0df3a49",
+    "semantic_hash": ""
+  },
+  ".github/PULL_REQUEST_TEMPLATE.md": {
+    "mtime": 1794910705.2611752,
+    "seen": 1794911209.5649621,
+    "ast_hash": "dd2c30abce61695498b0aa9de4468270",
+    "semantic_hash": ""
+  },
+  "CODE_OF_CONDUCT.md": {
+    "mtime": 1794910715.491141,
+    "seen": 1794911209.5649655,
+    "ast_hash": "1b10aac50eb7a4f1f70f2a26b36db4e9",
+    "semantic_hash": ""
+  },
+  "SECURITY.md": {
+    "mtime": 1794910725.91128,
+    "seen": 1794911209.5649703,
+    "ast_hash": "262702c1f90d5148a4347cd76f5528b0",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/01_today_dashboard_desktop.png": {
+    "mtime": 1794910633.729054,
+    "seen": 1794911209.565055,
+    "ast_hash": "dae209893866f713b515ee76a658c64a",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/02_tasks_bento_grid.png": {
+    "mtime": 1794910661.8963616,
+    "seen": 1794911209.5650563,
+    "ast_hash": "e7c08aa98f3ae87029c8e85890c91e83",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/03_habits_routines_view.png": {
+    "mtime": 1794910755.5164592,
+    "seen": 1794911209.5650575,
+    "ast_hash": "274e19ca6a4f010e4032028096e1c941",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/04_habits_active_checkin.png": {
+    "mtime": 1794910771.4712415,
+    "seen": 1794911209.5650587,
+    "ast_hash": "a9e59ab406ee3e4e0f4a181d80f37a32",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/05_notes_aesthetic_editor.png": {
+    "mtime": 1794910858.7713165,
+    "seen": 1794911209.56506,
+    "ast_hash": "bdae89da02198648f829e32aca1c9a64",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/06_pomodoro_focus_ring.png": {
+    "mtime": 1794910880.733199,
+    "seen": 1794911209.565061,
+    "ast_hash": "2ef06e71b7982c2022ffbb89ad90e4ab",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/07_finance_safetospend_ledger.png": {
+    "mtime": 1794910916.5173244,
+    "seen": 1794911209.5650623,
+    "ast_hash": "a46a0ab744b29e4696af65ed18772e9e",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/09_mobile_viewport_showcase.png": {
+    "mtime": 1794911032.165813,
+    "seen": 1794911209.565065,
+    "ast_hash": "fd28133f83fe4a87b70fb96b402c598d",
+    "semantic_hash": ""
+  },
+  "src/components/onboarding/WelcomeNameModal.tsx": {
+    "mtime": 1794922530.012462,
+    "seen": 1794923088.0721848,
+    "ast_hash": "54ed1158561c34e2a7d05c1eaed33dfa",
+    "semantic_hash": ""
+  },
+  "website-template/script.js": {
+    "mtime": 1794922936.5467863,
+    "seen": 1794989668.8582573,
+    "ast_hash": "c6e0e9971564547b1c1b6933b4b3ead3",
+    "semantic_hash": ""
+  },
+  "website-template/README.md": {
+    "mtime": 1794913107.9307835,
+    "seen": 1794989668.858767,
+    "ast_hash": "2254c54399a400b5f570c8781bc32e73",
+    "semantic_hash": ""
+  },
+  "website-template/index.html": {
+    "mtime": 1794983234.9375556,
+    "seen": 1794989668.858767,
+    "ast_hash": "9021a3f30fd41f1d898dab1f98d94436",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_01_today_empty.png": {
+    "mtime": 1794995239.384609,
+    "seen": 1795020288.969753,
+    "ast_hash": "0e1fe4aef06cbd2e7f66be22ed9ca3c3",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_02_today_active.png": {
+    "mtime": 1794995239.42615,
+    "seen": 1795020288.969753,
+    "ast_hash": "cbe3c1f694bd31df452e123b82c01a6b",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_03_tasks_overview.png": {
+    "mtime": 1794995239.4659615,
+    "seen": 1795020288.969753,
+    "ast_hash": "8847caa2af861af1075a3468bdbaaeab",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_04_tasks_list.png": {
+    "mtime": 1794995239.5082302,
+    "seen": 1795020288.969753,
+    "ast_hash": "592356afb92d818fb0b3379ef4b7bcc4",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_05_habits_conquered.png": {
+    "mtime": 1794995239.5479972,
+    "seen": 1795020288.969753,
+    "ast_hash": "d8ab6f3dde04b46653fb8133b182cd11",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_06_habits_checkin.png": {
+    "mtime": 1794995239.5883083,
+    "seen": 1795020288.969753,
+    "ast_hash": "4ec947729eaafa9125ebd8c3634bdfed",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_07_finances_safetospend.png": {
+    "mtime": 1794995239.6283176,
+    "seen": 1795020288.969753,
+    "ast_hash": "852887c94d8d4f7b2080aa6d8dd731ae",
+    "semantic_hash": ""
+  },
+  "docs/mobile_screens/mobile_08_notes_scratchpad.png": {
+    "mtime": 1794995239.6664736,
+    "seen": 1795020288.969753,
+    "ast_hash": "58240cf429fdd497e20b3ceec10879d2",
+    "semantic_hash": ""
+  },
+  "docs/mockups/01_mobile_today_mockup.png": {
+    "mtime": 1794996522.2130752,
+    "seen": 1795020288.969753,
+    "ast_hash": "33f32cd47555fe682f37a56cdccd6152",
+    "semantic_hash": ""
+  },
+  "docs/mockups/02_mobile_tasks_mockup.png": {
+    "mtime": 1794996523.2257216,
+    "seen": 1795020288.969753,
+    "ast_hash": "807a2ee94ad2687574f03e49954be207",
+    "semantic_hash": ""
+  },
+  "docs/mockups/03_mobile_habits_mockup.png": {
+    "mtime": 1794996524.1544552,
+    "seen": 1795020288.969753,
+    "ast_hash": "efe072568416b437e96b76738f4936be",
+    "semantic_hash": ""
+  },
+  "docs/mockups/04_mobile_finances_mockup.png": {
+    "mtime": 1794996525.0964632,
+    "seen": 1795020288.969753,
+    "ast_hash": "30e11546313145c26b594367b7d02429",
+    "semantic_hash": ""
+  },
+  "docs/mockups/05_mobile_notes_mockup.png": {
+    "mtime": 1794996526.0053532,
+    "seen": 1795020288.969753,
+    "ast_hash": "b4c008be53838f4f0dc5e68ed7b805f1",
+    "semantic_hash": ""
+  },
+  "docs/mockups/06_desktop_today_mockup.png": {
+    "mtime": 1794996526.9133801,
+    "seen": 1795020288.969753,
+    "ast_hash": "7bce78ddd0017c2bfcb9d30c2de72979",
+    "semantic_hash": ""
+  },
+  "docs/mockups/07_desktop_focus_mockup.png": {
+    "mtime": 1794996527.797155,
+    "seen": 1795020288.969753,
+    "ast_hash": "99c49f40430eb11e3b48d00f4a7fa600",
+    "semantic_hash": ""
+  },
+  "docs/mockups/08_flagship_multidevice_banner.png": {
+    "mtime": 1794996529.0625422,
+    "seen": 1795020288.969753,
+    "ast_hash": "fa57c0bea7378362bf7e631dd01f9984",
+    "semantic_hash": ""
+  },
+  ".github/workflows/release.yml": {
+    "mtime": 1795097629.029867,
+    "seen": 1795097694.69888,
+    "ast_hash": "3838a3a239ad6a62e154499c7c341378",
+    "semantic_hash": ""
+  },
+  "website-template/images/01_today_dashboard_desktop.png": {
+    "mtime": 1794910633.729054,
+    "seen": 1795166817.8780606,
+    "ast_hash": "dae209893866f713b515ee76a658c64a",
+    "semantic_hash": ""
+  },
+  "website-template/images/02_tasks_bento_grid.png": {
+    "mtime": 1794910661.8963616,
+    "seen": 1795166817.8780622,
+    "ast_hash": "e7c08aa98f3ae87029c8e85890c91e83",
+    "semantic_hash": ""
+  },
+  "website-template/images/03_habits_routines_view.png": {
+    "mtime": 1794910755.5164592,
+    "seen": 1795166817.8780642,
+    "ast_hash": "274e19ca6a4f010e4032028096e1c941",
+    "semantic_hash": ""
+  },
+  "website-template/images/04_habits_active_checkin.png": {
+    "mtime": 1794910771.4712415,
+    "seen": 1795166817.8780653,
+    "ast_hash": "a9e59ab406ee3e4e0f4a181d80f37a32",
+    "semantic_hash": ""
+  },
+  "website-template/images/05_notes_aesthetic_editor.png": {
+    "mtime": 1794910858.7713165,
+    "seen": 1795166817.878067,
+    "ast_hash": "bdae89da02198648f829e32aca1c9a64",
+    "semantic_hash": ""
+  },
+  "website-template/images/06_pomodoro_focus_ring.png": {
+    "mtime": 1794910880.733199,
+    "seen": 1795166817.8780684,
+    "ast_hash": "2ef06e71b7982c2022ffbb89ad90e4ab",
+    "semantic_hash": ""
+  },
+  "website-template/images/07_finance_safetospend_ledger.png": {
+    "mtime": 1794910916.5173244,
+    "seen": 1795166817.8780699,
+    "ast_hash": "a46a0ab744b29e4696af65ed18772e9e",
+    "semantic_hash": ""
+  },
+  "website-template/images/09_mobile_viewport_showcase.png": {
+    "mtime": 1794911032.165813,
+    "seen": 1795166817.8780713,
+    "ast_hash": "fd28133f83fe4a87b70fb96b402c598d",
     "semantic_hash": ""
   },
   "package-lock.json": {

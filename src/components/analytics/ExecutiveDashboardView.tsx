@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -117,6 +117,35 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [suggestionCategory, setSuggestionCategory] = useState<'all' | 'focus' | 'tasks' | 'habits' | 'finance'>('all');
   const svgRef = useRef<SVGSVGElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const isPointerDownRef = useRef(false);
+  const pointerStartXRef = useRef(0);
+  const scrollStartXRef = useRef(0);
+  const hasMovedDistanceRef = useRef(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 6);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 6);
+  }, []);
+
+  // Auto-scroll to Today (the right edge of the chart) on mount and when rangeDays/chartMetric changes
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      const timer = setTimeout(() => {
+        if (el) {
+          el.scrollLeft = el.scrollWidth - el.clientWidth;
+          updateScrollState();
+        }
+      }, 30);
+      return () => clearTimeout(timer);
+    }
+  }, [rangeDays, chartMetric, updateScrollState]);
 
   // Daily timeline points (productivity activity + cashflow records)
   const dailyData = useMemo(() => {
@@ -354,11 +383,15 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
   );
 
   // Responsive Chart Coordinates & Dimensions
-  const width = 800;
   const height = 190;
-  const paddingX = 32;
+  const paddingX = 28;
   const paddingTop = 24;
   const paddingBottom = 20;
+
+  const chartWidth = useMemo(() => {
+    const minDayWidth = rangeDays === 7 ? 68 : rangeDays === 14 ? 58 : 52;
+    return Math.max(760, dailyData.length * minDayWidth);
+  }, [dailyData.length, rangeDays]);
 
   // Fix: For finance metric, scale purely against daily expense values so the curve is dynamic and never flatlined by salary
   const maxVal = useMemo(() => {
@@ -371,7 +404,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
   }, [dailyData, chartMetric]);
 
   const coords = useMemo(() => {
-    const stepX = (width - paddingX * 2) / Math.max(1, dailyData.length - 1);
+    const stepX = (chartWidth - paddingX * 2) / Math.max(1, dailyData.length - 1);
     const usableHeight = height - paddingTop - paddingBottom;
 
     return dailyData.map((p, idx) => {
@@ -381,7 +414,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
       const y = paddingTop + (1 - ratio) * usableHeight;
       return { x, y, point: p, ratio };
     });
-  }, [dailyData, maxVal, width, height, paddingX, paddingTop, paddingBottom, chartMetric]);
+  }, [dailyData, maxVal, chartWidth, height, paddingX, paddingTop, paddingBottom, chartMetric]);
 
   // SVG Bézier curve and gradient area
   const { linePath, areaPath } = useMemo(() => {
@@ -420,24 +453,27 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     }
   }, [hoveredIndex]);
 
-  // Direct 1:1 manipulation pointer scrub tracking
-  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const idx = Math.min(dailyData.length - 1, Math.max(0, Math.round(pct * (dailyData.length - 1))));
-    handleScrub(idx);
+  // Drag-to-scroll handlers for smooth mouse dragging on desktop
+  const handleContainerPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    isPointerDownRef.current = true;
+    hasMovedDistanceRef.current = false;
+    pointerStartXRef.current = e.clientX;
+    scrollStartXRef.current = scrollContainerRef.current?.scrollLeft || 0;
   };
 
-  const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    handlePointerMove(e);
-  };
-
-  const handlePointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
+  const handleContainerPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current || !scrollContainerRef.current) return;
+    const deltaX = e.clientX - pointerStartXRef.current;
+    if (Math.abs(deltaX) > 4) {
+      hasMovedDistanceRef.current = true;
     }
+    scrollContainerRef.current.scrollLeft = scrollStartXRef.current - deltaX;
+    updateScrollState();
+  };
+
+  const handleContainerPointerUp = () => {
+    isPointerDownRef.current = false;
   };
 
   return (
@@ -684,155 +720,190 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           </div>
         </div>
 
-        {/* Vector SVG Canvas with Direct Manipulation Pointer Events */}
-        <div className="relative pt-1 w-full overflow-hidden">
-          <svg
-            ref={svgRef}
-            viewBox={`0 0 ${width} ${height}`}
-            className="w-full h-auto max-h-52 select-none overflow-visible touch-none cursor-crosshair"
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
+        {/* Vector SVG Canvas with Direct Manipulation Pointer Events & Horizontal Scroll in X-Axis */}
+        <div className="relative pt-1 w-full overflow-hidden rounded-xl">
+          {/* Edge gradient fade masks for smooth visual overflow */}
+          <div
+            className={`absolute left-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-r from-[var(--bg-card)] to-transparent z-10 transition-opacity duration-200 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
+          />
+          <div
+            className={`absolute right-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-l from-[var(--bg-card)] to-transparent z-10 transition-opacity duration-200 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
+          />
+
+          {/* Horizontally Scrollable Container along the X-Axis */}
+          <div
+            ref={scrollContainerRef}
+            onScroll={updateScrollState}
+            onPointerDown={handleContainerPointerDown}
+            onPointerMove={handleContainerPointerMove}
+            onPointerUp={handleContainerPointerUp}
+            onPointerLeave={handleContainerPointerUp}
+            className="w-full overflow-x-auto overflow-y-hidden select-none touch-pan-x cursor-grab active:cursor-grabbing no-scrollbar"
+            style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            <defs>
-              <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
-              </linearGradient>
-              <linearGradient id="financeGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.28" />
-                <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
-
-            {/* Subtle guideline lines */}
-            {[0, 0.5, 1].map((ratio, idx) => {
-              const y = paddingTop + ratio * (height - paddingTop - paddingBottom);
-              return (
-                <line
-                  key={idx}
-                  x1={paddingX}
-                  y1={y}
-                  x2={width - paddingX}
-                  y2={y}
-                  stroke="rgba(255, 255, 255, 0.05)"
-                  strokeDasharray="4 4"
-                  strokeWidth="1"
-                />
-              );
-            })}
-
-            {/* Gradient Area Fill */}
-            <path
-              d={areaPath}
-              fill={chartMetric === 'finance' ? 'url(#financeGradient)' : 'url(#activityGradient)'}
-            />
-
-            {/* Line Curve */}
-            <path
-              d={linePath}
-              fill="none"
-              stroke={chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)'}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            {/* Capsule Bar Backgrounds & Interactive Point Nodes */}
-            {coords.map((c, idx) => {
-              const isHovered = (hoveredIndex === idx) || (hoveredIndex === null && idx === coords.length - 1);
-              const strokeColor = chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)';
-              const barWidth = Math.max(6, Math.min(22, (width - paddingX * 2) / (dailyData.length * 2.2)));
-              const barHeight = Math.max(4, (height - paddingBottom) - c.y);
-
-              return (
-                <g key={idx}>
-                  {/* Vertical Capsule Bar */}
-                  <rect
-                    x={c.x - barWidth / 2}
-                    y={c.y}
-                    width={barWidth}
-                    height={barHeight}
-                    rx={barWidth / 2}
-                    fill={strokeColor}
-                    fillOpacity={isHovered ? 0.38 : 0.12}
-                    className="transition-all duration-150"
-                  />
-
-                  {/* Active Scrub Hairline Guideline */}
-                  {isHovered && (
-                    <line
-                      x1={c.x}
-                      y1={paddingTop}
-                      x2={c.x}
-                      y2={height - paddingBottom}
-                      stroke={strokeColor}
-                      strokeOpacity="0.45"
-                      strokeWidth="1.5"
-                      strokeDasharray="3 3"
-                    />
-                  )}
-
-                  {/* Point Top Node */}
-                  <circle
-                    cx={c.x}
-                    cy={c.y}
-                    r={isHovered ? 5.5 : 3.5}
-                    fill="var(--bg-card)"
-                    stroke={strokeColor}
-                    strokeWidth="2.5"
-                    className="transition-all duration-150"
-                  />
-
-                  {/* Income indicator pill in finance mode */}
-                  {chartMetric === 'finance' && c.point.dayIncome > 0 && (
-                    <circle
-                      cx={c.x}
-                      cy={paddingTop + 6}
-                      r={2.5}
-                      fill="#10b981"
-                    />
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-
-        {/* High-DPI Legible Native HTML X-Axis Day Labels (Crystal clear to naked eyes) */}
-        <div className="w-full flex items-center justify-between px-1 sm:px-2 pt-1 border-t border-white/6 overflow-hidden">
-          {dailyData.map((p, idx) => {
-            const isHovered = (hoveredIndex === idx) || (hoveredIndex === null && idx === dailyData.length - 1);
-            // Clutter-free responsive filter for 14D and 30D
-            const isVisible =
-              rangeDays === 7
-                ? true
-                : rangeDays === 14
-                ? idx % 2 === 0 || idx === dailyData.length - 1 || isHovered
-                : idx % 6 === 0 || idx === dailyData.length - 1 || isHovered;
-
-            return (
-              <button
-                key={p.dateStr}
-                type="button"
-                onClick={() => handleScrub(idx)}
-                className={`flex flex-col items-center justify-center transition-all cursor-pointer rounded-lg px-1.5 py-1 ${
-                  !isVisible ? 'opacity-0 pointer-events-none' : ''
-                } ${
-                  isHovered
-                    ? 'bg-white/10 text-white font-bold scale-105'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
+            <div style={{ width: `${chartWidth}px`, minWidth: `${chartWidth}px` }} className="relative flex flex-col">
+              <svg
+                ref={svgRef}
+                viewBox={`0 0 ${chartWidth} ${height}`}
+                style={{ width: `${chartWidth}px`, height: `${height}px` }}
+                className="select-none overflow-visible"
               >
-                <span className="text-[11px] sm:text-xs font-mono font-semibold tracking-tight uppercase">
-                  {p.label}
-                </span>
-                <span className="text-[9px] sm:text-[10px] font-mono text-zinc-500">
-                  {p.dayNum}
-                </span>
-              </button>
-            );
-          })}
+                <defs>
+                  <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="financeGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.28" />
+                    <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {/* Subtle guideline lines */}
+                {[0, 0.5, 1].map((ratio, idx) => {
+                  const y = paddingTop + ratio * (height - paddingTop - paddingBottom);
+                  return (
+                    <line
+                      key={idx}
+                      x1={paddingX}
+                      y1={y}
+                      x2={chartWidth - paddingX}
+                      y2={y}
+                      stroke="rgba(255, 255, 255, 0.05)"
+                      strokeDasharray="4 4"
+                      strokeWidth="1"
+                    />
+                  );
+                })}
+
+                {/* Gradient Area Fill */}
+                <path
+                  d={areaPath}
+                  fill={chartMetric === 'finance' ? 'url(#financeGradient)' : 'url(#activityGradient)'}
+                />
+
+                {/* Line Curve */}
+                <path
+                  d={linePath}
+                  fill="none"
+                  stroke={chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)'}
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+
+                {/* Capsule Bar Backgrounds & Interactive Point Nodes */}
+                {coords.map((c, idx) => {
+                  const isHovered = (hoveredIndex === idx) || (hoveredIndex === null && idx === coords.length - 1);
+                  const strokeColor = chartMetric === 'finance' ? '#f43f5e' : 'var(--accent-primary)';
+                  const barWidth = Math.max(8, Math.min(22, (chartWidth - paddingX * 2) / (dailyData.length * 2.2)));
+                  const barHeight = Math.max(4, (height - paddingBottom) - c.y);
+
+                  return (
+                    <g
+                      key={idx}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        if (!hasMovedDistanceRef.current) {
+                          handleScrub(idx);
+                        }
+                      }}
+                      onPointerEnter={() => {
+                        if (!isPointerDownRef.current) {
+                          handleScrub(idx);
+                        }
+                      }}
+                    >
+                      {/* Vertical Capsule Bar */}
+                      <rect
+                        x={c.x - barWidth / 2}
+                        y={c.y}
+                        width={barWidth}
+                        height={barHeight}
+                        rx={barWidth / 2}
+                        fill={strokeColor}
+                        fillOpacity={isHovered ? 0.38 : 0.12}
+                        className="transition-all duration-150"
+                      />
+
+                      {/* Active Scrub Hairline Guideline */}
+                      {isHovered && (
+                        <line
+                          x1={c.x}
+                          y1={paddingTop}
+                          x2={c.x}
+                          y2={height - paddingBottom}
+                          stroke={strokeColor}
+                          strokeOpacity="0.45"
+                          strokeWidth="1.5"
+                          strokeDasharray="3 3"
+                        />
+                      )}
+
+                      {/* Point Top Node */}
+                      <circle
+                        cx={c.x}
+                        cy={c.y}
+                        r={isHovered ? 5.5 : 3.5}
+                        fill="var(--bg-card)"
+                        stroke={strokeColor}
+                        strokeWidth="2.5"
+                        className="transition-all duration-150"
+                      />
+
+                      {/* Income indicator pill in finance mode */}
+                      {chartMetric === 'finance' && c.point.dayIncome > 0 && (
+                        <circle
+                          cx={c.x}
+                          cy={paddingTop + 6}
+                          r={2.5}
+                          fill="#10b981"
+                        />
+                      )}
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* High-DPI Legible Native HTML X-Axis Day Labels mathematically aligned to c.x */}
+              <div className="relative w-full h-12 pt-1 border-t border-white/6">
+                {coords.map((c, idx) => {
+                  const isHovered = (hoveredIndex === idx) || (hoveredIndex === null && idx === coords.length - 1);
+
+                  return (
+                    <button
+                      key={c.point.dateStr}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!hasMovedDistanceRef.current) {
+                          handleScrub(idx);
+                        }
+                      }}
+                      style={{
+                        position: 'absolute',
+                        left: `${c.x}px`,
+                        transform: 'translateX(-50%)',
+                      }}
+                      className={`flex flex-col items-center justify-center transition-all cursor-pointer rounded-lg px-2 py-1 ${
+                        isHovered
+                          ? 'bg-white/10 text-white font-bold scale-105'
+                          : 'text-zinc-400 hover:text-zinc-200'
+                      }`}
+                      title={c.point.fullDate}
+                    >
+                      <span className="text-[11px] sm:text-xs font-mono font-semibold tracking-tight uppercase whitespace-nowrap">
+                        {c.point.label}
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] font-mono text-zinc-500 whitespace-nowrap">
+                        {c.point.dayNum}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

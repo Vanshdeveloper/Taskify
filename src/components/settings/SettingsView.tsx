@@ -414,7 +414,7 @@ export const SettingsView: React.FC = () => {
             </div>
             <span className="text-[10px] font-mono text-zinc-400">
               {settings.hapticSound === 'precision' || settings.hapticSound === 'apple'
-                ? 'Precision Taptic'
+                ? 'Precision Tactile'
                 : settings.hapticSound === 'mechanical'
                 ? 'Mechanical'
                 : settings.hapticSound === 'pop'
@@ -428,7 +428,7 @@ export const SettingsView: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {(
               [
-                { id: 'precision', label: 'Precision Taptic' },
+                { id: 'precision', label: 'Precision Tactile' },
                 { id: 'mechanical', label: 'Mechanical' },
                 { id: 'pop', label: 'Bubble Pop' },
                 { id: 'subtle', label: 'Subtle Tick' },
@@ -463,6 +463,40 @@ export const SettingsView: React.FC = () => {
               );
             })}
           </div>
+
+          {/* Haptic Vibration Intensity Slider */}
+          {settings.hapticFeedback !== false && (
+            <div className="pt-3 hairline-t flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Vibrate className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="text-xs font-semibold text-white">Vibration Strength</span>
+                </div>
+                <span className="font-mono text-xs font-bold text-white bg-white/10 px-2 py-0.5 rounded-md border border-white/10">
+                  {(settings.hapticIntensity ?? 70) === 0 ? 'Off' : `${settings.hapticIntensity ?? 70}%`}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 pt-1">
+                <span className="text-[10px] font-mono text-zinc-500">Soft</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={settings.hapticIntensity ?? 70}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    feedback.setHapticIntensity(val);
+                    feedback.playClick();
+                    updateSettings({ hapticIntensity: val });
+                  }}
+                  className="flex-1 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[var(--accent-primary)]"
+                />
+                <span className="text-[10px] font-mono text-zinc-500">Max</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
