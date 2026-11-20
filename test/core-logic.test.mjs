@@ -1247,6 +1247,29 @@ test('TASK-102: Focus Timer Edge Light Gating & Android BigTextStyle Full Notifi
   assert.ok(reminderCode.includes('largeBody: expandedBody'), 'Task and habit reminders must supply largeBody');
 });
 
+test('TASK-105: Dynamic Logo Aesthetic in Navbar & Exclusivity of Single Windows NSIS Setup', () => {
+  const navbarCode = fs.readFileSync(path.resolve('src/components/layout/Navbar.tsx'), 'utf-8');
+  const brandLogoCode = fs.readFileSync(path.resolve('src/components/ui/BrandLogo.tsx'), 'utf-8');
+  const packageJson = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf-8'));
+  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+
+  // 1. Navbar Dynamic BrandLogo Integration
+  assert.ok(navbarCode.includes('<BrandLogo aesthetic={settings.appAesthetic} />'), 'Navbar must render BrandLogo with settings.appAesthetic');
+
+  // 2. BrandLogo Refined Aesthetics
+  assert.ok(brandLogoCode.includes('minimal-obsidian'), 'BrandLogo must handle minimal-obsidian aesthetic');
+  assert.ok(brandLogoCode.includes('#160f0d'), 'BrandLogo minimal-obsidian must use dark center');
+
+  // 3. Single Windows Executable Contract (No Portable, NSIS Only with Desktop & Start Menu Shortcuts)
+  assert.deepEqual(packageJson.build.win.target, ['nsis'], 'Windows target must be strictly nsis (portable target must NOT be present)');
+  assert.equal(packageJson.build.nsis.createDesktopShortcut, 'always', 'NSIS must always create desktop shortcut');
+  assert.equal(packageJson.build.nsis.createStartMenuShortcut, true, 'NSIS must create start menu shortcut');
+  assert.equal(packageJson.build.nsis.shortcutName, 'Taskify', 'NSIS shortcut name must be Taskify');
+
+  // 4. Bloat Word Elimination
+  assert.equal(settingsCode.includes('Taskify OS'), false, 'SettingsView must not contain "Taskify OS"');
+});
+
 
 
 

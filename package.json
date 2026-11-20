@@ -59,7 +59,16 @@
     ],
     "win": {
       "icon": "electron/icon.ico",
-      "target": ["nsis", "portable"]
+      "target": ["nsis"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Taskify",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "mac": {
       "icon": "electron/icon.png",

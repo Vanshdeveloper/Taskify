@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, Flame, Timer } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useFocusTimer } from '../../hooks/useFocusTimer';
+import { BrandLogo } from '../ui/BrandLogo';
 
 interface NavbarProps {
   onOpenInspector: () => void;
@@ -74,19 +75,13 @@ export const Navbar: React.FC<NavbarProps> = ({
       />
 
       <div className="w-full flex items-center justify-between">
-        {/* Brand Title: Traditional Taskify + "." wordmark */}
+        {/* Brand Title: Dynamic logo mark & wordmark responding to chosen aesthetic */}
         <div
           id="navbar-brand-target"
-          className="flex items-center gap-1.5 transition-opacity duration-150"
+          className="flex items-center transition-opacity duration-150"
           style={{ opacity: hideBrand ? 0 : 1 }}
         >
-          <span className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em] leading-none">
-            Taskify
-          </span>
-          <span
-            className="w-1.5 h-1.5 rounded-full shrink-0"
-            style={{ backgroundColor: 'var(--accent-primary)' }}
-          />
+          <BrandLogo aesthetic={settings.appAesthetic} />
         </div>
 
         {/* Right Controls: Pomodoro Timer, Live Flame Streak Trigger & Minimal Inspector Trigger */}

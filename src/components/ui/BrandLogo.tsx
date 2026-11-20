@@ -36,6 +36,13 @@ export const AppLogoMark: React.FC<AppLogoMarkProps> = ({
     }
   };
 
+  const getInnerCircleColor = () => {
+    if (aesthetic === 'minimal-obsidian') {
+      return '#160f0d';
+    }
+    return '#ffffff';
+  };
+
   if (aesthetic === 'text-brackets') {
     return (
       <div
@@ -90,13 +97,14 @@ export const AppLogoMark: React.FC<AppLogoMarkProps> = ({
         style={{ width: size, height: size, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
         className={`rounded-[6px] border border-white/10 flex items-center justify-center font-display font-black text-white shrink-0 select-none shadow-sm ${className}`}
       >
-        <span style={{ fontSize: Math.max(9, Math.round(size * 0.48)) }}>TK</span>
+        <span style={{ fontSize: Math.max(8, Math.round(size * 0.45)) }}>TK</span>
       </div>
     );
   }
 
-  // Default: Concentric Chrome-matching circular logo standard
+  // Default: Concentric circular logo standard
   const outerColor = getOuterCircleColor();
+  const innerColor = getInnerCircleColor();
 
   return (
     <svg
@@ -107,7 +115,7 @@ export const AppLogoMark: React.FC<AppLogoMarkProps> = ({
       xmlns="http://www.w3.org/2000/svg"
     >
       <circle cx="50" cy="50" r="44" fill={outerColor} />
-      <circle cx="50" cy="50" r="20" fill="#ffffff" />
+      <circle cx="50" cy="50" r="20" fill={innerColor} />
     </svg>
   );
 };
@@ -135,11 +143,11 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   if (aesthetic === 'text-dot') {
     return (
       <div className={`flex items-center gap-1.5 select-none ${className}`}>
-        <span className="font-display font-black text-xl sm:text-2xl text-white tracking-tight leading-none">
-          T
+        <span className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em] leading-none">
+          Taskify
         </span>
         <span
-          className="w-1.5 h-1.5 rounded-full"
+          className="w-1.5 h-1.5 rounded-full shrink-0"
           style={{ backgroundColor: 'var(--accent-primary)' }}
         />
       </div>
@@ -148,27 +156,27 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   if (aesthetic === 'text-brackets') {
     return (
-      <div className={`flex items-center gap-1 select-none font-mono ${className}`}>
-        <span className="text-sm sm:text-base font-bold text-zinc-400">[</span>
-        <span
-          className="font-display font-black text-base sm:text-lg tracking-tight leading-none"
-          style={{ color: 'var(--accent-primary)' }}
-        >
-          T
+      <div className={`flex items-center gap-2 select-none ${className}`}>
+        <div className="flex items-center font-mono text-zinc-400 font-bold text-sm sm:text-base">
+          <span>[</span>
+          <span style={{ color: 'var(--accent-primary)' }} className="font-black">T</span>
+          <span>]</span>
+        </div>
+        <span className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em] leading-none">
+          Taskify
         </span>
-        <span className="text-sm sm:text-base font-bold text-zinc-400">]</span>
       </div>
     );
   }
 
   if (aesthetic === 'text-caps') {
     return (
-      <div className={`flex items-center gap-1 select-none ${className}`}>
-        <span className="font-display font-black text-xs sm:text-sm text-white tracking-[0.25em] uppercase leading-none">
+      <div className={`flex items-center gap-1.5 select-none ${className}`}>
+        <span className="font-display font-black text-xs sm:text-sm text-white tracking-[0.22em] uppercase leading-none">
           TASKIFY
         </span>
         <span
-          className="w-1 h-1 rounded-full"
+          className="w-1.5 h-1.5 rounded-full shrink-0"
           style={{ backgroundColor: 'var(--accent-primary)' }}
         />
       </div>
@@ -177,14 +185,14 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   if (aesthetic === 'text-terminal') {
     return (
-      <div className={`flex items-center gap-1.5 select-none font-mono ${className}`}>
+      <div className={`flex items-center gap-2 select-none font-mono ${className}`}>
         <span
           className="text-xs sm:text-sm font-bold tracking-tighter"
           style={{ color: 'var(--accent-primary)' }}
         >
           ///
         </span>
-        <span className="font-display font-bold text-base sm:text-lg text-white tracking-tight leading-none">
+        <span className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em] leading-none">
           Taskify
         </span>
       </div>
@@ -193,20 +201,21 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   if (aesthetic === 'text-spark') {
     return (
-      <div className={`flex items-center gap-1.5 select-none ${className}`}>
+      <div className={`flex items-center gap-2 select-none ${className}`}>
         <span
           className="text-sm sm:text-base leading-none"
           style={{ color: 'var(--accent-primary)' }}
         >
           ✦
         </span>
-        <span className="font-display font-black text-base sm:text-lg text-white tracking-tight leading-none">
+        <span className="font-display font-black text-lg sm:text-xl text-white tracking-[-0.04em] leading-none">
           Taskify
         </span>
       </div>
     );
   }
 
+  // Concentric circle aesthetics
   return (
     <div className={`flex items-center gap-2 select-none ${className}`}>
       <AppLogoMark aesthetic={aesthetic} size={20} />

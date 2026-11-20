@@ -53,7 +53,7 @@ export function syncAppFavicon(aesthetic: AppAesthetic, activeThemePrimaryColor 
     // Chrome concentric circular bullseye logo standard
     svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="44" fill="${outerColor}"/>
-      <circle cx="50" cy="50" r="20" fill="#ffffff"/>
+      <circle cx="50" cy="50" r="20" fill="${aesthetic === 'minimal-obsidian' ? '#160f0d' : '#ffffff'}"/>
     </svg>`;
   }
 

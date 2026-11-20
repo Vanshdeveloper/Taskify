@@ -144,7 +144,12 @@ export const AestheticSelector: React.FC<AestheticSelectorProps> = ({
                       r="44"
                       fill={item.outerColor || 'var(--accent-primary)'}
                     />
-                    <circle cx="50" cy="50" r="20" fill="#ffffff" />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="20"
+                      fill={item.id === 'minimal-obsidian' ? '#160f0d' : '#ffffff'}
+                    />
                   </svg>
                 ) : item.id === 'text-dot' ? (
                   <div className="flex items-center gap-1">
