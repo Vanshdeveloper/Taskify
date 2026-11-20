@@ -24,9 +24,13 @@ dist-ssr/
 
 # Internal Project Ledger & Local Agent Directives (Kept local, excluded from public repo)
 PROJECT_LEDGER.md
+AGENTS.md
 .agents/
 skills-lock.json
-graphify-out/cache/
+graphify-out/
+TEST_INFRA.md
+TEST_READY.md
+EMPIRICAL_AUDIT.md
 
 # Design assets & inspirations (Heavy design drafts)
 Palette/
