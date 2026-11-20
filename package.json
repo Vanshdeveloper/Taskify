@@ -58,12 +58,15 @@
       "electron/**/*"
     ],
     "win": {
+      "icon": "electron/icon.ico",
       "target": ["nsis", "portable"]
     },
     "mac": {
+      "icon": "electron/icon.png",
       "target": ["dmg"]
     },
     "linux": {
+      "icon": "electron/icon.png",
       "target": ["AppImage"]
     }
   }

@@ -2,13 +2,18 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
 function createWindow() {
+  const iconPath = process.platform === 'win32'
+    ? path.join(__dirname, 'icon.ico')
+    : path.join(__dirname, 'icon.png');
+
   const win = new BrowserWindow({
     width: 1280,
     height: 860,
     minWidth: 800,
     minHeight: 600,
     title: 'Taskify',
-    backgroundColor: '#09090b',
+    icon: iconPath,
+    backgroundColor: '#160f0d',
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
