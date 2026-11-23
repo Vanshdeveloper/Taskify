@@ -149,11 +149,15 @@ export function findPlatformAsset(
  * Returns > 0 if v1 > v2, < 0 if v1 < v2, and 0 if equal.
  */
 export function compareSemver(v1: string, v2: string): number {
-  const clean1 = (v1 || '').replace(/^v/i, '').split('-')[0].trim();
-  const clean2 = (v2 || '').replace(/^v/i, '').split('-')[0].trim();
+  const clean1 = (v1 || '').replace(/^v/i, '').trim();
+  const clean2 = (v2 || '').replace(/^v/i, '').trim();
 
-  const parts1 = clean1.split('.').map((p) => parseInt(p, 10) || 0);
-  const parts2 = clean2.split('.').map((p) => parseInt(p, 10) || 0);
+  // Normalize delimiters to handle dotted sub-versions and build increments
+  const normalized1 = clean1.replace(/[-+]/g, '.');
+  const normalized2 = clean2.replace(/[-+]/g, '.');
+
+  const parts1 = normalized1.split('.').map((p) => parseInt(p, 10) || 0);
+  const parts2 = normalized2.split('.').map((p) => parseInt(p, 10) || 0);
 
   const maxLen = Math.max(parts1.length, parts2.length);
   for (let i = 0; i < maxLen; i++) {

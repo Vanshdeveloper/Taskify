@@ -59,7 +59,7 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
     const target = e.target as HTMLElement;
     if (
       target.closest(
-        'button, input, textarea, select, a, [role="button"], [role="tab"], .pressable, [data-no-swipe], .no-tab-swipe, .segmented-track, [data-chip]'
+        'button, input, textarea, select, a, [role="button"], [role="tab"], .pressable, .cursor-pointer, [data-no-swipe], .no-tab-swipe, .segmented-track, [data-chip]'
       )
     ) {
       return;
@@ -130,8 +130,13 @@ export const LiquidTabViewport: React.FC<LiquidTabViewportProps> = ({ openSearch
       const preventClick = (clickEvent: MouseEvent) => {
         clickEvent.stopPropagation();
         clickEvent.preventDefault();
+        window.removeEventListener('click', preventClick, { capture: true });
       };
       window.addEventListener('click', preventClick, { capture: true, once: true });
+      // Ensure the capture listener never lingers to eat the user's next intentional button click
+      setTimeout(() => {
+        window.removeEventListener('click', preventClick, { capture: true });
+      }, 60);
 
       try {
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);

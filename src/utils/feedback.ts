@@ -7,6 +7,8 @@ class AudioFeedbackEngine {
   private isHapticsEnabled: boolean = true;
   private hapticSound: HapticSoundStyle = 'precision';
   private hapticIntensity: number = 70; // 0 to 100%
+  private lastClickTime: number = 0;
+  private lastSuccessTime: number = 0;
 
   setHapticsEnabled(enabled: boolean) {
     this.isHapticsEnabled = enabled;
@@ -82,6 +84,13 @@ class AudioFeedbackEngine {
 
   // Physical tactile feedback on button press + native vibration
   playClick() {
+    const nowMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    // Prevent duplicate simultaneous audio/vibration triggers within 75ms
+    if (nowMs - this.lastClickTime < 75) {
+      return;
+    }
+    this.lastClickTime = nowMs;
+
     this.triggerVibration('click');
 
     if (this.hapticSound === 'mute') return;
@@ -174,6 +183,13 @@ class AudioFeedbackEngine {
 
   // Delicate joyful bell chime on task/habit completion + native success vibration
   playSuccessChime() {
+    const nowMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    // Prevent duplicate simultaneous success chimes within 100ms
+    if (nowMs - this.lastSuccessTime < 100) {
+      return;
+    }
+    this.lastSuccessTime = nowMs;
+
     this.triggerVibration('success');
 
     // 2. Synthetic Web Audio chime

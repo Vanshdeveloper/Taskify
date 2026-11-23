@@ -61,6 +61,12 @@ npm run cap:android
 npm run cap:ios
 ```
 
+## Why I built this
+
+I vibe-coded Taskify for people who want to track everything in one private place: daily tasks, habits, daily spending, focus blocks, and quick notes. Most tools force you into monthly subscriptions, mandatory accounts, and scattered apps. Taskify keeps all your data strictly on your device with zero tracking.
+
+Try out the app on your desktop or phone. If you spot a bug or have ideas for the layout, navigation, or features, open an issue on GitHub. If you want to fix something or refine the code, submit a pull request. I review every submission and merge verified improvements directly into main.
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

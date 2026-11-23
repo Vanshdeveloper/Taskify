@@ -1379,6 +1379,33 @@ test('TASK-108: Mobile Phone Logo Pruning, Monogram Permanent Default & Direct I
   assert.equal(testFindPlatformAsset(sampleAssets, 'android').name, 'taskify-android-1.0.2.apk');
 });
 
+test('TASK-109: Double-Click & Audio Debounce Gating, Branch Release Trigger & Plain-Writing Readme Contract', () => {
+  const feedbackCode = fs.readFileSync(path.resolve('src/utils/feedback.ts'), 'utf-8');
+  const viewportCode = fs.readFileSync(path.resolve('src/components/layout/LiquidTabViewport.tsx'), 'utf-8');
+  const releaseYml = fs.readFileSync(path.resolve('.github/workflows/release.yml'), 'utf-8');
+  const readmeCode = fs.readFileSync(path.resolve('README.md'), 'utf-8');
+
+  // 1. Audio and Haptic Click Debounce (prevents doubled simultaneously fired click audio)
+  assert.ok(feedbackCode.includes('lastClickTime'), 'Feedback engine must track lastClickTime');
+  assert.ok(feedbackCode.includes('nowMs - this.lastClickTime < 75'), 'Feedback engine must gate rapid simultaneous duplicate clicks');
+  assert.ok(feedbackCode.includes('lastSuccessTime'), 'Feedback engine must track lastSuccessTime');
+
+  // 2. LiquidTabViewport Click Interceptor Cleanup (eliminates double click requirement)
+  assert.ok(viewportCode.includes('cursor-pointer'), 'Viewport pointer-down must exclude cursor-pointer interactive elements');
+  assert.ok(viewportCode.includes('removeEventListener'), 'Viewport preventClick must automatically clean up lingering listeners');
+
+  // 3. GitHub Actions Release Trigger on Commit to Main
+  assert.ok(releaseYml.includes('branches:') && releaseYml.includes('- main'), 'Release workflow must trigger on commits to main branch');
+  assert.ok(releaseYml.includes('REL_TAG'), 'Release workflow must compute release tag dynamically');
+
+  // 4. README Plain Writing Verification
+  assert.ok(readmeCode.includes('## Why I built this'), 'README must include author motivation section');
+  assert.ok(readmeCode.includes('vibe-coded'), 'README must contain author voice');
+  assert.ok(readmeCode.includes('pull request'), 'README must invite community pull requests');
+  assert.equal(/[\u2013\u2014]/.test(readmeCode), false, 'README prose must contain zero em or en dashes');
+});
+
+
 
 
 
