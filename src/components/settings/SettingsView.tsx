@@ -997,9 +997,9 @@ export const SettingsView: React.FC = () => {
         <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono pt-2 border-t border-white/6">
           <div className="flex items-center gap-1.5">
             <AppLogoMark size={14} />
-            <span>Taskify v1.0.1 • React 19 + TypeScript + Dexie</span>
+            <span>Taskify v{APP_VERSION} • React 19 + TypeScript + Dexie</span>
           </div>
-          <span>Open Source (MIT)</span>
+          <span>MIT License</span>
         </div>
       </div>
     </div>

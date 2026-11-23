@@ -22,6 +22,7 @@ import {
   DollarSign,
   Layers,
   ChevronRight,
+  RefreshCw,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CustomSelect } from '../ui/CustomSelect';
@@ -29,6 +30,14 @@ import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from '../settings/ThemeStudio';
 import { AestheticSelector } from '../settings/AestheticSelector';
+import {
+  checkForAppUpdates,
+  triggerDirectDownload,
+  getPlatformLabel,
+  detectPlatform,
+  APP_VERSION,
+  type UpdateCheckResult,
+} from '../../utils/updater';
 import { APPLE_SPRINGS } from '../../utils/motion';
 import type { NavbarHeight, NavbarGlass } from '../../types';
 
@@ -143,6 +152,55 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
         onClose();
       },
     });
+  };
+
+  // Software updates state
+  const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const [updateStatusNotice, setUpdateStatusNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (isOpen) {
+      checkForAppUpdates().then((res) => {
+        if (isMounted) setUpdateResult(res);
+      });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
+
+  const handleManualCheckUpdates = async () => {
+    feedback.playClick();
+    setIsCheckingUpdates(true);
+    setUpdateStatusNotice(null);
+    try {
+      const res = await checkForAppUpdates({ force: true });
+      setUpdateResult(res);
+      if (res.error) {
+        setUpdateStatusNotice(res.error);
+      } else if (res.hasUpdate) {
+        setUpdateStatusNotice(`Update v${res.latestVersion} available!`);
+      } else {
+        setUpdateStatusNotice('You are using the latest version');
+      }
+    } catch {
+      setUpdateStatusNotice('Unable to check updates (offline)');
+    } finally {
+      setIsCheckingUpdates(false);
+      setTimeout(() => setUpdateStatusNotice(null), 3500);
+    }
+  };
+
+  const handleDownloadUpdate = () => {
+    feedback.playClick();
+    if (updateResult?.release?.downloadUrl) {
+      triggerDirectDownload(
+        updateResult.release.downloadUrl,
+        updateResult.release.assetName || undefined
+      );
+    }
   };
 
   if (typeof document === 'undefined') return null;
@@ -647,7 +705,83 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
               </div>
 
               {/* ========================================================
-                  SECTION 5: ABOUT & SPECS
+                  SECTION 5: SOFTWARE UPDATES
+                  ======================================================== */}
+              <div className="flex flex-col gap-1.5">
+                <span className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-zinc-400">
+                  Software Updates
+                </span>
+
+                <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden p-3.5 flex flex-col gap-3 shadow-lg">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border shadow-sm"
+                        style={{
+                          backgroundColor: 'color-mix(in srgb, var(--accent-primary) 16%, transparent)',
+                          borderColor: 'color-mix(in srgb, var(--accent-primary) 32%, transparent)',
+                          color: 'var(--accent-primary)',
+                        }}
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-white">App Version</span>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/6 text-zinc-300">
+                            v{APP_VERSION}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-zinc-500 font-mono">
+                          {getPlatformLabel(detectPlatform())}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleManualCheckUpdates}
+                      disabled={isCheckingUpdates}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/6 hover:bg-white/10 border border-white/8 text-[11px] font-semibold text-zinc-200 pressable transition-all cursor-pointer disabled:opacity-50 shrink-0"
+                      title="Check for new releases"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${isCheckingUpdates ? 'animate-spin' : ''}`} />
+                      <span>{isCheckingUpdates ? 'Checking...' : 'Refresh'}</span>
+                    </button>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-black/30 border border-white/5 flex flex-col gap-2">
+                    <div className="text-[11px] font-mono">
+                      {updateStatusNotice ? (
+                        <span className="text-emerald-400 font-semibold">{updateStatusNotice}</span>
+                      ) : updateResult?.hasUpdate ? (
+                        <span className="text-amber-400 font-semibold">
+                          Update v{updateResult.latestVersion} available!
+                        </span>
+                      ) : isCheckingUpdates ? (
+                        <span className="text-zinc-400">Checking for updates...</span>
+                      ) : (
+                        <span className="text-zinc-400">Up to date (v{APP_VERSION})</span>
+                      )}
+                    </div>
+
+                    {updateResult?.hasUpdate && updateResult.release?.downloadUrl && (
+                      <button
+                        type="button"
+                        onClick={handleDownloadUpdate}
+                        className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-white font-bold text-xs pressable shadow-lg transition-all cursor-pointer"
+                        style={{ backgroundColor: 'var(--accent-primary)' }}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download Update (v{updateResult.latestVersion})</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ========================================================
+                  SECTION 6: ABOUT & SPECS
                   ======================================================== */}
               <div className="rounded-2xl bg-zinc-900/40 border border-white/6 p-4 flex flex-col gap-2.5 text-center text-xs text-zinc-500 font-mono">
                 <div className="flex items-center justify-center gap-4 text-zinc-400">
@@ -660,7 +794,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   </span>
                 </div>
                 <p className="text-[10px] text-zinc-500">
-                  Taskify OS v1.0.1 • Offline-First Dexie.js • MIT Open Source
+                  Taskify v{APP_VERSION} • Offline-First Dexie.js • MIT License
                 </p>
               </div>
             </div>

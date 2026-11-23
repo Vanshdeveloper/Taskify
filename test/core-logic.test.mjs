@@ -1405,6 +1405,29 @@ test('TASK-109: Double-Click & Audio Debounce Gating, Branch Release Trigger & P
   assert.equal(/[\u2013\u2014]/.test(readmeCode), false, 'README prose must contain zero em or en dashes');
 });
 
+test('TASK-110: Inspector Software Updates UI, OS Word Elimination & Synchronized Multi-Platform Release Versioning Contract', () => {
+  const inspectorCode = fs.readFileSync(path.resolve('src/components/layout/SlideOverInspector.tsx'), 'utf-8');
+  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+  const releaseYml = fs.readFileSync(path.resolve('.github/workflows/release.yml'), 'utf-8');
+
+  // 1. SlideOverInspector contains Software Updates UI
+  assert.ok(inspectorCode.includes('Software Updates'), 'Inspector must have Software Updates section');
+  assert.ok(inspectorCode.includes('handleManualCheckUpdates'), 'Inspector must have manual check updates handler');
+  assert.ok(inspectorCode.includes('handleDownloadUpdate'), 'Inspector must have direct download handler');
+
+  // 2. Removal of "OS" word from settings bottom sections
+  assert.equal(inspectorCode.includes('Taskify OS'), false, 'Inspector must not contain "Taskify OS" wording');
+  assert.ok(inspectorCode.includes('Taskify v{APP_VERSION}'), 'Inspector must render Taskify v{APP_VERSION}');
+  assert.equal(settingsCode.includes('Taskify OS'), false, 'SettingsView must not contain "Taskify OS" wording');
+  assert.ok(settingsCode.includes('Taskify v{APP_VERSION}'), 'SettingsView must render Taskify v{APP_VERSION}');
+
+  // 3. Synchronized Multi-Platform Release Versioning in CI
+  assert.ok(releaseYml.includes('Sync Release Version'), 'Release workflow must contain Sync Release Version step');
+  assert.ok(releaseYml.includes('npm version "${CLEAN_VER}"'), 'Release workflow must update package.json before building');
+  assert.ok(releaseYml.includes("APP_VERSION = '${CLEAN_VER}'"), 'Release workflow must update APP_VERSION in updater.ts before building');
+});
+
+
 
 
 
