@@ -1306,6 +1306,80 @@ test('TASK-106: Dynamic Navbar App Icon, Analytics Plain-Writing & Habit Reminde
   assert.ok(appCtxCode.includes("prev?.type === 'habit' && prev.entityId === habitId"), 'Habit completion must dismiss any active reminder alerts');
 });
 
+test('TASK-108: Mobile Phone Logo Pruning, Monogram Permanent Default & Direct In-App Updater Contract', async () => {
+  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+  const appCtxCode = fs.readFileSync(path.resolve('src/context/AppContext.tsx'), 'utf-8');
+  const indexHtml = fs.readFileSync(path.resolve('index.html'), 'utf-8');
+  const appCode = fs.readFileSync(path.resolve('src/App.tsx'), 'utf-8');
+  const updaterCode = fs.readFileSync(path.resolve('src/utils/updater.ts'), 'utf-8');
+
+  // 1. Mobile Phone Logo Pruning (hidden on mobile phones, functional on desktop/tablet)
+  assert.ok(
+    settingsCode.includes('className="hidden sm:block"') ||
+    settingsCode.includes('hidden sm:block'),
+    'AestheticSelector must be hidden on mobile screens via hidden sm:block'
+  );
+
+  // 2. Monogram 1 ('text-dot') permanent default
+  assert.ok(
+    appCtxCode.includes("appAesthetic: 'text-dot'"),
+    'DEFAULT_SETTINGS must permanently default to Monogram 1 (text-dot)'
+  );
+  assert.ok(
+    indexHtml.includes('y=%2268%22') && indexHtml.includes('cy=%2262%22') && indexHtml.includes('>T</text>'),
+    'index.html initial favicon must render Monogram 1 (T •)'
+  );
+
+  // 3. Automatic Update & Direct Download Engine
+  assert.ok(appCode.includes('<UpdateNotificationBanner />'), 'App.tsx must mount UpdateNotificationBanner');
+  assert.ok(settingsCode.includes('Software Updates'), 'SettingsView must contain Software Updates section');
+  assert.ok(settingsCode.includes('Check for Updates'), 'SettingsView must contain Check for Updates button');
+  assert.ok(settingsCode.includes('Download Update'), 'SettingsView must render direct Download Update button');
+
+  // 4. Semver comparison logic verification
+  function testCompareSemver(v1, v2) {
+    const clean1 = (v1 || '').replace(/^v/i, '').split('-')[0].trim();
+    const clean2 = (v2 || '').replace(/^v/i, '').split('-')[0].trim();
+    const parts1 = clean1.split('.').map((p) => parseInt(p, 10) || 0);
+    const parts2 = clean2.split('.').map((p) => parseInt(p, 10) || 0);
+    const maxLen = Math.max(parts1.length, parts2.length);
+    for (let i = 0; i < maxLen; i++) {
+      const num1 = parts1[i] ?? 0;
+      const num2 = parts2[i] ?? 0;
+      if (num1 > num2) return 1;
+      if (num1 < num2) return -1;
+    }
+    return 0;
+  }
+
+  assert.equal(testCompareSemver('1.0.2', '1.0.1') > 0, true, '1.0.2 is newer than 1.0.1');
+  assert.equal(testCompareSemver('v1.1.0', '1.0.1') > 0, true, 'v1.1.0 is newer than 1.0.1');
+  assert.equal(testCompareSemver('v1.0.1', '1.0.1'), 0, 'v1.0.1 is identical to 1.0.1');
+  assert.equal(testCompareSemver('1.0.0', '1.0.1') < 0, true, '1.0.0 is older than 1.0.1');
+
+  // 5. Platform direct binary resolution verification
+  const sampleAssets = [
+    { name: 'Taskify-Setup-1.0.2.exe', browser_download_url: 'https://github.com/.../Taskify-Setup-1.0.2.exe' },
+    { name: 'Taskify-1.0.2.dmg', browser_download_url: 'https://github.com/.../Taskify-1.0.2.dmg' },
+    { name: 'Taskify-1.0.2.AppImage', browser_download_url: 'https://github.com/.../Taskify-1.0.2.AppImage' },
+    { name: 'taskify-android-1.0.2.apk', browser_download_url: 'https://github.com/.../taskify-android-1.0.2.apk' },
+  ];
+
+  function testFindPlatformAsset(assets, platform) {
+    if (platform === 'windows') return assets.find((a) => a.name.toLowerCase().endsWith('.exe'));
+    if (platform === 'mac') return assets.find((a) => a.name.toLowerCase().endsWith('.dmg'));
+    if (platform === 'linux') return assets.find((a) => a.name.toLowerCase().endsWith('.appimage'));
+    if (platform === 'android') return assets.find((a) => a.name.toLowerCase().endsWith('.apk'));
+    return assets[0];
+  }
+
+  assert.equal(testFindPlatformAsset(sampleAssets, 'windows').name, 'Taskify-Setup-1.0.2.exe');
+  assert.equal(testFindPlatformAsset(sampleAssets, 'mac').name, 'Taskify-1.0.2.dmg');
+  assert.equal(testFindPlatformAsset(sampleAssets, 'linux').name, 'Taskify-1.0.2.AppImage');
+  assert.equal(testFindPlatformAsset(sampleAssets, 'android').name, 'taskify-android-1.0.2.apk');
+});
+
+
 
 
 

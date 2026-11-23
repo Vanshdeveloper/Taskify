@@ -331,8 +331,8 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                 </span>
 
                 <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden divide-y divide-white/6 shadow-lg">
-                  {/* App Logo Aesthetic Selector */}
-                  <div className="p-3.5">
+                  {/* App Logo Aesthetic Selector - Desktop & Tablet only, hidden on phones */}
+                  <div className="hidden sm:block p-3.5">
                     <AestheticSelector />
                   </div>
 

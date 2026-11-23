@@ -14,7 +14,7 @@ export const AppLogoMark: React.FC<AppLogoMarkProps> = ({
   size = 20,
 }) => {
   const { settings } = useApp();
-  const aesthetic = propAesthetic || settings.appAesthetic || 'dynamic-theme';
+  const aesthetic = propAesthetic || settings.appAesthetic || 'text-dot';
 
   const getOuterCircleColor = () => {
     switch (aesthetic) {
@@ -133,7 +133,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   showOnlyMark = false,
 }) => {
   const { settings } = useApp();
-  const aesthetic = propAesthetic || settings.appAesthetic || 'dynamic-theme';
+  const aesthetic = propAesthetic || settings.appAesthetic || 'text-dot';
 
   if (showOnlyMark) {
     return <AppLogoMark aesthetic={aesthetic} className={className} size={22} />;

@@ -16,7 +16,7 @@ export const AestheticSelector: React.FC<AestheticSelectorProps> = ({
 }) => {
   const { settings, updateSettings } = useApp();
   const { theme, themes } = useTheme();
-  const currentAesthetic = settings.appAesthetic || 'dynamic-theme';
+  const currentAesthetic = settings.appAesthetic || 'text-dot';
   const [filterCategory, setFilterCategory] = useState<'all' | 'circle' | 'text'>('all');
 
   const currentThemeObj = themes.find((t) => t.id === theme);

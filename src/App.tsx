@@ -10,6 +10,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { MobileTabBar } from './components/layout/MobileTabBar';
 import { LiquidTabViewport } from './components/layout/LiquidTabViewport';
 import { ReminderBanner } from './components/ui/ReminderBanner';
+import { UpdateNotificationBanner } from './components/ui/UpdateNotificationBanner';
 import { SplashScreen } from './components/ui/SplashScreen';
 import { APPLE_SPRINGS } from './utils/motion';
 
@@ -41,7 +42,7 @@ const FaviconManager: React.FC = () => {
   const currentAccent = currentThemeObj ? currentThemeObj.colors[1] : '#f26a36';
 
   useEffect(() => {
-    syncAppFavicon(settings.appAesthetic || 'dynamic-theme', currentAccent);
+    syncAppFavicon(settings.appAesthetic || 'text-dot', currentAccent);
   }, [settings.appAesthetic, currentAccent]);
 
   return null;
@@ -234,8 +235,9 @@ const MainLayout: React.FC = () => {
       className="flex flex-col h-screen w-screen overflow-hidden text-[var(--text-primary)] relative select-none"
       style={{ backgroundColor: 'var(--bg-canvas)' }}
     >
-      {/* Floating In-App Reminder Alert Banner */}
+      {/* Floating In-App Reminder Alert & Update Notification Banners */}
       <ReminderBanner />
+      <UpdateNotificationBanner />
 
       {/* Top Navbar with Live Flame Streak Trigger & Inspector */}
       <Navbar

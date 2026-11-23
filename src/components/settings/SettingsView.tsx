@@ -26,6 +26,14 @@ import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from './ThemeStudio';
 import { AestheticSelector } from './AestheticSelector';
 import { AppLogoMark } from '../ui/BrandLogo';
+import {
+  checkForAppUpdates,
+  triggerDirectDownload,
+  getPlatformLabel,
+  detectPlatform,
+  APP_VERSION,
+  type UpdateCheckResult,
+} from '../../utils/updater';
 import type { NavbarHeight, NavbarGlass } from '../../types';
 
 export const SettingsView: React.FC = () => {
@@ -43,6 +51,11 @@ export const SettingsView: React.FC = () => {
   const [budgetInput, setBudgetInput] = useState(settings.monthlyBudget.toString());
   const [savedNotice, setSavedNotice] = useState(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
+
+  // Software updates state
+  const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const [updateStatusNotice, setUpdateStatusNotice] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -122,6 +135,48 @@ export const SettingsView: React.FC = () => {
     feedback.playClick();
     if (window.confirm('Reset database to clean starter data? This will overwrite your current entries.')) {
       await resetToDefaults();
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    checkForAppUpdates().then((res) => {
+      if (isMounted) setUpdateResult(res);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleManualCheckUpdates = async () => {
+    feedback.playClick();
+    setIsCheckingUpdates(true);
+    setUpdateStatusNotice(null);
+    try {
+      const res = await checkForAppUpdates({ force: true });
+      setUpdateResult(res);
+      if (res.error) {
+        setUpdateStatusNotice(res.error);
+      } else if (res.hasUpdate) {
+        setUpdateStatusNotice(`Update v${res.latestVersion} available!`);
+      } else {
+        setUpdateStatusNotice('You are using the latest version');
+      }
+    } catch {
+      setUpdateStatusNotice('Unable to check updates (offline)');
+    } finally {
+      setIsCheckingUpdates(false);
+      setTimeout(() => setUpdateStatusNotice(null), 3500);
+    }
+  };
+
+  const handleDownloadUpdate = () => {
+    feedback.playClick();
+    if (updateResult?.release?.downloadUrl) {
+      triggerDirectDownload(
+        updateResult.release.downloadUrl,
+        updateResult.release.assetName || undefined
+      );
     }
   };
 
@@ -297,8 +352,10 @@ export const SettingsView: React.FC = () => {
         </button>
       </div>
 
-      {/* 4. App Icon & Brand Aesthetic Gallery (Unslop Redesign) */}
-      <AestheticSelector />
+      {/* 4. App Icon & Brand Aesthetic Gallery (Unslop Redesign) - Desktop & Tablet only, completely hidden on phones */}
+      <div className="hidden sm:block">
+        <AestheticSelector />
+      </div>
 
       {/* 5. Atmosphere & Theme Studio */}
       <div
@@ -823,7 +880,95 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 9. Target Platforms & System Spec */}
+      {/* 10. Software Updates & Release Engine */}
+      <div
+        className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
+      >
+        <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/6">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-sm"
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--accent-primary) 16%, transparent)',
+                borderColor: 'color-mix(in srgb, var(--accent-primary) 32%, transparent)',
+                color: 'var(--accent-primary)',
+              }}
+            >
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                <span>Software Updates</span>
+                <span
+                  className="text-[10px] font-mono px-1.5 py-0.5 rounded-md font-semibold"
+                  style={{
+                    backgroundColor: 'color-mix(in srgb, var(--accent-primary) 16%, transparent)',
+                    color: 'var(--accent-primary)',
+                  }}
+                >
+                  v{APP_VERSION}
+                </span>
+              </h2>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Automatic release detection with direct installer downloads.
+              </p>
+            </div>
+          </div>
+
+          {/* Refresh / Check for Updates Button */}
+          <button
+            type="button"
+            onClick={handleManualCheckUpdates}
+            disabled={isCheckingUpdates}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/6 hover:bg-white/10 border border-white/8 text-xs font-semibold text-zinc-200 pressable transition-all cursor-pointer disabled:opacity-50 shrink-0"
+            title="Check for new releases"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isCheckingUpdates ? 'animate-spin' : ''}`} />
+            <span>{isCheckingUpdates ? 'Checking...' : 'Check for Updates'}</span>
+          </button>
+        </div>
+
+        {/* Update Status Card */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-black/25 border border-white/5">
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-300 font-medium">Target Platform:</span>
+              <span className="text-xs font-mono text-zinc-400">
+                {getPlatformLabel(detectPlatform())}
+              </span>
+            </div>
+            <div className="text-[11px] font-mono truncate">
+              {updateStatusNotice ? (
+                <span className="text-emerald-400 font-semibold">{updateStatusNotice}</span>
+              ) : updateResult?.hasUpdate ? (
+                <span className="text-amber-400 font-semibold">
+                  Update v{updateResult.latestVersion} available for download!
+                </span>
+              ) : isCheckingUpdates ? (
+                <span className="text-zinc-400">Checking GitHub Releases API...</span>
+              ) : (
+                <span className="text-zinc-400">Up to date (Taskify v{APP_VERSION})</span>
+              )}
+            </div>
+          </div>
+
+          {/* Prominent Download New Update Button when available */}
+          {updateResult?.hasUpdate && updateResult.release?.downloadUrl && (
+            <button
+              type="button"
+              onClick={handleDownloadUpdate}
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-white font-bold text-xs pressable shadow-lg transition-all cursor-pointer shrink-0"
+              style={{ backgroundColor: 'var(--accent-primary)' }}
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download Update (v{updateResult.latestVersion})</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 11. Target Platforms & System Spec */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-3.5 border"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
