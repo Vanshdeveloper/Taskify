@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Private, offline-first personal productivity app with tasks, habits, daily safe-to-spend, and focus timer",
   "author": "Vanshdeveloper",
+  "license": "MIT",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {

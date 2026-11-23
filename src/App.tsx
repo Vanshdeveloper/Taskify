@@ -119,10 +119,11 @@ const MainLayout: React.FC = () => {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
+    let isMounted = true;
     let handle: any = null;
     const registerListener = async () => {
       try {
-        handle = await LocalNotifications.addListener(
+        const h = await LocalNotifications.addListener(
           'localNotificationActionPerformed',
           (action) => {
             const extra = action.notification.extra;
@@ -144,6 +145,11 @@ const MainLayout: React.FC = () => {
             }
           }
         );
+        if (!isMounted) {
+          h.remove();
+        } else {
+          handle = h;
+        }
       } catch (err) {
         console.warn('[Notification] Error registering action listener:', err);
       }
@@ -152,6 +158,7 @@ const MainLayout: React.FC = () => {
     registerListener();
 
     return () => {
+      isMounted = false;
       if (handle?.remove) {
         handle.remove();
       }

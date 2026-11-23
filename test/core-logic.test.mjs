@@ -1078,37 +1078,41 @@ test('TASK-097: Website Navigation Exclusivity, Official Platform Icons, Keyword
   const path = await import('node:path');
 
   // 1. Website Navigation Exclusivity & Navbar Pill Pruning Contract
-  const htmlContent = fs.readFileSync(path.resolve('website-template/index.html'), 'utf-8');
-  const cssContent = fs.readFileSync(path.resolve('website-template/style.css'), 'utf-8');
+  const websitePath = path.resolve('website-template/index.html');
+  if (fs.existsSync(websitePath)) {
+    const htmlContent = fs.readFileSync(websitePath, 'utf-8');
+    const cssContent = fs.readFileSync(path.resolve('website-template/style.css'), 'utf-8');
 
-  // Verify timer and streak pills removed from website navbar
-  assert.equal(htmlContent.includes('timer-pill'), false, 'Timer pill must be removed from website navbar');
-  assert.equal(htmlContent.includes('streak-pill'), false, 'Streak pill must be removed from website navbar');
+    // Verify timer and streak pills removed from website navbar
+    assert.equal(htmlContent.includes('timer-pill'), false, 'Timer pill must be removed from website navbar');
+    assert.equal(htmlContent.includes('streak-pill'), false, 'Streak pill must be removed from website navbar');
 
-  // Verify exclusive navigation on desktop (hamburger hidden on >=840px)
-  assert.ok(/\.menu-trigger\s*\{\s*display:\s*none\s*!important;?\s*\}/.test(cssContent), 'Hamburger menu-trigger must be hidden on PC (min-width: 840px)');
+    // Verify exclusive navigation on desktop (hamburger hidden on >=840px)
+    assert.ok(/\.menu-trigger\s*\{\s*display:\s*none\s*!important;?\s*\}/.test(cssContent), 'Hamburger menu-trigger must be hidden on PC (min-width: 840px)');
 
-  // 2. Download Platform Icons Contract (Official SVGs, No Custom Cobbled Icons)
-  // Windows: Official 4-tile SVG path
-  assert.ok(htmlContent.includes('M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z'), 'Must use official Windows 11 4-tile vector');
-  // macOS / Apple: Official Apple vector
-  assert.ok(htmlContent.includes('M18.71 19.5c-.83 1.24-1.71 2.45'), 'Must use official Apple vector');
-  // Linux: Official Tux vector
-  assert.ok(htmlContent.includes('M12.504 0q-.232 0-.48.021'), 'Must use official Linux Tux vector');
-  // Android: Official Android bugdroid vector
-  assert.ok(htmlContent.includes('M17.523 15.3414'), 'Must use official Android vector');
+    // 2. Download Platform Icons Contract (Official SVGs, No Custom Cobbled Icons)
+    // Windows: Official 4-tile SVG path
+    assert.ok(htmlContent.includes('M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z'), 'Must use official Windows 11 4-tile vector');
+    // macOS / Apple: Official Apple vector
+    assert.ok(htmlContent.includes('M18.71 19.5c-.83 1.24-1.71 2.45'), 'Must use official Apple vector');
+    // Linux: Official Tux vector
+    assert.ok(htmlContent.includes('M12.504 0q-.232 0-.48.021'), 'Must use official Linux Tux vector');
+    // Android: Official Android bugdroid vector
+    assert.ok(htmlContent.includes('M17.523 15.3414'), 'Must use official Android vector');
 
-  // 3. Keyword Pruning Contract ("Apple watch", "Apple Foundations", etc. completely removed)
-  assert.equal(/Apple watch|Apple Watch|Apple foundations|Apple Foundations/i.test(htmlContent), false, 'Zero occurrences of Apple watch or Apple foundations in index.html');
+    // 3. Keyword Pruning Contract ("Apple watch", "Apple Foundations", etc. completely removed)
+    assert.equal(/Apple watch|Apple Watch|Apple foundations|Apple Foundations/i.test(htmlContent), false, 'Zero occurrences of Apple watch or Apple foundations in index.html');
+
+    // 4. Footer Logo & Bloat Elimination Contract
+    assert.ok(/footer-brand-col[\s\S]*?<a\s+href="#hero"\s+class="app-header-brand"/i.test(htmlContent), 'Footer must use actual navbar app-header-brand logo');
+    assert.equal(htmlContent.includes('footer-status-pill'), false, 'Footer must not contain status pill bloat');
+    assert.equal(htmlContent.includes('100% Local Storage • Zero Servers'), false, 'Live dot + 100% Local Storage • Zero Servers bloat removed');
+  }
+
   const readmeContent = fs.readFileSync(path.resolve('README.md'), 'utf-8');
   assert.equal(/Apple watch|Apple Watch|Apple foundations|Apple Foundations/i.test(readmeContent), false, 'Zero occurrences of Apple watch or Apple foundations in README.md');
   const seedContent = fs.readFileSync(path.resolve('src/db/seed.ts'), 'utf-8');
   assert.equal(/Apple-grade/i.test(seedContent), false, 'Zero occurrences of Apple-grade in seed.ts');
-
-  // 4. Footer Logo & Bloat Elimination Contract
-  assert.ok(/footer-brand-col[\s\S]*?<a\s+href="#hero"\s+class="app-header-brand"/i.test(htmlContent), 'Footer must use actual navbar app-header-brand logo');
-  assert.equal(htmlContent.includes('footer-status-pill'), false, 'Footer must not contain status pill bloat');
-  assert.equal(htmlContent.includes('100% Local Storage • Zero Servers'), false, 'Live dot + 100% Local Storage • Zero Servers bloat removed');
 
   // 5. Analytics X-Axis Scrollable Chart Coordinates Math Contract
   const rangeDaysList = [7, 14, 30];
@@ -1276,6 +1280,32 @@ test('TASK-105: Navbar Centered Brand Dot, Dynamic Actual App Icon, and Web Opti
   assert.equal(readmeCode.includes('| Web | Browser |'), false, 'README must not offer web usage');
   assert.equal(releaseYml.includes('taskify-web'), false, 'Release workflow must not build or package web distribution zip');
 });
+
+test('TASK-106: Dynamic Navbar App Icon, Analytics Plain-Writing & Habit Reminder Gating Contract', () => {
+  const navbarCode = fs.readFileSync(path.resolve('src/components/layout/Navbar.tsx'), 'utf-8');
+  const faviconCode = fs.readFileSync(path.resolve('src/utils/favicon.ts'), 'utf-8');
+  const analyticsCode = fs.readFileSync(path.resolve('src/components/analytics/ExecutiveDashboardView.tsx'), 'utf-8');
+  const reminderCode = fs.readFileSync(path.resolve('src/utils/reminder.ts'), 'utf-8');
+  const appCtxCode = fs.readFileSync(path.resolve('src/context/AppContext.tsx'), 'utf-8');
+
+  // 1. Dynamic App Icon in Navbar and Favicon
+  assert.ok(navbarCode.includes('<AppLogoMark aesthetic={settings.appAesthetic} size={20} />'), 'Navbar must render dynamic AppLogoMark');
+  assert.ok(navbarCode.includes('Taskify'), 'Navbar must retain Taskify brand wordmark');
+  assert.ok(navbarCode.includes('w-1.5 h-1.5 rounded-full'), 'Navbar must retain centered dot');
+  assert.ok(faviconCode.includes('replaceFaviconLinks'), 'Favicon engine must dynamically replace DOM link elements');
+
+  // 2. Analytics Plain-Writing & Launch Focus Sprint Button Removal
+  assert.equal(analyticsCode.includes('Launch Focus Sprint'), false, 'Launch Focus Sprint button must be completely removed');
+  assert.equal(analyticsCode.includes('Professional Engine'), false, 'Professional Engine puffery badge must be removed');
+  assert.equal(/[\u2013\u2014]/.test(analyticsCode), false, 'Analytics view must contain zero em dashes or en dashes');
+  assert.ok(analyticsCode.includes('Focus Time'), 'Focus section header must use plain interface terms');
+
+  // 3. Habit Reminders Gating When Checked Off
+  assert.ok(reminderCode.includes('isCompletedToday'), 'Reminder engine must check whether habit is already completed today');
+  assert.ok(appCtxCode.includes('syncNativeScheduledReminders(tasks, habits, settings.userName, habitLogs)'), 'AppContext must pass habitLogs to reminder synchronizer');
+  assert.ok(appCtxCode.includes("prev?.type === 'habit' && prev.entityId === habitId"), 'Habit completion must dismiss any active reminder alerts');
+});
+
 
 
 

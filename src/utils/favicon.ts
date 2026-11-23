@@ -39,7 +39,18 @@ export function syncAppFavicon(aesthetic: AppAesthetic, activeThemePrimaryColor 
 
   let svgContent: string;
 
-  if (aesthetic.startsWith('text-')) {
+  if (aesthetic === 'text-dot') {
+    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="24" fill="#160f0d"/>
+      <text x="44" y="68" font-family="-apple-system, system-ui, sans-serif" font-weight="900" font-size="54" text-anchor="middle" fill="#ffffff">T</text>
+      <circle cx="68" cy="62" r="7" fill="${activeThemePrimaryColor}"/>
+    </svg>`;
+  } else if (aesthetic === 'text-caps') {
+    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="24" fill="#160f0d"/>
+      <text x="50" y="65" font-family="-apple-system, system-ui, sans-serif" font-weight="900" font-size="44" text-anchor="middle" fill="#ffffff">TK</text>
+    </svg>`;
+  } else if (aesthetic.startsWith('text-')) {
     let glyph = 'T';
     if (aesthetic === 'text-brackets') glyph = '[T]';
     else if (aesthetic === 'text-terminal') glyph = '///';
@@ -60,23 +71,37 @@ export function syncAppFavicon(aesthetic: AppAesthetic, activeThemePrimaryColor 
 
   const encoded = `data:image/svg+xml,${encodeURIComponent(svgContent.trim())}`;
   
-  // 1. Update all favicon and touch icon links in document head
-  const links = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon'], link[rel='apple-touch-icon']");
-  if (links.length > 0) {
-    links.forEach((l) => {
-      l.type = 'image/svg+xml';
-      l.href = encoded;
-    });
-  } else {
-    const link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/svg+xml';
-    link.href = encoded;
-    document.head.appendChild(link);
-  }
+  // 1. Update all favicon and touch icon links in document head by removing old elements and appending fresh ones
+  const replaceFaviconLinks = (href: string, isSvg = true) => {
+    try {
+      const existing = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon'], link[rel='apple-touch-icon']");
+      existing.forEach((el) => el.parentNode?.removeChild(el));
 
-  // 2. Render to PNG and dispatch to Electron main process to update desktop window and taskbar icon
-  if (typeof window !== 'undefined' && window.electronAPI?.setAppIcon) {
+      const linkIcon = document.createElement('link');
+      linkIcon.rel = 'icon';
+      linkIcon.type = isSvg ? 'image/svg+xml' : 'image/png';
+      linkIcon.href = href;
+      document.head.appendChild(linkIcon);
+
+      const linkShortcut = document.createElement('link');
+      linkShortcut.rel = 'shortcut icon';
+      linkShortcut.type = isSvg ? 'image/svg+xml' : 'image/png';
+      linkShortcut.href = href;
+      document.head.appendChild(linkShortcut);
+
+      const linkApple = document.createElement('link');
+      linkApple.rel = 'apple-touch-icon';
+      linkApple.href = href;
+      document.head.appendChild(linkApple);
+    } catch {
+      // Ignore DOM link replacement failures
+    }
+  };
+
+  replaceFaviconLinks(encoded, true);
+
+  // 2. Render to PNG for maximum cross-browser favicon compatibility and dispatch to Electron
+  if (typeof window !== 'undefined') {
     try {
       const canvas = document.createElement('canvas');
       canvas.width = 128;
@@ -88,7 +113,10 @@ export function syncAppFavicon(aesthetic: AppAesthetic, activeThemePrimaryColor 
           ctx.clearRect(0, 0, 128, 128);
           ctx.drawImage(img, 0, 0, 128, 128);
           const pngUrl = canvas.toDataURL('image/png');
-          window.electronAPI?.setAppIcon(pngUrl);
+          replaceFaviconLinks(pngUrl, false);
+          if (window.electronAPI?.setAppIcon) {
+            window.electronAPI.setAppIcon(pngUrl);
+          }
         }
       };
       img.src = encoded;

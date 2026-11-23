@@ -459,6 +459,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await db.habitLogs.put(logData);
 
       if (isCompleted && (!existing || !existing.completed)) {
+        setActiveReminderAlert((prev) => (prev?.type === 'habit' && prev.entityId === habitId ? null : prev));
         if (!options?.silent) {
           const x = event ? event.clientX / window.innerWidth : 0.5;
           const y = event ? event.clientY / window.innerHeight : 0.5;
@@ -531,6 +532,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           feedback.playClick();
         }
       } else {
+        setActiveReminderAlert((prev) => (prev?.type === 'habit' && prev.entityId === habitId ? null : prev));
         if (!options?.silent) {
           const x = event ? event.clientX / window.innerWidth : 0.5;
           const y = event ? event.clientY / window.innerHeight : 0.5;
@@ -841,7 +843,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (!h.reminderEnabled || !h.reminderTimes || !h.reminderTimes.length) return;
 
         const todayLog = habitLogs.find((l) => l.habitId === h.id && l.date === todayStr);
-        if (todayLog?.completed) return;
+        if (todayLog?.completed || (todayLog && todayLog.currentCount >= h.targetCount)) {
+          setActiveReminderAlert((prev) => (prev?.type === 'habit' && prev.entityId === h.id ? null : prev));
+          return;
+        }
 
         h.reminderTimes.forEach((time) => {
           const key = `habit-${h.id}-${todayStr}-${time}`;
@@ -959,7 +964,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (!isDbReady) return;
     const timer = setTimeout(() => {
-      syncNativeScheduledReminders(tasks, habits, settings.userName);
+      syncNativeScheduledReminders(tasks, habits, settings.userName, habitLogs);
       const timerSnap = focusTimerStore.getSnapshot();
       syncWidgetData({
         tasks,
@@ -990,6 +995,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const currentDate = getTodayString();
       if (currentDate !== lastDate) {
         lastDate = currentDate;
+        firedReminderKeysRef.current.clear();
         const timerSnap = focusTimerStore.getSnapshot();
         syncWidgetData({
           tasks,

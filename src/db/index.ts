@@ -42,9 +42,10 @@ export function getTodayString(): string {
 
 export function formatDateRelative(dateStr: string): string {
   const today = getTodayString();
-  if (dateStr === today) return 'Today';
+  const cleanStr = dateStr?.includes('T') ? dateStr.split('T')[0] : dateStr;
+  if (cleanStr === today) return 'Today';
 
-  const d = new Date(dateStr + 'T00:00:00');
+  const d = new Date(cleanStr + 'T00:00:00');
   const t = new Date(today + 'T00:00:00');
   const diffDays = Math.round((d.getTime() - t.getTime()) / (1000 * 3600 * 24));
 

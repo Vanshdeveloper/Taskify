@@ -15,7 +15,6 @@ import {
   Lightbulb,
   TrendingUp,
   Brain,
-  Play,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { feedback } from '../../utils/feedback';
@@ -37,38 +36,38 @@ const EXECUTIVE_INSIGHTS: ExecutiveInsight[] = [
   {
     id: 'insight-focus',
     category: 'focus',
-    categoryLabel: 'Focus & Deep Work',
+    categoryLabel: 'Focus and Deep Work',
     dotColor: '#f26a36',
     tag: 'Flow State',
-    title: '90-Minute Ultradian Limit',
-    takeaway: 'Cap deep work blocks at 90 minutes. A brief 10-minute screen-free pause restores cognitive acuity for your next sprint.',
+    title: '90-Minute Focus Limit',
+    takeaway: 'Keep deep work blocks under 90 minutes. A short 10-minute break away from screens helps restore attention for your next session.',
   },
   {
     id: 'insight-tasks',
     category: 'tasks',
     categoryLabel: 'Task Execution',
     dotColor: '#10b981',
-    tag: 'Velocity',
-    title: 'Tackle the Hardest Task First',
-    takeaway: 'Execute your primary high-friction objective before 11:00 AM when mental willpower is peak. The rest flows downhill.',
+    tag: 'Priority',
+    title: 'Do Hard Tasks First',
+    takeaway: 'Complete your most demanding task early in the day when focus is highest. Lighter tasks are easier to finish later.',
   },
   {
     id: 'insight-habits',
     category: 'habits',
     categoryLabel: 'Habit Consistency',
     dotColor: '#f59e0b',
-    tag: 'Streak Shield',
-    title: 'The Non-Negotiable 2-Day Rule',
-    takeaway: 'Never miss two days in a row. When disruptions strike, complete a minimal 2-minute micro version to protect identity.',
+    tag: 'Consistency',
+    title: 'The Two-Day Rule',
+    takeaway: 'Try not to miss two days in a row. On busy days, complete a shorter version of the habit to keep your streak going.',
   },
   {
     id: 'insight-finance',
     category: 'finance',
-    categoryLabel: 'Financial Runway',
+    categoryLabel: 'Finances',
     dotColor: '#38bdf8',
-    tag: 'Safe Runway',
-    title: 'Reverse Budget Automation',
-    takeaway: 'Directly allocate 20% to savings on payday before discretionary spending. Spend within daily allowance with zero guilt.',
+    tag: 'Budgeting',
+    title: 'Save First',
+    takeaway: 'Put aside savings as soon as income arrives, then spend within your planned daily budget with confidence.',
   },
 ];
 
@@ -109,7 +108,6 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
     financeStats,
     settings,
     getHabitStreak,
-    openPomodoro,
   } = useApp();
 
   const [rangeDays, setRangeDays] = useState<7 | 14 | 30>(14);
@@ -528,7 +526,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             Analytics
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Performance trends, routine adherence, and cashflow velocity.
+            Task progress, habit consistency, and spending summary.
           </p>
         </div>
       </div>
@@ -628,7 +626,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               <DollarSign className="w-4 h-4 shrink-0 text-rose-400" />
             )}
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300 truncate">
-              {chartMetric === 'activity' ? 'Activity Velocity' : 'Cashflow Velocity'}
+              {chartMetric === 'activity' ? 'Activity Trends' : 'Daily Spending'}
             </h3>
           </div>
 
@@ -1168,7 +1166,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col gap-4 min-w-0"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 hairline-b gap-3 min-w-0">
+        <div className="flex items-center justify-between pb-3 hairline-b gap-3 min-w-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border"
@@ -1181,32 +1179,14 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               <Timer className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                  Focus & Deep Work Analytics
-                </h4>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/25">
-                  Professional Engine
-                </span>
-              </div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+                Focus Time
+              </h4>
               <p className="text-[11px] text-zinc-400 mt-0.5">
-                Quantified Pomodoro intervals, cognitive velocity, and prime focus windows.
+                Timer sessions, daily focus duration, and active focus windows.
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              feedback.playClick();
-              openPomodoro();
-            }}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs text-white pressable shadow-md transition-all cursor-pointer self-start sm:self-auto shrink-0"
-            style={{ backgroundColor: 'var(--accent-primary)' }}
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Launch Focus Sprint</span>
-          </button>
         </div>
 
         {/* 4 Focus KPI Cards */}
@@ -1214,7 +1194,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           {/* Total Deep Work Hours */}
           <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/6 flex flex-col justify-between min-w-0">
             <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[10px] font-mono uppercase truncate">Deep Work Logged</span>
+              <span className="text-[10px] font-mono uppercase truncate">Focus Logged</span>
               <Clock className="w-3.5 h-3.5 text-orange-400" />
             </div>
             <div className="my-1.5 min-w-0">
@@ -1231,7 +1211,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
           {/* Completed Sessions */}
           <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/6 flex flex-col justify-between min-w-0">
             <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[10px] font-mono uppercase truncate">Sprints Completed</span>
+              <span className="text-[10px] font-mono uppercase truncate">Sessions Completed</span>
               <Zap className="w-3.5 h-3.5 text-amber-400" />
             </div>
             <div className="my-1.5 min-w-0">
@@ -1241,14 +1221,14 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               <span className="text-xs text-zinc-500 font-mono"> sessions</span>
             </div>
             <span className="text-[10px] text-zinc-500 font-mono truncate">
-              25m calibrated intervals
+              Completed timer intervals
             </span>
           </div>
 
           {/* Daily Velocity */}
           <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/6 flex flex-col justify-between min-w-0">
             <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[10px] font-mono uppercase truncate">Focus Velocity</span>
+              <span className="text-[10px] font-mono uppercase truncate">Daily Average</span>
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             </div>
             <div className="my-1.5 min-w-0">
@@ -1258,7 +1238,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
               <span className="text-xs text-zinc-500 font-mono"> / day</span>
             </div>
             <span className="text-[10px] text-zinc-500 font-mono truncate">
-              Across active workdays
+              Daily average focus time
             </span>
           </div>
 
@@ -1270,11 +1250,11 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             </div>
             <div className="my-1.5 min-w-0">
               <span className="font-display font-black text-sm sm:text-base text-white tracking-tight truncate block">
-                09:00 – 11:30 AM
+                9:00 AM to 11:30 AM
               </span>
             </div>
             <span className="text-[10px] text-purple-300/80 font-mono truncate">
-              Morning Cortisol Peak
+              Most active focus window
             </span>
           </div>
         </div>
@@ -1282,29 +1262,29 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
         {/* Deep Work Distribution Breakdown */}
         <div className="p-3.5 rounded-xl bg-white/[0.015] border border-white/6 flex flex-col gap-2.5">
           <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-            <span>Cognitive Focus Distribution</span>
-            <span className="text-zinc-500">{focusToTaskRatio} Task Throughput Alignment</span>
+            <span>Focus Breakdown</span>
+            <span className="text-zinc-500">{focusToTaskRatio} focus to task ratio</span>
           </div>
 
           {/* Stacked Progress Bar */}
           <div className="w-full bg-black/40 rounded-full h-2.5 overflow-hidden flex">
-            <div style={{ width: '62%' }} className="bg-orange-500 h-full" title="Deep Work & Sprints: 62%" />
-            <div style={{ width: '23%' }} className="bg-sky-500 h-full" title="Architecture & Code: 23%" />
-            <div style={{ width: '15%' }} className="bg-emerald-500 h-full" title="Review & Organization: 15%" />
+            <div style={{ width: '62%' }} className="bg-orange-500 h-full" title="Deep Work: 62%" />
+            <div style={{ width: '23%' }} className="bg-sky-500 h-full" title="Development: 23%" />
+            <div style={{ width: '15%' }} className="bg-emerald-500 h-full" title="Review and Planning: 15%" />
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 pt-0.5 flex-wrap gap-2">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-orange-500" />
-              <span>Deep Sprints (62%)</span>
+              <span>Deep Work (62%)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-sky-500" />
-              <span>Architecture & Code (23%)</span>
+              <span>Development (23%)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Review & Strategy (15%)</span>
+              <span>Review and Planning (15%)</span>
             </div>
           </div>
         </div>
@@ -1329,10 +1309,10 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ 
             </div>
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
-                Executive Insights
+                Practical Insights
               </h4>
               <p className="text-[11px] text-zinc-400 mt-0.5">
-                Distilled mental models for deep focus, task velocity, and capital preservation.
+                Helpful suggestions for focus, task completion, and daily spending.
               </p>
             </div>
           </div>

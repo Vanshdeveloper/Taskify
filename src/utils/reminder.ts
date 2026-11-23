@@ -1,8 +1,10 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications, type LocalNotificationSchema } from '@capacitor/local-notifications';
-import type { ReminderPreset, Task, Habit } from '../types';
+import type { ReminderPreset, Task, Habit, HabitLog } from '../types';
+import { getTodayString } from '../db';
 import { getDailyPoke, DAILY_POKE_SCHEDULE } from './pokeMessages';
 import { DAYPART_SCHEDULE, generateDaypartGreeting } from './daypartGreetings';
+import { focusTimerStore } from './focusTimer';
 
 /**
  * Standard preset reminder time distributions for daily habits based on frequency count (1x - 5x max)
@@ -153,7 +155,8 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 export async function syncNativeScheduledReminders(
   tasks: Task[],
   habits: Habit[],
-  userName: string = 'Alex'
+  userName: string = 'Alex',
+  habitLogs: HabitLog[] = []
 ): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
 
@@ -171,6 +174,24 @@ export async function syncNativeScheduledReminders(
 
     const notifications: LocalNotificationSchema[] = [];
     const nowMs = Date.now();
+
+    // Preserve active Focus/Pomodoro timer notification if running
+    const timerSnap = focusTimerStore.getSnapshot();
+    if (timerSnap.status === 'running' && timerSnap.remainingMs > 1000) {
+      notifications.push({
+        id: 99901,
+        title: timerSnap.mode === 'focus' ? '🎉 Focus Session Completed!' : '☕ Break Finished!',
+        body:
+          timerSnap.mode === 'focus'
+            ? 'Great focus! Time to take a well-deserved break.'
+            : 'Ready to resume your deep work session?',
+        channelId: 'taskify_reminders',
+        schedule: { at: new Date(nowMs + timerSnap.remainingMs) },
+        smallIcon: 'ic_stat_taskify',
+        iconColor: '#f26a36',
+        autoCancel: true,
+      });
+    }
 
     // 1. Schedule one-time task reminders
     tasks.forEach((t) => {
@@ -224,9 +245,17 @@ export async function syncNativeScheduledReminders(
         });
       });
 
-      // 2. Schedule daily recurring habit reminders
+      // 2. Schedule daily habit reminders (strictly gated against habits completed today)
+      const todayStr = getTodayString();
+      const nowDate = new Date();
+
       habits.forEach((h) => {
         if (!h.reminderEnabled || !h.reminderTimes || !h.reminderTimes.length) return;
+
+        // If habit is already checked off / completed today, do not schedule for today
+        const isCompletedToday = habitLogs.some(
+          (l) => l.habitId === h.id && l.date === todayStr && (l.completed || l.currentCount >= h.targetCount)
+        );
 
         h.reminderTimes.forEach((time) => {
           const [hStr, mStr] = time.split(':');
@@ -235,6 +264,34 @@ export async function syncNativeScheduledReminders(
           if (!isNaN(hour) && !isNaN(minute)) {
             const bodyText = `Time for your daily routine: ${h.targetCount} ${h.unit} • ${h.timeOfDay}`;
             const expandedBody = h.description ? `${bodyText}\n${h.description}` : bodyText;
+
+            const scheduledToday = new Date(
+              nowDate.getFullYear(),
+              nowDate.getMonth(),
+              nowDate.getDate(),
+              hour,
+              minute,
+              0
+            );
+
+            let scheduledDate: Date;
+            if (isCompletedToday || scheduledToday.getTime() <= nowMs + 5000) {
+              // Habit is checked off today or time has passed: schedule for tomorrow
+              const tomorrow = new Date(nowDate);
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              scheduledDate = new Date(
+                tomorrow.getFullYear(),
+                tomorrow.getMonth(),
+                tomorrow.getDate(),
+                hour,
+                minute,
+                0
+              );
+            } else {
+              // Not yet completed today and time is in future: schedule for today
+              scheduledDate = scheduledToday;
+            }
+
             notifications.push({
               id: stringToIntegerId(`habit-${h.id}-${time}`),
               title: `Daily Routine: ${h.name}`,
@@ -245,7 +302,7 @@ export async function syncNativeScheduledReminders(
               smallIcon: 'ic_stat_taskify',
               iconColor: '#f26a36',
               schedule: {
-                on: { hour, minute },
+                at: scheduledDate,
                 allowWhileIdle: true,
               },
               autoCancel: true,
