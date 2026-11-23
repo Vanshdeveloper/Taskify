@@ -1288,10 +1288,10 @@ test('TASK-106: Dynamic Navbar App Icon, Analytics Plain-Writing & Habit Reminde
   const reminderCode = fs.readFileSync(path.resolve('src/utils/reminder.ts'), 'utf-8');
   const appCtxCode = fs.readFileSync(path.resolve('src/context/AppContext.tsx'), 'utf-8');
 
-  // 1. Dynamic App Icon in Navbar and Favicon
-  assert.ok(navbarCode.includes('<AppLogoMark aesthetic={settings.appAesthetic} size={20} />'), 'Navbar must render dynamic AppLogoMark');
+  // 1. Dynamic App Icon in Favicon and Desktop, Static Navbar Brand
   assert.ok(navbarCode.includes('Taskify'), 'Navbar must retain Taskify brand wordmark');
   assert.ok(navbarCode.includes('w-1.5 h-1.5 rounded-full'), 'Navbar must retain centered dot');
+  assert.ok(navbarCode.includes('var(--accent-primary)'), 'Navbar dot must be dynamically colored with active theme');
   assert.ok(faviconCode.includes('replaceFaviconLinks'), 'Favicon engine must dynamically replace DOM link elements');
 
   // 2. Analytics Plain-Writing & Launch Focus Sprint Button Removal

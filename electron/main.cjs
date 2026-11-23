@@ -33,6 +33,9 @@ ipcMain.on('set-window-icon', (event, dataUrl) => {
       const img = nativeImage.createFromDataURL(dataUrl);
       if (!img.isEmpty()) {
         mainWindow.setIcon(img);
+        if (process.platform === 'darwin' && app.dock) {
+          app.dock.setIcon(img);
+        }
       }
     } catch (err) {
       console.error('Failed to set dynamic window icon:', err);

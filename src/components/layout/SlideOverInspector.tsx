@@ -660,7 +660,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   </span>
                 </div>
                 <p className="text-[10px] text-zinc-500">
-                  Taskify OS v1.0.0 • Offline-First Dexie.js • MIT Open Source
+                  Taskify OS v1.0.1 • Offline-First Dexie.js • MIT Open Source
                 </p>
               </div>
             </div>
