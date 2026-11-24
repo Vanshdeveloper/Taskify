@@ -1423,8 +1423,8 @@ test('TASK-110: Inspector Software Updates UI, OS Word Elimination & Synchronize
 
   // 3. Synchronized Multi-Platform Release Versioning in CI
   assert.ok(releaseYml.includes('Sync Release Version'), 'Release workflow must contain Sync Release Version step');
-  assert.ok(releaseYml.includes('npm version "${CLEAN_VER}"'), 'Release workflow must update package.json before building');
-  assert.ok(releaseYml.includes("APP_VERSION = '${CLEAN_VER}'"), 'Release workflow must update APP_VERSION in updater.ts before building');
+  assert.ok(releaseYml.includes('node scripts/sync-version.cjs'), 'Release workflow must invoke sync-version script');
+  assert.ok(fs.existsSync(path.resolve('scripts/sync-version.cjs')), 'scripts/sync-version.cjs must exist');
 });
 
 
