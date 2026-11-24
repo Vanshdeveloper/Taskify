@@ -1572,14 +1572,14 @@ test('TASK-117: Website Desktop Nav Alignment, Mobile Close Button, Gravity Star
     assert.ok(websiteCss.includes('.mobile-menu-close-btn'), 'style.css must style mobile close button');
     assert.ok(websiteJs.includes('mobileMenuCloseBtn.addEventListener'), 'script.js must wire mobile close button to close drawer');
 
-    // 3. SmoothUI Gravity Stars and Pixel Flow Field Canvases Contract
+    // 3. SmoothUI Pixel Flow Field Canvases Contract (Gravity stars retired in TASK-120 per user directive)
     assert.ok(websiteHtml.includes('id="pixel-flow-canvas"'), 'index.html must mount pixel-flow-canvas');
-    assert.ok(websiteHtml.includes('id="gravity-stars-canvas"'), 'index.html must mount gravity-stars-canvas');
+    assert.equal(websiteHtml.includes('id="gravity-stars-canvas"'), false, 'Gravity stars canvas must be removed');
     assert.equal(websiteHtml.includes('id="liquid-metal-canvas"'), false, 'Liquid metal canvas must be removed');
     assert.equal(websiteHtml.includes('liquid-metal-btn'), false, 'Liquid metal button class must be removed');
 
     assert.ok(websiteJs.includes('initPixelFlowField'), 'script.js must initialize Pixel Flow Field');
-    assert.ok(websiteJs.includes('initGravityStars'), 'script.js must initialize Gravity Stars particle physics');
+    assert.equal(websiteJs.includes('initGravityStars'), false, 'script.js must remove Gravity Stars particle physics');
     assert.equal(websiteJs.includes('initLiquidMetalCanvas'), false, 'script.js must remove liquid metal shader');
 
     // 4. SmoothUI 3D Tilt & Spotlight Hover for the 3 Pillar Cards Contract
@@ -1608,5 +1608,38 @@ test('TASK-119: Complete Pruning of README Banner Image & Website Image Showcase
     assert.equal(websiteHtml.includes('class="showcase-section"'), false, 'website index.html must not contain showcase section');
     assert.equal(websiteHtml.includes('newgen-stage-card'), false, 'website index.html must not contain newgen stage cards');
     assert.equal(websiteHtml.includes('href="#showcase"'), false, 'website navigation must not reference #showcase');
+  }
+});
+
+test('TASK-120: SmoothUI Progressive Blur Statement Section & Hero Gravity Stars Pruning Contract', () => {
+  if (fs.existsSync(path.resolve('website-template/index.html'))) {
+    const websiteHtml = fs.readFileSync(path.resolve('website-template/index.html'), 'utf-8');
+    const websiteCss = fs.readFileSync(path.resolve('website-template/style.css'), 'utf-8');
+    const websiteJs = fs.readFileSync(path.resolve('website-template/script.js'), 'utf-8');
+
+    // 1. Gravity stars must be completely pruned
+    assert.equal(websiteHtml.includes('gravity-stars-canvas'), false, 'Hero must not contain gravity stars canvas');
+    assert.equal(websiteCss.includes('#gravity-stars-canvas'), false, 'CSS must not contain #gravity-stars-canvas styling');
+    assert.equal(websiteJs.includes('initGravityStars'), false, 'JavaScript must not contain initGravityStars');
+
+    // 2. Progressive blur section must be positioned between UNIFIED PRODUCTIVITY (#features) and DEEP FOCUS & NOTES (#notes-focus)
+    const featuresPos = websiteHtml.indexOf('id="features"');
+    const blurPos = websiteHtml.indexOf('class="progressive-blur-section"');
+    const notesPos = websiteHtml.indexOf('id="notes-focus"');
+
+    assert.ok(featuresPos !== -1, '#features section must exist');
+    assert.ok(blurPos !== -1, 'progressive-blur-section must exist');
+    assert.ok(notesPos !== -1, '#notes-focus section must exist');
+    assert.ok(featuresPos < blurPos && blurPos < notesPos, 'progressive-blur-section must be strictly placed between #features and #notes-focus');
+
+    // 3. Progressive Blur Multi-Tier Optical Stack & Display Typography Contract
+    assert.ok(websiteHtml.includes('blur-tier-1') && websiteHtml.includes('blur-tier-5'), 'Must contain 5-tier progressive blur backdrop elements');
+    assert.ok(websiteHtml.includes('progressive-big-text'), 'Must contain large progressive statement text');
+    assert.ok(websiteHtml.includes('progressive-edge-mask'), 'Must include edge mask for optical depth attenuation');
+
+    assert.ok(websiteCss.includes('.progressive-blur-section'), 'CSS must define .progressive-blur-section');
+    assert.ok(websiteCss.includes('.progressive-big-text'), 'CSS must style .progressive-big-text with display clamp');
+    assert.ok(websiteCss.includes('backdrop-filter: blur(48px)'), 'CSS must include progressive optical backdrop blurs');
+    assert.ok(websiteCss.includes('mask-image: linear-gradient'), 'CSS must apply linear gradient masks to progressive blur tiers');
   }
 });
