@@ -20,7 +20,6 @@ import {
   Sparkles,
   CreditCard,
   DollarSign,
-  Layers,
   ChevronRight,
   RefreshCw,
 } from 'lucide-react';
@@ -29,7 +28,6 @@ import { CustomSelect } from '../ui/CustomSelect';
 import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from '../settings/ThemeStudio';
-import { AestheticSelector } from '../settings/AestheticSelector';
 import {
   checkForAppUpdates,
   triggerDirectDownload,
@@ -39,7 +37,7 @@ import {
   type UpdateCheckResult,
 } from '../../utils/updater';
 import { APPLE_SPRINGS } from '../../utils/motion';
-import type { NavbarHeight, NavbarGlass } from '../../types';
+import type { NavbarHeight } from '../../types';
 
 interface SlideOverInspectorProps {
   isOpen: boolean;
@@ -97,11 +95,6 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
   const handleNavbarHeightChange = async (height: NavbarHeight) => {
     feedback.playClick();
     await updateSettings({ navbarHeight: height });
-  };
-
-  const handleNavbarGlassChange = async (glass: NavbarGlass) => {
-    feedback.playClick();
-    await updateSettings({ navbarGlass: glass });
   };
 
   const handleExportBackup = async () => {
@@ -389,11 +382,6 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                 </span>
 
                 <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden divide-y divide-white/6 shadow-lg">
-                  {/* App Logo Aesthetic Selector - Desktop & Tablet only, hidden on phones */}
-                  <div className="hidden sm:block p-3.5">
-                    <AestheticSelector />
-                  </div>
-
                   {/* Themes Studio */}
                   <div className="p-3.5">
                     <div className="flex items-center gap-2 mb-2">
@@ -433,40 +421,6 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                             }`}
                           >
                             {h.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Surface Material Selector */}
-                  <div className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-lg bg-violet-500/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0">
-                        <Layers className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-xs font-semibold text-white">Surface Material</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 bg-white/5 border border-white/8 rounded-xl p-0.5">
-                      {(
-                        [
-                          { id: 'solid', label: 'Solid' },
-                          { id: 'glass', label: 'Frosted' },
-                          { id: 'vibrant', label: 'Vibrant' },
-                        ] as const
-                      ).map((g) => {
-                        const isSel = (settings.navbarGlass || 'glass') === g.id;
-                        return (
-                          <button
-                            key={g.id}
-                            type="button"
-                            onClick={() => handleNavbarGlassChange(g.id)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                              isSel ? 'bg-white/15 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
-                            }`}
-                          >
-                            {g.label}
                           </button>
                         );
                       })}

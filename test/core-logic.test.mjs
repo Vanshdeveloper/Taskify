@@ -1315,19 +1315,18 @@ test('TASK-108: Mobile Phone Logo Pruning, Monogram Permanent Default & Direct I
 
   // 1. Mobile Phone Logo Pruning (hidden on mobile phones, functional on desktop/tablet)
   assert.ok(
-    settingsCode.includes('className="hidden sm:block"') ||
-    settingsCode.includes('hidden sm:block'),
-    'AestheticSelector must be hidden on mobile screens via hidden sm:block'
+    !settingsCode.includes('<AestheticSelector'),
+    'AestheticSelector must be pruned from Settings'
   );
 
   // 2. Monogram 1 ('text-dot') permanent default
   assert.ok(
-    appCtxCode.includes("appAesthetic: 'text-dot'"),
-    'DEFAULT_SETTINGS must permanently default to Monogram 1 (text-dot)'
+    appCtxCode.includes("appAesthetic: 'text-caps'"),
+    'DEFAULT_SETTINGS must permanently default to Monogram 3 (text-caps)'
   );
   assert.ok(
-    indexHtml.includes('y=%2268%22') && indexHtml.includes('cy=%2262%22') && indexHtml.includes('>T</text>'),
-    'index.html initial favicon must render Monogram 1 (T •)'
+    indexHtml.includes('>TK</text>'),
+    'index.html initial favicon must render Monogram 3 (TK)'
   );
 
   // 3. Automatic Update & Direct Download Engine
@@ -1427,11 +1426,35 @@ test('TASK-110: Inspector Software Updates UI, OS Word Elimination & Synchronize
   assert.ok(fs.existsSync(path.resolve('scripts/sync-version.cjs')), 'scripts/sync-version.cjs must exist');
 });
 
+test('TASK-112: Notes Undo/Redo Engine, Settings Logo & Surface Pruning, Monogram 3 & Hardware Vibration Contract', () => {
+  const scratchpadCode = fs.readFileSync(path.resolve('src/components/scratchpad/ScratchpadView.tsx'), 'utf-8');
+  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+  const inspectorCode = fs.readFileSync(path.resolve('src/components/layout/SlideOverInspector.tsx'), 'utf-8');
+  const themeStudioCode = fs.readFileSync(path.resolve('src/components/settings/ThemeStudio.tsx'), 'utf-8');
+  const appCtxCode = fs.readFileSync(path.resolve('src/context/AppContext.tsx'), 'utf-8');
+  const indexHtml = fs.readFileSync(path.resolve('index.html'), 'utf-8');
+  const feedbackCode = fs.readFileSync(path.resolve('src/utils/feedback.ts'), 'utf-8');
 
+  // 1. Notes Undo / Redo Engine
+  assert.ok(scratchpadCode.includes('undoStackRef') && scratchpadCode.includes('redoStackRef'), 'ScratchpadView must maintain undoStack and redoStack');
+  assert.ok(scratchpadCode.includes('handleUndo') && scratchpadCode.includes('handleRedo'), 'ScratchpadView must implement handleUndo and handleRedo');
+  assert.ok(scratchpadCode.includes('recordHistorySnapshot'), 'ScratchpadView must record history snapshots on typing and commands');
 
+  // 2. Logo Pruning from Settings
+  assert.equal(settingsCode.includes('<AestheticSelector'), false, 'SettingsView must not render AestheticSelector');
+  assert.equal(inspectorCode.includes('<AestheticSelector'), false, 'SlideOverInspector must not render AestheticSelector');
 
+  // 3. Monogram 3 ('text-caps') permanent final logo
+  assert.ok(appCtxCode.includes("appAesthetic: 'text-caps'"), 'DEFAULT_SETTINGS must default to text-caps');
+  assert.ok(indexHtml.includes('>TK</text>'), 'index.html must render Monogram 3 TK');
 
+  // 4. Theme Card Active / Select Removal (Tick only)
+  assert.equal(themeStudioCode.includes("isActive ? 'Active' : 'Select'"), false, 'ThemeStudio must not render Active or Select text');
 
+  // 5. Surface Material Removal from Settings
+  assert.equal(settingsCode.includes('Material Translucency'), false, 'SettingsView must not contain Material Translucency');
+  assert.equal(inspectorCode.includes('Surface Material'), false, 'SlideOverInspector must not contain Surface Material');
 
-
-
+  // 6. Direct Hardware Vibration via Capacitor Haptics.vibrate
+  assert.ok(feedbackCode.includes('Haptics.vibrate({ duration: pulseMs })'), 'Feedback engine must invoke Haptics.vibrate with duration pulseMs');
+});

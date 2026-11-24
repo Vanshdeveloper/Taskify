@@ -149,7 +149,7 @@ export const ThemeStudio: React.FC = () => {
               </div>
 
               {/* Bottom Row: Swatch Strip */}
-              <div className="flex items-center justify-between mt-3.5 pt-2.5 hairline-t">
+              <div className="flex items-center justify-start mt-3.5 pt-2.5 hairline-t">
                 <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/40 border border-white/8">
                   {t.colors.map((c, idx) => (
                     <span
@@ -160,9 +160,6 @@ export const ThemeStudio: React.FC = () => {
                     />
                   ))}
                 </div>
-                <span className="text-[10px] font-mono text-zinc-500 uppercase">
-                  {isActive ? 'Active' : 'Select'}
-                </span>
               </div>
             </motion.div>
           );

@@ -24,7 +24,6 @@ import { CustomSelect } from '../ui/CustomSelect';
 import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from './ThemeStudio';
-import { AestheticSelector } from './AestheticSelector';
 import { AppLogoMark } from '../ui/BrandLogo';
 import {
   checkForAppUpdates,
@@ -34,7 +33,7 @@ import {
   APP_VERSION,
   type UpdateCheckResult,
 } from '../../utils/updater';
-import type { NavbarHeight, NavbarGlass } from '../../types';
+import type { NavbarHeight } from '../../types';
 
 export const SettingsView: React.FC = () => {
   const {
@@ -88,11 +87,6 @@ export const SettingsView: React.FC = () => {
   const handleNavbarHeightChange = async (height: NavbarHeight) => {
     feedback.playClick();
     await updateSettings({ navbarHeight: height });
-  };
-
-  const handleNavbarGlassChange = async (glass: NavbarGlass) => {
-    feedback.playClick();
-    await updateSettings({ navbarGlass: glass });
   };
 
   const handleDownloadBackup = async () => {
@@ -352,12 +346,7 @@ export const SettingsView: React.FC = () => {
         </button>
       </div>
 
-      {/* 4. App Icon & Brand Aesthetic Gallery (Unslop Redesign) - Desktop & Tablet only, completely hidden on phones */}
-      <div className="hidden sm:block">
-        <AestheticSelector />
-      </div>
-
-      {/* 5. Atmosphere & Theme Studio */}
+      {/* 4. Atmosphere & Theme Studio */}
       <div
         className="solid-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col gap-4 border"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-card)' }}
@@ -769,39 +758,6 @@ export const SettingsView: React.FC = () => {
                   >
                     <span className="text-xs font-bold text-white block">{h.label}</span>
                     <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block">{h.desc}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Glass Material */}
-          <div>
-            <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-2">
-              Material Translucency
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(
-                [
-                  { id: 'solid', label: 'Solid', desc: 'Opaque canvas' },
-                  { id: 'glass', label: 'Frosted', desc: 'Fluid 20px blur' },
-                  { id: 'vibrant', label: 'Vibrant', desc: 'Glow glass' },
-                ] as const
-              ).map((g) => {
-                const isSel = (settings.navbarGlass || 'solid') === g.id;
-                return (
-                  <button
-                    key={g.id}
-                    type="button"
-                    onClick={() => handleNavbarGlassChange(g.id)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer pressable ${
-                      isSel
-                        ? 'border-white/30 ring-2 ring-white/20 bg-white/[0.08]'
-                        : 'border-white/8 hover:border-white/16 bg-white/[0.02]'
-                    }`}
-                  >
-                    <span className="text-xs font-bold text-white block">{g.label}</span>
-                    <span className="text-[10px] font-mono text-zinc-400 mt-0.5 block">{g.desc}</span>
                   </button>
                 );
               })}

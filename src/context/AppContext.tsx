@@ -130,7 +130,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   currency: typeof window !== 'undefined' ? autodetectCurrency().symbol : '$',
   userName: 'Alex',
   darkMode: true,
-  appAesthetic: 'text-dot',
+  appAesthetic: 'text-caps',
   navbarHeight: 'default',
   navbarGlass: 'solid',
   hapticFeedback: true,

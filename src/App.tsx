@@ -42,7 +42,7 @@ const FaviconManager: React.FC = () => {
   const currentAccent = currentThemeObj ? currentThemeObj.colors[1] : '#f26a36';
 
   useEffect(() => {
-    syncAppFavicon(settings.appAesthetic || 'text-dot', currentAccent);
+    syncAppFavicon(settings.appAesthetic || 'text-caps', currentAccent);
   }, [settings.appAesthetic, currentAccent]);
 
   return null;

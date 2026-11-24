@@ -37,7 +37,18 @@ class AudioFeedbackEngine {
   private triggerVibration(type: 'click' | 'success') {
     if (!this.isHapticsEnabled || this.hapticIntensity <= 0) return;
 
-    // 1. Native mobile hardware impact via Capacitor with scaled intensity
+    const pulseMs = type === 'click'
+      ? Math.round(25 + (this.hapticIntensity / 100) * 75)
+      : Math.round(50 + (this.hapticIntensity / 100) * 70);
+
+    // 1. Direct hardware vibration via Capacitor Haptics.vibrate
+    // Uses VibrationEffect.createOneShot(duration, DEFAULT_AMPLITUDE), which works universally
+    // on all Android devices (unlike createWaveform/impact which throws on devices without amplitude control)
+    try {
+      Haptics.vibrate({ duration: pulseMs }).catch(() => {});
+    } catch {}
+
+    // 2. Native mobile hardware impact / notification for iOS Taptic Engine & high-end actuators
     try {
       if (type === 'click') {
         const style = this.hapticIntensity <= 35
@@ -51,18 +62,13 @@ class AudioFeedbackEngine {
       }
     } catch {}
 
-    // 2. Direct physical vibration motor fallback across Android WebViews & mobile browsers
-    // Scales vibration pulse length proportionally so vibration is noticeably felt on all hardware
+    // 3. Direct physical vibration motor fallback across Android WebViews & mobile browsers
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
       try {
         if (type === 'click') {
-          // Range: 25ms to 100ms
-          const pulseMs = Math.round(25 + (this.hapticIntensity / 100) * 75);
           navigator.vibrate(pulseMs);
         } else {
-          const p1 = Math.round(25 + (this.hapticIntensity / 100) * 45);
-          const p2 = Math.round(35 + (this.hapticIntensity / 100) * 65);
-          navigator.vibrate([p1, 40, p2]);
+          navigator.vibrate([pulseMs, 40, pulseMs]);
         }
       } catch {}
     }
@@ -222,13 +228,7 @@ class AudioFeedbackEngine {
 
   // Soothing multi-frequency Solfeggio bell chime chord for Pomodoro/Focus milestones
   playFocusChime(type: 'focusComplete' | 'breakComplete' | 'focus' | 'break' = 'focusComplete') {
-    if (this.isHapticsEnabled) {
-      try {
-        Haptics.notification({ type: NotificationType.Success }).catch(() => {});
-      } catch {
-        // Graceful fallback on web
-      }
-    }
+    this.triggerVibration('success');
 
     try {
       const ctx = this.getContext();

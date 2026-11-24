@@ -231,6 +231,12 @@ export const ScratchpadView: React.FC = () => {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const loadedNoteIdRef = useRef<string | null>(null);
 
+  // Robust In-Memory Undo & Redo History Stacks
+  const undoStackRef = useRef<string[]>([]);
+  const redoStackRef = useRef<string[]>([]);
+  const isUndoRedoActionRef = useRef<boolean>(false);
+  const historyDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const activeNoteIdRef = useRef(activeNoteId);
   const editTitleRef = useRef(editTitle);
   const editContentRef = useRef(editContent);
@@ -335,11 +341,17 @@ export const ScratchpadView: React.FC = () => {
       editColorRef.current = activeNote.color || '#f26a36';
 
       hydrateEditorDom(activeNote.content || '');
+      undoStackRef.current = [activeNote.content || ''];
+      redoStackRef.current = [];
+      isUndoRedoActionRef.current = false;
       isDirtyRef.current = false;
       setSaveStatus('saved');
       setLastSavedTime(`Saved ${formatNoteDate(activeNote.updatedAt)}`);
     } else if (!activeNote && loadedNoteIdRef.current !== null) {
       loadedNoteIdRef.current = null;
+      undoStackRef.current = [];
+      redoStackRef.current = [];
+      isUndoRedoActionRef.current = false;
       setEditTitle('');
       setEditContent('');
       editTitleRef.current = '';
@@ -424,23 +436,129 @@ export const ScratchpadView: React.FC = () => {
     }, 250);
   }, [flushSaveNow]);
 
+  // Record snapshot for undo / redo history
+  const recordHistorySnapshot = useCallback((newHtml: string, immediate = false) => {
+    if (isUndoRedoActionRef.current) return;
+
+    const pushSnapshot = () => {
+      const stack = undoStackRef.current;
+      const last = stack[stack.length - 1];
+      if (last !== newHtml) {
+        stack.push(newHtml);
+        if (stack.length > 50) {
+          stack.shift();
+        }
+        redoStackRef.current = [];
+      }
+    };
+
+    if (immediate) {
+      if (historyDebounceTimerRef.current) {
+        clearTimeout(historyDebounceTimerRef.current);
+        historyDebounceTimerRef.current = null;
+      }
+      pushSnapshot();
+    } else {
+      if (historyDebounceTimerRef.current) {
+        clearTimeout(historyDebounceTimerRef.current);
+      }
+      historyDebounceTimerRef.current = setTimeout(pushSnapshot, 300);
+    }
+  }, []);
+
   // Handle contentEditable user typing / input
-  const handleEditorInput = () => {
+  const handleEditorInput = (immediateHistory: boolean | React.FormEvent = false) => {
+    const isImmediate = typeof immediateHistory === 'boolean' ? immediateHistory : false;
     if (!editorRef.current) return;
     const html = editorRef.current.innerHTML;
     editContentRef.current = html;
     setEditContent(html);
     triggerAutosave();
+    if (!isUndoRedoActionRef.current) {
+      recordHistorySnapshot(html, isImmediate);
+    }
   };
+
+  // Deterministic Undo Action
+  const handleUndo = useCallback(() => {
+    feedback.playClick();
+    if (historyDebounceTimerRef.current) {
+      clearTimeout(historyDebounceTimerRef.current);
+      historyDebounceTimerRef.current = null;
+    }
+
+    const undoStack = undoStackRef.current;
+    if (undoStack.length <= 1) {
+      return;
+    }
+
+    const currentHtml = editorRef.current ? editorRef.current.innerHTML : (editContentRef.current || '');
+    const currentTop = undoStack[undoStack.length - 1];
+    if (currentHtml !== currentTop) {
+      undoStack.push(currentHtml);
+    }
+
+    const current = undoStack.pop()!;
+    redoStackRef.current.push(current);
+
+    const prevHtml = undoStack[undoStack.length - 1] || '';
+
+    isUndoRedoActionRef.current = true;
+    hydrateEditorDom(prevHtml);
+    editContentRef.current = prevHtml;
+    setEditContent(prevHtml);
+    triggerAutosave();
+
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+
+    setTimeout(() => {
+      isUndoRedoActionRef.current = false;
+    }, 60);
+  }, [hydrateEditorDom, triggerAutosave]);
+
+  // Deterministic Redo Action
+  const handleRedo = useCallback(() => {
+    feedback.playClick();
+    if (redoStackRef.current.length === 0) {
+      return;
+    }
+
+    const nextHtml = redoStackRef.current.pop()!;
+    undoStackRef.current.push(nextHtml);
+
+    isUndoRedoActionRef.current = true;
+    hydrateEditorDom(nextHtml);
+    editContentRef.current = nextHtml;
+    setEditContent(nextHtml);
+    triggerAutosave();
+
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+
+    setTimeout(() => {
+      isUndoRedoActionRef.current = false;
+    }, 60);
+  }, [hydrateEditorDom, triggerAutosave]);
 
   // Rich Text Execution Helpers
   const execCmd = (command: string, val: string | undefined = undefined) => {
+    if (command === 'undo') {
+      handleUndo();
+      return;
+    }
+    if (command === 'redo') {
+      handleRedo();
+      return;
+    }
     if (editorRef.current) {
       editorRef.current.focus();
     }
     feedback.playClick();
     document.execCommand(command, false, val);
-    handleEditorInput();
+    handleEditorInput(true);
   };
 
   const handleApplySize = (tag: string) => {
@@ -504,6 +622,22 @@ export const ScratchpadView: React.FC = () => {
   };
 
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
+    const isMod = e.metaKey || e.ctrlKey;
+    if (isMod && (e.key === 'z' || e.key === 'Z')) {
+      e.preventDefault();
+      if (e.shiftKey) {
+        handleRedo();
+      } else {
+        handleUndo();
+      }
+      return;
+    }
+    if (isMod && (e.key === 'y' || e.key === 'Y')) {
+      e.preventDefault();
+      handleRedo();
+      return;
+    }
+
     if (e.key === 'Enter') {
       const sel = window.getSelection();
       if (sel && sel.anchorNode) {
@@ -984,7 +1118,7 @@ export const ScratchpadView: React.FC = () => {
           }`}>
             <button
               type="button"
-              onClick={() => execCmd('undo')}
+              onClick={handleUndo}
               className={`w-7 h-7 rounded-lg pressable cursor-pointer flex items-center justify-center ${
                 paperTheme === 'light' ? 'text-zinc-700 hover:text-zinc-950 hover:bg-zinc-300/70' : 'text-zinc-400 hover:text-white hover:bg-white/10'
               }`}
@@ -994,7 +1128,7 @@ export const ScratchpadView: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => execCmd('redo')}
+              onClick={handleRedo}
               className={`w-7 h-7 rounded-lg pressable cursor-pointer flex items-center justify-center ${
                 paperTheme === 'light' ? 'text-zinc-700 hover:text-zinc-950 hover:bg-zinc-300/70' : 'text-zinc-400 hover:text-white hover:bg-white/10'
               }`}
