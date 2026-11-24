@@ -1541,7 +1541,7 @@ test('TASK-115: Native Widget Redesign Execution & Cross-View SmoothUI Integrati
   assert.ok(habitsViewCode.includes('<NumberTicker value={habitsDoneToday}'), 'HabitsView must use NumberTicker for completed habits count');
 });
 
-test('TASK-116: Authoritative README Polish, Commitment Section Pruning & WebGL Liquid Metal Contract', () => {
+test('TASK-116: Authoritative README Polish & Commitment Section Pruning Contract', () => {
   const readmeCode = fs.readFileSync(path.resolve('README.md'), 'utf-8');
   assert.ok(readmeCode.includes('img.shields.io/github/v/release'), 'README must include GitHub release badge');
   assert.ok(readmeCode.includes('img.shields.io/badge/storage-100%25%20offline-success'), 'README must include 100% offline badge');
@@ -1554,12 +1554,46 @@ test('TASK-116: Authoritative README Polish, Commitment Section Pruning & WebGL 
 
   if (fs.existsSync(path.resolve('website-template/index.html'))) {
     const websiteHtml = fs.readFileSync(path.resolve('website-template/index.html'), 'utf-8');
-    assert.ok(websiteHtml.includes('id="liquid-metal-canvas"'), 'website index.html must mount liquid-metal-canvas');
     assert.equal(websiteHtml.includes('id="commitment"'), false, 'website index.html must not contain #commitment section');
-    assert.ok(websiteHtml.includes('liquid-metal-btn'), 'website index.html must use liquid-metal-btn class on primary CTA');
+  }
+});
 
+test('TASK-117: Website Desktop Nav Alignment, Mobile Close Button, Gravity Stars, Pixel Flow Field & SmoothUI Pillar Cards Contract', () => {
+  if (fs.existsSync(path.resolve('website-template/index.html'))) {
+    const websiteHtml = fs.readFileSync(path.resolve('website-template/index.html'), 'utf-8');
+    const websiteCss = fs.readFileSync(path.resolve('website-template/style.css'), 'utf-8');
     const websiteJs = fs.readFileSync(path.resolve('website-template/script.js'), 'utf-8');
-    assert.ok(websiteJs.includes('initLiquidMetalCanvas'), 'website script.js must implement initLiquidMetalCanvas');
-    assert.ok(websiteJs.includes('u_mouse') && websiteJs.includes('waveMap'), 'website script.js must implement interactive WebGL liquid mercury shader');
+
+    // 1. Desktop Nav Right Alignment Contract
+    assert.ok(websiteCss.includes('margin-left: auto; /* Push nav links to the right side on desktop */'), 'Navbar links must be pushed to right side on desktop');
+
+    // 2. Mobile Menu Close Button Contract
+    assert.ok(websiteHtml.includes('id="mobile-menu-close-btn"'), 'Mobile drawer must include explicit close button');
+    assert.ok(websiteHtml.includes('mobile-menu-header'), 'Mobile drawer must feature mobile-menu-header');
+    assert.ok(websiteCss.includes('.mobile-menu-close-btn'), 'style.css must style mobile close button');
+    assert.ok(websiteJs.includes('mobileMenuCloseBtn.addEventListener'), 'script.js must wire mobile close button to close drawer');
+
+    // 3. SmoothUI Gravity Stars and Pixel Flow Field Canvases Contract
+    assert.ok(websiteHtml.includes('id="pixel-flow-canvas"'), 'index.html must mount pixel-flow-canvas');
+    assert.ok(websiteHtml.includes('id="gravity-stars-canvas"'), 'index.html must mount gravity-stars-canvas');
+    assert.equal(websiteHtml.includes('id="liquid-metal-canvas"'), false, 'Liquid metal canvas must be removed');
+    assert.equal(websiteHtml.includes('liquid-metal-btn'), false, 'Liquid metal button class must be removed');
+
+    assert.ok(websiteJs.includes('initPixelFlowField'), 'script.js must initialize Pixel Flow Field');
+    assert.ok(websiteJs.includes('initGravityStars'), 'script.js must initialize Gravity Stars particle physics');
+    assert.equal(websiteJs.includes('initLiquidMetalCanvas'), false, 'script.js must remove liquid metal shader');
+
+    // 4. SmoothUI 3D Tilt & Spotlight Hover for the 3 Pillar Cards Contract
+    assert.ok(websiteHtml.includes('pillar-card-spotlight'), 'Cards must include spotlight glow overlay');
+    assert.ok(websiteHtml.includes('pillar-desc-wrap'), 'Cards must wrap description for smooth grid expansion');
+    assert.ok(websiteCss.includes('grid-template-rows: 0fr'), 'style.css must use zero-jitter CSS grid expansion');
+    assert.ok(websiteCss.includes('grid-template-rows: 1fr'), 'style.css must animate grid-template-rows on hover and touch');
+    assert.ok(websiteJs.includes('initSmoothPillarCards'), 'script.js must initialize SmoothUI 3D tilt and spotlight tracking');
+    assert.ok(websiteJs.includes('--mouse-x') && websiteJs.includes('--mouse-y'), 'script.js must set dynamic cursor coordinates for spotlight');
+
+    // 5. Readability & Color Tokens Contract
+    assert.ok(websiteCss.includes('--text-white: #ffffff;'), 'Tokens must declare #ffffff white text');
+    assert.ok(websiteCss.includes('--text-muted: #d4d4d8;'), 'Tokens must declare high-contrast muted text');
+    assert.ok(websiteCss.includes('--text-dim: #a1a1aa;'), 'Tokens must declare high-contrast dim text');
   }
 });
