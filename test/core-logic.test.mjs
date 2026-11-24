@@ -1545,7 +1545,7 @@ test('TASK-116: Authoritative README Polish & Commitment Section Pruning Contrac
   const readmeCode = fs.readFileSync(path.resolve('README.md'), 'utf-8');
   assert.ok(readmeCode.includes('img.shields.io/github/v/release'), 'README must include GitHub release badge');
   assert.ok(readmeCode.includes('img.shields.io/badge/storage-100%25%20offline-success'), 'README must include 100% offline badge');
-  assert.ok(readmeCode.includes('08_flagship_multidevice_banner.png'), 'README must embed flagship multi-device showcase banner');
+  assert.ok(readmeCode.includes('taskify_newgen_flagship_banner.png'), 'README must embed new-gen flagship showcase banner');
   assert.ok(readmeCode.includes('SmoothUI Android Widgets'), 'README must highlight SmoothUI Android widgets');
   assert.equal(readmeCode.includes('- **Finance**:'), false, 'README must not list Finance as a core feature');
 
@@ -1595,5 +1595,33 @@ test('TASK-117: Website Desktop Nav Alignment, Mobile Close Button, Gravity Star
     assert.ok(websiteCss.includes('--text-white: #ffffff;'), 'Tokens must declare #ffffff white text');
     assert.ok(websiteCss.includes('--text-muted: #d4d4d8;'), 'Tokens must declare high-contrast muted text');
     assert.ok(websiteCss.includes('--text-dim: #a1a1aa;'), 'Tokens must declare high-contrast dim text');
+  }
+});
+
+test('TASK-118: New-Gen Flagship Banner & Full-Device Showcase Stages Contract', () => {
+  const readmeCode = fs.readFileSync(path.resolve('README.md'), 'utf-8');
+  assert.ok(readmeCode.includes('docs/mockups/taskify_newgen_flagship_banner.png'), 'README must reference taskify_newgen_flagship_banner.png');
+  assert.equal(readmeCode.includes('08_flagship_multidevice_banner.png'), false, 'README must not reference old banner');
+
+  assert.ok(fs.existsSync(path.resolve('docs/mockups/taskify_newgen_flagship_banner.png')), 'Flagship banner must exist in docs/mockups');
+
+  if (fs.existsSync(path.resolve('website-template/index.html'))) {
+    const websiteHtml = fs.readFileSync(path.resolve('website-template/index.html'), 'utf-8');
+    const websiteCss = fs.readFileSync(path.resolve('website-template/style.css'), 'utf-8');
+
+    // 1. New-Gen Showcase Stages Contract
+    assert.ok(websiteHtml.includes('NEW-GEN ARCHITECTURE'), 'Showcase tag must state NEW-GEN ARCHITECTURE');
+    assert.ok(websiteHtml.includes('newgen-stage-card'), 'Showcase cards must use newgen-stage-card class');
+    assert.ok(websiteHtml.includes('taskify_newgen_flagship_banner.png'), 'Showcase must embed new-gen flagship banner');
+    assert.ok(websiteHtml.includes('showcase_stage_desktop.png'), 'Showcase must embed full desktop stage');
+    assert.ok(websiteHtml.includes('showcase_stage_mobile.png'), 'Showcase must embed full mobile stage');
+
+    // 2. Zero 50% Cut-Off Screenshots or Pruned Finance Module
+    assert.equal(websiteHtml.includes('07_finance_safetospend_ledger.png'), false, 'Showcase must not contain old finance screenshot');
+    assert.equal(websiteHtml.includes('01_today_dashboard_desktop.png'), false, 'Showcase must not use 50% cut-off screenshot');
+
+    // 3. New-Gen Styling Contract
+    assert.ok(websiteCss.includes('.newgen-stage-card'), 'style.css must style .newgen-stage-card with radial gradient');
+    assert.ok(websiteCss.includes('.newgen-stage-img'), 'style.css must style .newgen-stage-img with 16:9 aspect ratio');
   }
 });

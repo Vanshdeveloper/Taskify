@@ -1,7 +1,7 @@
 # Taskify
 
 <p align="center">
-  <img src="docs/mockups/08_flagship_multidevice_banner.png" alt="Taskify Multi-Device Showcase" width="100%" />
+  <img src="docs/mockups/taskify_newgen_flagship_banner.png" alt="Taskify Multi-Device Showcase" width="100%" />
 </p>
 
 <p align="center">
