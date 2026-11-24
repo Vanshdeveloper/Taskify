@@ -26,8 +26,8 @@ Whether you are an experienced software engineer, a designer, or someone who vib
 
 1. Fork and clone the repository:
 ```bash
-git clone https://github.com/your-username/taskify.git
-cd taskify
+git clone https://github.com/Vanshdeveloper/Taskify.git
+cd Taskify
 ```
 
 2. Install dependencies:
