@@ -43,6 +43,18 @@ export interface NativeWidgetBridge {
   clearPendingWidgetActions(): Promise<{ success: boolean }>;
   getLaunchQuickAction(): Promise<{ action: string | null }>;
   setImmersiveMode(options: { enabled: boolean }): Promise<{ success: boolean }>;
+  downloadAndInstallUpdate?(options: {
+    url: string;
+    version?: string;
+    fileName?: string;
+  }): Promise<{ success: boolean; filePath?: string; installTriggered?: boolean }>;
+  installDownloadedApk?(options: {
+    filePath: string;
+  }): Promise<{ success: boolean }>;
+  addListener?(
+    eventName: string,
+    listenerFunc: (data: any) => void
+  ): Promise<{ remove: () => Promise<void> }>;
 }
 
 export const TaskifyNativeWidget = registerPlugin<NativeWidgetBridge>('TaskifyNativeWidget');

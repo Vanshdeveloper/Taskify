@@ -1643,3 +1643,46 @@ test('TASK-120: SmoothUI Progressive Blur Statement Section & Hero Gravity Stars
     assert.ok(websiteCss.includes('mask-image: linear-gradient'), 'CSS must apply linear gradient masks to progressive blur tiers');
   }
 });
+
+test('TASK-121: Background In-App Updater & Self-Installing Package Contract', () => {
+  const updaterCode = fs.readFileSync(path.resolve('src/utils/updater.ts'), 'utf-8');
+  const widgetPluginCode = fs.readFileSync(path.resolve('android/app/src/main/java/com/taskify/app/TaskifyNativeWidgetPlugin.java'), 'utf-8');
+  const manifestCode = fs.readFileSync(path.resolve('android/app/src/main/AndroidManifest.xml'), 'utf-8');
+  const filePathsCode = fs.readFileSync(path.resolve('android/app/src/main/res/xml/file_paths.xml'), 'utf-8');
+  const electronMainCode = fs.readFileSync(path.resolve('electron/main.cjs'), 'utf-8');
+  const electronPreloadCode = fs.readFileSync(path.resolve('electron/preload.cjs'), 'utf-8');
+  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+  const inspectorCode = fs.readFileSync(path.resolve('src/components/layout/SlideOverInspector.tsx'), 'utf-8');
+  const bannerCode = fs.readFileSync(path.resolve('src/components/ui/UpdateNotificationBanner.tsx'), 'utf-8');
+
+  // 1. Android Native Background Download & Intent Installer Execution
+  assert.ok(manifestCode.includes('android.permission.REQUEST_INSTALL_PACKAGES'), 'AndroidManifest must request REQUEST_INSTALL_PACKAGES');
+  assert.ok(filePathsCode.includes('<cache-path name="cache" path="." />'), 'file_paths must declare cache path');
+  assert.ok(filePathsCode.includes('<external-cache-path name="external_cache" path="." />'), 'file_paths must declare external cache path');
+  assert.ok(widgetPluginCode.includes('public void downloadAndInstallUpdate(final PluginCall call)'), 'TaskifyNativeWidgetPlugin must implement downloadAndInstallUpdate');
+  assert.ok(widgetPluginCode.includes('private boolean triggerApkInstall(File apkFile)'), 'TaskifyNativeWidgetPlugin must implement triggerApkInstall');
+  assert.ok(widgetPluginCode.includes('application/vnd.android.package-archive'), 'triggerApkInstall must set MIME type to package-archive');
+  assert.ok(widgetPluginCode.includes('FileProvider.getUriForFile'), 'triggerApkInstall must use FileProvider for content URI');
+
+  // 2. Electron Desktop Background Download & Installer Open
+  assert.ok(electronMainCode.includes("ipcMain.handle('download-and-install-update'"), 'electron main must handle download-and-install-update IPC');
+  assert.ok(electronMainCode.includes('shell.openPath(destPath)'), 'electron main must invoke shell.openPath on downloaded package');
+  assert.ok(electronPreloadCode.includes('downloadAndInstallUpdate:'), 'electron preload must expose downloadAndInstallUpdate API');
+
+  // 3. Unified In-App Updater Store & Progress Tracking
+  assert.ok(updaterCode.includes('class AppUpdaterStore'), 'updater.ts must implement AppUpdaterStore singleton');
+  assert.ok(updaterCode.includes('export function useAppUpdater()'), 'updater.ts must export useAppUpdater hook');
+  assert.ok(updaterCode.includes('export function formatDownloadSize('), 'updater.ts must export formatDownloadSize helper');
+  assert.ok(updaterCode.includes('startDownloadAndInstall()'), 'AppUpdaterStore must implement startDownloadAndInstall');
+
+  // 4. UI Integration & Tactile Progress Reporting
+  assert.ok(settingsCode.includes('useAppUpdater()'), 'SettingsView must integrate useAppUpdater');
+  assert.ok(settingsCode.includes('updaterStatus === \'downloading\''), 'SettingsView must render live download progress');
+  assert.ok(settingsCode.includes('Install Update'), 'SettingsView must provide one-tap install action');
+
+  assert.ok(inspectorCode.includes('useAppUpdater()'), 'SlideOverInspector must integrate useAppUpdater');
+  assert.ok(inspectorCode.includes('updaterStatus === \'downloading\''), 'SlideOverInspector must render live download progress');
+
+  assert.ok(bannerCode.includes('useAppUpdater()'), 'UpdateNotificationBanner must integrate useAppUpdater');
+  assert.ok(bannerCode.includes('updaterStatus === \'downloading\''), 'UpdateNotificationBanner must render live download progress');
+});

@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X } from 'lucide-react';
+import { Download, X, RefreshCw } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   checkForAppUpdates,
-  triggerDirectDownload,
   getPlatformLabel,
-  type UpdateCheckResult,
+  useAppUpdater,
+  formatDownloadSize,
 } from '../../utils/updater';
 import { feedback } from '../../utils/feedback';
 import { AppLogoMark } from './BrandLogo';
 
 export const UpdateNotificationBanner: React.FC = () => {
   const { activeReminderAlert } = useApp();
-  const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
+  const {
+    status: updaterStatus,
+    progress: updateProgress,
+    bytesDownloaded: updateBytesDownloaded,
+    totalBytes: updateTotalBytes,
+    updateResult,
+    startDownloadAndInstall,
+    relaunchInstaller,
+  } = useAppUpdater();
+
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
@@ -36,8 +45,8 @@ export const UpdateNotificationBanner: React.FC = () => {
           // Ignore storage restrictions
         }
 
-        if (!previouslyDismissed) {
-          setUpdateResult(res);
+        if (previouslyDismissed) {
+          setIsDismissed(true);
         }
       }
     }, 2800);
@@ -62,14 +71,9 @@ export const UpdateNotificationBanner: React.FC = () => {
     setIsDismissed(true);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     feedback.playClick();
-    if (updateResult?.release?.downloadUrl) {
-      triggerDirectDownload(
-        updateResult.release.downloadUrl,
-        updateResult.release.assetName || undefined
-      );
-    }
+    await startDownloadAndInstall();
   };
 
   if (typeof document === 'undefined') return null;
@@ -141,36 +145,91 @@ export const UpdateNotificationBanner: React.FC = () => {
               </button>
             </div>
 
-            {/* Middle Row: Title & Subtitle */}
-            <div>
-              <h4 className="text-sm font-display font-bold text-white tracking-tight">
-                New Update Ready to Download
-              </h4>
-              <p className="text-xs text-zinc-300 mt-0.5 line-clamp-1">
-                Direct installer optimized for {platformLabel}.
-              </p>
-            </div>
+            {/* Middle Row: State dependent content */}
+            {updaterStatus === 'downloading' ? (
+              <div className="flex flex-col gap-2 pt-0.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-white flex items-center gap-1.5">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-[var(--accent-primary)]" />
+                    <span>Downloading update in background...</span>
+                  </span>
+                  <span className="font-mono text-xs font-bold text-[var(--accent-primary)]">
+                    {updateProgress > 0 ? `${updateProgress}%` : 'Connecting...'}
+                  </span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden relative">
+                  <div
+                    className="h-full rounded-full transition-all duration-200"
+                    style={{
+                      width: `${Math.max(5, updateProgress)}%`,
+                      backgroundColor: 'var(--accent-primary)',
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                  <span>
+                    {updateBytesDownloaded > 0 ? formatDownloadSize(updateBytesDownloaded) : '0 MB'} /{' '}
+                    {updateTotalBytes > 0 ? formatDownloadSize(updateTotalBytes) : 'Calculating...'}
+                  </span>
+                  <span>Installs automatically</span>
+                </div>
+              </div>
+            ) : updaterStatus === 'installing' || updaterStatus === 'completed' ? (
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold text-white">
+                      {updaterStatus === 'installing' ? 'Launching Installer...' : 'Ready to Install'}
+                    </span>
+                    <span className="text-[10px] text-zinc-400 font-mono">
+                      v{updateResult.latestVersion} package ready
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={relaunchInstaller}
+                  className="flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-white font-bold text-xs pressable shadow-md"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Install Now</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <h4 className="text-sm font-display font-bold text-white tracking-tight">
+                    New Update Ready to Download
+                  </h4>
+                  <p className="text-xs text-zinc-300 mt-0.5 line-clamp-1">
+                    Direct installer optimized for {platformLabel}.
+                  </p>
+                </div>
 
-            {/* Bottom Row: Direct Download Action Button */}
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="flex-1 flex items-center justify-center gap-2 py-2 px-3.5 rounded-xl text-white font-bold text-xs pressable shadow-md transition-all cursor-pointer"
-                style={{ backgroundColor: 'var(--accent-primary)' }}
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download Update Now</span>
-              </button>
+                {/* Bottom Row: Direct Download Action Button */}
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleDownload}
+                    className="flex-1 flex items-center justify-center gap-2 py-2 px-3.5 rounded-xl text-white font-bold text-xs pressable shadow-md transition-all cursor-pointer"
+                    style={{ backgroundColor: 'var(--accent-primary)' }}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Update Now</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={handleDismiss}
-                className="py-2 px-3 rounded-xl bg-white/6 hover:bg-white/10 text-xs font-semibold text-zinc-300 pressable transition-all cursor-pointer"
-              >
-                Later
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    onClick={handleDismiss}
+                    className="py-2 px-3 rounded-xl bg-white/6 hover:bg-white/10 text-xs font-semibold text-zinc-300 pressable transition-all cursor-pointer"
+                  >
+                    Later
+                  </button>
+                </div>
+              </>
+            )}
           </motion.div>
         </div>
       )}

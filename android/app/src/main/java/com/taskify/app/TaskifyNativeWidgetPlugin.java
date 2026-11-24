@@ -1,16 +1,25 @@
 package com.taskify.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import androidx.core.content.FileProvider;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -293,5 +302,174 @@ public class TaskifyNativeWidgetPlugin extends Plugin {
                 }
             }
         });
+    }
+
+    /**
+     * In-App Updater: Downloads latest APK in the background with progress reporting
+     * and automatically triggers the Android native Package Installer.
+     */
+    @PluginMethod
+    public void downloadAndInstallUpdate(final PluginCall call) {
+        final String url = call.getString("url");
+        final String version = call.getString("version", "latest");
+        final String fileName = call.getString("fileName", "Taskify-v" + version + ".apk");
+
+        if (url == null || url.trim().isEmpty()) {
+            call.reject("Download URL is required");
+            return;
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection conn = null;
+                InputStream in = null;
+                FileOutputStream out = null;
+                try {
+                    URL downloadUrl = new URL(url);
+                    conn = (HttpURLConnection) downloadUrl.openConnection();
+                    conn.setInstanceFollowRedirects(true);
+                    conn.setRequestProperty("User-Agent", "Taskify-Android-App");
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(30000);
+                    conn.connect();
+
+                    // Handle redirects (GitHub release asset redirects to AWS S3)
+                    int code = conn.getResponseCode();
+                    if (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP || code == 307 || code == 308) {
+                        String redirectUrl = conn.getHeaderField("Location");
+                        if (redirectUrl != null) {
+                            conn.disconnect();
+                            downloadUrl = new URL(redirectUrl);
+                            conn = (HttpURLConnection) downloadUrl.openConnection();
+                            conn.setRequestProperty("User-Agent", "Taskify-Android-App");
+                            conn.setConnectTimeout(15000);
+                            conn.setReadTimeout(30000);
+                            conn.connect();
+                        }
+                    }
+
+                    int totalBytes = conn.getContentLength();
+                    in = conn.getInputStream();
+
+                    Context ctx = getContext();
+                    File cacheDir = ctx.getExternalCacheDir();
+                    if (cacheDir == null) {
+                        cacheDir = ctx.getCacheDir();
+                    }
+                    File apkFile = new File(cacheDir, fileName);
+                    if (apkFile.exists()) {
+                        apkFile.delete();
+                    }
+
+                    out = new FileOutputStream(apkFile);
+                    byte[] buffer = new byte[32768];
+                    long bytesReadSoFar = 0;
+                    int count;
+                    long lastEmitTime = 0;
+
+                    while ((count = in.read(buffer)) != -1) {
+                        bytesReadSoFar += count;
+                        out.write(buffer, 0, count);
+
+                        long now = System.currentTimeMillis();
+                        if (now - lastEmitTime > 200) {
+                            lastEmitTime = now;
+                            int progress = totalBytes > 0 ? (int) ((bytesReadSoFar * 100) / totalBytes) : -1;
+                            JSObject progressEvt = new JSObject();
+                            progressEvt.put("status", "downloading");
+                            progressEvt.put("progress", progress);
+                            progressEvt.put("bytesDownloaded", bytesReadSoFar);
+                            progressEvt.put("totalBytes", totalBytes);
+                            notifyListeners("updateProgress", progressEvt);
+                        }
+                    }
+                    out.flush();
+
+                    // Notify download completed
+                    JSObject compEvt = new JSObject();
+                    compEvt.put("status", "completed");
+                    compEvt.put("progress", 100);
+                    compEvt.put("bytesDownloaded", bytesReadSoFar);
+                    compEvt.put("totalBytes", bytesReadSoFar);
+                    compEvt.put("filePath", apkFile.getAbsolutePath());
+                    notifyListeners("updateProgress", compEvt);
+
+                    // Automatically trigger native package installation
+                    boolean triggered = triggerApkInstall(apkFile);
+
+                    JSObject result = new JSObject();
+                    result.put("success", true);
+                    result.put("filePath", apkFile.getAbsolutePath());
+                    result.put("installTriggered", triggered);
+                    call.resolve(result);
+
+                } catch (Exception err) {
+                    JSObject errEvt = new JSObject();
+                    errEvt.put("status", "error");
+                    errEvt.put("error", err.getMessage());
+                    notifyListeners("updateProgress", errEvt);
+                    call.reject("Failed to download update: " + err.getMessage(), err);
+                } finally {
+                    try {
+                        if (out != null) out.close();
+                        if (in != null) in.close();
+                        if (conn != null) conn.disconnect();
+                    } catch (Exception ignored) {}
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Re-triggers installation of a previously downloaded APK.
+     */
+    @PluginMethod
+    public void installDownloadedApk(final PluginCall call) {
+        String filePath = call.getString("filePath");
+        if (filePath == null || filePath.trim().isEmpty()) {
+            call.reject("File path required");
+            return;
+        }
+
+        File apkFile = new File(filePath);
+        boolean ok = triggerApkInstall(apkFile);
+        JSObject res = new JSObject();
+        res.put("success", ok);
+        call.resolve(res);
+    }
+
+    private boolean triggerApkInstall(File apkFile) {
+        try {
+            Context context = getContext();
+            if (apkFile == null || !apkFile.exists()) {
+                return false;
+            }
+
+            // On Android 8.0+ (Oreo, API 26+), verify package installer permission
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!context.getPackageManager().canRequestPackageInstalls()) {
+                    Intent permIntent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                    permIntent.setData(Uri.parse("package:" + context.getPackageName()));
+                    permIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(permIntent);
+                }
+            }
+
+            Uri apkUri = FileProvider.getUriForFile(
+                context,
+                context.getPackageName() + ".fileprovider",
+                apkFile
+            );
+
+            Intent installIntent = new Intent(Intent.ACTION_VIEW);
+            installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(installIntent);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

@@ -1,4 +1,6 @@
+import { useState, useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { TaskifyNativeWidget } from './widgetSync';
 
 export const APP_VERSION = '1.0.1';
 export const GITHUB_REPO = 'Vanshdeveloper/Taskify';
@@ -265,6 +267,7 @@ export async function checkForAppUpdates(options?: {
       }
     } catch {}
 
+    appUpdaterStore.setUpdateResult(result);
     return result;
   } catch (err: any) {
     const netErrResult: UpdateCheckResult = {
@@ -318,4 +321,384 @@ export function triggerDirectDownload(url: string, fileName?: string): boolean {
       return false;
     }
   }
+}
+
+/**
+ * Format bytes into human-readable MB / KB string
+ */
+export function formatDownloadSize(bytes: number): string {
+  if (bytes <= 0 || isNaN(bytes)) return '0 MB';
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export type UpdateStateStatus =
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'downloading'
+  | 'installing'
+  | 'completed'
+  | 'error';
+
+export interface AppUpdaterSnapshot {
+  status: UpdateStateStatus;
+  progress: number; // 0 to 100
+  bytesDownloaded: number;
+  totalBytes: number;
+  filePath: string | null;
+  error: string | null;
+  updateResult: UpdateCheckResult | null;
+  isChecking: boolean;
+}
+
+/**
+ * Stateful cross-platform in-app updater singleton.
+ * Downloads release binaries in the background and automatically executes the native OS installer.
+ */
+class AppUpdaterStore {
+  private snapshot: AppUpdaterSnapshot = {
+    status: 'idle',
+    progress: 0,
+    bytesDownloaded: 0,
+    totalBytes: 0,
+    filePath: null,
+    error: null,
+    updateResult: null,
+    isChecking: false,
+  };
+
+  private listeners = new Set<(snapshot: AppUpdaterSnapshot) => void>();
+  private activeDownloadAbort: AbortController | null = null;
+
+  public getState(): AppUpdaterSnapshot {
+    return { ...this.snapshot };
+  }
+
+  public subscribe = (listener: (snapshot: AppUpdaterSnapshot) => void): (() => void) => {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  };
+
+  private notify() {
+    const current = this.getState();
+    this.listeners.forEach((l) => {
+      try {
+        l(current);
+      } catch {}
+    });
+  }
+
+  public setUpdateResult(result: UpdateCheckResult | null) {
+    this.snapshot.updateResult = result;
+    if (result?.hasUpdate && result.release?.downloadUrl) {
+      if (this.snapshot.status === 'idle' || this.snapshot.status === 'checking') {
+        this.snapshot.status = 'available';
+      }
+    }
+    this.notify();
+  }
+
+  public async checkForUpdates(options?: { force?: boolean }): Promise<UpdateCheckResult> {
+    this.snapshot.isChecking = true;
+    this.snapshot.status = 'checking';
+    this.snapshot.error = null;
+    this.notify();
+
+    try {
+      const res = await checkForAppUpdates(options);
+      this.snapshot.updateResult = res;
+      this.snapshot.isChecking = false;
+
+      if (res.hasUpdate && res.release?.downloadUrl) {
+        this.snapshot.status = 'available';
+      } else {
+        this.snapshot.status = 'idle';
+      }
+      this.notify();
+      return res;
+    } catch (err: any) {
+      this.snapshot.isChecking = false;
+      this.snapshot.error = err?.message || 'Check failed';
+      this.snapshot.status = 'error';
+      this.notify();
+      throw err;
+    }
+  }
+
+  /**
+   * Downloads package binary in background and automatically launches native installer.
+   */
+  public async startDownloadAndInstall(): Promise<boolean> {
+    const release = this.snapshot.updateResult?.release;
+    const downloadUrl = release?.downloadUrl;
+    if (!downloadUrl) {
+      this.snapshot.error = 'No download URL available';
+      this.snapshot.status = 'error';
+      this.notify();
+      return false;
+    }
+
+    const version = release.version || APP_VERSION;
+    const fileName =
+      release.assetName ||
+      (release.platform === 'android'
+        ? `Taskify-v${version}.apk`
+        : release.platform === 'windows'
+        ? `Taskify-Setup-${version}.exe`
+        : `Taskify-${version}`);
+
+    this.snapshot.status = 'downloading';
+    this.snapshot.progress = 0;
+    this.snapshot.bytesDownloaded = 0;
+    this.snapshot.totalBytes = 0;
+    this.snapshot.error = null;
+    this.notify();
+
+    // 1. Android Native Background Download & Intent Execution
+    try {
+      if (
+        Capacitor.isNativePlatform() &&
+        Capacitor.getPlatform() === 'android' &&
+        typeof TaskifyNativeWidget.downloadAndInstallUpdate === 'function'
+      ) {
+        let listenerHandle: any = null;
+        if (typeof TaskifyNativeWidget.addListener === 'function') {
+          listenerHandle = await TaskifyNativeWidget.addListener('updateProgress', (data: any) => {
+            if (data.status === 'downloading') {
+              this.snapshot.progress = data.progress ?? this.snapshot.progress;
+              this.snapshot.bytesDownloaded = data.bytesDownloaded ?? this.snapshot.bytesDownloaded;
+              this.snapshot.totalBytes = data.totalBytes ?? this.snapshot.totalBytes;
+              this.notify();
+            } else if (data.status === 'completed') {
+              this.snapshot.status = 'installing';
+              this.snapshot.progress = 100;
+              this.snapshot.filePath = data.filePath || null;
+              this.notify();
+            } else if (data.status === 'error') {
+              this.snapshot.status = 'error';
+              this.snapshot.error = data.error || 'Download failed';
+              this.notify();
+            }
+          });
+        }
+
+        const res = await TaskifyNativeWidget.downloadAndInstallUpdate({
+          url: downloadUrl,
+          version,
+          fileName,
+        });
+
+        if (listenerHandle?.remove) {
+          listenerHandle.remove().catch(() => {});
+        }
+
+        this.snapshot.status = 'completed';
+        this.snapshot.progress = 100;
+        this.snapshot.filePath = res.filePath || null;
+        this.notify();
+        return true;
+      }
+    } catch (err: any) {
+      console.warn('[Updater] Android native download error, falling back:', err);
+    }
+
+    // 2. Desktop Electron Background Download & Shell Execution
+    try {
+      const electronAPI = (window as any).electronAPI;
+      if (electronAPI && typeof electronAPI.downloadAndInstallUpdate === 'function') {
+        let removeProgress: (() => void) | null = null;
+        if (typeof electronAPI.onUpdateProgress === 'function') {
+          removeProgress = electronAPI.onUpdateProgress((data: any) => {
+            if (data.status === 'downloading') {
+              this.snapshot.progress = data.progress ?? this.snapshot.progress;
+              this.snapshot.bytesDownloaded = data.bytesDownloaded ?? this.snapshot.bytesDownloaded;
+              this.snapshot.totalBytes = data.totalBytes ?? this.snapshot.totalBytes;
+              this.notify();
+            } else if (data.status === 'completed') {
+              this.snapshot.status = 'installing';
+              this.snapshot.progress = 100;
+              this.snapshot.filePath = data.filePath || null;
+              this.notify();
+            } else if (data.status === 'error') {
+              this.snapshot.status = 'error';
+              this.snapshot.error = data.error || 'Download failed';
+              this.notify();
+            }
+          });
+        }
+
+        const res = await electronAPI.downloadAndInstallUpdate(downloadUrl, fileName);
+        if (removeProgress) removeProgress();
+
+        this.snapshot.status = 'completed';
+        this.snapshot.progress = 100;
+        this.snapshot.filePath = res.filePath || null;
+        this.notify();
+        return true;
+      }
+    } catch (err: any) {
+      console.warn('[Updater] Electron download error, falling back:', err);
+    }
+
+    // 3. Web Stream Download with Live In-App Progress Bar
+    try {
+      this.activeDownloadAbort = new AbortController();
+      const response = await fetch(downloadUrl, {
+        signal: this.activeDownloadAbort.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const contentLength = response.headers.get('content-length');
+      const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
+      this.snapshot.totalBytes = totalBytes;
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        // Fallback to direct download link if streaming is unavailable
+        triggerDirectDownload(downloadUrl, fileName);
+        this.snapshot.status = 'completed';
+        this.snapshot.progress = 100;
+        this.notify();
+        return true;
+      }
+
+      const chunks: Uint8Array[] = [];
+      let bytesDownloaded = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+          chunks.push(value);
+          bytesDownloaded += value.length;
+          this.snapshot.bytesDownloaded = bytesDownloaded;
+          if (totalBytes > 0) {
+            this.snapshot.progress = Math.min(99, Math.round((bytesDownloaded * 100) / totalBytes));
+          }
+          this.notify();
+        }
+      }
+
+      const blob = new Blob(chunks, { type: 'application/octet-stream' });
+      const objectUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
+
+      this.snapshot.status = 'completed';
+      this.snapshot.progress = 100;
+      this.notify();
+      return true;
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        this.snapshot.status = 'available';
+        this.snapshot.error = 'Download cancelled';
+        this.notify();
+        return false;
+      }
+      // On CORS restriction or network block in web browsers, fallback to direct browser download
+      triggerDirectDownload(downloadUrl, fileName);
+      this.snapshot.status = 'completed';
+      this.snapshot.progress = 100;
+      this.notify();
+      return true;
+    }
+  }
+
+  /**
+   * Re-launches the system installer for an already downloaded package.
+   */
+  public async relaunchInstaller(): Promise<boolean> {
+    const filePath = this.snapshot.filePath;
+    if (!filePath) {
+      return this.startDownloadAndInstall();
+    }
+
+    try {
+      if (
+        Capacitor.isNativePlatform() &&
+        Capacitor.getPlatform() === 'android' &&
+        typeof TaskifyNativeWidget.installDownloadedApk === 'function'
+      ) {
+        const res = await TaskifyNativeWidget.installDownloadedApk({ filePath });
+        return !!res.success;
+      }
+
+      const electronAPI = (window as any).electronAPI;
+      if (electronAPI && typeof electronAPI.installDownloadedUpdate === 'function') {
+        const res = await electronAPI.installDownloadedUpdate(filePath);
+        return !!res.success;
+      }
+    } catch (err) {
+      console.warn('[Updater] Failed to relaunch installer:', err);
+    }
+    return false;
+  }
+
+  public reset() {
+    this.snapshot = {
+      status: 'idle',
+      progress: 0,
+      bytesDownloaded: 0,
+      totalBytes: 0,
+      filePath: null,
+      error: null,
+      updateResult: null,
+      isChecking: false,
+    };
+    this.notify();
+  }
+}
+
+export const appUpdaterStore = new AppUpdaterStore();
+
+/**
+ * React hook to consume reactive in-app updater state and dispatch backend downloads.
+ */
+export function useAppUpdater() {
+  const [snapshot, setSnapshot] = useState<AppUpdaterSnapshot>(() => appUpdaterStore.getState());
+
+  useEffect(() => {
+    return appUpdaterStore.subscribe((next) => {
+      setSnapshot(next);
+    });
+  }, []);
+
+  const checkForUpdates = useCallback((options?: { force?: boolean }) => {
+    return appUpdaterStore.checkForUpdates(options);
+  }, []);
+
+  const startDownloadAndInstall = useCallback(() => {
+    return appUpdaterStore.startDownloadAndInstall();
+  }, []);
+
+  const relaunchInstaller = useCallback(() => {
+    return appUpdaterStore.relaunchInstaller();
+  }, []);
+
+  const reset = useCallback(() => {
+    appUpdaterStore.reset();
+  }, []);
+
+  return {
+    ...snapshot,
+    checkForUpdates,
+    startDownloadAndInstall,
+    relaunchInstaller,
+    reset,
+  };
 }

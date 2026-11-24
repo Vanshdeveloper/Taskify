@@ -29,12 +29,11 @@ import { POPULAR_CURRENCIES } from '../../utils/currency';
 import { feedback } from '../../utils/feedback';
 import { ThemeStudio } from '../settings/ThemeStudio';
 import {
-  checkForAppUpdates,
-  triggerDirectDownload,
   getPlatformLabel,
   detectPlatform,
   APP_VERSION,
-  type UpdateCheckResult,
+  useAppUpdater,
+  formatDownloadSize,
 } from '../../utils/updater';
 import { APPLE_SPRINGS } from '../../utils/motion';
 import type { NavbarHeight } from '../../types';
@@ -147,30 +146,32 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
     });
   };
 
-  // Software updates state
-  const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
-  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  // Software updates state via unified in-app updater store
+  const {
+    status: updaterStatus,
+    progress: updateProgress,
+    bytesDownloaded: updateBytesDownloaded,
+    totalBytes: updateTotalBytes,
+    error: updaterError,
+    updateResult,
+    isChecking: isCheckingUpdates,
+    checkForUpdates: checkUpdatesFromStore,
+    startDownloadAndInstall,
+    relaunchInstaller,
+  } = useAppUpdater();
   const [updateStatusNotice, setUpdateStatusNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
     if (isOpen) {
-      checkForAppUpdates().then((res) => {
-        if (isMounted) setUpdateResult(res);
-      });
+      checkUpdatesFromStore().catch(() => {});
     }
-    return () => {
-      isMounted = false;
-    };
-  }, [isOpen]);
+  }, [isOpen, checkUpdatesFromStore]);
 
   const handleManualCheckUpdates = async () => {
     feedback.playClick();
-    setIsCheckingUpdates(true);
     setUpdateStatusNotice(null);
     try {
-      const res = await checkForAppUpdates({ force: true });
-      setUpdateResult(res);
+      const res = await checkUpdatesFromStore({ force: true });
       if (res.error) {
         setUpdateStatusNotice(res.error);
       } else if (res.hasUpdate) {
@@ -181,19 +182,13 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
     } catch {
       setUpdateStatusNotice('Unable to check updates (offline)');
     } finally {
-      setIsCheckingUpdates(false);
       setTimeout(() => setUpdateStatusNotice(null), 3500);
     }
   };
 
-  const handleDownloadUpdate = () => {
+  const handleDownloadUpdate = async () => {
     feedback.playClick();
-    if (updateResult?.release?.downloadUrl) {
-      triggerDirectDownload(
-        updateResult.release.downloadUrl,
-        updateResult.release.assetName || undefined
-      );
-    }
+    await startDownloadAndInstall();
   };
 
   if (typeof document === 'undefined') return null;
@@ -705,30 +700,87 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-black/30 border border-white/5 flex flex-col gap-2">
-                    <div className="text-[11px] font-mono">
-                      {updateStatusNotice ? (
-                        <span className="text-emerald-400 font-semibold">{updateStatusNotice}</span>
-                      ) : updateResult?.hasUpdate ? (
-                        <span className="text-amber-400 font-semibold">
-                          Update v{updateResult.latestVersion} available!
-                        </span>
-                      ) : isCheckingUpdates ? (
-                        <span className="text-zinc-400">Checking for updates...</span>
-                      ) : (
-                        <span className="text-zinc-400">Up to date (v{APP_VERSION})</span>
-                      )}
-                    </div>
+                    {updaterStatus === 'downloading' ? (
+                      <div className="flex flex-col gap-2 w-full">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-white flex items-center gap-1.5 text-[11px]">
+                            <RefreshCw className="w-3 h-3 animate-spin text-[var(--accent-primary)]" />
+                            <span>Downloading update...</span>
+                          </span>
+                          <span className="font-mono text-[11px] font-bold text-[var(--accent-primary)]">
+                            {updateProgress > 0 ? `${updateProgress}%` : 'Starting...'}
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden relative">
+                          <div
+                            className="h-full rounded-full transition-all duration-200"
+                            style={{
+                              width: `${Math.max(5, updateProgress)}%`,
+                              backgroundColor: 'var(--accent-primary)',
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                          <span>
+                            {updateBytesDownloaded > 0 ? formatDownloadSize(updateBytesDownloaded) : '0 MB'} /{' '}
+                            {updateTotalBytes > 0 ? formatDownloadSize(updateTotalBytes) : 'Calculating...'}
+                          </span>
+                          <span>Auto-installs</span>
+                        </div>
+                      </div>
+                    ) : updaterStatus === 'installing' || updaterStatus === 'completed' ? (
+                      <div className="flex flex-col gap-2 w-full">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                          <div className="flex flex-col">
+                            <span className="text-xs font-semibold text-white">
+                              {updaterStatus === 'installing' ? 'Launching Installer...' : 'Ready to Install'}
+                            </span>
+                            <span className="text-[10px] text-zinc-400 font-mono">
+                              Update downloaded in background
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={relaunchInstaller}
+                          className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-white font-bold text-xs pressable shadow-lg transition-all cursor-pointer w-full"
+                          style={{ backgroundColor: 'var(--accent-primary)' }}
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Install Update (v{updateResult?.latestVersion || APP_VERSION})</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="text-[11px] font-mono">
+                          {updateStatusNotice ? (
+                            <span className="text-emerald-400 font-semibold">{updateStatusNotice}</span>
+                          ) : updaterError ? (
+                            <span className="text-rose-400 font-semibold">{updaterError}</span>
+                          ) : updateResult?.hasUpdate ? (
+                            <span className="text-amber-400 font-semibold">
+                              Update v{updateResult.latestVersion} available!
+                            </span>
+                          ) : isCheckingUpdates ? (
+                            <span className="text-zinc-400">Checking for updates...</span>
+                          ) : (
+                            <span className="text-zinc-400">Up to date (v{APP_VERSION})</span>
+                          )}
+                        </div>
 
-                    {updateResult?.hasUpdate && updateResult.release?.downloadUrl && (
-                      <button
-                        type="button"
-                        onClick={handleDownloadUpdate}
-                        className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-white font-bold text-xs pressable shadow-lg transition-all cursor-pointer"
-                        style={{ backgroundColor: 'var(--accent-primary)' }}
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download Update (v{updateResult.latestVersion})</span>
-                      </button>
+                        {updateResult?.hasUpdate && updateResult.release?.downloadUrl && (
+                          <button
+                            type="button"
+                            onClick={handleDownloadUpdate}
+                            className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-white font-bold text-xs pressable shadow-lg transition-all cursor-pointer"
+                            style={{ backgroundColor: 'var(--accent-primary)' }}
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Download Update (v{updateResult.latestVersion})</span>
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
