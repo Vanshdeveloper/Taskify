@@ -107,19 +107,6 @@
                 android:resource="@xml/taskify_quick_widget_info" />
         </receiver>
 
-        <!-- 5. Finance & Budget Widget -->
-        <receiver
-            android:name=".TaskifyFinanceWidgetProvider"
-            android:label="@string/widget_finance_name"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/taskify_finance_widget_info" />
-        </receiver>
-
         <!-- 6. Focus Pomodoro Timer Widget -->
         <receiver
             android:name=".TaskifyTimerWidgetProvider"

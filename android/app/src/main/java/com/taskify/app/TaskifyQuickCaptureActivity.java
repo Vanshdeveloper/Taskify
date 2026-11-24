@@ -179,7 +179,6 @@ public class TaskifyQuickCaptureActivity extends Activity {
             TaskifyWidgetProvider.updateAllWidgets(this);
             TaskifyHabitsWidgetProvider.updateAllWidgets(this);
             TaskifyMatrixWidgetProvider.updateAllWidgets(this);
-            TaskifyFinanceWidgetProvider.updateAllWidgets(this);
             TaskifySmallWidgetProvider.updateAllWidgets(this);
 
         } catch (Exception e) {

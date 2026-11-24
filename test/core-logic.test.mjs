@@ -1483,3 +1483,30 @@ test('TASK-113: Software Updates Star Pruning, Checklist Plus Sizing & Mobile To
   assert.ok(viewportCode.includes('cursor-pointer'), 'LiquidTabViewport must preserve desktop mouse cursor-pointer gating');
   assert.ok(viewportCode.includes('[data-no-swipe]'), 'LiquidTabViewport must preserve dedicated no-swipe component boundaries');
 });
+
+test('TASK-114: SmoothUI Component Integration, Finance Widget Purge & Widget Redesign Plan Contract', () => {
+  const numberTickerExists = fs.existsSync(path.resolve('src/components/ui/smooth/NumberTicker.tsx'));
+  const expandableCardExists = fs.existsSync(path.resolve('src/components/ui/smooth/ExpandableCard.tsx'));
+  const floatInputExists = fs.existsSync(path.resolve('src/components/ui/smooth/FloatInput.tsx'));
+  assert.ok(numberTickerExists, 'NumberTicker component must exist');
+  assert.ok(expandableCardExists, 'ExpandableCard component must exist');
+  assert.ok(floatInputExists, 'FloatInput component must exist');
+
+  const financeViewCode = fs.readFileSync(path.resolve('src/components/finance/FinanceView.tsx'), 'utf-8');
+  assert.ok(financeViewCode.includes('<NumberTicker'), 'FinanceView must use NumberTicker for safe spend counter');
+
+  const streaksViewCode = fs.readFileSync(path.resolve('src/components/streaks/StreaksView.tsx'), 'utf-8');
+  assert.ok(streaksViewCode.includes('<NumberTicker'), 'StreaksView must use NumberTicker for days unbroken run');
+
+  const manifestCode = fs.readFileSync(path.resolve('android/app/src/main/AndroidManifest.xml'), 'utf-8');
+  assert.equal(manifestCode.includes('TaskifyFinanceWidgetProvider'), false, 'AndroidManifest must not register TaskifyFinanceWidgetProvider');
+
+  const stringsCode = fs.readFileSync(path.resolve('android/app/src/main/res/values/strings.xml'), 'utf-8');
+  assert.equal(stringsCode.includes('widget_finance_name'), false, 'strings.xml must not declare widget_finance_name');
+
+  const widgetSyncCode = fs.readFileSync(path.resolve('src/utils/widgetSync.ts'), 'utf-8');
+  assert.equal(widgetSyncCode.includes('Finance & Budget'), false, 'widgetSync must not sync Finance & Budget widget');
+
+  const pluginCode = fs.readFileSync(path.resolve('android/app/src/main/java/com/taskify/app/TaskifyNativeWidgetPlugin.java'), 'utf-8');
+  assert.equal(pluginCode.includes('TaskifyFinanceWidgetProvider'), false, 'TaskifyNativeWidgetPlugin must not reference TaskifyFinanceWidgetProvider');
+});

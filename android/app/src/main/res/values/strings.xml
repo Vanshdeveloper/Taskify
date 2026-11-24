@@ -21,10 +21,6 @@
     <string name="widget_quick_name">"Quick Actions"</string>
     <string name="widget_quick_desc">"Instant 1-tap launchers for tasks, routines, expenses, and focus timer."</string>
 
-    <!-- 5. Finance & Budget -->
-    <string name="widget_finance_name">"Finance &amp; Budget"</string>
-    <string name="widget_finance_desc">"Live daily allowance pace and monthly budget progress meter."</string>
-
     <!-- 6. Focus Timer -->
     <string name="widget_timer_name">"Focus Timer"</string>
     <string name="widget_timer_desc">"Live home-screen countdown with 1-tap presets and native chronometer."</string>

@@ -255,7 +255,7 @@ function computeHabitStreak(habitId: string, habitLogs: HabitLog[]): number {
  */
 export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> {
   const todayStr = getTodayString();
-  const { tasks, habits, habitLogs, transactions, monthlyBudget, currency, userName } = payload;
+  const { tasks, habits, habitLogs, userName } = payload;
 
   const now = new Date();
 
@@ -314,21 +314,7 @@ export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> 
   const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
   const displayName = userName || 'Alex';
 
-  // 3. Finance & Budget Metrics
-  const currMonth = todayStr.slice(0, 7); // 'YYYY-MM'
-  const monthTransactions = (transactions || []).filter((t) => t.date && t.date.startsWith(currMonth));
-  const monthExpenses = monthTransactions
-    .filter((t) => t.type === 'expense')
-    .reduce((sum, t) => sum + (t.amount || 0), 0);
-  const budget = monthlyBudget && monthlyBudget > 0 ? monthlyBudget : 1000;
-  const remainingBudget = Math.max(0, budget - monthExpenses);
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const daysRemaining = Math.max(1, daysInMonth - now.getDate() + 1);
-  const dailyAllowance = Math.max(0, Math.round(remainingBudget / daysRemaining));
-  const budgetBurnRatio = budget > 0 ? Math.min(1, monthExpenses / budget) : 0;
-  const currSymbol = currency || '$';
-
-  // 3b. 7-Day Consistency Matrix for All Habits
+  // 3. 7-Day Consistency Matrix for All Habits
   const matrixHabits = habits.map((h) => {
     const days: boolean[] = [];
     for (let i = 6; i >= 0; i--) {
@@ -389,19 +375,11 @@ export async function syncWidgetData(payload: WidgetSyncPayload): Promise<void> 
           smallGreeting: `Good ${timeOfDay}, ${displayName}.`,
           smallSummary: `${pendingTasks.length} task${pendingTasks.length === 1 ? '' : 's'} & ${pendingHabits.length} routine${pendingHabits.length === 1 ? '' : 's'} today.`,
 
-          // 4. Finance & Budget Widget
-          safeToSpend: `${currSymbol}${dailyAllowance}`,
-          remainingBudgetStr: `${currSymbol}${Math.round(remainingBudget)} remaining`,
-          monthlyBudgetStr: `${currSymbol}${Math.round(budget)}`,
-          spentThisMonthStr: `${currSymbol}${Math.round(monthExpenses)}`,
-          budgetBurnPercent: Math.round(budgetBurnRatio * 100),
-          currency: currSymbol,
-
-          // 5. 7-Day Consistency Matrix & Momentum
+          // 4. 7-Day Consistency Matrix & Momentum
           matrixHabits,
           streakCount: maxStreak,
 
-          // 6. Focus Timer Synchronization
+          // 5. Focus Timer Synchronization
           timerRunning: payload.timerRunning ?? false,
           timerDurationMs: payload.timerDurationMs ?? 25 * 60 * 1000,
           timerRemainingMs: payload.timerRemainingMs ?? (payload.timerDurationMs ?? 25 * 60 * 1000),

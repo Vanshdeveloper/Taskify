@@ -14,6 +14,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { StreakHeatmap } from '../habits/StreakHeatmap';
 import { feedback } from '../../utils/feedback';
+import { NumberTicker } from '../ui/smooth/NumberTicker';
 
 interface StreaksViewProps {
   onClose?: () => void;
@@ -186,7 +187,7 @@ export const StreaksView: React.FC<StreaksViewProps> = ({ onClose }) => {
                   <span
                     className="font-display text-8xl sm:text-9xl font-black tracking-tight select-none text-white drop-shadow-[0_8px_30px_rgba(242,106,54,0.4)]"
                   >
-                    {maxStreak}
+                    <NumberTicker value={maxStreak} />
                   </span>
                 </div>
 

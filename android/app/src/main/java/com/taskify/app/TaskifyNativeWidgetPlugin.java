@@ -100,13 +100,6 @@ public class TaskifyNativeWidgetPlugin extends Plugin {
             editor.putInt("habit_streak", state.optInt("habitStreak", 1));
             editor.putString("currency", state.optString("currency", "$"));
 
-            // 5. Finance Metrics
-            editor.putString("safe_to_spend", state.optString("safeToSpend", "$45"));
-            editor.putString("remaining_budget_str", state.optString("remainingBudgetStr", "$840 remaining"));
-            editor.putString("monthly_budget_str", state.optString("monthlyBudgetStr", "$1,200"));
-            editor.putString("spent_this_month_str", state.optString("spentThisMonthStr", "$360"));
-            editor.putInt("budget_burn_percent", state.optInt("budgetBurnPercent", 25));
-
             // 6. Habit Matrix & Streak Metrics
             JSONArray matrixHabits = state.optJSONArray("matrixHabits");
             if (matrixHabits != null) {
@@ -137,7 +130,6 @@ public class TaskifyNativeWidgetPlugin extends Plugin {
             TaskifyHabitsWidgetProvider.updateAllWidgets(context);
             TaskifySmallWidgetProvider.updateAllWidgets(context);
             TaskifyQuickActionsWidgetProvider.updateAllWidgets(context);
-            TaskifyFinanceWidgetProvider.updateAllWidgets(context);
             TaskifyTimerWidgetProvider.updateAllWidgets(context);
             TaskifyMatrixWidgetProvider.updateAllWidgets(context);
             TaskifyHabitsCompactWidgetProvider.updateAllWidgets(context);

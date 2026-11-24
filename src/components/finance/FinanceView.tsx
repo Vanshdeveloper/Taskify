@@ -24,6 +24,7 @@ import { feedback } from '../../utils/feedback';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { NumberTicker } from '../ui/smooth/NumberTicker';
 
 function getAmountTypographyClass(amountStr: string): string {
   const len = amountStr.length;
@@ -195,7 +196,7 @@ export const FinanceView: React.FC = () => {
                   style={{ color: 'var(--accent-primary)' }}
                   title={valStr}
                 >
-                  {valStr}
+                  <NumberTicker value={Math.round(financeStats.dailySafeToSpend)} prefix={settings.currency} />
                 </span>
               );
             })()}
