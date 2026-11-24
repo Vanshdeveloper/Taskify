@@ -107,7 +107,7 @@ export const SubtaskList: React.FC<SubtaskListProps> = ({ subtasks = [], onChang
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Add a step (press Enter)..."
-          className="flex-1 bg-black/30 border border-white/8 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-white/25 transition-colors font-body"
+          className="flex-1 h-9 bg-black/30 border border-white/8 rounded-xl px-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-white/25 transition-colors font-body"
           data-no-swipe="true"
         />
         <motion.button
@@ -115,14 +115,14 @@ export const SubtaskList: React.FC<SubtaskListProps> = ({ subtasks = [], onChang
           type="button"
           onClick={handleAdd}
           disabled={!newTitle.trim()}
-          className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center border border-white/10 text-white pressable disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+          className="h-9 w-9 rounded-xl flex items-center justify-center border border-white/10 text-white pressable disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shrink-0"
           style={{
             backgroundColor: newTitle.trim() ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.05)',
           }}
           title="Add step"
           data-no-swipe="true"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
         </motion.button>
       </div>
 

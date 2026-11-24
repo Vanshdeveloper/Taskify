@@ -851,7 +851,7 @@ export const SettingsView: React.FC = () => {
                 color: 'var(--accent-primary)',
               }}
             >
-              <Sparkles className="w-4 h-4" />
+              <Download className="w-4 h-4" />
             </div>
             <div>
               <h2 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-2">

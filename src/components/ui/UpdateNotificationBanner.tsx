@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, Sparkles } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   checkForAppUpdates,
@@ -127,7 +127,6 @@ export const UpdateNotificationBanner: React.FC = () => {
                     color: 'var(--accent-primary)',
                   }}
                 >
-                  <Sparkles className="w-2.5 h-2.5" />
                   <span>v{updateResult.latestVersion} Available</span>
                 </span>
               </div>

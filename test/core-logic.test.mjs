@@ -1458,3 +1458,28 @@ test('TASK-112: Notes Undo/Redo Engine, Settings Logo & Surface Pruning, Monogra
   // 6. Direct Hardware Vibration via Capacitor Haptics.vibrate
   assert.ok(feedbackCode.includes('Haptics.vibrate({ duration: pulseMs })'), 'Feedback engine must invoke Haptics.vibrate with duration pulseMs');
 });
+
+test('TASK-113: Software Updates Star Pruning, Checklist Plus Sizing & Mobile Touch Tab Swipe Contract', () => {
+  const inspectorCode = fs.readFileSync(path.resolve('src/components/layout/SlideOverInspector.tsx'), 'utf-8');
+  const settingsCode = fs.readFileSync(path.resolve('src/components/settings/SettingsView.tsx'), 'utf-8');
+  const bannerCode = fs.readFileSync(path.resolve('src/components/ui/UpdateNotificationBanner.tsx'), 'utf-8');
+  const subtaskListCode = fs.readFileSync(path.resolve('src/components/tasks/SubtaskList.tsx'), 'utf-8');
+  const viewportCode = fs.readFileSync(path.resolve('src/components/layout/LiquidTabViewport.tsx'), 'utf-8');
+
+  // 1. Star icon removed from Software Updates
+  const updateSection = settingsCode.slice(settingsCode.indexOf('Software Updates'));
+  assert.equal(updateSection.includes('<Sparkles'), false, 'SettingsView software updates must not render Sparkles star icon');
+  assert.ok(settingsCode.includes('<Download className="w-4 h-4" />'), 'SettingsView software updates must render clean Download update icon');
+  assert.ok(inspectorCode.includes('<Download className="w-3.5 h-3.5" />'), 'SlideOverInspector software updates must render clean Download update icon');
+  assert.equal(bannerCode.includes('<Sparkles'), false, 'UpdateNotificationBanner must not render Sparkles star icon');
+
+  // 2. Checklist input and Plus button proportional height symmetry
+  assert.ok(subtaskListCode.includes('h-9 w-9 rounded-xl'), 'Checklist Plus button must match input field height at 36px (h-9 w-9)');
+  assert.ok(subtaskListCode.includes('<Plus className="w-3.5 h-3.5" />'), 'Checklist Plus icon must be balanced at w-3.5 h-3.5');
+  assert.equal(subtaskListCode.includes('min-w-[44px] min-h-[44px] rounded-xl'), false, 'Checklist Plus button must not have oversized min-w-[44px] rounded-xl');
+
+  // 3. Mobile Touch Tab Swipe Responsiveness
+  assert.ok(viewportCode.includes("e.pointerType === 'mouse'"), 'LiquidTabViewport must distinguish mouse clicks from mobile touch swipes');
+  assert.ok(viewportCode.includes('cursor-pointer'), 'LiquidTabViewport must preserve desktop mouse cursor-pointer gating');
+  assert.ok(viewportCode.includes('[data-no-swipe]'), 'LiquidTabViewport must preserve dedicated no-swipe component boundaries');
+});

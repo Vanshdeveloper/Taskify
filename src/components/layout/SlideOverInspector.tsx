@@ -677,7 +677,7 @@ export const SlideOverInspector: React.FC<SlideOverInspectorProps> = ({
                           color: 'var(--accent-primary)',
                         }}
                       >
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <Download className="w-3.5 h-3.5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
