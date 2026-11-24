@@ -190,12 +190,12 @@ public class TaskifyTimerWidgetProvider extends AppWidgetProvider {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.taskify_timer_widget);
 
             // 1. Preset chip states
+            views.setInt(R.id.btn_preset_15, "setBackgroundResource",
+                    preset == 15 ? R.drawable.taskify_timer_chip_active_bg : R.drawable.taskify_timer_chip_bg);
             views.setInt(R.id.btn_preset_25, "setBackgroundResource",
                     preset == 25 ? R.drawable.taskify_timer_chip_active_bg : R.drawable.taskify_timer_chip_bg);
             views.setInt(R.id.btn_preset_50, "setBackgroundResource",
                     preset == 50 ? R.drawable.taskify_timer_chip_active_bg : R.drawable.taskify_timer_chip_bg);
-            views.setInt(R.id.btn_preset_5, "setBackgroundResource",
-                    preset == 5 ? R.drawable.taskify_timer_chip_active_bg : R.drawable.taskify_timer_chip_bg);
 
             // 2. Responsive circular progress ring (0 to 100%)
             int totalSec = prefs.getInt("timer_total_duration_sec", Math.max(1, preset * 60));
@@ -243,7 +243,15 @@ public class TaskifyTimerWidgetProvider extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.btn_timer_stop,
                     PendingIntent.getBroadcast(context, 7002 + appWidgetId, stopIntent, pFlags));
 
-            // 6. Preset 25 mins click
+            // 6. Preset 15 mins click
+            Intent preset15 = new Intent(context, TaskifyTimerWidgetProvider.class);
+            preset15.setAction(ACTION_TIMER_PRESET);
+            preset15.putExtra(EXTRA_PRESET_MINUTES, 15);
+            preset15.setData(Uri.parse("taskify://widget/timer/preset/15/" + appWidgetId));
+            views.setOnClickPendingIntent(R.id.btn_preset_15,
+                    PendingIntent.getBroadcast(context, 7015 + appWidgetId, preset15, pFlags));
+
+            // 7. Preset 25 mins click
             Intent preset25 = new Intent(context, TaskifyTimerWidgetProvider.class);
             preset25.setAction(ACTION_TIMER_PRESET);
             preset25.putExtra(EXTRA_PRESET_MINUTES, 25);
@@ -251,21 +259,13 @@ public class TaskifyTimerWidgetProvider extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.btn_preset_25,
                     PendingIntent.getBroadcast(context, 7025 + appWidgetId, preset25, pFlags));
 
-            // 7. Preset 50 mins click
+            // 8. Preset 50 mins click
             Intent preset50 = new Intent(context, TaskifyTimerWidgetProvider.class);
             preset50.setAction(ACTION_TIMER_PRESET);
             preset50.putExtra(EXTRA_PRESET_MINUTES, 50);
             preset50.setData(Uri.parse("taskify://widget/timer/preset/50/" + appWidgetId));
             views.setOnClickPendingIntent(R.id.btn_preset_50,
                     PendingIntent.getBroadcast(context, 7050 + appWidgetId, preset50, pFlags));
-
-            // 8. Preset 5 mins click
-            Intent preset5 = new Intent(context, TaskifyTimerWidgetProvider.class);
-            preset5.setAction(ACTION_TIMER_PRESET);
-            preset5.putExtra(EXTRA_PRESET_MINUTES, 5);
-            preset5.setData(Uri.parse("taskify://widget/timer/preset/5/" + appWidgetId));
-            views.setOnClickPendingIntent(R.id.btn_preset_5,
-                    PendingIntent.getBroadcast(context, 7005 + appWidgetId, preset5, pFlags));
 
             appWidgetManager.updateAppWidget(appWidgetId, views);
         } catch (Throwable t) {

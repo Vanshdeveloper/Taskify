@@ -23,6 +23,7 @@ import { getCategoryTheme } from '../../utils/category';
 import { getRandomDeletePrompt } from '../../utils/genz';
 import { SectionHeader } from '../ui/SectionHeader';
 import { SPRING_LIQUID } from '../../utils/motion';
+import { NumberTicker } from '../ui/smooth/NumberTicker';
 
 interface TodayViewProps {
   onOpenSearch?: () => void;
@@ -257,26 +258,12 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
                 <DollarSign className="w-4 h-4 shrink-0" style={{ color: 'var(--accent-primary)' }} />
               </div>
               <div className="mt-2 flex flex-col font-mono tabular-nums min-w-0">
-                {(() => {
-                  const valStr = `${settings.currency}${financeStats.dailySafeToSpend.toFixed(0)}`;
-                  const fontSize =
-                    valStr.length > 14
-                      ? 'text-sm sm:text-base'
-                      : valStr.length > 11
-                      ? 'text-base sm:text-lg'
-                      : valStr.length > 8
-                      ? 'text-lg sm:text-xl'
-                      : 'text-2xl sm:text-3xl';
-                  return (
-                    <span
-                      className={`font-display font-bold truncate block min-w-0 max-w-full ${fontSize}`}
-                      style={{ color: 'var(--accent-primary)' }}
-                      title={valStr}
-                    >
-                      {valStr}
-                    </span>
-                  );
-                })()}
+                <span
+                  className="font-display font-bold truncate block min-w-0 max-w-full text-2xl sm:text-3xl"
+                  style={{ color: 'var(--accent-primary)' }}
+                >
+                  <NumberTicker value={Math.round(financeStats.dailySafeToSpend)} prefix={settings.currency} />
+                </span>
                 {(() => {
                   const spentStr = `Spent: ${settings.currency}${financeStats.todaySpend.toFixed(2)}`;
                   return (
@@ -303,7 +290,7 @@ export const TodayView: React.FC<TodayViewProps> = ({ onOpenSearch }) => {
               </div>
               <div className="mt-2 flex flex-col font-mono tabular-nums min-w-0">
                 <span className="font-display text-2xl sm:text-3xl font-bold truncate block" style={{ color: 'var(--accent-secondary)' }}>
-                  {habitsDoneToday}/{habits.length || 0}
+                  <NumberTicker value={habitsDoneToday} />/{habits.length || 0}
                 </span>
                 <span className="text-[11px] text-zinc-500 mt-0.5 truncate block">
                   {habits.length > 0 && habitsDoneToday === habits.length

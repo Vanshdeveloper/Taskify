@@ -72,7 +72,7 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
     }
 
     private void loadData() {
-        items.clear();
+        List<ListItem> loaded = new ArrayList<>();
         try {
             TaskifyWidgetProvider.checkAndRolloverDailyRoutines(context);
             SharedPreferences prefs = context.getSharedPreferences(TaskifyWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
@@ -94,7 +94,7 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
                     }
                     boolean todayDone = days[6];
                     if (!id.isEmpty()) {
-                        items.add(new ListItem(id, name, "habit", todayDone, days, streak));
+                        loaded.add(new ListItem(id, name, "habit", todayDone, days, streak));
                     }
                 }
             } else if ("tasks".equals(feedType)) {
@@ -106,7 +106,7 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
                     String title = obj.optString("title", "Objective");
                     boolean done = obj.optBoolean("done", false);
                     if (!id.isEmpty()) {
-                        items.add(new ListItem(id, title, "task", done));
+                        loaded.add(new ListItem(id, title, "task", done));
                     }
                 }
             } else if ("habits".equals(feedType)) {
@@ -118,7 +118,7 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
                     String title = obj.optString("title", "Routine");
                     boolean done = obj.optBoolean("done", false);
                     if (!id.isEmpty()) {
-                        items.add(new ListItem(id, title, "habit", done));
+                        loaded.add(new ListItem(id, title, "habit", done));
                     }
                 }
             } else {
@@ -131,7 +131,7 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
                     String title = obj.optString("title", "Objective");
                     boolean done = obj.optBoolean("done", false);
                     if (!id.isEmpty()) {
-                        items.add(new ListItem(id, title, "task", done));
+                        loaded.add(new ListItem(id, title, "task", done));
                     }
                 }
 
@@ -143,30 +143,43 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
                     String title = obj.optString("title", "Routine");
                     boolean done = obj.optBoolean("done", false);
                     if (!id.isEmpty()) {
-                        items.add(new ListItem(id, title, "habit", done));
+                        loaded.add(new ListItem(id, title, "habit", done));
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        synchronized (items) {
+            items.clear();
+            items.addAll(loaded);
+        }
     }
 
     @Override
     public void onDestroy() {
-        items.clear();
+        synchronized (items) {
+            items.clear();
+        }
     }
 
     @Override
     public int getCount() {
-        return items.size();
+        synchronized (items) {
+            return items.size();
+        }
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
-        if (position < 0 || position >= items.size()) return null;
-
-        ListItem item = items.get(position);
+        ListItem item = null;
+        synchronized (items) {
+            if (position >= 0 && position < items.size()) {
+                item = items.get(position);
+            }
+        }
+        if (item == null) return null;
 
         if ("matrix".equals(feedType)) {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.taskify_matrix_list_item);
@@ -235,8 +248,10 @@ class TaskifyWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 
     @Override
     public long getItemId(int position) {
-        if (position >= 0 && position < items.size()) {
-            return items.get(position).id.hashCode();
+        synchronized (items) {
+            if (position >= 0 && position < items.size()) {
+                return items.get(position).id.hashCode();
+            }
         }
         return position;
     }

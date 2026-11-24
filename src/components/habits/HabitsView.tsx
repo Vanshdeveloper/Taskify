@@ -19,6 +19,7 @@ import { SPRING_PILL } from '../../utils/motion';
 import { HabitIconRenderer } from './HabitIconRenderer';
 import { getRandomDeletePrompt } from '../../utils/genz';
 import { SectionHeader } from '../ui/SectionHeader';
+import { NumberTicker } from '../ui/smooth/NumberTicker';
 
 export const HabitsView: React.FC = () => {
   const {
@@ -110,7 +111,7 @@ export const HabitsView: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 self-start sm:self-auto font-mono">
             <span className="text-xs text-zinc-400">
-              {habitsDoneToday} of {habits.length} Completed
+              <NumberTicker value={habitsDoneToday} /> of {habits.length} Completed
             </span>
             <span
               className="px-2 py-0.5 rounded-full text-[11px] font-bold border"
@@ -120,7 +121,7 @@ export const HabitsView: React.FC = () => {
                 color: 'var(--accent-primary)',
               }}
             >
-              {progressPercent}%
+              <NumberTicker value={progressPercent} suffix="%" />
             </span>
           </div>
         </div>

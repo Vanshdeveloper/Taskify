@@ -22,6 +22,8 @@ import { SPRING_PILL } from '../../utils/motion';
 import { getCategoryTheme } from '../../utils/category';
 import { getRandomDeletePrompt } from '../../utils/genz';
 import { SectionHeader } from '../ui/SectionHeader';
+import { NumberTicker } from '../ui/smooth/NumberTicker';
+import { FloatInput } from '../ui/smooth/FloatInput';
 import {
   sortTasks,
   SORT_OPTIONS,
@@ -35,6 +37,7 @@ import { useTaskKeyboardNavigation } from '../../hooks/useTaskKeyboardNavigation
 export const TasksView: React.FC = () => {
   const {
     tasks,
+    addTask,
     toggleTask,
     deleteTask,
     duplicateTask,
@@ -154,6 +157,16 @@ export const TasksView: React.FC = () => {
     onDeleteTask: (id, title) => handleDeleteTask(id, title),
   });
 
+  const handleQuickAdd = async (title: string) => {
+    await addTask({
+      title,
+      priority: 'medium',
+      category: 'Work',
+      dueDate: today,
+      status: 'todo',
+    });
+  };
+
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-28 sm:pb-20 md:pb-12 select-none relative z-10">
       {/* 1. Standardized Section Header */}
@@ -200,7 +213,7 @@ export const TasksView: React.FC = () => {
                 Active Focus
               </span>
               <span className="font-display font-black text-lg sm:text-xl text-white whitespace-nowrap">
-                {pendingCount} Objectives
+                <NumberTicker value={pendingCount} /> Objectives
               </span>
             </div>
           </div>
@@ -226,7 +239,7 @@ export const TasksView: React.FC = () => {
                 Completed
               </span>
               <span className="font-display font-black text-lg sm:text-xl text-white whitespace-nowrap">
-                {completedCount} Done
+                <NumberTicker value={completedCount} /> Done
               </span>
             </div>
           </div>
@@ -238,7 +251,7 @@ export const TasksView: React.FC = () => {
         >
           <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
             <span className="text-zinc-400 text-[10px] uppercase tracking-wider">Completion Rate</span>
-            <span className="font-bold text-white">{progressRatio}%</span>
+            <span className="font-bold text-white"><NumberTicker value={progressRatio} suffix="%" /></span>
           </div>
           <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden">
             <motion.div
@@ -397,6 +410,12 @@ export const TasksView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Quick Add Floating Input */}
+      <FloatInput
+        placeholder="Add a new objective (press Enter)..."
+        onSubmit={handleQuickAdd}
+      />
 
       {/* 5. Creative Tasks Rendering */}
       {sortedTasks.length === 0 ? (

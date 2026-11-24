@@ -74,15 +74,7 @@ public class TaskifyQuickActionsWidgetProvider extends AppWidgetProvider {
                     context, 402 + appWidgetId, routineIntent, pFlags
             ));
 
-            // Button 3: + Expense -> Direct Quick Capture Dialog
-            Intent expenseIntent = new Intent(context, TaskifyQuickCaptureActivity.class);
-            expenseIntent.putExtra(TaskifyQuickCaptureActivity.EXTRA_TYPE, "expense");
-            expenseIntent.setData(Uri.parse("taskify://capture/expense/" + appWidgetId));
-            views.setOnClickPendingIntent(R.id.btn_quick_expense, PendingIntent.getActivity(
-                    context, 403 + appWidgetId, expenseIntent, pFlags
-            ));
-
-            // Button 4: Focus Timer -> Open full app focus timer
+            // Button 3: Focus Timer -> Open full app focus timer
             Intent focusIntent = new Intent(context, MainActivity.class);
             focusIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             focusIntent.putExtra("quick_action", "focus");

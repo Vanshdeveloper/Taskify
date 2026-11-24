@@ -1510,3 +1510,33 @@ test('TASK-114: SmoothUI Component Integration, Finance Widget Purge & Widget Re
   const pluginCode = fs.readFileSync(path.resolve('android/app/src/main/java/com/taskify/app/TaskifyNativeWidgetPlugin.java'), 'utf-8');
   assert.equal(pluginCode.includes('TaskifyFinanceWidgetProvider'), false, 'TaskifyNativeWidgetPlugin must not reference TaskifyFinanceWidgetProvider');
 });
+
+test('TASK-115: Native Widget Redesign Execution & Cross-View SmoothUI Integration Contract', () => {
+  const widgetBgCode = fs.readFileSync(path.resolve('android/app/src/main/res/drawable/taskify_widget_background.xml'), 'utf-8');
+  assert.ok(widgetBgCode.includes('#FA18181B') && widgetBgCode.includes('#FA09090B'), 'Widget background must use SmoothUI OLED zinc gradient');
+
+  const listItemCode = fs.readFileSync(path.resolve('android/app/src/main/res/layout/taskify_widget_list_item.xml'), 'utf-8');
+  assert.ok(listItemCode.includes('android:layout_height="40dp"'), 'Widget list item must have 40dp height for generous tap targets');
+
+  const quickWidgetCode = fs.readFileSync(path.resolve('android/app/src/main/res/layout/taskify_quick_widget.xml'), 'utf-8');
+  assert.equal(quickWidgetCode.includes('btn_quick_expense'), false, 'Quick widget must not contain expense button');
+  assert.ok(quickWidgetCode.includes('btn_quick_focus') && quickWidgetCode.includes('btn_quick_task'), 'Quick widget must contain task, routine, and focus hero button');
+
+  const timerWidgetCode = fs.readFileSync(path.resolve('android/app/src/main/res/layout/taskify_timer_widget.xml'), 'utf-8');
+  assert.ok(timerWidgetCode.includes('btn_preset_15'), 'Timer widget must include 15m preset chip');
+  assert.ok(timerWidgetCode.includes('btn_preset_25'), 'Timer widget must include 25m preset chip');
+  assert.ok(timerWidgetCode.includes('btn_preset_50'), 'Timer widget must include 50m preset chip');
+
+  const widgetServiceCode = fs.readFileSync(path.resolve('android/app/src/main/java/com/taskify/app/TaskifyWidgetListService.java'), 'utf-8');
+  assert.ok(widgetServiceCode.includes('synchronized (items)'), 'TaskifyWidgetListService must synchronize items for thread safety');
+
+  const todayViewCode = fs.readFileSync(path.resolve('src/components/today/TodayView.tsx'), 'utf-8');
+  assert.ok(todayViewCode.includes('<NumberTicker value={Math.round(financeStats.dailySafeToSpend)}'), 'TodayView must use NumberTicker for Safe Spend');
+
+  const tasksViewCode = fs.readFileSync(path.resolve('src/components/tasks/TasksView.tsx'), 'utf-8');
+  assert.ok(tasksViewCode.includes('<FloatInput'), 'TasksView must use FloatInput for quick objective capture');
+  assert.ok(tasksViewCode.includes('<NumberTicker value={pendingCount}'), 'TasksView must use NumberTicker for active count');
+
+  const habitsViewCode = fs.readFileSync(path.resolve('src/components/habits/HabitsView.tsx'), 'utf-8');
+  assert.ok(habitsViewCode.includes('<NumberTicker value={habitsDoneToday}'), 'HabitsView must use NumberTicker for completed habits count');
+});
