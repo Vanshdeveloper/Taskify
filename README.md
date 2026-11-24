@@ -1,10 +1,6 @@
 # Taskify
 
 <p align="center">
-  <img src="docs/mockups/taskify_newgen_flagship_banner.png" alt="Taskify Multi-Device Showcase" width="100%" />
-</p>
-
-<p align="center">
   <a href="https://github.com/Vanshdeveloper/Taskify/releases/latest"><img src="https://img.shields.io/github/v/release/Vanshdeveloper/Taskify?color=F26A36&label=release" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/storage-100%25%20offline-success" alt="100% Offline" />
