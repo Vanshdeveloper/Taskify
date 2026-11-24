@@ -1540,3 +1540,26 @@ test('TASK-115: Native Widget Redesign Execution & Cross-View SmoothUI Integrati
   const habitsViewCode = fs.readFileSync(path.resolve('src/components/habits/HabitsView.tsx'), 'utf-8');
   assert.ok(habitsViewCode.includes('<NumberTicker value={habitsDoneToday}'), 'HabitsView must use NumberTicker for completed habits count');
 });
+
+test('TASK-116: Authoritative README Polish, Commitment Section Pruning & WebGL Liquid Metal Contract', () => {
+  const readmeCode = fs.readFileSync(path.resolve('README.md'), 'utf-8');
+  assert.ok(readmeCode.includes('img.shields.io/github/v/release'), 'README must include GitHub release badge');
+  assert.ok(readmeCode.includes('img.shields.io/badge/storage-100%25%20offline-success'), 'README must include 100% offline badge');
+  assert.ok(readmeCode.includes('08_flagship_multidevice_banner.png'), 'README must embed flagship multi-device showcase banner');
+  assert.ok(readmeCode.includes('SmoothUI Android Widgets'), 'README must highlight SmoothUI Android widgets');
+  assert.equal(readmeCode.includes('- **Finance**:'), false, 'README must not list Finance as a core feature');
+
+  const gitignoreCode = fs.readFileSync(path.resolve('.gitignore'), 'utf-8');
+  assert.ok(gitignoreCode.includes('website-template/'), '.gitignore must ignore website-template directory');
+
+  if (fs.existsSync(path.resolve('website-template/index.html'))) {
+    const websiteHtml = fs.readFileSync(path.resolve('website-template/index.html'), 'utf-8');
+    assert.ok(websiteHtml.includes('id="liquid-metal-canvas"'), 'website index.html must mount liquid-metal-canvas');
+    assert.equal(websiteHtml.includes('id="commitment"'), false, 'website index.html must not contain #commitment section');
+    assert.ok(websiteHtml.includes('liquid-metal-btn'), 'website index.html must use liquid-metal-btn class on primary CTA');
+
+    const websiteJs = fs.readFileSync(path.resolve('website-template/script.js'), 'utf-8');
+    assert.ok(websiteJs.includes('initLiquidMetalCanvas'), 'website script.js must implement initLiquidMetalCanvas');
+    assert.ok(websiteJs.includes('u_mouse') && websiteJs.includes('waveMap'), 'website script.js must implement interactive WebGL liquid mercury shader');
+  }
+});
