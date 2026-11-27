@@ -37,7 +37,18 @@ if (fs.existsSync(updaterPath)) {
   fs.writeFileSync(updaterPath, updaterContent);
 }
 
-// 3. Export to GitHub Actions step outputs if running in CI
+// 3. Update android/app/build.gradle if it exists
+const gradlePath = path.join(rootDir, 'android', 'app', 'build.gradle');
+if (fs.existsSync(gradlePath)) {
+  let gradleContent = fs.readFileSync(gradlePath, 'utf8');
+  gradleContent = gradleContent.replace(
+    /versionName "[^"]+"/,
+    `versionName "${cleanVer}"`
+  );
+  fs.writeFileSync(gradlePath, gradleContent);
+}
+
+// 4. Export to GitHub Actions step outputs if running in CI
 if (process.env.GITHUB_OUTPUT) {
   fs.appendFileSync(
     process.env.GITHUB_OUTPUT,

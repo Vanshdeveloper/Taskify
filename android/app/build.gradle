@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+def resolvedVersionCode = System.getenv("GITHUB_RUN_NUMBER") ? (100 + System.getenv("GITHUB_RUN_NUMBER").toInteger()) : 24
+
 android {
     namespace = "com.taskify.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,7 +9,7 @@ android {
         applicationId "com.taskify.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
+        versionCode resolvedVersionCode
         versionName "1.0.24"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -16,11 +18,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            storeFile file('taskify-release.keystore')
+            storePassword 'taskify123'
+            keyAlias 'taskify'
+            keyPassword 'taskify123'
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
     buildTypes {
         debug {
+            signingConfig signingConfigs.release
             debuggable true
         }
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

@@ -1686,3 +1686,26 @@ test('TASK-121: Background In-App Updater & Self-Installing Package Contract', (
   assert.ok(bannerCode.includes('useAppUpdater()'), 'UpdateNotificationBanner must integrate useAppUpdater');
   assert.ok(bannerCode.includes('updaterStatus === \'downloading\''), 'UpdateNotificationBanner must render live download progress');
 });
+
+test('TASK-125: Permanent In-Place Android APK Signing & Dynamic VersionCode Contract', () => {
+  const buildGradle = fs.readFileSync(path.resolve('android/app/build.gradle'), 'utf-8');
+  const syncVersion = fs.readFileSync(path.resolve('scripts/sync-version.cjs'), 'utf-8');
+  const releaseYml = fs.readFileSync(path.resolve('.github/workflows/release.yml'), 'utf-8');
+
+  // 1. Keystore File Exists
+  assert.ok(fs.existsSync(path.resolve('android/app/taskify-release.keystore')), 'taskify-release.keystore must exist in android/app');
+
+  // 2. Consistent SigningConfig in Gradle
+  assert.ok(buildGradle.includes('signingConfigs {'), 'build.gradle must declare signingConfigs');
+  assert.ok(buildGradle.includes("storeFile file('taskify-release.keystore')"), 'signingConfigs.release must target taskify-release.keystore');
+  assert.ok(buildGradle.includes("keyAlias 'taskify'"), 'signingConfigs.release must define keyAlias');
+  assert.ok(buildGradle.includes('signingConfig signingConfigs.release'), 'buildTypes must apply signingConfigs.release');
+
+  // 3. Dynamic Monotonically Increasing VersionCode
+  assert.ok(buildGradle.includes('resolvedVersionCode'), 'build.gradle must compute resolvedVersionCode dynamically');
+  assert.ok(buildGradle.includes('GITHUB_RUN_NUMBER'), 'build.gradle must leverage GITHUB_RUN_NUMBER for CI builds');
+
+  // 4. Release Workflow & Version Sync Contract
+  assert.ok(syncVersion.includes('android/app/build.gradle'), 'sync-version.cjs must synchronize versionName to android/app/build.gradle');
+  assert.ok(releaseYml.includes('assembleRelease') || releaseYml.includes('assembleDebug'), 'release.yml must invoke signed APK assembly');
+});

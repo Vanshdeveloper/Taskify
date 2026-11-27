@@ -53,10 +53,12 @@ jobs:
           mkdir -p artifacts
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease --no-daemon || ./gradlew assembleDebug --no-daemon
           cd ..
           REL_TAG="${{ steps.version.outputs.tag }}"
-          if [ -f "android/app/build/outputs/apk/debug/app-debug.apk" ]; then
+          if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+            cp "android/app/build/outputs/apk/release/app-release.apk" "artifacts/taskify-android-${REL_TAG}.apk"
+          elif [ -f "android/app/build/outputs/apk/debug/app-debug.apk" ]; then
             cp "android/app/build/outputs/apk/debug/app-debug.apk" "artifacts/taskify-android-${REL_TAG}.apk"
           fi
 
