@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { TaskifyNativeWidget } from './widgetSync';
 
-export const APP_VERSION = '1.0.1';
+export const APP_VERSION = '1.0.24';
 export const GITHUB_REPO = 'Vanshdeveloper/Taskify';
 export const GITHUB_RELEASES_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
 

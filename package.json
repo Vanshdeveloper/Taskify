@@ -1,7 +1,7 @@
 {
   "name": "taskify",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.24",
   "description": "Private, offline-first personal productivity app with tasks, habits, daily safe-to-spend, and focus timer",
   "author": "Vanshdeveloper",
   "license": "MIT",
