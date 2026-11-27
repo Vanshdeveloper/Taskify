@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 
-def resolvedVersionCode = System.getenv("GITHUB_RUN_NUMBER") ? (100 + System.getenv("GITHUB_RUN_NUMBER").toInteger()) : 24
+def resolvedVersionCode = System.getenv("GITHUB_RUN_NUMBER") ? (100 + System.getenv("GITHUB_RUN_NUMBER").toInteger()) : 25
 
 android {
     namespace = "com.taskify.app"
@@ -10,7 +10,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode resolvedVersionCode
-        versionName "1.0.24"
+        versionName "1.0.25"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
